@@ -1,0 +1,668 @@
+{
+  "38404": {
+    "1": {
+      "hash": "62a4c1e47a42c1846e7b1f70ba6acd88ceaba1ccb69d5bb1d306155921860fc3",
+      "ringkasan": "Materi pertemuan 1 Manajemen Sistem Basis Data membahas fondasi DBMS dan penguasaan SQL. DBMS adalah perangkat lunak sistem untuk membuat, mengelola, dan mengatur data terstruktur; berbeda dari file system karena menjamin integritas data, kontrol konkurensi, dan isolasi akses multi-pengguna. Pilar arsitekturnya mencakup abstraksi data melalui three-schema architecture, data independence logis dan fisik, serta properti ACID. Komponen inti DBMS terdiri dari Query Processor dan Storage Manager. Materi juga menelusuri evolusi basis data: model hierarchical dan network, model relasional Codd, era RDBMS komersial, revolusi NoSQL, hingga NewSQL dan multi-model. Model relasional merepresentasikan data sebagai tabel berisi atribut dan tuple, dengan aturan integritas domain, entity, dan referential. Normalisasi mengurangi redundansi melalui 1NF, 2NF, dan 3NF/BCNF. SQL dibahas sebagai antarmuka deklaratif untuk DDL dan DML, termasuk urutan pemrosesan query logis, join, agregasi, HAVING, subquery, dan CTE. Kuis menampilkan contoh query SQL untuk pelanggan dengan pengeluaran tertinggi.",
+      "topik": [
+        "Pengantar DBMS dan Perbedaan dengan File System",
+        "Arsitektur dan Komponen Inti DBMS",
+        "Evolusi Arsitektur Basis Data",
+        "Model Relasional dan Aturan Integritas",
+        "Normalisasi 1NF, 2NF, 3NF/BCNF",
+        "SQL, Urutan Pemrosesan Query, dan Join",
+        "Agregasi, Subquery, dan CTE",
+        "Kuis SQL High-Value Customers"
+      ],
+      "ada_contoh_kode": true
+    },
+    "2": {
+      "hash": "f9699dc5e8dd255593379ee4381df025831fe9b9f1b9e0d3fd78ae60f432c3a8",
+      "ringkasan": "Materi Pertemuan 2 Manajemen Sistem Basis Data membahas Database Engine and Architecture, khususnya arsitektur database engine, indexing, dan concurrency. Di bawah kap, mesin basis data menangani pemrosesan query, pengindeksan record, dan jaminan properti ACID. Arsitektur storage engine mengoordinasikan disk I/O, buffer pool, dan serialisasi data. Buffer pool adalah cache in-memory yang menyimpan data page dan dirty buffer untuk mengurangi baca/tulis disk. Write-Ahead Logging (WAL) adalah log append-only yang menjamin Durability dengan menuliskan transaksi sebelum mengubah data file. Struktur indeks dibandingkan: B+ Tree dioptimalkan untuk beban baca berat dengan kedalaman seimbang dan pemindaian leaf node berurutan (misalnya InnoDB, PostgreSQL B-Tree); LSM-Trees dioptimalkan untuk operasi tulis throughput tinggi dengan MemTables in-memory yang di-flush menjadi SSTables immutable (misalnya RocksDB, Cassandra). Concurrency dan isolation levels dibahas melalui MVCC yang memungkinkan non-blocking reads dengan snapshot versi baris, mengurangi dirty reads dan phantom reads tergantung isolation level: Read Committed, Repeatable Read, Serializable.",
+      "topik": [
+        "Database Engine and Architecture",
+        "Storage Engine Architecture",
+        "Buffer Pool",
+        "Write-Ahead Logging (WAL)",
+        "Index Structures: B+ Trees vs LSM-Trees",
+        "Concurrency Control",
+        "MVCC dan Isolation Levels"
+      ],
+      "ada_contoh_kode": false
+    },
+    "3": {
+      "hash": "ca1b8f0a9a49cc0fc1027c19dcd408b323df369035f867605987ed1febb81f02",
+      "ringkasan": "Materi Pertemuan 3 membahas perancangan arsitektur sistem basis data yang skalabel dan memiliki ketersediaan tinggi (high availability) untuk lingkungan produksi. Fokus utamanya mencakup high-availability architecture, horizontal scaling, partitioning, strategi replikasi, dan fault tolerance. Replikasi digunakan untuk redundansi data, menyeimbangkan beban baca, dan pemulihan bencana. Strategi Primary-Replica (Leader-Follower) mengarahkan write ke primary dan menyebarkan perubahan ke replica baca, sedangkan Multi-Primary (Master-Master) memungkinkan banyak node menangani write sehingga memerlukan resolusi konflik terdistribusi. Poin penting: replikasi sinkron menjamin zero data loss (RPO=0) tetapi menambah latensi write; replikasi asinkron meminimalkan latensi write namun ada replication lag. Ketika vertical scaling mencapai batas, partitioning membagi dataset besar. Horizontal sharding memecah baris berdasarkan shard key hash, range, atau directory; vertical partitioning memecah kolom/domain tabel ke database microservices. Peringatan: hindari cross-shard join dan transaksi multi-shard terdistribusi untuk mencegah overhead jaringan dan lonjakan latensi.",
+      "topik": [
+        "Scalable Database Architecture & HA",
+        "Replication Strategies",
+        "Primary-Replica (Leader-Follower)",
+        "Multi-Primary (Master-Master)",
+        "Synchronous vs Asynchronous Replication",
+        "Sharding & Partitioning",
+        "Horizontal Sharding",
+        "Vertical Partitioning",
+        "Cross-shard joins dan transaksi terdistribusi"
+      ],
+      "ada_contoh_kode": false
+    },
+    "4": {
+      "hash": "6c34260b8e5cec1b7f09bdfc9c7ea5f9ec1bb1dc2a7a886c6aac50c654e7e7bf",
+      "ringkasan": "Materi Manajemen Sistem Basis Data pertemuan 4 untuk kelas TIF 3 030 kelas 5/B, yang disampaikan oleh Reza Taqyuddin M.Kom, berjudul Polyglot Persistence in Practice. Deskripsi materi adalah strategi modern untuk mempelajari cara menggabungkan beberapa database terspesialisasi di dalam satu arsitektur microservices. Penggabungan tersebut dimaksudkan untuk mencocokkan kebutuhan beban kerja yang berbeda-beda. Materi ini bersumber dari https://kelas.usu.ac.id/course/view.php?id=38404&section=4. Pokok bahasan berfokus pada praktik polyglot persistence, yaitu penggunaan beberapa database khusus dalam satu arsitektur microservices. Materi menekankan strategi modern dalam mengombinasikan database terspesialisasi agar sesuai dengan distinct workload requirements. Konteksnya adalah Manajemen Sistem Basis Data pada pertemuan 4. Secara ringkas, materi membahas konsep dan praktik polyglot persistence dalam arsitektur microservices, dengan penekanan pada pencocokan database terhadap kebutuhan workload yang berbeda. Tidak dijelaskan rincian teknologi atau contoh implementasi dalam materi yang diberikan.",
+      "topik": [
+        "Manajemen Sistem Basis Data Pertemuan 4",
+        "Polyglot Persistence in Practice",
+        "Strategi Modern Penggabungan Database",
+        "Multiple Specialized Databases",
+        "Arsitektur Microservices",
+        "Distinct Workload Requirements",
+        "Sumber Materi Kelas USU",
+        "Dosen Pengampu"
+      ],
+      "ada_contoh_kode": false
+    },
+    "5": {
+      "hash": "3591aa5447b3d98c156e9d2377551edd9e2647dc4304c9319f55698df3f5d119",
+      "ringkasan": "Materi ini merupakan bagian dari Manajemen Sistem Basis Data TIF 3 030 kelas 5/B, pertemuan 5, dengan dosen Reza Taqyuddin M.Kom. Judul dan deskripsi materi adalah Unstructured Data and NoSQL. Pembahasan berpusat pada data tak terstruktur dan NoSQL. Materi mengajak untuk melangkah beyond tables, yaitu melampaui pendekatan tabel, dengan menyelami document, key-value, dan wide-column stores. Ketiga jenis penyimpanan tersebut dibahas dalam konteks menyimpan, memproses, dan query data semi-terstruktur dan tak terstruktur secara efisien. Sumber materi dicantumkan dari https://kelas.usu.ac.id/course/view.php?id=38404&section=5. Poin pentingnya mencakup NoSQL, unstructured data, document store, key-value store, dan wide-column store. Tidak ada penjelasan tambahan mengenai contoh kode program di dalam materi yang diberikan. Dengan demikian, cakupan materi terbatas pada unstructured data, NoSQL, serta peran document, key-value, dan wide-column stores untuk data semi-terstruktur dan tak terstruktur.",
+      "topik": [
+        "Unstructured Data dan NoSQL",
+        "Beyond Tables",
+        "Document store",
+        "Key-value store",
+        "Wide-column store",
+        "Penyimpanan data semi-terstruktur dan tak terstruktur",
+        "Pemrosesan data semi-terstruktur dan tak terstruktur",
+        "Query data semi-terstruktur dan tak terstruktur"
+      ],
+      "ada_contoh_kode": false
+    },
+    "6": {
+      "hash": "6f3e7dfb4f1713d2e4ed738d19307d01e269d491bdf254f189e058b0b2026744",
+      "ringkasan": "Materi Manajemen Sistem Basis Data pertemuan 6 yang disusun oleh Reza Taqyuddin, M.Kom, membahas Real-World Architecture Case Studies. Fokus utama pertemuan ini adalah hands-on capstone, yaitu kegiatan praktik terpadu untuk menganalisis studi kasus enterprise. Dari analisis tersebut, mahasiswa diarahkan untuk merancang atau mengarsiteki sistem basis data hybrid yang robust dan production-grade dari awal. Materi ini menekankan penerapan konsep arsitektur basis data pada kasus dunia nyata, bukan sekadar teori. Judul bagian yang terlihat mencakup deskripsi pertemuan, studi kasus arsitektur dunia nyata, capstone hands-on, analisis studi kasus enterprise, perancangan sistem basis data hybrid, serta sistem production-grade. Sumber materi tercantum dari kelas.usu.ac.id. Tidak ada penjelasan rinci mengenai teknologi tertentu, langkah teknis, atau contoh kode program dalam materi yang diberikan. Dengan demikian, inti pertemuan adalah penghubung antara konsep manajemen basis data dan praktik arsitektur sistem skala enterprise melalui capstone.",
+      "topik": [
+        "Real-World Architecture Case Studies",
+        "Hands-on Capstone",
+        "Analisis studi kasus enterprise",
+        "Perancangan sistem basis data hybrid",
+        "Sistem basis data production-grade",
+        "Arsitektur sistem dari awal"
+      ],
+      "ada_contoh_kode": false
+    }
+  },
+  "38406": {
+    "umum": {
+      "hash": "54acb262424dd63d6a5986d1f2c1c21f7ba392b15c5bdaf33b833210a8193d99",
+      "ringkasan": "Materi ini memuat informasi umum Praktikum Manajemen Sistem Basis Data (TIF 3 030 P, kelas 5/B) dengan dosen Reza Taqyuddin M.Kom. Deskripsi mata kuliah menjelaskan bahwa praktikum ini membahas pengelolaan dan manajemen sistem basis data melalui praktik menggunakan PostgreSQL dan MongoDB. Materi mencakup konfigurasi koneksi, monitoring kapasitas dan kinerja, tata kelola data, backup & restore, keamanan, optimasi, serta penerapan polyglot persistence. Capaian pembelajaran (CPMK) menyatakan bahwa setelah mengikuti praktikum, mahasiswa diharapkan mampu memahami konsep manajemen sistem basis data; melakukan konfigurasi dan pengelolaan koneksi database; melakukan monitoring dan analisis kinerja database; menerapkan pengelolaan, keamanan, backup, dan optimasi database; menggunakan database relasional dan NoSQL sesuai kebutuhan sistem; serta menerapkan konsep polyglot persistence dalam project. Dengan demikian, materi ini menjadi acuan umum kompetensi praktikum yang akan dicapai mahasiswa.",
+      "topik": [
+        "Informasi umum praktikum",
+        "Deskripsi mata kuliah",
+        "Capaian pembelajaran (CPMK)",
+        "Konfigurasi dan pengelolaan koneksi database",
+        "Monitoring kapasitas dan kinerja database",
+        "Tata kelola data, backup, dan restore",
+        "Keamanan dan optimasi database",
+        "Database relasional dan NoSQL",
+        "Polyglot persistence"
+      ],
+      "ada_contoh_kode": false
+    },
+    "3": {
+      "hash": "c143a1d738983e360b578d9159e6bd63c30b57e1336c7dff2da97144c921ce3d",
+      "ringkasan": "Materi pertemuan 3 membahas monitoring kapasitas dan kinerja database. Database tidak cukup dibuat lalu dibiarkan; selama aplikasi berjalan, database aktif menyimpan data, menerima query, melayani koneksi, serta membaca dan menulis data. Monitoring database adalah proses mengamati kondisi dan aktivitas database untuk mengetahui apakah bekerja normal, mengalami beban tinggi, atau bermasalah pada performa. Hal yang dipantau meliputi performance, capacity, access pattern, dan query activity, serta database size, table size, table access, dan query performance. Sebelum menganalisis detail, perlu melihat gambaran besar seperti penggunaan resource, aktivitas, jumlah koneksi, dan kondisi performa. Materi menunjukkan query SQL untuk cek ukuran database dengan pg_database_size dan pg_size_pretty, serta ukuran tabel dengan pg_total_relation_size dari pg_statio_user_tables. PostgreSQL membaca data melalui sequential scan atau index scan. Pola akses tabel dilihat dari seq_scan, idx_scan, n_live_tup, dan n_dead_tup. Query terberat dinilai dari calls, total time, dan mean time. Monitoring dilakukan bertahap hingga mengidentifikasi masalah dan menentukan kebutuhan optimasi.",
+      "topik": [
+        "Pentingnya monitoring database",
+        "Aspek dan objek monitoring",
+        "Cek ukuran database",
+        "Cek ukuran tabel",
+        "Sequential scan dan index scan",
+        "Pola akses tabel",
+        "Query paling membebani",
+        "Alur pemeriksaan dan identifikasi masalah"
+      ],
+      "ada_contoh_kode": true
+    },
+    "4": {
+      "hash": "af087fee2d350e25090fc6b73034c9e477708ba8686247caf202536edddb15ac",
+      "ringkasan": "Pertemuan 4 membahas tata kelola data melalui Data Dictionary. Database perlu didokumentasikan agar tim memahami tabel, kolom, tipe data, nullable, default, dan makna bisnisnya. Data Dictionary adalah dokumentasi metadata tentang struktur data, seperti nama kolom, tipe data, apakah boleh NULL, dan default. PostgreSQL menyediakan metadata via information_schema, misalnya table_name, column_name, data_type, is_nullable, column_default. Query dapat dijalankan di Supabase SQL Editor untuk menampilkan daftar kolom tabel tertentu. Namun metadata saja belum cukup karena struktur kolom belum tentu menjelaskan arti bisnis. Karena itu digunakan COMMENT ON untuk menyimpan keterangan pada tabel atau kolom, misalnya products, stock_quantity, order_items, unit_price, dan orders.status. Metadata dan komentar digabungkan menjadi Data Dictionary, antara lain dengan pg_description. Materi juga membahas audit naming convention: snake_case, bentuk jamak, foreign key, kolom tanggal, primary key, timestamp, dan status enum. Ada latihan Database Detective dan kuis tentang Data Dictionary, information_schema, WHERE, serta COMMENT ON.",
+      "topik": [
+        "Pentingnya dokumentasi database",
+        "Definisi Data Dictionary",
+        "Metadata information_schema",
+        "Generate daftar kolom",
+        "Metadata vs makna bisnis",
+        "COMMENT ON",
+        "Menampilkan Data Dictionary",
+        "Audit naming convention",
+        "Database Detective",
+        "Kuis"
+      ],
+      "ada_contoh_kode": true
+    }
+  },
+  "38408": {
+    "1": {
+      "hash": "93480413e39e9b59eceb47ba8830fb3b46c5ea9355d06044c826fcd621d28423",
+      "ringkasan": "Pertemuan 1 Pemrograman Visual membahas pendahuluan, kontrak perkuliahan, dan capaian pembelajaran, termasuk konsep visual, perancangan GUI, variabel, operator, modul, Windows API, dan database. Pemrograman visual menekankan penggunaan elemen grafis/GUI agar pengguna berinteraksi lewat tombol, menu, form, ikon, dan komponen visual, sementara developer merancang antarmuka dengan designer, toolbox, property editor, serta menghubungkannya dengan logika program. Kode tetap diperlukan untuk validasi, pengolahan data, aturan bisnis, dan respons event. Materi membandingkan Console Application berbasis teks dengan GUI Application berbasis grafis dan event. GUI dibahas melalui Window/Form sebagai container, Controls/Widgets seperti Label, TextBox, Button, CheckBox, ComboBox, dan DataGrid, serta konsep Property, Method, dan Event. Penamaan komponen sebaiknya informatif dan konsisten, seperti btnSimpan atau txtNama, karena Name untuk developer dan Text untuk pengguna. Desain UI perlu memperhatikan usability dan consistency. Studi kasus aplikasi kasir/POS menunjukkan komponen UI, event, business logic, dan data layer; aktivitas kelas meminta identifikasi komponen GUI, event, respons, dan kejelasan feedback.",
+      "topik": [
+        "Kontrak dan capaian pembelajaran",
+        "Makna visual dan GUI",
+        "Console Application vs GUI Application",
+        "Window/Form",
+        "Controls/Widgets",
+        "Property, Method, dan Event",
+        "Naming dan identitas komponen",
+        "Usability",
+        "Consistency",
+        "Studi kasus POS dan aktivitas kelas"
+      ],
+      "ada_contoh_kode": false
+    },
+    "2": {
+      "hash": "9d1a339836a59f11e54fe48b0bc22fa2f4aa8a41bf664874873a6dc3acd0f765",
+      "ringkasan": "Materi Pertemuan 2 membahas komponen visual dasar pada pemrograman visual: Form, Label, TextBox, dan Button. Komponen visual adalah objek GUI untuk menampilkan informasi, menerima input, atau menjalankan perintah, bekerja melalui property, method, dan event. Form berperan sebagai container utama; property mengatur caption, ukuran, warna, border, dan posisi, sedangkan method Show(), ShowDialog(), Hide(), Close() serta event Load dan FormClosing mengatur perilaku form. Button memicu aksi lewat event Click dan memiliki property penting seperti Name, Text, Enabled, Visible, BackColor, ForeColor, Font, dan TabIndex. Label memberi informasi/keterangan, sedangkan TextBox menerima input teks dengan property seperti Text, MaxLength, ReadOnly, Multiline, PasswordChar, serta method Clear(), Focus(), SelectAll() dan event TextChanged, KeyPress, Enter, Leave. Materi juga membahas validasi input, perbedaan Name dan Text, konvensi penamaan komponen, integrasi Form-Label-TextBox-Button, alur interaksi, kesalahan umum pemula, dan tugas merancang form.",
+      "topik": [
+        "Komponen Visual Dasar",
+        "Form: Container Utama",
+        "Method dan Event pada Form",
+        "Button: Pemicu Aksi",
+        "Property dan Event Click pada Button",
+        "Label: Pemberi Informasi",
+        "TextBox: Input Teks dan Validasi",
+        "Name vs Text dan Konvensi Penamaan",
+        "Integrasi Form, Label, TextBox, Button",
+        "Kesalahan Umum dan Tugas Rancangan Form"
+      ],
+      "ada_contoh_kode": true
+    },
+    "3": {
+      "hash": "5a81b75533c70b5679c4dddb31cee3f7c74772ebb66e20a768e5dc1724931751",
+      "ringkasan": "Materi Pertemuan 3 membahas variabel, konstanta, tipe data, dan aturan penamaan pada Pemrograman Visual/Visual Basic. Variabel adalah tempat menyimpan nilai yang dapat berubah, dideklarasikan dengan Dim dan memiliki nama, tipe data, serta nilai. Tipe data dasar meliputi String untuk teks, Integer untuk bilangan bulat, Double untuk pecahan, Boolean untuk logika, dan Date untuk tanggal/waktu. Nilai dapat diinisialisasi langsung atau diisi melalui assignment, serta dapat berubah selama program. Contoh menunjukkan pembacaan input TextBox dan konversi angka dengan CInt. Scope variabel dibedakan menjadi lokal dan tingkat Form. Konstanta menggunakan Const dan nilainya tetap, misalnya PPN, MAX_ITEM, APP_NAME, serta menghindari magic number. Penamaan identifier harus valid: pakai huruf, angka, underscore, tidak diawali angka, tanpa spasi, bukan kata kunci, bermakna, konsisten, memakai camelCase untuk variabel, konvensi tertentu untuk konstanta, dan prefix kontrol GUI seperti btn, lbl, txt. Ditutup studi kasus pemesanan, kesalahan umum, latihan, dan rangkuman.",
+      "topik": [
+        "Variabel dan deklarasi",
+        "Tipe data dasar",
+        "Assignment dan inisialisasi",
+        "Input TextBox dan konversi CInt",
+        "Scope variabel",
+        "Konstanta dan magic number",
+        "Aturan penamaan identifier",
+        "Penamaan kontrol GUI",
+        "Studi kasus pemesanan",
+        "Kesalahan umum dan latihan"
+      ],
+      "ada_contoh_kode": true
+    },
+    "4": {
+      "hash": "5dbb4ac59fa76a55280cac838c05e006dcd740852c6c9b62e55363bb14d05590",
+      "ringkasan": "Materi Pertemuan 4 Pemrograman Visual membahas operator dan ekspresi pada Visual Basic.NET. Operator adalah simbol yang melakukan operasi terhadap operand dan menghasilkan nilai. Empat kelompok operator utama: aritmatika (+ - * / \\ Mod ^), perbandingan (= <> > < >= <=), logika (And Or Not Xor), dan penggabungan string (&). Aritmatika dipakai untuk perhitungan numerik, dengan perbedaan /, \\, dan Mod. Perbandingan menghasilkan Boolean untuk keputusan, validasi, filter, dan kondisi. Logika menggabungkan atau membalik kondisi: And semua true, Or minimal satu true, Xor tepat satu true, Not membalik nilai. Ada AndAlso dan OrElse yang short-circuit. Operator assignment memberi/memperbarui nilai variabel, misalnya +=. Operator & menggabungkan teks dan dianggap lebih aman daripada +. Ekspresi adalah kombinasi operand dan operator yang menghasilkan nilai. Prioritas operator: kurung, pangkat, kali/bagi, tambah/kurang, perbandingan, lalu Not → And → Or. Materi memuat contoh kode VB.NET dan studi kasus diskon+PPN serta tugas analisis operator pada aplikasi pemesanan makanan.",
+      "topik": [
+        "Operator dan Operand",
+        "Jenis Operator di VB.NET",
+        "Operator Aritmatika",
+        "Operator Perbandingan",
+        "Operator Logika",
+        "AndAlso dan OrElse",
+        "Operator Assignment dan &",
+        "Ekspresi dan Prioritas Operator",
+        "Studi Kasus Diskon + PPN",
+        "Tugas Analisis Operator"
+      ],
+      "ada_contoh_kode": true
+    },
+    "5": {
+      "hash": "1dcba9bda2b32d2c35fb19651de2a3a66bc2eee49ca382baedb33da58f405ead",
+      "ringkasan": "Materi Pertemuan 5 membahas struktur percabangan If–Else dalam Pemrograman Visual untuk membuat aplikasi mengambil keputusan berdasarkan kondisi. Konsep dasarnya: program mengevaluasi kondisi bernilai True atau False, lalu memilih blok kode yang dijalankan. Bentuk yang dibahas meliputi If...Then untuk satu aksi saat kondisi benar; If...Then...Else untuk dua kemungkinan hasil; If...ElseIf...Else untuk lebih dari dua pilihan; serta Nested If untuk percabangan bersarang. Materi juga menjelaskan operator perbandingan (=, <>, >, <, >=, <=) dan operator logika And, Or, Not. Pada aplikasi visual, If–Else biasanya dijalankan dalam event, misalnya Button_Click, dengan pola input, konversi tipe, evaluasi kondisi, proses, tampilkan output. Validasi input menggunakan Integer.TryParse dibahas untuk mencegah error, dibandingkan dengan CInt. Studi kasus diskon pemesanan makanan menerapkan percabangan bertahap, And, pembatasan diskon maksimal, biaya layanan, dan ongkir. Terdapat latihan simulasi, mini challenge tarif parkir, dan praktik mandiri.",
+      "topik": [
+        "Konsep dasar percabangan If–Else",
+        "Bentuk If...Then",
+        "Bentuk If...Then...Else",
+        "Bentuk If...ElseIf...Else",
+        "Nested If",
+        "Operator perbandingan dan logika",
+        "If–Else dalam event dan validasi input",
+        "Perbedaan deklarasi, CInt, dan TryParse",
+        "Studi kasus diskon pemesanan makanan",
+        "Latihan dan praktik mandiri"
+      ],
+      "ada_contoh_kode": true
+    }
+  },
+  "38410": {
+    "umum": {
+      "hash": "759749153e0e018f4415d20e2eecddacccc4ee3fac2c7220986081df88667d5f",
+      "ringkasan": "Mata kuliah Manajemen Proyek TI (TIF 3035/TIK2111) di Prodi D3 Teknik Informatika USU, semester V, berbobot 1 SKS teori, diasuh Zulhamsyah Fachrurrazi Nasution, S.Kom., M.MSI. Materi membahas konsep, prinsip, dan teknik manajemen proyek TI: inisiasi dan perencanaan (ruang lingkup, waktu, biaya, risiko, mutu, pengadaan), kepemimpinan serta kerja tim, hingga monitoring, evaluasi, dan penutupan proyek, mengacu pada standar PMBOK dan metodologi Agile/Scrum. Capaian pembelajaran meliputi kerja tim dan etika profesional, nilai kewirausahaan, penyusunan WBS, penjadwalan Gantt/CPM-PERT, estimasi anggaran, pengelolaan risiko dan mutu, serta penutupan proyek. Perkuliahan berjalan 16 minggu dengan metode ceramah, studi kasus, dan diskusi, didukung LMS kelas.usu.ac.id. Penilaian terdiri atas tugas individu 25%, tugas kelompok 30%, UTS 25%, dan UAS 20%. RPS juga memuat rubrik penilaian tugas individu, UTS/UAS, dan tugas kelompok project-based rencana proyek TI beserta presentasi dan laporan.",
+      "topik": [
+        "Identitas dan deskripsi mata kuliah",
+        "Capaian pembelajaran (CPL dan CPMK)",
+        "Sub-CPMK tiap tahapan belajar",
+        "Bahan kajian/materi 16 minggu",
+        "Metode, bentuk, dan media pembelajaran",
+        "Skema penilaian dan rencana asesmen",
+        "Rubrik penilaian tugas individu",
+        "Rubrik penilaian UTS dan UAS",
+        "Rubrik tugas kelompok project-based dan presentasi",
+        "Daftar pustaka"
+      ],
+      "ada_contoh_kode": false
+    },
+    "1": {
+      "hash": "d9816768267a200ded7abbd19e661343f9464cbb613b51951bd6feb4a4640ca1",
+      "ringkasan": "Materi Pertemuan 1 Manajemen Proyek TI membahas konsep dasar dan siklus hidup proyek TI. Proyek didefinisikan PMBOK sebagai usaha sementara untuk menciptakan produk, layanan, atau hasil yang unik, dengan tiga karakteristik utama: temporary (sementara), unique (unik), dan progressive elaboration. Proyek dibedakan dari kegiatan operasional yang bersifat berkelanjutan, repetitif, dan dijalankan tim tetap. Triple constraint terdiri dari ruang lingkup (scope), waktu (time), dan biaya (cost); ketiganya saling terkait dan harus seimbang agar mutu proyek terjaga, dengan project manager sebagai penjaga keseimbangannya. Materi juga menjelaskan pentingnya manajemen proyek TI, tanggung jawab project manager, serta stakeholder proyek (sponsor, project manager & tim, klien/pengguna, vendor, regulator). Siklus hidup proyek memiliki lima fase PMBOK: Inisiasi (Project Charter), Perencanaan (Project Management Plan), Eksekusi (hasil kerja proyek), Monitoring & Pengendalian (laporan kinerja), dan Penutupan (laporan penutupan). Disertakan pula pola biaya & sumber daya, sekilas predictive (waterfall) vs adaptive (agile/scrum), dan studi kasus sistem KRS online kampus.",
+      "topik": [
+        "Definisi proyek dan karakteristiknya",
+        "Proyek vs kegiatan operasional",
+        "Triple constraint dan manajemen proyek",
+        "Peran dan tanggung jawab project manager",
+        "Stakeholder proyek TI",
+        "Konsep siklus hidup proyek",
+        "Lima fase siklus hidup PMBOK dan deliverable-nya",
+        "Predictive (waterfall) vs adaptive (agile/scrum)",
+        "Studi kasus sistem KRS online"
+      ],
+      "ada_contoh_kode": false
+    },
+    "2": {
+      "hash": "5297b1d784798896d233e3891021403ff7cbe67f913058b5b5fe3deee76f8a3d",
+      "ringkasan": "Materi Pertemuan 2 Manajemen Proyek TI membahas metodologi dan standar. Metodologi adalah kerangka kerja berisi prinsip, proses, dan praktik terstruktur untuk merencanakan, melaksanakan, dan mengendalikan proyek secara konsisten; standar seperti PMBOK bersifat panduan fleksibel yang dapat disesuaikan (tailoring), sedangkan metodologi tertentu lebih preskriptif. Manfaatnya: konsistensi proses, mengurangi risiko, bahasa yang sama, dan praktik terbaik. Pendekatan predictive diwakili PMBOK Guide (PMI) dengan 10 bidang pengetahuan: integrasi, ruang lingkup, jadwal, biaya, mutu, sumber daya, komunikasi, risiko, pengadaan, dan stakeholder; kelebihannya terstruktur dan berdokumentasi lengkap, tetapi kurang fleksibel terhadap perubahan. Pendekatan adaptive diwakili Agile dengan 4 nilai utama Agile Manifesto, serta Scrum dengan tiga peran (Product Owner, Scrum Master, Development Team) dan siklus Sprint 1–4 minggu: Product Backlog, Sprint Planning, Sprint (Daily Scrum), Sprint Review, Sprint Retrospective. Perbandingan PMBOK/Waterfall vs Agile/Scrum mencakup perencanaan, respons perubahan, keterlibatan klien, penyampaian hasil, dan dokumentasi, ditambah pendekatan hybrid. Studi kasus: Proyek A (requirement jelas) cocok predictive; Proyek B (fitur dinamis) cocok Agile/Scrum. Rekap pertemuan sebelumnya mencakup definisi proyek, triple constraint, dan lima fase siklus hidup.",
+      "topik": [
+        "Konsep metodologi & standar manajemen proyek",
+        "Manfaat standar & metodologi bagi proyek TI",
+        "PMBOK Guide (PMI) & 10 bidang pengetahuan",
+        "Kelebihan & keterbatasan pendekatan predictive",
+        "Agile: nilai utama & prinsip kunci",
+        "Scrum: tiga peran & siklus Sprint",
+        "Perbandingan PMBOK/Waterfall vs Agile/Scrum",
+        "Faktor pemilihan metodologi & pendekatan hybrid",
+        "Standar & sertifikasi lain (PRINCE2, ISO 21500, PMP/CAPM, PSM/CSM)",
+        "Studi kasus pemilihan metodologi"
+      ],
+      "ada_contoh_kode": false
+    },
+    "3": {
+      "hash": "bc8b773ad96dc23b7ab6c12f8fb1a8e5858995c7c4c2a604069ea619a0165154",
+      "ringkasan": "Pertemuan 3 Manajemen Proyek TI membahas struktur organisasi, peran, kepemimpinan, komunikasi, dan etika profesional dalam tim proyek TI. Struktur organisasi proyek terdiri dari Fungsional, Matriks (lemah, seimbang, kuat), dan Projectized. Struktur ini memengaruhi otoritas project manager (PM), kecepatan keputusan, alokasi sumber daya, dan dukungan organisasi; otoritas PM meningkat dari fungsional (rendah/tidak ada, paruh waktu) hingga projectized (tinggi/penuh, penuh waktu), dengan pengelola anggaran dari manajer fungsional sampai PM. Tim proyek TI meliputi Project Sponsor, Project Manager, Business Analyst, System/Solution Architect, Developer/Programmer, QA/Tester, UI/UX Designer, dan DevOps Engineer; PM berperan sentral menjembatani stakeholder dan tim teknis. Kompetensi PM dirangkum dalam PMI Talent Triangle: Ways of Working, Power Skills, dan Business Acumen. Kepemimpinan dibedakan dari manajemen, dengan lima gaya: otoriter, demokratis, delegative, servant, dan transformational. Komunikasi efektif direncanakan melalui empat elemen (siapa, apa, kapan, bagaimana) serta hambatan dan solusinya. Etika profesional berpijak pada empat pilar PMI: Responsibility, Respect, Fairness, dan Honesty, lalu diterapkan pada studi kasus konflik developer senior dalam tim.",
+      "topik": [
+        "Struktur organisasi proyek: Fungsional, Matriks, Projectized",
+        "Perbandingan otoritas PM dan alokasi sumber daya",
+        "Peran-peran dalam tim proyek TI",
+        "Peran sentral Project Manager",
+        "Kompetensi PM: PMI Talent Triangle",
+        "Kepemimpinan vs manajemen",
+        "Lima gaya kepemimpinan proyek",
+        "Empat elemen rencana komunikasi dan hambatannya",
+        "Empat pilar etika profesional PMI",
+        "Studi kasus konflik dalam tim proyek"
+      ],
+      "ada_contoh_kode": false
+    },
+    "4": {
+      "hash": "c0e29c2a7c48fc69fb19bb2ba0059a7791800a0c52d85194debecda7b62bb3e1",
+      "ringkasan": "Pertemuan 4 Manajemen Proyek TI membahas ruang lingkup proyek dan Work Breakdown Structure (WBS). Ruang lingkup proyek adalah batasan yang mendefinisikan seluruh pekerjaan untuk menghasilkan produk, layanan, atau hasil sesuai fitur dan fungsi yang disyaratkan, mencakup empat komponen: deliverables, exclusions, constraints, dan assumptions. Scope creep—penambahan fitur atau pekerjaan secara bertahap tanpa persetujuan formal—disebabkan ruang lingkup awal yang tidak jelas, permintaan perubahan tanpa proses formal, dan komunikasi stakeholder yang kurang terstruktur. Dampaknya jadwal molor, anggaran membengkak, dan kualitas menurun; pencegahannya lewat scope statement dan WBS yang rinci, change control formal, pelibatan stakeholder kunci, serta pemantauan progres berkala. WBS adalah dekomposisi hierarkis total ruang lingkup pekerjaan menjadi work package yang lebih kecil dan mudah diestimasi. WBS yang baik memenuhi empat karakteristik: 100% rule, deliverable-oriented, mutually exclusive, dan level terkecil terukur. Penyusunannya dilakukan secara top-down, dari tujuan proyek, deliverable utama, sub-deliverable, hingga work package, dilengkapi WBS Dictionary.",
+      "topik": [
+        "Ruang lingkup proyek (project scope)",
+        "Komponen scope statement: deliverables, exclusions, constraints, assumptions",
+        "Scope creep: penyebab, dampak, dan pencegahan",
+        "Pengertian Work Breakdown Structure (WBS)",
+        "Karakteristik WBS yang baik",
+        "Struktur hierarki WBS dan work package",
+        "Langkah dekomposisi top-down",
+        "WBS Dictionary",
+        "Contoh WBS aplikasi mobile kampus dan studi kasus reservasi ruang kelas"
+      ],
+      "ada_contoh_kode": false
+    },
+    "5": {
+      "hash": "bc9626bf3770547be26267faff43f341537f398d93e429cd126cf2d0a6ebe670",
+      "ringkasan": "Pertemuan 5 membahas manajemen waktu dan penjadwalan proyek TI menggunakan Gantt Chart. Manajemen waktu proyek adalah proses mengelola penyelesaian proyek tepat waktu, meliputi perencanaan, penyusunan, dan pengendalian jadwal. Lima proses utamanya: mendefinisikan aktivitas dari work package WBS, mengurutkan aktivitas, mengestimasi durasi, menyusun jadwal, dan mengendalikan jadwal secara iteratif. Dependensi antaraktivitas terdiri dari Finish-to-Start (FS), Start-to-Start (SS), Finish-to-Finish (FF), dan Start-to-Finish (SF). Estimasi durasi dapat memakai Expert Judgment, Analogous Estimating, Parametric Estimating, serta Three-Point Estimating/PERT dengan skenario optimis, pesimis, dan paling mungkin. Gantt Chart adalah diagram batang yang menampilkan jadwal, tanggal mulai dan selesai aktivitas, diperkenalkan Henry Gantt. Anatominya: task list, timeline bar, milestone, dan dependency arrow. Kelebihannya mudah dipahami, ringkas, dan cocok memantau progres; keterbatasannya kurang efektif memetakan jalur kritis pada proyek kompleks, sulit menampilkan dependensi rumit, dan perlu pembaruan rutin. Tools populer antara lain Microsoft Project, Excel/Google Sheets, GanttProject, Trello, Asana/ClickUp, dan Jira. Studi kasus: portal berita kampus target 8 minggu.",
+      "topik": [
+        "Proses Manajemen Waktu Proyek",
+        "Dependensi Antaraktivitas",
+        "Teknik Estimasi Durasi Aktivitas",
+        "Gantt Chart dan Anatominya",
+        "Milestone dalam Gantt Chart",
+        "Kelebihan dan Keterbatasan Gantt Chart",
+        "Tools Pembuat Gantt Chart",
+        "Studi Kasus Portal Berita Kampus"
+      ],
+      "ada_contoh_kode": false
+    }
+  },
+  "38415": {
+    "1": {
+      "hash": "5e8112592c8b400117e356f7506874d46c86797d291bfd964355f3f6687cf0ef",
+      "ringkasan": "Pertemuan 1 membahas pengertian Pemrograman Visual, yaitu pendekatan pemrograman yang mengembangkan program melalui manipulasi elemen grafis seperti blok, diagram, dan komponen visual sebagai representasi struktur serta logika program. Karakteristiknya: logika direpresentasikan lewat blok/diagram yang saling terhubung, komponen dan antarmuka disusun dengan drag-and-drop, serta perubahan rancangan dapat diamati langsung sehingga memudahkan evaluasi dan pengembangan. Tujuannya mempermudah pemahaman konsep dasar pemrograman, menyajikan alur program secara visual dan terstruktur, mempersiapkan pengguna sebelum mempelajari sintaks kode, dan meminimalkan kesalahan penulisan kode. Keterbatasannya meliputi fleksibilitas terbatas, kurang efisien untuk proyek besar, dan ketergantungan pada platform. Materi juga memperkenalkan platform/IDE seperti Scratch, MIT App Inventor, Visual Basic, JavaFX, serta Visual Studio dan .NET. Visual Basic adalah bahasa Microsoft dengan IDE untuk membangun aplikasi secara visual; Visual Studio adalah IDE Microsoft untuk menulis, mengedit, menjalankan, dan debugging; .NET adalah platform pengembangan multiplatform open-source Microsoft yang mendukung C#, F#, dan VB.NET. Materi menampilkan potongan blok/kode pada tangkapan layar.",
+      "topik": [
+        "Pengertian Visual Programming",
+        "Karakteristik Visual Programming",
+        "Tujuan dan Manfaat",
+        "Keterbatasan",
+        "Platform: Scratch dan MIT App Inventor",
+        "Visual Basic",
+        "Visual Studio",
+        ".NET",
+        "Contoh platform/IDE pada materi"
+      ],
+      "ada_contoh_kode": true
+    },
+    "2": {
+      "hash": "3f3a9d37ba218bec3ab56363174ef80cc773d9c1005d8bedbe10a64f0ecb3720",
+      "ringkasan": "Materi Pertemuan 2 Praktikum Pemrograman Visual membahas komponen visual. Control adalah elemen antarmuka pengguna (UI) di Visual Studio yang memungkinkan pengguna berinteraksi dengan aplikasi melalui input dan output. Form merupakan jendela atau wadah utama tempat meletakkan komponen visual dan area kerja pengguna. Button atau Command Button adalah tombol perintah untuk menjalankan aksi tertentu saat diklik, misalnya OK, Cancel, Exit, atau Apply. Label digunakan untuk menampilkan teks statis sebagai keterangan atau informasi pada form. TextBox adalah kotak teks yang memungkinkan pengguna memasukkan atau mengedit data. Properti penting meliputi Name sebagai identitas unik komponen untuk pemanggilan di kode program, Text sebagai teks yang terlihat pengguna, StartPosition khusus Form untuk posisi awal, BackColor untuk warna latar, ForeColor untuk warna teks, Font untuk jenis, ukuran, dan gaya tulisan, Enable untuk menentukan komponen bisa digunakan, serta Visible untuk menampilkan atau menyembunyikan komponen. Event adalah peristiwa atau kejadian pada komponen yang dapat memicu jalannya kode program karena interaksi pengguna atau perubahan status. Pembahasan juga mencakup menambahkan komponen ke Form, mengatur propertinya, dan membuat interaksi sederhana menggunakan event pada Button. Materi tidak memuat contoh kode program eksplisit.",
+      "topik": [
+        "Control dalam Visual Studio",
+        "Form",
+        "Button",
+        "Label",
+        "TextBox",
+        "Properti Form dan Komponen",
+        "Event",
+        "Menambahkan komponen dan interaksi Button"
+      ],
+      "ada_contoh_kode": false
+    },
+    "3": {
+      "hash": "961575c1f07823789930d38198a5ed09c86c73a7d41254da4d5c16c45210c565",
+      "ringkasan": "Materi pertemuan 3 membahas operator, ekspresi, dan struktur pengendalian percabangan pada pemrograman visual. Operator adalah simbol khusus untuk melakukan operasi pada operand. Jenis operator meliputi aritmatika (+, -, *, /, %), penugasan (=, +=, -=, *=, /=, %=), perbandingan untuk menghasilkan boolean, logika untuk menghubungkan ekspresi boolean, serta increment (++) dan decrement (--) untuk menambah atau mengurangi nilai variabel sebanyak satu. Ekspresi dijelaskan sebagai kombinasi nilai, variabel, operator, dan pemanggilan metode yang dievaluasi menjadi satu nilai tunggal, sehingga dapat digunakan di tempat yang membutuhkan nilai. Selanjutnya dibahas percabangan sebagai struktur kontrol alur program berdasarkan kondisi benar atau salah. Jenis percabangan mencakup if statement untuk satu blok saat kondisi benar; if-else untuk memilih blok benar atau salah; if-else if untuk beberapa kondisi; switch statement sebagai alternatif if-else banyak dan lebih rapi berdasarkan nilai variabel; serta operator ternary sebagai percabangan singkat satu baris pengganti if-else. Materi juga menampilkan contoh kode switch dan ternary.",
+      "topik": [
+        "Operator",
+        "Jenis-jenis operator",
+        "Operator aritmatika",
+        "Operator penugasan",
+        "Operator perbandingan",
+        "Operator logika",
+        "Operator increment dan decrement",
+        "Ekspresi",
+        "Percabangan",
+        "If, if-else, if-else if, switch, dan operator ternary"
+      ],
+      "ada_contoh_kode": true
+    },
+    "4": {
+      "hash": "6b533b24a0b0740f619f57a58f90e961f27094d426bf1f4e2b2f9db0721b7012",
+      "ringkasan": "Materi pertemuan 4 Praktikum Pemrograman Visual membahas struktur perulangan atau looping. Perulangan adalah struktur kontrol yang menjalankan blok instruksi berulang kali selama kondisi tertentu bernilai true atau sebanyak jumlah pengulangan yang ditetapkan. Tujuannya mengautomasi tugas berulang, memproses koleksi data, dan mengurangi duplikasi kode. Manfaatnya antara lain mempercepat pekerjaan berulang, menghindari penulisan kode manual, mengolah data dalam jumlah besar, meningkatkan struktur dan pemeliharaan kode, serta fleksibilitas. Tipe perulangan dibagi menjadi counted loop, yaitu jumlah pengulangan sudah diketahui seperti For, dan uncounted loop, yaitu jumlah pengulangan tidak diketahui dan bergantung pada kondisi seperti While atau Do Loop. For-Next digunakan untuk jumlah pengulangan pasti dengan variabel pengontrol yang mengatur nilai awal, nilai akhir, dan step. Do-Loop digunakan saat iterasi tidak diketahui sebelumnya dan berlanjut hingga kondisi berhenti terpenuhi. While mengecek kondisi di awal sehingga blok hanya dijalankan jika kondisi awal true. Do-While mengecek kondisi di akhir sehingga blok dijalankan minimal satu kali. Nested Loop adalah perulangan di dalam perulangan, di mana perulangan luar menjalankan perulangan dalam secara lengkap pada setiap iterasinya. Materi juga memuat contoh sintaks Visual Basic.",
+      "topik": [
+        "Pengenalan Perulangan",
+        "Fungsi dan Manfaat Perulangan",
+        "Counted Loop dan Uncounted Loop",
+        "For-Next",
+        "Variabel Pengontrol",
+        "Do-Loop",
+        "While",
+        "Do-While",
+        "Nested Loop"
+      ],
+      "ada_contoh_kode": true
+    },
+    "5": {
+      "hash": "5fec866c70f4e5b021038bfae5decea19130fda6c56401e59f8df2b5e2588252",
+      "ringkasan": "Materi pertemuan 5 membahas Modul, Fungsi, Array, dan Koleksi Data. Modul digunakan untuk mengelompokkan kode berdasarkan fungsi atau kebutuhan tertentu sehingga kode terpisah dari Form dan lebih terstruktur. Access Modifier mengatur akses anggota program, terutama Public yang dapat diakses bagian lain dan Private yang hanya dapat diakses dari dalam modul. Procedure/Sub adalah sekumpulan perintah untuk tugas tertentu dan dipanggil saat diperlukan. Function adalah blok kode yang melakukan proses dan mengembalikan nilai. Array menyimpan beberapa nilai dalam satu variabel dengan tipe data sama; indeksnya dimulai dari 0. Ada array satu dimensi serta multi-dimensi yang membentuk matriks/ruang 3D dan seluruh baris wajib memiliki jumlah kolom sama. Koleksi Data menyimpan dan mengelola sekumpulan objek/nilai serta menyediakan cara menambah, menghapus, mengakses, mencari, dan mengiterasi data. Berbeda dengan Array, beberapa koleksi dapat berubah ukuran secara dinamis. Jenis koleksi yang dibahas: Array, List, Dictionary, dan Set. Materi juga memuat contoh kode VB.NET untuk Array, List, Dictionary, dan HashSet.",
+      "topik": [
+        "Pengertian Modul",
+        "Access Modifier: Public dan Private",
+        "Procedure/Sub",
+        "Fungsi",
+        "Array",
+        "Array Satu Dimensi",
+        "Array Multi-Dimensi",
+        "Koleksi Data",
+        "Jenis-jenis Koleksi Data: Array, List, Dictionary, Set",
+        "Contoh Kode VB.NET"
+      ],
+      "ada_contoh_kode": true
+    },
+    "6": {
+      "hash": "3e22ae500f98f3d6686692ee505300e034c44e260b693cf0c552c7cf426ef591",
+      "ringkasan": "Pertemuan 6 membahas pengantar database dengan PostgreSQL, Supabase, dan Npgsql di VB.Net, koneksi database PostgreSQL menggunakan Npgsql ke Supabase, serta manipulasi data CRUD dengan Npgsql. Database dijelaskan sebagai kumpulan data terstruktur yang disimpan agar dapat diakses, dikelola, dan dimanipulasi aplikasi; database menyimpan informasi penting sehingga aplikasi dapat menyajikan, mengubah, dan menjaga konsistensi data. PostgreSQL (Postgres) adalah ORDBMS open-source yang menggunakan dan memperluas SQL untuk menyimpan, mengelola, dan mengambil data secara aman dan efisien. Supabase adalah platform Backend-as-a-Service yang membungkus PostgreSQL menjadi solusi siap pakai, dilengkapi API, Auth, dan Dashboard, sehingga pengembang tidak perlu membangun infrastruktur dari nol. Npgsql adalah data provider ADO.NET open-source yang menjadi jembatan antara aplikasi .NET (C#, F#, VB.NET) dan PostgreSQL. Komponen Npgsql yang dibahas meliputi NpgsqlConnection untuk membuat, membuka, dan mengelola sesi koneksi; NpgsqlCommand untuk mendefinisikan dan mengeksekusi kueri SQL atau stored procedure; NpgsqlDataAdapter untuk mengambil data ke DataTable/DataSet dan mengirim perubahan kembali ke database; serta NpgsqlCommandBuilder untuk membuat kueri INSERT, UPDATE, DELETE otomatis berdasarkan SELECT.",
+      "topik": [
+        "Pengantar Database",
+        "PostgreSQL",
+        "Supabase",
+        "Npgsql",
+        "NpgsqlConnection",
+        "NpgsqlCommand",
+        "NpgsqlDataAdapter",
+        "NpgsqlCommandBuilder",
+        "Koneksi PostgreSQL ke Supabase",
+        "CRUD dengan Npgsql"
+      ],
+      "ada_contoh_kode": false
+    }
+  },
+  "38419": {
+    "umum": {
+      "hash": "afc993720ccfc312af4ef21fe8ccacb528f47b5c03f43f1fa436553d8b62d911",
+      "ringkasan": "Materi ini merupakan informasi umum Praktikum E-Application (TIF 3 037 P, kelas 5/B1) yang diampu Prof. Drs. Poltak Sihombing M.Kom., Ph.D. Sumber materi berasal dari kelas.usu.ac.id. Mata kuliah ini membahas dasar-dasar pengembangan E-Application serta penerapannya dalam membangun aplikasi yang interaktif dan terintegrasi. Pembelajaran mencakup perancangan dan pengembangan aplikasi, pengelolaan file dan data, integrasi basis data, penyajian informasi, serta proses packaging dan evaluasi aplikasi. Materi juga mencantumkan Capaian Pembelajaran (CPMK): memahami konsep dasar pengembangan E-Application; mampu merancang dan mengembangkan aplikasi sesuai kebutuhan; mampu mengintegrasikan berbagai komponen dalam aplikasi; mampu mengolah dan menyajikan data dalam aplikasi; serta mampu melakukan pengujian dan evaluasi terhadap aplikasi yang dikembangkan. Capaian tersebut menunjukkan fokus pembelajaran pada pemahaman konsep, perancangan, integrasi komponen, pengolahan data, serta pengujian dan evaluasi. Tidak ada contoh kode program dalam materi ini.",
+      "topik": [
+        "Informasi umum mata kuliah",
+        "Dosen pengampu",
+        "Deskripsi mata kuliah",
+        "Perancangan dan pengembangan aplikasi",
+        "Pengelolaan file dan data",
+        "Integrasi basis data",
+        "Penyajian informasi",
+        "Packaging dan evaluasi aplikasi",
+        "Capaian pembelajaran (CPMK)"
+      ],
+      "ada_contoh_kode": false
+    },
+    "1": {
+      "hash": "4a36a73b9ee3a9f8af6769d9bfad6db364d39cae01504ddb7466fca66a6f96d2",
+      "ringkasan": "Pertemuan 1 Praktikum E-Application membahas pengertian E-Application sebagai aplikasi digital yang membantu pekerjaan lebih efektif dan efisien. Fokus mata kuliah ini adalah pengembangan aplikasi desktop menggunakan library Eel pada Python, yang menghubungkan Python sebagai backend dengan HTML, CSS, dan JavaScript sebagai frontend. Materi juga menjelaskan GUI sebagai antarmuka grafis berbasis elemen visual seperti tombol, ikon, menu, dan jendela, dengan contoh File Explorer, Telegram, Calculator, Microsoft Word, dan Spotify. Eel dijelaskan sebagai library Python yang menjadi jembatan aplikasi desktop bertampilan web. Framework GUI lain yang dibahas meliputi Electron JS, Kivy, dan Java Swing. Selanjutnya diuraikan instalasi environment: VS Code, Python, PIP sebagai package manager, dan instalasi library Eel. Contoh perintah mencakup python --version, pip --version, pip install eel, pip show eel, dan pip list. Untuk membuat project awal Eel, disusun folder web berisi index.html, index.js, style.css, dan main.py. Pada main.py digunakan import eel, eel.init('web'), dan eel.start('index.html') agar aplikasi desktop dapat berjalan sendiri tanpa browser. Materi ditutup dengan QUIZ TIME dan profil D3 TI USU.",
+      "topik": [
+        "Pengertian E-Application",
+        "GUI dan contohnya",
+        "Pengertian Eel",
+        "Framework GUI: Electron JS, Kivy, Java Swing",
+        "Instalasi Environment: VS Code, Python, PIP",
+        "Instalasi library Eel",
+        "Membuat project awal Eel",
+        "Struktur folder web dan main.py",
+        "Menjalankan aplikasi Eel",
+        "QUIZ TIME dan Profil D3 TI USU"
+      ],
+      "ada_contoh_kode": true
+    },
+    "2": {
+      "hash": "7a48b0e2c42e35c101d96700e5fe78f0640176854c7c398ec09435107cf01b43",
+      "ringkasan": "Materi pertemuan 2 Praktikum E-Application membahas dasar penggunaan library Eel untuk membangun aplikasi GUI desktop modern dengan integrasi teknologi web. Eel menjadi jembatan antara Python sebagai backend dan HTML, CSS, JavaScript sebagai frontend. Python mengelola logika, perhitungan matematis, dan pengolahan data, sedangkan frontend menyusun antarmuka visual. Eel menyatukan keduanya melalui koneksi internal sehingga JavaScript dapat memanggil fungsi Python dan sebaliknya tanpa konfigurasi web server yang rumit. Materi juga menjelaskan asynchronous (async/await) karena pemanggilan fungsi Python dari JavaScript tidak langsung menghasilkan jawaban; Python mungkin perlu waktu menghitung, membaca file, atau mengolah data, sehingga JavaScript harus menunggu agar hasil tidak kosong atau error. Sebaliknya, synchronous mengeksekusi kode berurutan dan dapat memblokir program sehingga tidak responsif jika ada tugas lama. Perbandingan keduanya mencakup pola eksekusi, respon, hasil return, efisiensi waktu, dan kapan digunakan. Contoh kode mencakup HTML dengan eel.js, fungsi JavaScript async kirimData, serta Python dengan eel.init, @eel.expose, hitung_luas, dan eel.start. Diakhiri quiz memodifikasi kode agar memakai minimal tiga parameter.",
+      "topik": [
+        "Pemahaman Konsep Dasar Eel",
+        "Peran Eel sebagai jembatan Python dan frontend",
+        "Pengenalan Asynchronous",
+        "Pengenalan Synchronous",
+        "Perbandingan Synchronous dan Asynchronous",
+        "Inisialisasi Frontend HTML dengan Eel",
+        "Pemanggilan Fungsi Python dari JavaScript",
+        "Operasi Python dengan Eel",
+        "Quiz Modifikasi Kode"
+      ],
+      "ada_contoh_kode": true
+    },
+    "3": {
+      "hash": "1c0a25a48ea7ee883c2a999afaaf35a6332f1e2313dfde037c5ecb1ed2e304d4",
+      "ringkasan": "Pertemuan 3 praktikum E-Application membahas pembuatan aplikasi Note Teks .txt atau Mini Notebook dengan memanfaatkan komunikasi JavaScript dan Python melalui Eel. Fitur aplikasi meliputi membaca, membuat, menyimpan, mengganti nama, dan menghapus catatan. Alur kerja dimulai dari membuka aplikasi, menampilkan daftar catatan, memilih catatan, menampilkan isi, membuat baru, lalu aksi simpan, hapus, atau rename melalui main.py dan memperbarui daftar. Konsep penting adalah @eel.expose, dekorator Python yang membuka fungsi agar dapat dipanggil dari JavaScript, sehingga menjadi jembatan komunikasi Python dan JavaScript. Materi juga menjelaskan eel.init untuk folder antarmuka web, NOTES_DIR dan os.makedirs untuk lokasi penyimpanan, get_notes untuk mengambil daftar file .txt, read_note untuk membaca isi berdasarkan judul dengan encoding UTF-8, save_note untuk menyimpan atau memperbarui, rename_note untuk mengganti nama, dan delete_note untuk menghapus file. UTF-8 dijelaskan sebagai standar pengodean karakter. eel.start menjalankan aplikasi dengan index.html berukuran 800x600 piksel dan block=True. Ada kuis alur save, @eel.expose, alur user-JavaScript-Eel-Python-File TXT, pembaruan chart real-time, membuka catatan, dan menghapus catatan.",
+      "topik": [
+        "Pembuatan aplikasi Note Teks .txt",
+        "Fitur Mini Notebook",
+        "Diagram alur kerja aplikasi",
+        "@eel.expose",
+        "Inisialisasi front end dan folder catatan",
+        "Fungsi get_notes, read_note, save_note, rename_note, delete_note",
+        "UTF-8",
+        "eel.start dan build PyInstaller",
+        "Kuis alur aplikasi"
+      ],
+      "ada_contoh_kode": true
+    },
+    "4": {
+      "hash": "412ff81ec4b4a256359c82526e0ee0369e1341637aca27b44146c06e2151dced",
+      "ringkasan": "Pertemuan 4 membahas packaging dan distribusi aplikasi Python ke format executable (.exe). Packaging adalah proses membungkus kode sumber Python, interpreter mini, dan pustaka pihak ketiga menjadi satu format biner mandiri, sehingga skrip .py berubah menjadi aplikasi desktop yang siap dieksekusi. Tujuannya antara lain bebas ketergantungan karena pengguna tidak perlu menginstal Python atau menjalankan pip install, distribusi sekali klik, proteksi kode sumber, dan standarisasi rilis desktop. PyInstaller digunakan untuk mengemas skrip beserta dependensinya; ia memindai main.py, mengumpulkan pustaka yang diimpor dan berkas pendukung, lalu menghasilkan executable. Ada dua mode output: --onedir menghasilkan folder berisi .exe dan pustaka pendukung terpisah, startup lebih cepat tetapi kurang praktis; --onefile mengemas semuanya ke satu .exe, distribusi praktis tetapi startup pertama lebih lambat. PyInstaller tidak otomatis membawa aset non-Python seperti folder web/, sehingga perlu --add-data \"folder_asal;folder_tujuan\". Materi menampilkan contoh main.py berbasis Eel untuk aplikasi catatan, serta perintah pip install pyinstaller, pyinstaller --version, dan pyinstaller --noconsole --onefile --add-data \"web;web\" main.py.",
+      "topik": [
+        "Apa itu packaging",
+        "Alasan aplikasi perlu di-packaging",
+        "Pengenalan PyInstaller",
+        "Mode output --onedir dan --onefile",
+        "Masalah aset non-Python dan --add-data",
+        "Contoh main.py Eel",
+        "Instalasi PyInstaller",
+        "Perintah build proyek"
+      ],
+      "ada_contoh_kode": true
+    },
+    "5": {
+      "hash": "1a48e8775448efc0924acdbd039e1cd28773056866ea15069f51217bbe01b566",
+      "ringkasan": "Pertemuan 5 Praktikum E-Application membahas penggunaan mysql-connector-python untuk menghubungkan program Python dengan database MySQL. MySQL Connector adalah library agar Python dapat berkomunikasi dengan MySQL: terhubung ke database, mengirim query SQL, mengambil hasil query, serta menambah, mengubah, dan menghapus data. Materi menjelaskan instalasi melalui perintah pip install mysql-connector-python dan pengecekan dengan pip show. Koneksi Python dan MySQL memerlukan parameter host, user, password, dan database. Cursor digunakan untuk menjalankan perintah SQL dari Python, misalnya cursor= db.cursor dan cursor.execute(\"SELECT* FROM users\"). Materi juga membahas CRUD: Create dengan INSERT untuk menambah data, Read dengan SELECT untuk membaca data, Update dengan UPDATE untuk mengubah data, dan Delete dengan DELETE untuk menghapus data. Penyimpanan data yang sebelumnya memakai file.txt dipindahkan ke database MySQL agar pengelolaan lebih terstruktur. Terdapat quiz memodifikasi kode untuk menambahkan 3 akun default sekaligus dan fitur show/hide password.",
+      "topik": [
+        "Pengantar mysql-connector-python",
+        "Instalasi MySQL Connector",
+        "Koneksi Python dan MySQL",
+        "Parameter koneksi: host, user, password, database",
+        "Cursor dan eksekusi query",
+        "CRUD: Create, Read, Update, Delete",
+        "Perpindahan penyimpanan dari file.txt ke MySQL",
+        "Quiz: menambah 3 akun default",
+        "Quiz: show/hide password"
+      ],
+      "ada_contoh_kode": true
+    },
+    "6": {
+      "hash": "c74e48007c97923e20baf96de9ebd45266ce0df5bcc9f5b94f9bde6d21be2816",
+      "ringkasan": "Materi Pertemuan 6 Praktikum E-Application membahas pengolahan dan transfer data media menggunakan Base64 dalam Python dan Eel. Arsitektur Eel memisahkan backend Python dan frontend browser yang terhubung melalui WebSocket untuk bertukar data teks atau JSON. Karena WebSocket tidak dirancang untuk data biner mentah, pengiriman gambar langsung berisiko corrupt dan fragmentasi. Base64 menyandikan data biner gambar menjadi teks ASCII agar aman dikirim bolak-balik tanpa web server eksternal. Base64 memecah setiap 3 byte biner menjadi 4 karakter ASCII, menambah ukuran sekitar 33%, sehingga cocok untuk media ringan seperti foto profil atau ikon. Data URI dengan format data:image/png;base64,[payload] memungkinkan teks ditampilkan langsung pada tag <img>. Alur transfer dua arah mencakup Python ke JavaScript untuk menampilkan citra, dan JavaScript ke Python untuk unggah berkas. Di backend, modul base64 digunakan; file dibaca mode rb, disandikan b64encode, dan saat menerima data header dipisahkan dengan split lalu payload didekode b64decode dan ditulis mode wb. Di frontend, FileReader dan readAsDataURL membaca file dari input secara asinkron menjadi Data URI untuk pratinjau dan dikirim ke Python melalui jembatan Eel.",
+      "topik": [
+        "Arsitektur Eel",
+        "Masalah transfer berkas media",
+        "Konsep Base64 dan Data URI",
+        "Alur transfer data dua arah",
+        "Implementasi backend Python",
+        "Implementasi frontend JavaScript"
+      ],
+      "ada_contoh_kode": false
+    },
+    "7": {
+      "hash": "e4a84685817ab53eb88a1e93a132f40eeb9d9bd3e27d2ce9452c4d837efbb449",
+      "ringkasan": "Materi Praktikum E-Application pertemuan 7 membahas pengolahan data menggunakan Pandas, yaitu library Python untuk mengolah, memanipulasi, dan menganalisis data berbentuk tabel seperti data mahasiswa, nilai, penjualan, cuaca, kasus, dan pelanggan. Tanpa Pandas, Python dapat membaca file dengan open(), tetapi kurang praktis untuk tabel berukuran banyak. Dengan Pandas, data dapat dibaca, ditampilkan, diambil, diurutkan, dihapus, diisi, dihitung, dikelompokkan, dan disiapkan untuk visualisasi. Materi mencakup instalasi dengan pip install pandas dan import pandas as pd. Struktur data Pandas terdiri dari Series, yaitu data satu dimensi atau satu kolom dengan index seperti kolom Excel, dan DataFrame, yaitu data dua dimensi dengan baris dan kolom seperti seluruh sheet Excel. Fungsi dasar yang dibahas antara lain read_csv, head, info, describe, pemilihan kolom, sort_values, dropna, fillna, dan groupby. Contoh kasus OSN menggunakan file osn.csv dan df.head(). Sistem melibatkan backend Python yang membaca CSV, mengolah dan mengelompokkan data, menyiapkan grafik, lalu mengirim data ke JavaScript melalui Eel. Frontend JavaScript membuat grafik dengan Chart.js dan menampilkannya pada HTML.",
+      "topik": [
+        "Apa itu Pandas",
+        "Mengapa menggunakan Pandas",
+        "Instalasi dan import",
+        "Struktur data Pandas: Series dan DataFrame",
+        "Fungsi dasar Pandas",
+        "Membaca dan menampilkan data kasus OSN",
+        "Cara kerja sistem: backend Python",
+        "Cara kerja sistem: frontend JavaScript, Chart.js, dan Eel"
+      ],
+      "ada_contoh_kode": true
+    }
+  },
+  "38427": {
+    "1": {
+      "hash": "41da82f54dfaf2d5be05c733a294315e7edda8e16ab4538a8fbf63a504b113e6",
+      "ringkasan": "Pertemuan pertama mata kuliah Sistem Pendukung Keputusan (TIF 3 029) membahas pengantar SPK. Pengambil keputusan kini menghadapi lingkungan yang kompetitif, cepat, mendekati waktu nyata, penuh informasi, dan berskala multinasional. Kombinasi kecepatan, akses Internet, dan pematangan teknik kecerdasan buatan menghasilkan bantuan canggih untuk mendukung pengambilan keputusan dalam kondisi berisiko dan tidak pasti, dengan potensi menyarankan solusi lebih baik daripada manusia saja. DSS didefinisikan sebagai sistem atau subsistem berbasis komputer interaktif yang membantu pengambil keputusan memakai teknologi komunikasi, data, dokumen, pengetahuan, dan/atau model untuk mengidentifikasi serta memecahkan masalah dan membuat keputusan. DSS juga merupakan istilah umum bagi aplikasi komputer yang meningkatkan kemampuan seseorang atau kelompok dalam mengambil keputusan, sekaligus bidang penelitian akademis. Materi menjelaskan tujuan kuliah, DSS berbasis spreadsheet dengan VBA, contoh hipotesis pengambilan keputusan pembangunan perkeretaapian beserta masalah yang ditangani, manfaat DSS, dan kuis praktik pemilihan tempat kost.",
+      "topik": [
+        "Pengantar SPK",
+        "Definisi Decision Support System",
+        "Komponen dan arsitektur DSS",
+        "Tujuan mata kuliah",
+        "DSS berbasis spreadsheet dan VBA",
+        "Contoh pengambilan keputusan (hipotesis perkeretaapian)",
+        "Masalah yang ditangani",
+        "Manfaat DSS",
+        "Kuis praktik DSS"
+      ],
+      "ada_contoh_kode": false
+    },
+    "2": {
+      "hash": "6eba40e52135e02f13b28421617bf0b9434d4393be02298f4eaf449bfa67ec86",
+      "ringkasan": "Materi membahas proses pengambilan keputusan dalam manajemen/proyek melalui lima tahap: identifikasi konsep proyek, penilaian rinci faktor teknis, ekonomi, dan sosial-politik, penyusunan spesifikasi tender, keputusan menerima tender, serta keputusan memulai operasi. Setiap tahap dapat berujung pada keputusan melanjutkan atau menghentikan proyek. Karakteristik keputusan: dibuat berdasarkan informasi yang tersedia, dapat berulang/iteratif seiring bertambahnya data, dan memerlukan pendanaan memadai. Manajemen adalah pengambilan keputusan; kompleksitasnya meningkat karena teknologi/informasi, persaingan struktural, pasar internasional/konsumerisme, serta perubahan dan fluktuasi. Masalah manajemen diwakili tiga elemen: tujuan, variabel keputusan, dan kendala. Tipe masalah dibagi terstruktur, tidak terstruktur, dan semi-terstruktur; DSS paling berguna untuk aspek berulang masalah semi-terstruktur. DSS adalah sistem komputer tingkat manajemen yang menggabungkan data, model, dan antarmuka ramah pengguna untuk keputusan semistruktur/tidak terstruktur. Materi juga memuat soal praktik tentang contoh, kekuatan, dan kelemahan tipe masalah.",
+      "topik": [
+        "Proses pengambilan keputusan proyek 5 tahap",
+        "Karakteristik pengambilan keputusan",
+        "Manajemen dan pengambilan keputusan",
+        "Masalah manajemen: tujuan, variabel keputusan, kendala",
+        "Tipe masalah keputusan",
+        "DSS secara ringkas",
+        "Mengapa DSS",
+        "Soal praktik"
+      ],
+      "ada_contoh_kode": false
+    },
+    "3": {
+      "hash": "68932176d01b31ef5127a08124386511c9e89fc58c2fde16efefda9362a788ea",
+      "ringkasan": "Materi Pertemuan 3 Sistem Pendukung Keputusan membahas sejarah, taksonomi, arsitektur, aplikasi, dan karakteristik SPK/DSS. Sejarahnya dipelajari sekitar 40 tahun; menurut Keen dan Scott Morton (1978) berkembang dari studi teori pengambilan keputusan organisasi di Carnegie akhir 1950-an–awal 1960-an dan kerja sistem komputer interaktif di MIT tahun 1960-an. DSS menjadi bidang penelitian pertengahan 1970-an dan berkembang era 1980-an, lalu muncul EIS, Group DSS, Organization DSS, data warehousing, OLAP, dan aplikasi analitis berbasis Web. DSS bersifat multidisiplin, mencakup riset basis data, AI, interaksi manusia-komputer, simulasi, rekayasa perangkat lunak, dan telekomunikasi. Ada lebih dari 30 pendekatan desain. DSS komersial meliputi tujuh jenis: file drawer, analisis data, analisis sistem informasi, model akuntansi/keuangan, representasional, optimasi, dan saran. Taksonomi Power (2002) membedakan DSS berbasis komunikasi, data, dokumen, pengetahuan, dan model. Arsitektur DSS memiliki komponen manajemen data, model, antarmuka pengguna; versi detail mencakup mesin pengetahuan, jaringan, dan pengguna. Typical architecture memuat TPS, model, OLAP, user interface, DSS database, dan data mining. Aplikasi DSS antara lain diagnosis medis, verifikasi kredit, proyek, bisnis/manajemen, pertanian, pemasaran, dan pasar saham. Karakteristik DSS mendukung masalah semi/tidak terstruktur, individu/kelompok, fleksibel, interaktif, efektivitas, kontrol penuh pengambil keputusan, dan pemodelan/analisis.",
+      "topik": [
+        "Sejarah SPK",
+        "EIS dan OLAP",
+        "Pendekatan desain DSS",
+        "DSS komersial",
+        "Taksonomi Power 2002",
+        "Jenis DSS berbasis model, data, komunikasi, dokumen, pengetahuan",
+        "Arsitektur DSS",
+        "Model base dan aplikasi DSS",
+        "Karakteristik dan kemampuan DSS"
+      ],
+      "ada_contoh_kode": false
+    },
+    "4": {
+      "hash": "afd3d3598fbc9ea0ad61554bb665fb425eefa2b3c0acc04a76d61f8b023009a1",
+      "ringkasan": "Pertemuan 4 membahas arsitektur Sistem Pendukung Keputusan (SPK/DSS). Tiga komponen dasar DSS adalah sistem manajemen basis data (DBMS), sistem manajemen model (MBMS), dan generasi dialog serta sistem manajemen (DGMS). Komponen manajemen data menyimpan informasi dari penyimpanan tradisional, sumber eksternal, atau pengalaman pengguna; manajemen model menangani representasi peristiwa, fakta, atau situasi dengan model seperti optimasi dan pencarian tujuan; antarmuka pengguna memungkinkan interaksi. Arsitektur umum terdiri dari enam bagian: sistem manajemen data, sistem manajemen model, mesin pengetahuan, antarmuka pengguna, arsitektur dan jaringan DSS, serta pengguna. Arsitektur tipikal memuat TPS, model, OLAP, antarmuka pengguna, basis data DSS, data mining, data eksternal, dan sistem perangkat lunak DSS. Basis model adalah komponen perangkat lunak berisi model untuk komputasi dan analitik, contohnya pemrograman linier, regresi berganda, dan nilai sekarang penganggaran modal. Materi juga membahas aplikasi DSS dan karakteristik/kemampuannya, termasuk dukungan masalah semi-terstruktur/tidak terstruktur, fleksibilitas, interaktivitas, efektivitas, kontrol pengguna, serta pemodelan dan analisis.",
+      "topik": [
+        "Arsitektur SPK",
+        "Tiga komponen dasar DSS",
+        "Enam bagian arsitektur umum",
+        "Arsitektur tipikal DSS",
+        "Basis model DSS",
+        "Aplikasi DSS",
+        "Karakteristik dan kemampuan DSS"
+      ],
+      "ada_contoh_kode": false
+    },
+    "5": {
+      "hash": "5b24bd342bd87bbbbf453f5592a6db88c21d079cf23573006decb402765ab803",
+      "ringkasan": "Materi pertemuan 5 membahas Sistem Informasi Pendukung Keputusan, khususnya perbedaan MIS dan DSS. MIS menyediakan laporan berkala, pengecualian, permintaan, format tetap, serta mendukung keputusan terstruktur. DSS memberi informasi dan teknik analisis masalah spesifik, interaktif, format fleksibel, dan pemodelan analitis. Dijelaskan definisi DBMS, gudang data, MIS, sistem pakar, bantuan keputusan, DSS, dan EIS. Dibahas alternatif pelaporan SIM: laporan terjadwal berkala, pengecualian, dan berdasarkan permintaan. OLAP memungkinkan analisis data besar secara real time dengan operasi konsolidasi, perincian, serta mengiris dan memotong. GIS menggunakan database geografis untuk peta dan keputusan distribusi geografis; data mining menemukan pola, tren, korelasi dengan regresi, pohon keputusan, jaringan saraf, analisis klaster, atau keranjang pasar. DVS menyajikan data kompleks dalam grafik interaktif. EIS menggabungkan fitur MIS dan DSS untuk eksekutif, dengan fitur antarmuka grafis, pelaporan pengecualian, analisis tren, dan penelusuran. EIP mengintegrasikan MIS, DSS, EIS, dan teknologi lain lewat web. KMS mengumpulkan, mengatur, berbagi pengetahuan. Expert system berbasis pengetahuan dengan komponen basis pengetahuan, mesin inferensi, antarmuka, dan penjelasan. Penggunaan DSS mencakup what-if, sensitivity, goal-seeking, dan optimisasi. DSS mendukung, bukan menggantikan, keputusan.",
+      "topik": [
+        "Perbandingan MIS dan DSS",
+        "Definisi DBMS, gudang data, MIS, sistem pakar, DSS, EIS",
+        "MIS dan alternatif pelaporan",
+        "OLAP dan operasi analitis",
+        "GIS, data mining, dan DVS",
+        "EIS dan fiturnya",
+        "Enterprise Interface Portals (EIP)",
+        "Knowledge Management Systems (KMS)",
+        "Expert Systems dan komponennya",
+        "Penggunaan DSS dan catatannya"
+      ],
+      "ada_contoh_kode": false
+    },
+    "6": {
+      "hash": "454920d5e92cf43a20794e1fc35768b2e28377c9e95db03f4a112bfce8766fba",
+      "ringkasan": "Pertemuan 6 membahas metode dalam Sistem Pendukung Keputusan (SPK). Metode diartikan sebagai cara atau jalan sistematis untuk mencapai tujuan, berasal dari bahasa Yunani metha dan hodos. Ragam metode SPK meliputi sistem pakar, regresi linier, logika fuzzy, AHP, TOPSIS, IRR, NPV, FMADM, dan lain sebagainya. Sistem pakar mentransfer keahlian pakar ke komputer lalu ke masyarakat. Regresi linier memprediksi data tak diketahui menggunakan data terkait dan menyatakan hubungan variabel bebas terhadap variabel terikat; jenisnya antara lain regresi linier, polinomial, logistik, quantile, ridge, lasso, PCR, dan PLS. Logika fuzzy mengatasi nilai antara benar dan salah, menghasilkan nilai antara 0 dan 1, serta fleksibel, sederhana, bertoleransi data, dan mampu membuat sistem kompleks. AHP dikembangkan Thomas L. Saaty, menguraikan masalah multi faktor/kriteria menjadi hirarki: tujuan, faktor, kriteria, subkriteria, alternatif, dengan tahapan definisi masalah, matriks perbandingan berpasangan, nilai eigen, uji konsistensi. IRR adalah indikator efisiensi investasi; NPV selisih arus kas masuk dan keluar. Materi juga membahas kelebihan, keterbatasan, evaluasi periodik, update SPK, dan tugas kelompok.",
+      "topik": [
+        "Definisi metode",
+        "Ragam metode SPK",
+        "Metode sistem pakar",
+        "Metode regresi linier",
+        "Metode logika fuzzy",
+        "Metode AHP",
+        "Metode IRR dan NPV",
+        "Kelebihan dan keterbatasan SPK",
+        "Evaluasi, update, dan tugas kelompok"
+      ],
+      "ada_contoh_kode": false
+    },
+    "7": {
+      "hash": "ea6b7ee8afa25780b2fcdef8b47720d504cabad8ed33a5361dba73981470f5ff",
+      "ringkasan": "Pertemuan 7 membahas metode dalam Sistem Pendukung Keputusan. Metode diartikan sebagai cara sistematis untuk mencapai tujuan, berasal dari bahasa Yunani metha dan hodos. Ragam metode SPK meliputi sistem pakar, regresi linier, logika fuzzy, AHP, TOPSIS, IRR, NPV, FMADM, dan lain-lain. Sistem pakar adalah program komputer yang memuat pengetahuan pakar untuk mentransfer keahlian kepada masyarakat. Regresi linier memprediksi data tak diketahui melalui data terkait dan menghubungkan variabel bebas dengan variabel terikat; jenisnya antara lain linier, polinomial, logistik, dan quantile. Logika fuzzy mengatasi nilai antara benar dan salah dengan rentang 0–1, serta fleksibel, sederhana, toleran data, dan mampu menangani sistem kompleks. AHP dikembangkan Thomas L. Saaty, menguraikan masalah multi kriteria menjadi hirarki: tujuan, faktor, kriteria, subkriteria, hingga alternatif. IRR mengukur efisiensi investasi, sedangkan NPV adalah selisih arus kas masuk dan keluar untuk menilai profitabilitas. Materi juga membahas kelebihan SPK, keterbatasan SPK, evaluasi periodik, update, dan tugas kelompok presentasi.",
+      "topik": [
+        "Pengertian metode",
+        "Ragam metode SPK",
+        "Metode sistem pakar",
+        "Regresi linier",
+        "Logika fuzzy",
+        "AHP",
+        "IRR dan NPV",
+        "Kelebihan dan keterbatasan SPK",
+        "Evaluasi dan update SPK",
+        "Tugas kelompok"
+      ],
+      "ada_contoh_kode": false
+    }
+  }
+}

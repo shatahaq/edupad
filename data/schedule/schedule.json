@@ -1,0 +1,439 @@
+{
+  "diperbarui": "2026-10-01T05:30+07:00",
+  "sesi_berlaku_sampai": "2026-10-30T22:30:02.761Z",
+  "nim": "241712061",
+  "kelas": [
+    {
+      "hari": "senin",
+      "mulai": "08:00",
+      "selesai": "09:40",
+      "kode": "TIF 3 036 P",
+      "matkul": "Praktikum Sistem Informasi Geografis",
+      "jenis": "praktikum",
+      "kelas": "5/B1",
+      "sks": 2,
+      "ruang": "I09.3.3.6",
+      "nama_ruang": "Laboratorium Komputer",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Dr. Syahriol Sitorus S.Si., M.IT."
+      ],
+      "moodle_course_id": "38402",
+      "satu_class_id": "6a729de14db23b08dfb2f73a"
+    },
+    {
+      "hari": "senin",
+      "mulai": "13:30",
+      "selesai": "14:20",
+      "kode": "TIF 3 030",
+      "matkul": "Manajemen Sistem Basis Data",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Reza Taqyuddin M.Kom"
+      ],
+      "moodle_course_id": "38404",
+      "satu_class_id": "6a72ba914db23b08dfb2f86e"
+    },
+    {
+      "hari": "senin",
+      "mulai": "14:20",
+      "selesai": "16:00",
+      "kode": "TIF 3 030 P",
+      "matkul": "Praktikum Manajemen Sistem Basis Data",
+      "jenis": "praktikum",
+      "kelas": "5/B",
+      "sks": 2,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Reza Taqyuddin M.Kom"
+      ],
+      "moodle_course_id": "38406",
+      "satu_class_id": "6a72be826b0bef43f685a504"
+    },
+    {
+      "hari": "senin",
+      "mulai": "16:00",
+      "selesai": "16:50",
+      "kode": "TIF 3 031",
+      "matkul": "Pemrograman Visual",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Insidini Fawwaz M.Kom"
+      ],
+      "moodle_course_id": "38408",
+      "satu_class_id": "6a72c00088db9429977d1dce"
+    },
+    {
+      "hari": "selasa",
+      "mulai": "13:30",
+      "selesai": "14:20",
+      "kode": "TIF 3 035",
+      "matkul": "Manajemen Proyek IT",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "Anif",
+      "nama_ruang": "R.B.2",
+      "gedung": "Aset",
+      "dosen": [
+        "Zulhamsyah Fachrurrazi Nasution S.Kom., M.MSI."
+      ],
+      "moodle_course_id": "38410",
+      "satu_class_id": "6a72d7e090eef154a2895bea"
+    },
+    {
+      "hari": "selasa",
+      "mulai": "14:20",
+      "selesai": "15:10",
+      "kode": "TIF 3 035 P",
+      "matkul": "Praktikum Manajemen Proyek IT",
+      "jenis": "praktikum",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "Anif",
+      "nama_ruang": "R.B.2",
+      "gedung": "Aset",
+      "dosen": [
+        "Zulhamsyah Fachrurrazi Nasution S.Kom., M.MSI."
+      ],
+      "moodle_course_id": "38411",
+      "satu_class_id": "6a72daf890eef154a2895bf3"
+    },
+    {
+      "hari": "selasa",
+      "mulai": "15:10",
+      "selesai": "16:00",
+      "kode": "TIF 3 037",
+      "matkul": "E-Application",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "Anif",
+      "nama_ruang": "R.B.2",
+      "gedung": "Aset",
+      "dosen": [
+        "Prof. Drs. Poltak Sihombing M.Kom., Ph.D"
+      ],
+      "moodle_course_id": "38413",
+      "satu_class_id": "6a72e1cc5197802e45fd40c6"
+    },
+    {
+      "hari": "rabu",
+      "mulai": "08:00",
+      "selesai": "09:40",
+      "kode": "TIF 3 031 P",
+      "matkul": "Praktikum Pemrograman Visual",
+      "jenis": "praktikum",
+      "kelas": "5/B1",
+      "sks": 2,
+      "ruang": "I09.3.3.6",
+      "nama_ruang": "Laboratorium Komputer",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Insidini Fawwaz M.Kom"
+      ],
+      "moodle_course_id": "38415",
+      "satu_class_id": "6a72ece46b0bef43f685a699"
+    },
+    {
+      "hari": "kamis",
+      "mulai": "08:00",
+      "selesai": "09:40",
+      "kode": "TIF 3 037 P",
+      "matkul": "Praktikum E-Application",
+      "jenis": "praktikum",
+      "kelas": "5/B1",
+      "sks": 2,
+      "ruang": "I09.3.3.2",
+      "nama_ruang": "Laboratorium Komputer",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Prof. Drs. Poltak Sihombing M.Kom., Ph.D"
+      ],
+      "moodle_course_id": "38419",
+      "satu_class_id": "6a72f588c4281e495e9a09b3"
+    },
+    {
+      "hari": "kamis",
+      "mulai": "15:10",
+      "selesai": "16:00",
+      "kode": "TIF 3 033",
+      "matkul": "Teknik Penulisan Karya Ilmiah",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Dra. Normalina Napitupulu M.Sc"
+      ],
+      "moodle_course_id": "38422",
+      "satu_class_id": "6a73013bbb1a652924911798"
+    },
+    {
+      "hari": "kamis",
+      "mulai": "16:00",
+      "selesai": "16:50",
+      "kode": "TIF 3 033 P",
+      "matkul": "Praktikum Teknik Penulisan Karya Ilmiah",
+      "jenis": "praktikum",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Dra. Normalina Napitupulu M.Sc"
+      ],
+      "moodle_course_id": "38423",
+      "satu_class_id": "6a7301ce4db23b08dfb2faa2"
+    },
+    {
+      "hari": "kamis",
+      "mulai": "16:50",
+      "selesai": "17:40",
+      "kode": "TIF 3 036",
+      "matkul": "Sistem Informasi Geografis",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Dr. Syahriol Sitorus S.Si., M.IT."
+      ],
+      "moodle_course_id": "38425",
+      "satu_class_id": "6a7302dc88db9429977d1ffb"
+    },
+    {
+      "hari": "jumat",
+      "mulai": "09:40",
+      "selesai": "11:20",
+      "kode": "TIF 3 032",
+      "matkul": "Rekayasa Perangkat Lunak",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 2,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Dra. Normalina Napitupulu M.Sc"
+      ],
+      "moodle_course_id": "38428",
+      "satu_class_id": "6a7307d590eef154a2895d9f"
+    },
+    {
+      "hari": "jumat",
+      "mulai": "13:30",
+      "selesai": "14:20",
+      "kode": "TIF 3 029",
+      "matkul": "Sistem Pendukung Keputusan",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Prof. Dr. Esther Sorta Mauli Nababan M.Sc"
+      ],
+      "moodle_course_id": "38427",
+      "satu_class_id": "6a7306584db23b08dfb2fac0"
+    },
+    {
+      "hari": "jumat",
+      "mulai": "14:20",
+      "selesai": "15:10",
+      "kode": "TIF 3 029 P",
+      "matkul": "Praktikum Sistem Pendukung Keputusan",
+      "jenis": "praktikum",
+      "kelas": "5/B",
+      "sks": 1,
+      "ruang": "I05.2.1.6",
+      "nama_ruang": "Ruang I05.2.1.6",
+      "gedung": "Fakultas Matematika Dan Ilmu Pengetahuan Alam",
+      "dosen": [
+        "Prof. Dr. Esther Sorta Mauli Nababan M.Sc"
+      ],
+      "moodle_course_id": "38431",
+      "satu_class_id": "6a730a9790eef154a2895dba"
+    },
+    {
+      "hari": "jumat",
+      "mulai": null,
+      "selesai": null,
+      "kode": "TIF 3 034",
+      "matkul": "Praktek Kerja Lapangan",
+      "jenis": "teori",
+      "kelas": "5/B",
+      "sks": 2,
+      "ruang": null,
+      "nama_ruang": null,
+      "gedung": null,
+      "dosen": [],
+      "moodle_course_id": "38433",
+      "satu_class_id": "6a730b1dc4281e495e9a0a72"
+    }
+  ],
+  "presensi": [
+    {
+      "kode": "TIF 3 034",
+      "matkul": "Praktek Kerja Lapangan",
+      "kelas": "5/B",
+      "satu_class_id": "6a730b1dc4281e495e9a0a72",
+      "pertemuan_tercatat": 0,
+      "hadir": 0,
+      "persen_hadir": 0
+    },
+    {
+      "kode": "TIF 3 029 P",
+      "matkul": "Praktikum Sistem Pendukung Keputusan",
+      "kelas": "5/B",
+      "satu_class_id": "6a730a9790eef154a2895dba",
+      "pertemuan_tercatat": 7,
+      "hadir": 4,
+      "persen_hadir": 57
+    },
+    {
+      "kode": "TIF 3 032",
+      "matkul": "Rekayasa Perangkat Lunak",
+      "kelas": "5/B",
+      "satu_class_id": "6a7307d590eef154a2895d9f",
+      "pertemuan_tercatat": 16,
+      "hadir": 5,
+      "persen_hadir": 31
+    },
+    {
+      "kode": "TIF 3 029",
+      "matkul": "Sistem Pendukung Keputusan",
+      "kelas": "5/B",
+      "satu_class_id": "6a7306584db23b08dfb2fac0",
+      "pertemuan_tercatat": 16,
+      "hadir": 5,
+      "persen_hadir": 31
+    },
+    {
+      "kode": "TIF 3 036",
+      "matkul": "Sistem Informasi Geografis",
+      "kelas": "5/B",
+      "satu_class_id": "6a7302dc88db9429977d1ffb",
+      "pertemuan_tercatat": 16,
+      "hadir": 4,
+      "persen_hadir": 25
+    },
+    {
+      "kode": "TIF 3 033 P",
+      "matkul": "Praktikum Teknik Penulisan Karya Ilmiah",
+      "kelas": "5/B",
+      "satu_class_id": "6a7301ce4db23b08dfb2faa2",
+      "pertemuan_tercatat": 7,
+      "hadir": 6,
+      "persen_hadir": 86
+    },
+    {
+      "kode": "TIF 3 033",
+      "matkul": "Teknik Penulisan Karya Ilmiah",
+      "kelas": "5/B",
+      "satu_class_id": "6a73013bbb1a652924911798",
+      "pertemuan_tercatat": 16,
+      "hadir": 5,
+      "persen_hadir": 31
+    },
+    {
+      "kode": "TIF 3 037 P",
+      "matkul": "Praktikum E-Application",
+      "kelas": "5/B1",
+      "satu_class_id": "6a72f588c4281e495e9a09b3",
+      "pertemuan_tercatat": 5,
+      "hadir": 5,
+      "persen_hadir": 100
+    },
+    {
+      "kode": "TIF 3 031 P",
+      "matkul": "Praktikum Pemrograman Visual",
+      "kelas": "5/B1",
+      "satu_class_id": "6a72ece46b0bef43f685a699",
+      "pertemuan_tercatat": 2,
+      "hadir": 2,
+      "persen_hadir": 100
+    },
+    {
+      "kode": "TIF 3 037",
+      "matkul": "E-Application",
+      "kelas": "5/B",
+      "satu_class_id": "6a72e1cc5197802e45fd40c6",
+      "pertemuan_tercatat": 16,
+      "hadir": 6,
+      "persen_hadir": 38
+    },
+    {
+      "kode": "TIF 3 035 P",
+      "matkul": "Praktikum Manajemen Proyek IT",
+      "kelas": "5/B",
+      "satu_class_id": "6a72daf890eef154a2895bf3",
+      "pertemuan_tercatat": 6,
+      "hadir": 5,
+      "persen_hadir": 83
+    },
+    {
+      "kode": "TIF 3 035",
+      "matkul": "Manajemen Proyek IT",
+      "kelas": "5/B",
+      "satu_class_id": "6a72d7e090eef154a2895bea",
+      "pertemuan_tercatat": 16,
+      "hadir": 6,
+      "persen_hadir": 38
+    },
+    {
+      "kode": "TIF 3 031",
+      "matkul": "Pemrograman Visual",
+      "kelas": "5/B",
+      "satu_class_id": "6a72c00088db9429977d1dce",
+      "pertemuan_tercatat": 16,
+      "hadir": 4,
+      "persen_hadir": 25
+    },
+    {
+      "kode": "TIF 3 030 P",
+      "matkul": "Praktikum Manajemen Sistem Basis Data",
+      "kelas": "5/B",
+      "satu_class_id": "6a72be826b0bef43f685a504",
+      "pertemuan_tercatat": 7,
+      "hadir": 7,
+      "persen_hadir": 100
+    },
+    {
+      "kode": "TIF 3 030",
+      "matkul": "Manajemen Sistem Basis Data",
+      "kelas": "5/B",
+      "satu_class_id": "6a72ba914db23b08dfb2f86e",
+      "pertemuan_tercatat": 16,
+      "hadir": 6,
+      "persen_hadir": 38
+    },
+    {
+      "kode": "TIF 3 036 P",
+      "matkul": "Praktikum Sistem Informasi Geografis",
+      "kelas": "5/B1",
+      "satu_class_id": "6a729de14db23b08dfb2f73a",
+      "pertemuan_tercatat": 3,
+      "hadir": 3,
+      "persen_hadir": 100
+    }
+  ]
+}

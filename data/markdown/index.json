@@ -1,0 +1,625 @@
+{
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 25,
+    "meta_hash": "ec116a79e87bf145d9b69142acd3a57b2dbdd5b546877f3048129e4ec775495d",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Check your knowledge.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Check your knowledge.md",
+    "converter": "salin",
+    "words": 174,
+    "meta_hash": "fbf7169b3f5f94817448020cc69977140330f373e131f2ca48198074f28ca52d",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 1_ Foundations of Database Management Systems.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 1_ Foundations of Database Management Systems.md",
+    "converter": "salin",
+    "words": 128,
+    "meta_hash": "39a0d70a161bd8bcba259ab9d7cfd99bb76dbc031ad30483b464f08af911e729",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 2_ The Evolution of Database Systems.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 2_ The Evolution of Database Systems.md",
+    "converter": "salin",
+    "words": 135,
+    "meta_hash": "ee2e1cbb08d9935115f836ff82251d51316fa843c53c8f7c26a94080a55fc3cb",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 3_ Relational Model Principles and Integrity.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 3_ Relational Model Principles and Integrity.md",
+    "converter": "salin",
+    "words": 129,
+    "meta_hash": "fc68ecbeff18433356c59e7da33ccb09a5bb1096c6dc552ec6868a06c066a80b",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 4_ SQL Query Mastery - Syntax to Advanced Joins.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 4_ SQL Query Mastery - Syntax to Advanced Joins.md",
+    "converter": "salin",
+    "words": 132,
+    "meta_hash": "047802ce6e0a25449c9dd1408dec93a9f967636f6b28a3c27309b22c6fd2c029",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 24,
+    "meta_hash": "3a2f30dba067e999c02aefd84631810edc4baddc3cf5a858c858b0e94d1ffc01",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/Deep Dive_ Storage Engines, Indexing, and Concurrency.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/Deep Dive_ Storage Engines, Indexing, and Concurrency.md",
+    "converter": "salin",
+    "words": 160,
+    "meta_hash": "4b8b78269745a46ab3b599b204a738ba7503fb057d3ee84656f8e7196e463d6f",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 23,
+    "meta_hash": "2e66c779f8b4314b3151764a7c036262e7b64e74ef152f28e9b0d9c55bc4bc2b",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/Database Scalability and High Availability Blueprint.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/Database Scalability and High Availability Blueprint.md",
+    "converter": "salin",
+    "words": 167,
+    "meta_hash": "3667da935c802de21f2032edbd69ce17659dae37c8f8eb9258db1bd16088a386",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/04_Polyglot Persistence in Practice/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/04_Polyglot Persistence in Practice/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 26,
+    "meta_hash": "e5ded914dd3395ef93ffb4c01eb3ea83930df8afcccc1a0d288f2d6c873fb095",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/05_Unstructured Data and NoSQL/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/05_Unstructured Data and NoSQL/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 26,
+    "meta_hash": "b5b556670fa6a1673ab62215b228f3ad353b3be771906eace45b43413d1ff845",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/06_Real-World Architecture Case Studies/00_Deskripsi pertemuan.md": {
+    "output": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/06_Real-World Architecture Case Studies/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 23,
+    "meta_hash": "1c765ba0f128c3df056adda3080a15b4334e973ea86538c8948620005f99a051",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 98,
+    "meta_hash": "8181cdabc7633ce58afcff706342d2b6851fac7b4c7f426fc1e48a73f7311640",
+    "converted_at": "2026-09-30T20:31:48"
+  },
+  "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf": {
+    "output": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(5 hal)",
+    "words": 548,
+    "meta_hash": "8c5a4ef2abc35d939573ceb7fdbc063c9974afe7976d7f19a9cc74c16b160b13",
+    "converted_at": "2026-09-30T20:32:12"
+  },
+  "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf": {
+    "output": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(5 hal)",
+    "words": 944,
+    "meta_hash": "f65b5777fbf52cc1f08a1372f97e9353b85fe806721d653f249500afc36aae6f",
+    "converted_at": "2026-09-30T20:32:31"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/01_Pengantar SPK/1-2 Pengantar SPK.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/01_Pengantar SPK/1-2 Pengantar SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 1719,
+    "meta_hash": "35548d3ebe49f0fecc170d3d523c1afb0de78f14ad0ed36d1007a6a397925ba2",
+    "converted_at": "2026-09-30T20:32:44"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/02_Proses Pengambilan Keputusan/2 A Proses Pengambilan Keputusan.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/02_Proses Pengambilan Keputusan/2 A Proses Pengambilan Keputusan.pdf.md",
+    "converter": "pymupdf4llm+ocr(4 hal)",
+    "words": 1006,
+    "meta_hash": "e729f3fdd3003243950d0b87c3841d383f5bd4e49acd81557a40077a65591704",
+    "converted_at": "2026-09-30T20:33:01"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/03_Sejarah Sistem Pendukung Keputiusan/3 Sejarah SPK.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/03_Sejarah Sistem Pendukung Keputiusan/3 Sejarah SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 1598,
+    "meta_hash": "b698583a197d419349241007460452a85baac99b27b0d8f2360bb27bff5fb721",
+    "converted_at": "2026-09-30T20:33:15"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 686,
+    "meta_hash": "4b99e753bed2b118316441166e80c1abdebb2f7c0bdd86731f53dd38de94bd7a",
+    "converted_at": "2026-09-30T20:33:30"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf.md",
+    "converter": "pymupdf4llm+ocr(1 hal)",
+    "words": 1012,
+    "meta_hash": "1167c81384e2cfbd2414b1c9cd47da0f4ec92f86ab6f38ce1b39dcaa94340fa9",
+    "converted_at": "2026-09-30T20:33:40"
+  },
+  "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf": {
+    "output": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 1287,
+    "meta_hash": "b7ce95cdf04908a9ddf3011bef37f5ede9d6979ece79ccbb77fa729f477a2e3d",
+    "converted_at": "2026-09-30T20:34:12"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/01_Pengantar SPK/1 Pengantar SPK VB.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/01_Pengantar SPK/1 Pengantar SPK VB.pdf.md",
+    "converter": "pymupdf4llm+ocr(4 hal)",
+    "words": 807,
+    "meta_hash": "2037371c4f7e445e2e73efb65c85f0dc1fd6a5a90e42ec1552685ed0a9cf1d61",
+    "converted_at": "2026-09-30T20:34:31"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/02_Topic 2/2 B Proses Pengambilan Keputusan.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/02_Topic 2/2 B Proses Pengambilan Keputusan.pdf.md",
+    "converter": "pymupdf4llm+ocr(4 hal)",
+    "words": 1006,
+    "meta_hash": "5b864c7800201ab68e6fe025bb4e601867312ed392788bb946238ca6f06540bc",
+    "converted_at": "2026-09-30T20:34:51"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/03_Sejarah Sistem Pendukung Keputusan/3 Sejarah SPK.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/03_Sejarah Sistem Pendukung Keputusan/3 Sejarah SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 1598,
+    "meta_hash": "51095820e21e24c098b91899febd4c4c7445fafc373e5c4c9ed787fe82b67e4c",
+    "converted_at": "2026-09-30T20:35:07"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 686,
+    "meta_hash": "7e05de6add966187f89d39643cf0cb573b7820580bb2881611d63c178c851c43",
+    "converted_at": "2026-09-30T20:35:21"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf.md",
+    "converter": "pymupdf4llm+ocr(1 hal)",
+    "words": 1012,
+    "meta_hash": "b2970cf4932fe677a6d766a164eb3d98ac18c3f279a51f3268325eb3fab897c3",
+    "converted_at": "2026-09-30T20:35:33"
+  },
+  "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf": {
+    "output": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 1287,
+    "meta_hash": "1a5b82b1638e53ab722eac73eb0ef26b1279e979d5ead6388a7195ea57d755ed",
+    "converted_at": "2026-09-30T20:36:08"
+  },
+  "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 98,
+    "meta_hash": "0e17e89bf258aa7af3d14f5c244dc31242842bcac9d8542de7c11ff9adf237f8",
+    "converted_at": "2026-09-30T20:36:08"
+  },
+  "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf": {
+    "output": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(5 hal)",
+    "words": 548,
+    "meta_hash": "6c4e5ec245a33539945ab739299d6766736d29a83c30857e7c8b14da7d63e65b",
+    "converted_at": "2026-09-30T20:36:28"
+  },
+  "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf": {
+    "output": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(5 hal)",
+    "words": 944,
+    "meta_hash": "32ce878ed48642a4443ef781d55ecb5b06789c6cb1faa5e06a9e4a656bbca89d",
+    "converted_at": "2026-09-30T20:36:49"
+  },
+  "38416_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_A/00_General/TIF3030 Manajemen Sistem Basis Data.pdf": {
+    "output": "38416_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_A/00_General/TIF3030 Manajemen Sistem Basis Data.pdf.md",
+    "converter": "pymupdf4llm",
+    "words": 2506,
+    "meta_hash": "5abac617af7f9dca9eee1ec1976ff71d16a80be6b5ca0d73ba605f218a44eca6",
+    "converted_at": "2026-09-30T20:36:55"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/01_Topic 1/Pertemuan 1.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/01_Topic 1/Pertemuan 1.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 609,
+    "meta_hash": "e56de7a1565aca0859d0487cc59f6fc34b834f54835fe6e4a09caf074aa09d7d",
+    "converted_at": "2026-09-30T20:37:15"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/02_Topic 2/Pertemuan 2.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/02_Topic 2/Pertemuan 2.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 315,
+    "meta_hash": "627689731e68ad01b4fbb0a78842e1b6ca8d6f16b928c18535bcf7ef4817156e",
+    "converted_at": "2026-09-30T20:37:34"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/03_Topic 3/Pertemuan 3.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/03_Topic 3/Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 683,
+    "meta_hash": "596197fa4df9b2d27d74bbe22a377bd0b248aa31cd58b1962198b7dcf03be5b2",
+    "converted_at": "2026-09-30T20:38:13"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/04_Topic 4/Pertemuan 4.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/04_Topic 4/Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(6 hal)",
+    "words": 623,
+    "meta_hash": "08afad633967316d43b9ffada8f4bebee84c285da4cae193f5fcfb969568635d",
+    "converted_at": "2026-09-30T20:38:47"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/05_Topic 5/Pertemuan 5.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/05_Topic 5/Pertemuan 5.pdf.md",
+    "converter": "pymupdf4llm+ocr(6 hal)",
+    "words": 751,
+    "meta_hash": "2a7628718e7bf264caad37d10d895f166ce2ba5ccb33f1e11b508d373b3a3e85",
+    "converted_at": "2026-09-30T20:39:21"
+  },
+  "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/06_Topic 6/Pertemuan 6.pdf": {
+    "output": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/06_Topic 6/Pertemuan 6.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 316,
+    "meta_hash": "f0e2ec31629d46f7dfc11e01bea2d873c403933d9dfeb92369fad389c1fe644d",
+    "converted_at": "2026-09-30T20:39:32"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/01_Topic 1/Pertemuan 1.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/01_Topic 1/Pertemuan 1.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 609,
+    "meta_hash": "a90b4b90666bfcface864f60f907d34b0d8ef1f19cb2ba40eb47304717843990",
+    "converted_at": "2026-09-30T20:39:53"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/02_Topic 2/Pertemuan 2.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/02_Topic 2/Pertemuan 2.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 315,
+    "meta_hash": "c995077a6d73d6d38ecfee7239fb87e62f1cbf22d1aff6fa3731358dfc446dea",
+    "converted_at": "2026-09-30T20:40:10"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/03_Topic 3/Pertemuan 3.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/03_Topic 3/Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 683,
+    "meta_hash": "7372943f0e010372b57f4b3e60da187bec54d86459b5c123cdf2ed9dc9669e2b",
+    "converted_at": "2026-09-30T20:40:51"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/04_Topic 4/Pertemuan 4.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/04_Topic 4/Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(6 hal)",
+    "words": 623,
+    "meta_hash": "8a57d6e24a9dd678afbfa37a1c235c95f1e7b2ec40075e9dd014d1c9e68cc0a1",
+    "converted_at": "2026-09-30T20:41:23"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/05_Topic 5/Pertemuan 5.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/05_Topic 5/Pertemuan 5.pdf.md",
+    "converter": "pymupdf4llm+ocr(6 hal)",
+    "words": 751,
+    "meta_hash": "33ec853406d59c9bae8d9d10165621236ad92ed86a858bd629731c448bca0e4a",
+    "converted_at": "2026-09-30T20:41:58"
+  },
+  "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/06_Topic 6/Pertemuan 6.pdf": {
+    "output": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/06_Topic 6/Pertemuan 6.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 316,
+    "meta_hash": "db2ea26bbc787a8fe539ae02b70a7be15643a4e3f4dd43b74e9f23db795e4e74",
+    "converted_at": "2026-09-30T20:42:09"
+  },
+  "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/01_Pertemuan 1-Pengenalan Pemrograman Visual/Pertemuan1_PemrogramanVisual.pdf": {
+    "output": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/01_Pertemuan 1-Pengenalan Pemrograman Visual/Pertemuan1_PemrogramanVisual.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 1190,
+    "meta_hash": "085e0a2bbb160b00a4105a5901bfe99995b8174fce8a9e0ffa61cb0cd80e2f0a",
+    "converted_at": "2026-09-30T20:42:19"
+  },
+  "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/02_Pertemuan 2-Komponen Visual Dasar/Pertemuan2_Komponen_Visual_Dasar.pdf": {
+    "output": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/02_Pertemuan 2-Komponen Visual Dasar/Pertemuan2_Komponen_Visual_Dasar.pdf.md",
+    "converter": "pymupdf4llm+ocr(11 hal)",
+    "words": 3135,
+    "meta_hash": "fda977ba47df6a8fa0cfb2c760f9ff7e1d4c2494f35e11c5539a44723b4d729e",
+    "converted_at": "2026-09-30T20:43:39"
+  },
+  "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/03_Pertemuan 3-Variabel, Konstanta, dan Tipe Data/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penama.pdf": {
+    "output": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/03_Pertemuan 3-Variabel, Konstanta, dan Tipe Data/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penama.pdf.md",
+    "converter": "pymupdf4llm+ocr(1 hal)",
+    "words": 2026,
+    "meta_hash": "b6a3cc5685d8c8da86cc28de24ae41e90db6d4d13dcd1ca6b67f72a258085484",
+    "converted_at": "2026-09-30T20:43:53"
+  },
+  "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/04_Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual/Pertemuan4_Pemrograman Visual.pdf": {
+    "output": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/04_Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual/Pertemuan4_Pemrograman Visual.pdf.md",
+    "converter": "pymupdf4llm+ocr(2 hal)",
+    "words": 1470,
+    "meta_hash": "da0dbcc0d747560fd320870e22403d368e80f212b0d0970089dd0a7939f600a9",
+    "converted_at": "2026-09-30T20:44:06"
+  },
+  "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/05_Pertemuan 5-Percabangan If-Else/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Vis.pdf": {
+    "output": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/05_Pertemuan 5-Percabangan If-Else/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Vis.pdf.md",
+    "converter": "pymupdf4llm+ocr(8 hal)",
+    "words": 2601,
+    "meta_hash": "5956e2c63d886710a04bffba683df59a30f269b44f90c77684b569cb67e4f5ed",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 148,
+    "meta_hash": "0076f9ac4508c2e7dec49bc7750dd14a5724417cde815da94df4850829a4bcee",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx.md",
+    "converter": "anydoc",
+    "words": 4671,
+    "meta_hash": "c5633f1d834d274e8c115c2743aedd812d8e84d799ae2ea1fc7a3cfa1560532f",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 486,
+    "meta_hash": "cc6db06a80afa092597efcac1d951d5005af3e42e5d40efa36cc164a1fde33e7",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1611,
+    "meta_hash": "72e94e00de6c7b8d0688cc6b8c7f3fa102780f0bc19da682fb84978329e5468d",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 579,
+    "meta_hash": "0474c76fbdce98fdccc3e510e93bdd5e4da3a9259c3c23a3a8d95ddd59fdd1c3",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1524,
+    "meta_hash": "1ae78ea9fcb0cbb0c6ba78437045d830cba39c25d7e7c4d582658e88dbdff091",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 600,
+    "meta_hash": "875d6b8cef99e7aea72233f9f68cf914c85ff8b7b00ea8b53fc1ae26893959d3",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1591,
+    "meta_hash": "e3ead3f4afc90d122d9fc0cd7ae6294bccae089063214b4abf3bd48b606d3d4f",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 716,
+    "meta_hash": "cf39061c511ee24d30e072cbf98a8d2d90bf2f18da4319e68b2fe65dda772d88",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1270,
+    "meta_hash": "1ebc69eda74366855260a518c3646f4911bd60e0d1b1c4b73d5ecc5250cc6dcf",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 595,
+    "meta_hash": "8dd00026f65da14fc392290492925aca19ac9f06b09b51f156e997611ca395a7",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx": {
+    "output": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1226,
+    "meta_hash": "d522a5fa4554b17b6f14afd4734b40d7a0054b28dc443db3e747ab69801de27d",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 89,
+    "meta_hash": "c755b3992328e7ac7415d720fe591d87ed70ceddc952ee5574dcda13f50ad5d3",
+    "converted_at": "2026-09-30T20:44:52"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/01_Pengenalan E-Application dan Eel/Materi Pertemuan 1.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/01_Pengenalan E-Application dan Eel/Materi Pertemuan 1.pdf.md",
+    "converter": "pymupdf4llm+ocr(8 hal)",
+    "words": 771,
+    "meta_hash": "3794b77b481dbc850d1ddc81a792d1a47827d1b28eccfb8b982f5ce81e21e4f2",
+    "converted_at": "2026-09-30T20:45:41"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Materi Pertemuan 2.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Materi Pertemuan 2.pdf.md",
+    "converter": "pymupdf4llm+ocr(8 hal)",
+    "words": 591,
+    "meta_hash": "45b5ce68b7107424daae690d92174ff46f901103a626c23f945ff50355ab2f2f",
+    "converted_at": "2026-09-30T20:46:26"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/03_Pembuatan Aplikasi Note Teks dengan Eel/Materi Pertemuan 3.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/03_Pembuatan Aplikasi Note Teks dengan Eel/Materi Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(9 hal)",
+    "words": 1364,
+    "meta_hash": "1836052e6d7d12ee1a8aa8cf6751c6e139c87dc09a29b2d4fbd3a7f1d72fe575",
+    "converted_at": "2026-09-30T20:47:24"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/04_Packaging dan Distribusi Aplikasi Python/Materi Pertemuan 4.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/04_Packaging dan Distribusi Aplikasi Python/Materi Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(4 hal)",
+    "words": 672,
+    "meta_hash": "35b18a05ed43f2d0f1230c6eebca2070cb7ebf8d3e28abdaa0122fcf4455ffb0",
+    "converted_at": "2026-09-30T20:47:57"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/05_Integrasi Database MySQL pada E-Application/Materi Pertemuan 5.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/05_Integrasi Database MySQL pada E-Application/Materi Pertemuan 5.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 364,
+    "meta_hash": "d1bf2e8f8018b8f0e8deca6bec847b4448f5b4f929ce810c32927d8b9208e06a",
+    "converted_at": "2026-09-30T20:48:34"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 518,
+    "meta_hash": "098a9aa86b44137abf9290e2097bad4edb6b22cbad5831ee4a1f1f199e54800b",
+    "converted_at": "2026-09-30T20:48:53"
+  },
+  "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/07_Pengolahan Data Menggunakan pandas/Pertemuan 7.pdf": {
+    "output": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/07_Pengolahan Data Menggunakan pandas/Pertemuan 7.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 504,
+    "meta_hash": "7ad8de0060cabd24d900aaed80543a36acfdb5c919b4aee22f639114736185d3",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 148,
+    "meta_hash": "651ba046bd779f287b096ae82f5ef1ac669fdb84e84c1abcf303e3d9cb0b0e0e",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx.md",
+    "converter": "anydoc",
+    "words": 4671,
+    "meta_hash": "5d30ac2a577261079ef5f81d7feef5532650b73541b95d511f84300716fc2a13",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 486,
+    "meta_hash": "c8fd62a6b7bb9207af21985b442957bd0d723b3cbd8d21aff3a4dc359fecae46",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1611,
+    "meta_hash": "31c9ebe6a3f27246e4b6030e0071748ab4ff12d57ee4a1268be66033073f1b3c",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 579,
+    "meta_hash": "c6aeab7a989aa93624808ddf9f96921fea146cd23a10db8268a83dddba9b0c4e",
+    "converted_at": "2026-09-30T20:49:39"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1524,
+    "meta_hash": "9279def04f43e925e488290fdfb5c90b356b87276ccba5dfc6be4435fa19e86d",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 600,
+    "meta_hash": "a71b9452a8bcd21df3d3d2375770e40ddedba9e26f0885a6772f1d43ce689594",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1591,
+    "meta_hash": "1ccf3819db5e6d7752e013ad66952c5c08e4ba4c9d6d475d39dc379eed62e281",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 716,
+    "meta_hash": "fa224a7a13717b3cc2c0198b2e2ee572325d06d04f38f4e729872395370b94fa",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1270,
+    "meta_hash": "8e15fb3d58f47f869db7be9eb59c69ec8bd62e49d76baf599dea69cf7a9909c7",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 595,
+    "meta_hash": "d395d47bdb66436a0cea0411c62fb6f071d436f4fde26afc76d78afd1d075d29",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx": {
+    "output": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx.md",
+    "converter": "pptx-slide",
+    "words": 1226,
+    "meta_hash": "97bd9b7789c1164e9cce8f8ef810c9b1b0ecb9e6c84f8a3f7db71fc3f601f70b",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/00_General/00_Deskripsi pertemuan.md": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/00_General/00_Deskripsi pertemuan.md",
+    "converter": "salin",
+    "words": 79,
+    "meta_hash": "4b25f3153506a6b2548e71fffe5355d21b0bf4057aa0e69ea94836be8e484850",
+    "converted_at": "2026-09-30T20:49:40"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/01_Pengenalan E-Application dan Eel/Pertemuan 1.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/01_Pengenalan E-Application dan Eel/Pertemuan 1.pdf.md",
+    "converter": "pymupdf4llm+ocr(8 hal)",
+    "words": 772,
+    "meta_hash": "b599c79b8af70bf31c51c15efe1eeb82815fee7e08e23b86d829183c01261762",
+    "converted_at": "2026-09-30T20:50:27"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Pertemuan 2.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Pertemuan 2.pdf.md",
+    "converter": "pymupdf4llm+ocr(8 hal)",
+    "words": 591,
+    "meta_hash": "b6c82284c873e1d41dace59144513b2e0e1fbed6bc61a179e98ef8c1b23b5927",
+    "converted_at": "2026-09-30T20:51:11"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/03_Pembuatan Aplikasi Note Teks dengan Eel/Pertemuan 3.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/03_Pembuatan Aplikasi Note Teks dengan Eel/Pertemuan 3.pdf.md",
+    "converter": "pymupdf4llm+ocr(11 hal)",
+    "words": 1396,
+    "meta_hash": "b0dc59bc9939037b79eb1b9d96e6eba46b1038b5f7e76357e41adb457001f2f9",
+    "converted_at": "2026-09-30T20:52:18"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/04_Packaging dan Distribusi Aplikasi Python/Pertemuan 4.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/04_Packaging dan Distribusi Aplikasi Python/Pertemuan 4.pdf.md",
+    "converter": "pymupdf4llm+ocr(4 hal)",
+    "words": 672,
+    "meta_hash": "02a3d7ba46a7fbf70775331837a614137d24e4fd822038cbb7d05708da7400bd",
+    "converted_at": "2026-09-30T20:52:49"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/05_Integrasi Database MySQL pada E-Application/Pertemuan 5.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/05_Integrasi Database MySQL pada E-Application/Pertemuan 5.pdf.md",
+    "converter": "pymupdf4llm+ocr(5 hal)",
+    "words": 319,
+    "meta_hash": "4f3b09f3c8bef2a1ebc729f5ace98070ac828ba3ae2ac469a0891483312c21c0",
+    "converted_at": "2026-09-30T20:53:22"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf.md",
+    "converter": "pymupdf4llm+ocr(3 hal)",
+    "words": 518,
+    "meta_hash": "8ceae0c9e7258c77da92287b168e33839ba2b8a76a71aaab57283e5bfb8dd205",
+    "converted_at": "2026-09-30T20:53:45"
+  },
+  "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/07_pengolahan data menggunakan pandas/Pertemuan 7.pdf": {
+    "output": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/07_pengolahan data menggunakan pandas/Pertemuan 7.pdf.md",
+    "converter": "pymupdf4llm+ocr(7 hal)",
+    "words": 504,
+    "meta_hash": "460b73624fff4d67c0c541323aa6c695ba3dbf7f5ec92af47f570a4c549171ff",
+    "converted_at": "2026-09-30T20:54:37"
+  }
+}

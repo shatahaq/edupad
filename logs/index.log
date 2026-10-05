@@ -1,0 +1,7 @@
+2026-09-30 22:14:10,416 INFO   32/149 chunk di-embed & diunggah
+2026-09-30 22:14:13,075 INFO   64/149 chunk di-embed & diunggah
+2026-09-30 22:14:14,595 INFO   96/149 chunk di-embed & diunggah
+2026-09-30 22:14:16,147 INFO   128/149 chunk di-embed & diunggah
+2026-09-30 22:14:19,030 INFO   149/149 chunk di-embed & diunggah
+2026-09-30 22:14:19,030 INFO [selesai] 149 chunk: 149 baru/berubah, 0 tidak berubah, 0 dihapus (model @cf/baai/bge-m3)
+2026-09-30 22:14:27,537 INFO [selesai] 149 chunk: 0 baru/berubah, 149 tidak berubah, 0 dihapus (model @cf/baai/bge-m3)

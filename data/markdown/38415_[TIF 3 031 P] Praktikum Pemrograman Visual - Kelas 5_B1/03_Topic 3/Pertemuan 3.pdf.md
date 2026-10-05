@@ -1,0 +1,220 @@
+---
+course_id: "38415"
+course: "[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/B1"
+pertemuan: 3
+section: "Topic 3"
+section_index: 3
+title: "Pertemuan 3"
+type: "resource"
+source_file: "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/03_Topic 3/Pertemuan 3.pdf"
+source_url: "https://kelas.usu.ac.id/pluginfile.php/642195/mod_resource/content/1/Pertemuan%203.pdf"
+activity_url: "https://kelas.usu.ac.id/mod/resource/view.php?id=213230"
+converter: "pymupdf4llm+ocr(7 hal)"
+---
+
+<!-- halaman 1 (OCR) -->
+
+#### <mark>ooo</mark>
+
+## Operator dan Struktur Pengendalian
+PEMROGRAMAN VISUAL
+
+**Shata Diyaul Haq**
+
+<!-- halaman 2 -->
+
+## Pembahasan
+Menjelaskan operator dan jenis - jenisnya Menjelaskan ekspresi
+
+Menjelaskan percabangan
+
+<!-- halaman 3 -->
+
+## Operator
+**Simbol khusus yang digunakan untuk melakukan operasi tertentu pada satu atau lebih nilai, yang disebut operand. Seperti yang kita ketahui operator terbagi menjadi beberapa jenis, yaitu:**
+
+1. **Operator Aritmatika**
+
+2. **Operator Penugasan**
+
+3. **Operator Perbandingan**
+
+4. **Operator Logika**
+
+5. **Operator Increment dan Decrement**
+
+<!-- halaman 4 (OCR) -->
+
+### Operator Aritmatika
+**Operator aritmatika adalah simbol yang digunakan untuk melakukan operasi matematika dasar pada nilai numerik atau variabel.**
+
+|OPERATOR|SIMBOL|NAMA OPERATOR|DESKRIPSI|CONTOH|
+|---|---|---|---|---|
+||+|Penjumlahan|Menjumlahkan
+dua nilai|5+3=8
+a+ b|
+|||Pengurangan|Mengurangi nilai
+satu dengan nilai lain|7-4=3
+a-b|
+||*|Perkalian|Mengalikan
+dua nilai|6*2=12
+a*b|
+|||Pembagian|Membagi nilai
+satu dengan nilai lain|10 / 2 = 5
+a/b|
+|||Modulus (Sisa Bagi)|Menghasilkan sisa
+pembagian|10 % 3 = 1
+a % b|
+
+<!-- halaman 5 (OCR) -->
+
+### Operator Penugasan
+**Operator penugasan (assignment operator) adalah operator yang digunakan untuk memberikan nilai ke sebuah variabel.**
+
+SIMBOL NAMA OPERATOR DESKRIPSI EKUIVALEN CONTOH
+Penugasan Memberikan nilai ke a = b x = 10
+sederhana variabel.
+Tambah dan Menambahkan nilai
+a=a+b x += 5
+= teas ke variabel.
+Kurang dan Mengurangi nilai
+a = a-b x -= 3
+teas dari variabel.
+Kali dan
+*= Mengalikan nilai
+a=a*b x *= 2
+tegas dengan variabel.
+Bagi dan Membagi nilai
+a=a/b x/=4
+tuas dengan variabel.
+Modulus dan Mengambil sisa bagi
+a = a % b x %= 3
+%= tugas ke variabel.
+
+<!-- halaman 6 -->
+
+## Operator Perbandingan
+**Operator perbandingan adalah simbol yang digunakan untuk membandingkan dua nilai (seperti angka atau teks) dan menghasilkan nilai boolean (benar atau salah, atau true/false) sebagai hasilnya.**
+
+<!-- halaman 7 -->
+
+## Operator Logika
+**Operator logika adalah simbol atau kata yang menghubungkan beberapa ekspresi boolean (benar atau salah) untuk menghasilkan satu nilai kebenaran (boolean) berdasarkan nilai kebenaran dari ekspresi-ekspresi tersebut**
+
+<!-- halaman 8 -->
+
+## Operator Increment & Decrement
+**Operator increment (++) digunakan untuk menambahkan nilai variabel sebanyak satu, sedangkan operator decrement (--) digunakan untuk mengurangi nilai variabel sebanyak satu.**
+
+<!-- halaman 9 -->
+
+## Ekspresi
+**Ekspresi adalah kombinasi dari nilai, variabel, operator, dan panggilan metode yang mengevaluasi ke satu nilai tunggal. Ekspresi adalah blok kode yang menghasilkan sebuah nilai dan dapat digunakan di mana pun nilai dibutuhkan. Dengan kata lain, ekspresi adalah potongan kode yang menghasilkan suatu nilai ketika dijalankan.**
+
+<!-- halaman 10 -->
+
+## Percabangan
+**Percabangan adalah struktur kontrol alur program yang digunakan untuk menentukan jalannya eksekusi berdasarkan kondisi tertentu (benar atau salah). Percabangan terbagi menjadi beberapa jenis sebagai berikut:**
+
+**1. If Statement**
+
+**2. If - Else Statement**
+
+**3. If - Else if Statement**
+
+**4. Switch Statement**
+
+**5. Operator Ternary**
+
+<!-- halaman 11 -->
+
+### If Statement
+**Percabangan if merupakan percabangan yang hanya memiliki satu blok pilihan saat kondisi bernilai benar.**
+
+### If Else Statement
+**Menjalankan satu blok kode jika kondisi benar, dan blok lain jika salah.**
+
+**If Else if Statement**
+
+**Digunakan jika ada beberapa kondisi yang harus diperiksa.**
+
+<!-- halaman 12 (OCR) -->
+
+00O
+
+IF ELSE STATEMENT IF ELSE IF STATEMENT
+IF STATEMENT
+BENAR
+KONDISI 1 BLOK KODE 1
+BENAR
+KONDISI
+BENAR
+KONDISI
+SALAH
+SALAH
+BENAR
+KONDISI 2 BLOK KODE 2
+BLOK KODE 2 BLOK KODE 1
+SALAH
+BLOK KODE
+SALAH
+o
+
+BLOK KODE N
+SELESAI SELESAI
+SELESAI
+
+<!-- halaman 13 (OCR) -->
+
+##### Switch Statement
+**Alternatif dari if...else yang banyak, lebih rapi jika memilih berdasarkan nilai variabel.**
+
+##### Operator Ternary
+**Percabangan singkat dalam satu baris (pengganti if...else).**
+
+START
+SALAH
+KONDISI?
+BENAR
+AKSI1 AKSI 2
+SELESAI
+
+<!-- halaman 14 (OCR) -->
+
+###### SWITCH STATEMENT
+
+###### OPERATOR TERNARY
+
+MULAI
+Dim nilai As Integer = 75
+Select Case nilai
+Input
+Dim status As String
+nilai
+Case 1
+status = If(nilai >= 75, "Lulus", "Tidak Lulus")
+hasil = "Sangat Baik"
+Case 2
+nilai = ? Sangat Baik MULAI
+hasil = "Baik"
+Case 3
+2
+Baik Input
+hasil = "Cukup"
+nilai
+Case Else
+Cukup
+hasil = "Kurang'
+YA TIDAK
+(True) nilai >= 75 ? (False)
+End Select Lainnya
+Kurang
+tau, = stalus status = "Tidak Lulus"
+SELESAI
+SELESAI
+
+<!-- halaman 15 (OCR) -->
+
+#### <mark>ooo</mark>
+
+# Let’s Try

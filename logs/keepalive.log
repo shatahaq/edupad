@@ -1,0 +1,11 @@
+2026-09-30 17:21:21,256 ERROR [x] Belum ada sesi tersimpan. Jalankan: python scrapper.py --login
+2026-09-30 17:21:21,257 INFO [notif] (Telegram belum diatur) ⚠️ Sesi kelas.usu.ac.id habis (terdeteksi oleh keepalive.py). Scraping otomatis berhenti sampai kamu login ulang:
+python scrapper.py --login
+2026-09-30 17:47:06,574 INFO [ok] Sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah touch: 7 jam 59 menit
+2026-09-30 17:48:20,250 INFO [ok] Sesi aktif. Sisa sebelum touch: 7 jam 59 menit, setelah touch: 8 jam 0 menit
+2026-09-30 17:55:30,213 INFO [ok] Sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah touch: 8 jam 0 menit
+2026-09-30 17:59:30,983 INFO [ok] Sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah touch: 8 jam 0 menit
+2026-09-30 21:10:00,375 INFO [ok] Sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah touch: 8 jam 0 menit
+2026-09-30 21:18:08,890 INFO [ok] Moodle: sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah: 8 jam 0 menit
+2026-09-30 21:18:45,794 INFO [ok] Moodle: sesi aktif. Sisa sebelum touch: 8 jam 0 menit, setelah: 8 jam 0 menit
+2026-09-30 21:18:45,801 INFO [-] SATU: sesi berakhir sejak 2026-09-30T21:10:03+07:00, menunggu login ulang

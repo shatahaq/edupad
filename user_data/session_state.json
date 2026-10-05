@@ -1,0 +1,13 @@
+{
+  "moodle": {
+    "expired_since": null,
+    "last_ok": "2026-09-30T21:18:45+07:00",
+    "sesskey": "EfzEWaVNUw",
+    "timeout_seconds": 28800
+  },
+  "satu": {
+    "expired_since": null,
+    "last_ok": "2026-09-30T23:04:25+07:00",
+    "attendance_notified": []
+  }
+}

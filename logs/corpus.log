@@ -1,0 +1,10 @@
+2026-09-30 20:54:44,438 INFO [selesai] 89 dokumen dibaca: 36 di luar KRS, 0 duplikat dibuang, 0 kosong -> 53 dokumen bersih
+2026-09-30 20:54:44,439 INFO           30 pola baris berulang (footer/header) dibuang
+2026-09-30 20:54:44,439 INFO           41 file pertemuan (41 diperbarui), 148 chunk (rata-rata 259 kata, maks 476, 63 dari OCR)
+2026-09-30 20:55:21,503 INFO [selesai] 89 dokumen dibaca: 36 di luar KRS, 0 duplikat dibuang, 0 kosong -> 53 dokumen bersih
+2026-09-30 20:55:21,503 INFO           30 pola baris berulang (footer/header) dibuang
+2026-09-30 20:55:21,503 INFO           41 file pertemuan (0 diperbarui), 148 chunk (rata-rata 259 kata, maks 476, 63 dari OCR)
+2026-09-30 21:10:04,784 INFO [selesai] 89 dokumen dibaca: 36 di luar KRS, 0 duplikat, 0 kosong -> 53 dokumen bersih
+2026-09-30 21:10:04,784 INFO           27 pola footer/header dibuang; 41 file pertemuan (41 diperbarui); 149 chunk (rata-rata 258 kata, maks 476, 63 dari OCR)
+2026-09-30 21:17:31,184 INFO [selesai] 89 dokumen dibaca: 36 di luar KRS, 0 duplikat, 0 kosong -> 53 dokumen bersih
+2026-09-30 21:17:31,184 INFO           27 pola footer/header dibuang; 41 file pertemuan (0 diperbarui); 149 chunk (rata-rata 258 kata, maks 476, 63 dari OCR)

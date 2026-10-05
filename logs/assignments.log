@@ -1,0 +1,153 @@
+2026-09-30 17:55:40,470 INFO === [TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B: 6 tugas/kuis
+2026-09-30 17:55:47,314 INFO   - Buat algoritma pemilihan tempat kost          -                 Belum dikerjakan
+2026-09-30 17:55:53,780 INFO   - Soal praktik SPK 2 Proses Pengambilan Keputus 2026-08-28T15:30+07:00 Sudah dikumpulkan
+2026-09-30 17:55:59,991 INFO   - Praktik SPK/DSS                               2026-09-06T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:56:06,444 INFO   - Praktik 4                                     2026-09-15T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:56:11,675 INFO   - Praktik SI Pendukung Keputusan                2026-09-19T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:56:17,273 INFO   - Praktik Metode dalam SPK                      2026-09-22T20:00+07:00 Sudah dikumpulkan
+2026-09-30 17:56:17,397 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 17:56:21,489 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 17:56:26,732 WARNING       [lampiran gagal] tugas-tarif-hotel.zip: format .zip belum didukung
+2026-09-30 17:56:26,733 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 17:56:30,839 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 17:56:30,842 INFO 
+[selesai] 9 tugas/kuis, 3 belum dikumpulkan, 0 error. Hasil: tugas\tugas.json
+2026-09-30 17:57:30,621 INFO === [TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B: 6 tugas/kuis
+2026-09-30 17:57:33,838 INFO   - Buat algoritma pemilihan tempat kost          -                 Belum dikerjakan
+2026-09-30 17:57:37,023 INFO   - Soal praktik SPK 2 Proses Pengambilan Keputus 2026-08-28T15:30+07:00 Sudah dikumpulkan
+2026-09-30 17:57:40,188 INFO   - Praktik SPK/DSS                               2026-09-06T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:57:43,501 INFO   - Praktik 4                                     2026-09-15T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:57:47,767 INFO   - Praktik SI Pendukung Keputusan                2026-09-19T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:57:52,286 INFO   - Praktik Metode dalam SPK                      2026-09-22T20:00+07:00 Sudah dikumpulkan
+2026-09-30 17:57:52,496 INFO === [TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A: 1 tugas/kuis
+2026-09-30 17:57:55,776 INFO   - Praktik 4                                     2026-09-11T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:57:56,855 INFO === [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/B: 4 tugas/kuis
+2026-09-30 17:57:59,779 INFO   - Hands-On Case Study: Query Execution Plan and 2026-10-07T13:11+07:00 BELUM dikumpulkan
+2026-09-30 17:58:02,663 INFO   - Assessment: Engine Architecture &amp; Concurr -                 Belum dikerjakan
+2026-09-30 17:58:05,573 INFO   - Design Assignment: High-Availability E-Commer 2026-10-07T13:12+07:00 BELUM dikumpulkan
+2026-09-30 17:58:08,474 INFO   - Quiz: Replication, Sharding, and Distributed  -                 Belum dikerjakan
+2026-09-30 17:58:09,100 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 17:58:11,998 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 17:58:14,892 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 17:58:19,249 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 17:58:20,512 INFO === [TIF 3 035] Manajemen Proyek IT - Kelas 5/A: 3 tugas/kuis
+2026-09-30 17:58:23,440 INFO   - Tugas Individu 1                              2026-08-31T00:00+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:58:26,331 INFO   - Tugas Individu 2                              2026-09-22T00:00+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:58:29,206 INFO   - Tugas Individu 3                              2026-09-27T00:00+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:58:29,378 INFO === [TIF 3 035] Manajemen Proyek IT - Kelas 5/B: 3 tugas/kuis
+2026-09-30 17:58:32,248 INFO   - Tugas 1                                       2026-08-25T13:30+07:00 Sudah dikumpulkan
+2026-09-30 17:58:35,106 INFO   - Tugas Individu 2                              2026-09-22T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:58:37,974 INFO   - Tugas Individu 3                              2026-09-27T00:00+07:00 Sudah dikumpulkan
+2026-09-30 17:58:38,551 INFO === [TIF 3 037 P] Praktikum E-Application - Kelas 5/A1: 2 tugas/kuis
+2026-09-30 17:58:41,414 INFO   - Tugas                                         2026-09-27T23:59+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 17:58:44,238 INFO   - Tugas 2                                       2026-10-03T23:59+07:00 BELUM dikumpulkan
+2026-09-30 17:58:44,429 INFO === [TIF 3 037 P] Praktikum E-Application - Kelas 5/B1: 2 tugas/kuis
+2026-09-30 17:58:47,287 INFO   - Tugas 1                                       2026-09-28T23:00+07:00 Sudah dikumpulkan (terlambat)
+2026-09-30 17:58:50,171 INFO   - Tugas 2                                       2026-10-06T23:59+07:00 BELUM dikumpulkan
+2026-09-30 17:58:50,351 INFO 
+[selesai] 24 tugas/kuis, 14 belum dikumpulkan, 0 error. Hasil: tugas\tugas.json
+2026-09-30 18:01:06,464 INFO [abaikan] [TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A (bukan kelas B)
+2026-09-30 18:01:06,464 INFO [abaikan] [TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/A (bukan kelas B)
+2026-09-30 18:01:06,464 INFO [abaikan] [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/A (bukan kelas B)
+2026-09-30 18:01:06,464 INFO [abaikan] [TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/A1 (bukan kelas B)
+2026-09-30 18:01:06,464 INFO [abaikan] [TIF 3 035] Manajemen Proyek IT - Kelas 5/A (bukan kelas B)
+2026-09-30 18:01:06,465 INFO [abaikan] [TIF 3 037 P] Praktikum E-Application - Kelas 5/A1 (bukan kelas B)
+2026-09-30 18:01:14,310 INFO === [TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B: 6 tugas/kuis
+2026-09-30 18:01:17,174 INFO   - Buat algoritma pemilihan tempat kost          -                 Belum dikerjakan
+2026-09-30 18:01:20,034 INFO   - Soal praktik SPK 2 Proses Pengambilan Keputus 2026-08-28T15:30+07:00 Sudah dikumpulkan
+2026-09-30 18:01:22,891 INFO   - Praktik SPK/DSS                               2026-09-06T00:00+07:00 Sudah dikumpulkan
+2026-09-30 18:01:25,791 INFO   - Praktik 4                                     2026-09-15T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 18:01:29,669 INFO   - Praktik SI Pendukung Keputusan                2026-09-19T00:00+07:00 Sudah dikumpulkan
+2026-09-30 18:01:33,569 INFO   - Praktik Metode dalam SPK                      2026-09-22T20:00+07:00 Sudah dikumpulkan
+2026-09-30 18:01:33,774 INFO === [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/B: 4 tugas/kuis
+2026-09-30 18:01:36,551 INFO   - Hands-On Case Study: Query Execution Plan and 2026-10-07T13:11+07:00 BELUM dikumpulkan
+2026-09-30 18:01:39,311 INFO   - Assessment: Engine Architecture & Concurrency -                 Belum dikerjakan
+2026-09-30 18:01:42,084 INFO   - Design Assignment: High-Availability E-Commer 2026-10-07T13:12+07:00 BELUM dikumpulkan
+2026-09-30 18:01:44,828 INFO   - Quiz: Replication, Sharding, and Distributed  -                 Belum dikerjakan
+2026-09-30 18:01:44,967 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 18:01:47,756 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 18:01:50,506 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 18:01:54,389 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 18:01:54,794 INFO === [TIF 3 035] Manajemen Proyek IT - Kelas 5/B: 3 tugas/kuis
+2026-09-30 18:01:57,575 INFO   - Tugas 1                                       2026-08-25T13:30+07:00 Sudah dikumpulkan
+2026-09-30 18:02:00,369 INFO   - Tugas Individu 2                              2026-09-22T00:00+07:00 Sudah dikumpulkan
+2026-09-30 18:02:03,157 INFO   - Tugas Individu 3                              2026-09-27T00:00+07:00 Sudah dikumpulkan
+2026-09-30 18:02:03,358 INFO === [TIF 3 037 P] Praktikum E-Application - Kelas 5/B1: 2 tugas/kuis
+2026-09-30 18:02:06,119 INFO   - Tugas 1                                       2026-09-28T23:00+07:00 Sudah dikumpulkan (terlambat)
+2026-09-30 18:02:08,869 INFO   - Tugas 2                                       2026-10-06T23:59+07:00 BELUM dikumpulkan
+2026-09-30 18:02:08,939 INFO 
+[selesai] 18 tugas/kuis, 8 belum dikumpulkan, 0 error. Hasil: tugas\tugas.json
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A (tidak ada di KRS)
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 035] Manajemen Proyek IT - Kelas 5/A (tidak ada di KRS)
+2026-09-30 19:14:21,223 INFO [abaikan] [TIF 3 037 P] Praktikum E-Application - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 19:14:29,054 INFO === [TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B: 6 tugas/kuis
+2026-09-30 19:14:31,937 INFO   - Buat algoritma pemilihan tempat kost          -                 Belum dikerjakan
+2026-09-30 19:14:34,788 INFO   - Soal praktik SPK 2 Proses Pengambilan Keputus 2026-08-28T15:30+07:00 Sudah dikumpulkan
+2026-09-30 19:14:37,640 INFO   - Praktik SPK/DSS                               2026-09-06T00:00+07:00 Sudah dikumpulkan
+2026-09-30 19:14:40,536 INFO   - Praktik 4                                     2026-09-15T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 19:14:44,406 INFO   - Praktik SI Pendukung Keputusan                2026-09-19T00:00+07:00 Sudah dikumpulkan
+2026-09-30 19:14:48,311 INFO   - Praktik Metode dalam SPK                      2026-09-22T20:00+07:00 Sudah dikumpulkan
+2026-09-30 19:14:48,527 INFO === [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/B: 4 tugas/kuis
+2026-09-30 19:14:51,310 INFO   - Hands-On Case Study: Query Execution Plan and 2026-10-07T13:11+07:00 BELUM dikumpulkan
+2026-09-30 19:14:54,064 INFO   - Assessment: Engine Architecture & Concurrency -                 Belum dikerjakan
+2026-09-30 19:14:56,838 INFO   - Design Assignment: High-Availability E-Commer 2026-10-07T13:12+07:00 BELUM dikumpulkan
+2026-09-30 19:14:59,585 INFO   - Quiz: Replication, Sharding, and Distributed  -                 Belum dikerjakan
+2026-09-30 19:14:59,720 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 19:15:02,472 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 19:15:05,253 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 19:15:09,131 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 19:15:09,535 INFO === [TIF 3 035] Manajemen Proyek IT - Kelas 5/B: 3 tugas/kuis
+2026-09-30 19:15:12,325 INFO   - Tugas 1                                       2026-08-25T13:30+07:00 Sudah dikumpulkan
+2026-09-30 19:15:15,095 INFO   - Tugas Individu 2                              2026-09-22T00:00+07:00 Sudah dikumpulkan
+2026-09-30 19:15:17,866 INFO   - Tugas Individu 3                              2026-09-27T00:00+07:00 Sudah dikumpulkan
+2026-09-30 19:15:18,069 INFO === [TIF 3 037 P] Praktikum E-Application - Kelas 5/B1: 2 tugas/kuis
+2026-09-30 19:15:20,813 INFO   - Tugas 1                                       2026-09-28T23:00+07:00 Sudah dikumpulkan (terlambat)
+2026-09-30 19:15:23,546 INFO   - Tugas 2                                       2026-10-06T23:59+07:00 BELUM dikumpulkan
+2026-09-30 19:15:23,618 INFO 
+[selesai] 18 tugas/kuis, 8 belum dikumpulkan, 0 error. Hasil: tugas\tugas.json
+2026-09-30 21:11:12,811 INFO [abaikan] [TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:11:12,812 INFO [abaikan] [TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:11:12,812 INFO [abaikan] [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:11:12,812 INFO [abaikan] [TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 21:11:12,812 INFO [abaikan] [TIF 3 035] Manajemen Proyek IT - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:11:12,812 INFO [abaikan] [TIF 3 037 P] Praktikum E-Application - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 21:11:30,682 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 21:11:33,849 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 21:11:36,924 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 21:11:42,733 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 21:11:42,740 INFO 
+[selesai] 18 tugas/kuis, 8 belum dikumpulkan, 0 error.
+2026-09-30 21:16:22,478 INFO [abaikan] [TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:16:22,478 INFO [abaikan] [TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:16:22,478 INFO [abaikan] [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:16:22,478 INFO [abaikan] [TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 21:16:22,478 INFO [abaikan] [TIF 3 035] Manajemen Proyek IT - Kelas 5/A (tidak ada di KRS)
+2026-09-30 21:16:22,479 INFO [abaikan] [TIF 3 037 P] Praktikum E-Application - Kelas 5/A1 (tidak ada di KRS)
+2026-09-30 21:16:31,268 INFO === [TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B: 6 tugas/kuis
+2026-09-30 21:16:34,286 INFO   - Buat algoritma pemilihan tempat kost          -                 Belum dikerjakan
+2026-09-30 21:16:37,310 INFO   - Soal praktik SPK 2 Proses Pengambilan Keputus 2026-08-28T15:30+07:00 Sudah dikumpulkan
+2026-09-30 21:16:40,373 INFO   - Praktik SPK/DSS                               2026-09-06T00:00+07:00 Sudah dikumpulkan
+2026-09-30 21:16:43,464 INFO   - Praktik 4                                     2026-09-15T11:30+07:00 BELUM dikumpulkan — LEWAT DEADLINE
+2026-09-30 21:16:47,573 INFO   - Praktik SI Pendukung Keputusan                2026-09-19T00:00+07:00 Sudah dikumpulkan
+2026-09-30 21:16:51,654 INFO   - Praktik Metode dalam SPK                      2026-09-22T20:00+07:00 Sudah dikumpulkan
+2026-09-30 21:16:52,261 INFO === [TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/B: 4 tugas/kuis
+2026-09-30 21:16:55,170 INFO   - Hands-On Case Study: Query Execution Plan and 2026-10-07T13:11+07:00 BELUM dikumpulkan
+2026-09-30 21:16:58,063 INFO   - Assessment: Engine Architecture & Concurrency -                 Belum dikerjakan
+2026-09-30 21:17:00,933 INFO   - Design Assignment: High-Availability E-Commer 2026-10-07T13:12+07:00 BELUM dikumpulkan
+2026-09-30 21:17:03,814 INFO   - Quiz: Replication, Sharding, and Distributed  -                 Belum dikerjakan
+2026-09-30 21:17:04,194 INFO === [TIF 3 031] Pemrograman Visual - Kelas 5/B: 3 tugas/kuis
+2026-09-30 21:17:07,075 INFO   - Tugas                                         2026-09-18T23:59+07:00 Sudah dikumpulkan
+2026-09-30 21:17:09,997 INFO   - Tugas 5                                       2026-09-26T23:59+07:00 Sudah dikumpulkan
+2026-09-30 21:17:14,100 INFO   - Tugas                                         2026-10-01T21:00+07:00 BELUM dikumpulkan
+2026-09-30 21:17:15,295 INFO === [TIF 3 035] Manajemen Proyek IT - Kelas 5/B: 3 tugas/kuis
+2026-09-30 21:17:18,207 INFO   - Tugas 1                                       2026-08-25T13:30+07:00 Sudah dikumpulkan
+2026-09-30 21:17:21,091 INFO   - Tugas Individu 2                              2026-09-22T00:00+07:00 Sudah dikumpulkan
+2026-09-30 21:17:23,967 INFO   - Tugas Individu 3                              2026-09-27T00:00+07:00 Sudah dikumpulkan
+2026-09-30 21:17:24,555 INFO === [TIF 3 037 P] Praktikum E-Application - Kelas 5/B1: 2 tugas/kuis
+2026-09-30 21:17:27,426 INFO   - Tugas 1                                       2026-09-28T23:00+07:00 Sudah dikumpulkan (terlambat)
+2026-09-30 21:17:30,310 INFO   - Tugas 2                                       2026-10-06T23:59+07:00 BELUM dikumpulkan
+2026-09-30 21:17:30,506 INFO 
+[selesai] 18 tugas/kuis, 8 belum dikumpulkan, 0 error.

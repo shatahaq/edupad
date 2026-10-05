@@ -1,12 +1,3 @@
-# Rahasia
-user_data/
-.env
-*.pem
-
-# Data & log hasil pipeline
-data/
-logs/
-
 # Python
 __pycache__/
 *.egg-info/

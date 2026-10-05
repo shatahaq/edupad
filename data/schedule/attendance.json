@@ -1,0 +1,2537 @@
+{
+  "diperbarui": "2026-10-01T19:58:24+07:00",
+  "mata_kuliah": [
+    {
+      "matkul": "Praktikum Sistem Informasi Geografis",
+      "kode": "TIF 3 036 P",
+      "kelas": "5/B1",
+      "moodle_course_id": "38402",
+      "satu_class_id": "6a729de14db23b08dfb2f73a",
+      "pertemuan": [
+        {
+          "id": "6a964bd2be4a3a22889a3d58",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-17T10:50+07:00",
+          "selesai": "2026-08-17T12:40+07:00",
+          "topik": "Pengantar SIG",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a964dd68285e06dfe5ebb6b",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-24T10:59+07:00",
+          "selesai": "2026-08-24T12:40+07:00",
+          "topik": "Data Spasial dan Sistem Koordinat",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a965402be4a3a22889a4270",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-08-31T11:26+07:00",
+          "selesai": "2026-08-31T13:00+07:00",
+          "topik": "Pengenalan Perangkat Lunak SIG (QGIS/ArcGIS)",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abdc5394b89b351b342e2a0",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-07T09:27+07:00",
+          "selesai": "2026-09-07T11:30+07:00",
+          "topik": "Georeferencing & Digitasi",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abdc5626d1a5e6f299f4b59",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-14T09:28+07:00",
+          "selesai": "2026-09-14T11:30+07:00",
+          "topik": "Manajemen Atribut & Basis Data Spasial",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abdc5996caaa51a1275526f",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-21T09:29+07:00",
+          "selesai": "2026-09-21T11:30+07:00",
+          "topik": "Editing & Topologi",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abdc5c9530a6a025f56069a",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-09-28T16:02+07:00",
+          "selesai": "2026-09-28T18:00+07:00",
+          "topik": "Kualitas & Pembersihan Data",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Manajemen Sistem Basis Data",
+      "kode": "TIF 3 030",
+      "kelas": "5/B",
+      "moodle_course_id": "38404",
+      "satu_class_id": "6a72ba914db23b08dfb2f86e",
+      "pertemuan": [
+        {
+          "id": "6a8bb4fcc17f7a289d85b7db",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-27T09:00+07:00",
+          "selesai": "2026-08-27T11:00+07:00",
+          "topik": "Konsep Manajemen Basis Data",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7dc",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-31T10:00+07:00",
+          "selesai": "2026-08-31T12:00+07:00",
+          "topik": "Arsitektur Basis Data Lanjutan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7dd",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-07T15:00+07:00",
+          "selesai": "2026-09-07T16:00+07:00",
+          "topik": "Centralized, Distributed and Polyglot Database",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7de",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-14T14:59+07:00",
+          "selesai": "2026-09-14T16:00+07:00",
+          "topik": "Database and Query Optimization",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7df",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-21T15:00+07:00",
+          "selesai": "2026-09-21T17:00+07:00",
+          "topik": "Designing Database Architecture - Case Study",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e0",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-28T13:01+07:00",
+          "selesai": "2026-09-28T14:30+07:00",
+          "topik": "Optimasi Arsitektur Basis Data",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e1",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-09-30T16:00+07:00",
+          "selesai": "2026-09-30T16:00+07:00",
+          "topik": "Data Security and Governance",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e2",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e3",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e4",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e5",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e6",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e7",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e8",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7e9",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8bb4fcc17f7a289d85b7ea",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum Manajemen Sistem Basis Data",
+      "kode": "TIF 3 030 P",
+      "kelas": "5/B",
+      "moodle_course_id": "38406",
+      "satu_class_id": "6a72be826b0bef43f685a504",
+      "pertemuan": [
+        {
+          "id": "6a8bba9cbe4a3a228898c40f",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-24T14:30+07:00",
+          "selesai": "2026-08-24T16:15+07:00",
+          "topik": "Setup Awal Supabase",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a92aa60cc06261c2ec2f3bc",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-31T14:00+07:00",
+          "selesai": "2026-08-31T16:00+07:00",
+          "topik": "Setup Database dan CRUD",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abcc52f0d4f6b14ac2d86db",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-07T14:00+07:00",
+          "selesai": "2026-09-07T16:00+07:00",
+          "topik": "Membangun Arsitektur Basis Data Sederhana",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abcc576b56c8e0c85264fce",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-14T14:00+07:00",
+          "selesai": "2026-09-14T16:00+07:00",
+          "topik": "Fitur Database Monitoring Pada Supabase",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abcc5c16caaa51a12752aec",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-21T14:00+07:00",
+          "selesai": "2026-09-21T16:00+07:00",
+          "topik": "Tata Kelola Data dan Keamanan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6abcc60e6d1a5e6f299f2df6",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-28T14:15+07:00",
+          "selesai": "2026-09-28T16:00+07:00",
+          "topik": "Metode Backup dan Restore",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abcc6360d4f6b14ac2d8772",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-09-30T15:00+07:00",
+          "selesai": "2026-09-30T17:00+07:00",
+          "topik": "Responsi 1",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Pemrograman Visual",
+      "kode": "TIF 3 031",
+      "kelas": "5/B",
+      "moodle_course_id": "38408",
+      "satu_class_id": "6a72c00088db9429977d1dce",
+      "pertemuan": [
+        {
+          "id": "6a8c0a92cc06261c2ec230eb",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-24T16:10+07:00",
+          "selesai": "2026-08-24T17:00+07:00",
+          "topik": "Pendahuluan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230ec",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-31T16:00+07:00",
+          "selesai": "2026-08-31T17:00+07:00",
+          "topik": "Komponen Visual Dasar",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230ed",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-07T16:00+07:00",
+          "selesai": "2026-09-07T17:00+07:00",
+          "topik": "Variabel, Konstanta, dan Tipe Data",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230ee",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-14T16:10+07:00",
+          "selesai": "2026-09-14T17:00+07:00",
+          "topik": "Operator dan Ekspresi pada Aplikasi Visual",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230ef",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-21T16:10+07:00",
+          "selesai": "2026-09-21T17:00+07:00",
+          "topik": "Struktur Percabangan If–Else",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f0",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-28T16:10+07:00",
+          "selesai": "2026-09-28T17:00+07:00",
+          "topik": "Struktur Perulangan Looping",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f1",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T16:00+07:00",
+          "selesai": "2026-10-01T21:00+07:00",
+          "topik": "Struktur Perulangan Lanjutan",
+          "status": "hadir",
+          "dibuka": true,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f2",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f3",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f4",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f5",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f6",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f7",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f8",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230f9",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8c0a92cc06261c2ec230fa",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Manajemen Proyek IT",
+      "kode": "TIF 3 035",
+      "kelas": "5/B",
+      "moodle_course_id": "38410",
+      "satu_class_id": "6a72d7e090eef154a2895bea",
+      "pertemuan": [
+        {
+          "id": "6a83fe79618aee272c54f42c",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-18T13:41+07:00",
+          "selesai": "2026-08-18T15:00+07:00",
+          "topik": "Konsep Dasar & Siklus Hidup Proyek TI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f42d",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-31T12:48+07:00",
+          "selesai": "2026-08-31T16:00+07:00",
+          "topik": "metedologi",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f42e",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-08T13:51+07:00",
+          "selesai": "2026-09-08T15:00+07:00",
+          "topik": "Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f42f",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-15T13:46+07:00",
+          "selesai": "2026-09-15T14:00+07:00",
+          "topik": "Ruang Lingkup WBS",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f430",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-22T13:59+07:00",
+          "selesai": "2026-09-22T14:10+07:00",
+          "topik": "Penjadwalan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f431",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-29T13:45+07:00",
+          "selesai": "2026-09-29T15:00+07:00",
+          "topik": "Manajemen Waktu & Penjadwalan Proyek",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f432",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T16:52+07:00",
+          "selesai": "2026-10-01T17:00+07:00",
+          "topik": "Manajemen Waktu & Penjadwalan Proyek",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a83fe79618aee272c54f433",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f434",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f435",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f436",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f437",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f438",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f439",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f43a",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a83fe79618aee272c54f43b",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum Manajemen Proyek IT",
+      "kode": "TIF 3 035 P",
+      "kelas": "5/B",
+      "moodle_course_id": "38411",
+      "satu_class_id": "6a72daf890eef154a2895bf3",
+      "pertemuan": [
+        {
+          "id": "6a8e68f8c17f7a289d861616",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-18T11:18+07:00",
+          "selesai": "2026-08-18T13:00+07:00",
+          "topik": "Konsep Dasar & Siklus Hidup Proyek TI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a9515b6c17f7a289d86eb5b",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-31T15:00+07:00",
+          "selesai": "2026-08-31T20:00+07:00",
+          "topik": "metedologi",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a9fb0c621b7ad7e3b97d97c",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-08T13:52+07:00",
+          "selesai": "2026-09-08T15:00+07:00",
+          "topik": "Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aa8f2f28281ec437731e45e",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-15T14:25+07:00",
+          "selesai": "2026-09-15T15:00+07:00",
+          "topik": "Ruang Lingkup WBS",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6ab2278f6caaa51a1273c71d",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-22T14:00+07:00",
+          "selesai": "2026-09-22T14:10+07:00",
+          "topik": "Penjadwalan",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abb5e696d1a5e6f299ee4ba",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-29T13:44+07:00",
+          "selesai": "2026-09-29T16:00+07:00",
+          "topik": "Manajemen Waktu & Penjadwalan Proyek",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe2d2ca9656b34148d9489",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T16:50+07:00",
+          "selesai": "2026-10-01T17:00+07:00",
+          "topik": "Manajemen Waktu & Penjadwalan Proyek",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "E-Application",
+      "kode": "TIF 3 037",
+      "kelas": "5/B",
+      "moodle_course_id": "38413",
+      "satu_class_id": "6a72e1cc5197802e45fd40c6",
+      "pertemuan": [
+        {
+          "id": "6a8fbab8cc06261c2ec2915b",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-18T11:19+07:00",
+          "selesai": "2026-08-18T12:30+07:00",
+          "topik": "Memahami pengantar dan tren E-Application.",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec2915c",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-09-01T15:27+07:00",
+          "selesai": "2026-09-01T16:20+07:00",
+          "topik": "Membuat arsitektur diagram E-App pilihan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec2915d",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-05T10:15+07:00",
+          "selesai": "2026-09-05T11:30+07:00",
+          "topik": "TEKNOLOGI CLIENT",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec2915e",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-08T15:26+07:00",
+          "selesai": "2026-09-08T17:10+07:00",
+          "topik": "TEKNOLOGI SERVER DAN PROTOKOL KOMUNIKASI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec2915f",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-15T15:17+07:00",
+          "selesai": "2026-09-15T16:30+07:00",
+          "topik": "Database & Penyimpanan Cloud",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29160",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-22T15:25+07:00",
+          "selesai": "2026-09-22T16:30+07:00",
+          "topik": "MODUL 6: PaaS Deployment",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29161",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-09-29T15:13+07:00",
+          "selesai": "2026-09-29T16:30+07:00",
+          "topik": "MODUL 7- Keamanan E-Application",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29162",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29163",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29164",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29165",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29166",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29167",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29168",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec29169",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a8fbab8cc06261c2ec2916a",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum Pemrograman Visual",
+      "kode": "TIF 3 031 P",
+      "kelas": "5/B1",
+      "moodle_course_id": "38415",
+      "satu_class_id": "6a72ece46b0bef43f685a699",
+      "pertemuan": [
+        {
+          "id": "6a96129bbe4a3a22889a217d",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-19T08:00+07:00",
+          "selesai": "2026-08-19T09:40+07:00",
+          "topik": "Pengenalan Pemrograman Visual",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a9612db5da8730a368573d5",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-26T08:00+07:00",
+          "selesai": "2026-08-26T09:40+07:00",
+          "topik": "Komponen Visual Dasar",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe341ee440e973374152c7",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-02T08:00+07:00",
+          "selesai": "2026-09-02T09:40+07:00",
+          "topik": "Variabel, Konstanta, dan Tipe Data",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe3457e440e9733741530d",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-09T08:00+07:00",
+          "selesai": "2026-09-09T09:40+07:00",
+          "topik": "Operator dan Ekspresi pada Aplikasi Visual",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe3488e440e97337415321",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-16T08:00+07:00",
+          "selesai": "2026-09-16T09:40+07:00",
+          "topik": "Struktur Percabangan If–Else",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe34be0d2685509d8e433b",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-23T08:00+07:00",
+          "selesai": "2026-09-23T09:40+07:00",
+          "topik": "Struktur Perulangan Looping",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe34f60d2685509d8e433f",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2025-09-30T08:00+07:00",
+          "selesai": "2025-09-30T09:40+07:00",
+          "topik": "Struktur Perulangan Lanjutan",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum E-Application",
+      "kode": "TIF 3 037 P",
+      "kelas": "5/B1",
+      "moodle_course_id": "38419",
+      "satu_class_id": "6a72f588c4281e495e9a09b3",
+      "pertemuan": [
+        {
+          "id": "6a94ff5b8285e06dfe5e691e",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-20T11:12+07:00",
+          "selesai": "2026-08-20T12:30+07:00",
+          "topik": "Setup Tools: Node.js, GitHub, VS Code",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a9506bc8f75ad71afe88f78",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-27T11:43+07:00",
+          "selesai": "2026-08-27T13:00+07:00",
+          "topik": "Konsep dasar E-el dan Membuat arsitektur diagram E-App pilihan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aa21b423925985faf09c022",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-03T09:50+07:00",
+          "selesai": "2026-09-03T11:30+07:00",
+          "topik": "Membuat Frontend React - Form Login, Dashboard",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aa21e5ecab15c421e77ca96",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-10T10:04+07:00",
+          "selesai": "2026-09-10T11:30+07:00",
+          "topik": "Praktikum: REST API CRUD + Retry Timeout ",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aadd88c6d1a5e6f299d7d7b",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-17T07:33+07:00",
+          "selesai": "2026-09-17T09:40+07:00",
+          "topik": "Koneksi Backend ke DB Cloud + CRUD",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe30dd52df873489170b83",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-24T17:24+07:00",
+          "selesai": "2026-09-24T19:30+07:00",
+          "topik": "Deploy Project 1: Frontend di Vercel + Backend di Railway",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abe3596a9656b34148d963e",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-09-28T17:27+07:00",
+          "selesai": "2026-09-28T19:00+07:00",
+          "topik": "Implementasi JWT, .env security, HTTPS",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Teknik Penulisan Karya Ilmiah",
+      "kode": "TIF 3 033",
+      "kelas": "5/B",
+      "moodle_course_id": "38422",
+      "satu_class_id": "6a73013bbb1a652924911798",
+      "pertemuan": [
+        {
+          "id": "6a95991bc17f7a289d87101d",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-20T15:10+07:00",
+          "selesai": "2026-08-20T16:00+07:00",
+          "topik": "Pendahuluan TPKI",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d87101e",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-27T15:10+07:00",
+          "selesai": "2026-08-27T16:00+07:00",
+          "topik": "Pengantar TPKI lanjutan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d87101f",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-03T15:30+07:00",
+          "selesai": "2026-09-03T16:20+07:00",
+          "topik": "Penyusunan laporan PKL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d871020",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-10T15:50+07:00",
+          "selesai": "2026-09-10T17:00+07:00",
+          "topik": "Pembahasan PKL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d871021",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-17T15:10+07:00",
+          "selesai": "2026-09-17T16:10+07:00",
+          "topik": "Menyusun laporan PKL Lanjutan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d871022",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-24T15:10+07:00",
+          "selesai": "2026-09-24T16:00+07:00",
+          "topik": "Parafrada, kutipan dan sitasi dan Daftar Pustaka. ",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d871023",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T15:20+07:00",
+          "selesai": "2026-10-01T16:30+07:00",
+          "topik": "Kerangka dan Pendahuluan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a95991bc17f7a289d871024",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d871025",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d871026",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d871027",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d871028",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d871029",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d87102a",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d87102b",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a95991bc17f7a289d87102c",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum Teknik Penulisan Karya Ilmiah",
+      "kode": "TIF 3 033 P",
+      "kelas": "5/B",
+      "moodle_course_id": "38423",
+      "satu_class_id": "6a7301ce4db23b08dfb2faa2",
+      "pertemuan": [
+        {
+          "id": "6a9596d100b3e926f78e13bf",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-20T16:00+07:00",
+          "selesai": "2026-08-20T16:50+07:00",
+          "topik": "Penyusunan Laporan PKL ",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a95a5b98f75ad71afe8beed",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-27T16:00+07:00",
+          "selesai": "2026-08-27T16:50+07:00",
+          "topik": "Penyusunan Laporan PKL Lanjutan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a992747db28c25f5b2d085d",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-03T16:20+07:00",
+          "selesai": "2026-09-03T17:20+07:00",
+          "topik": "Penyusunan laporan PKL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aa27ea621b7ad7e3b9873a1",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-10T17:10+07:00",
+          "selesai": "2026-09-10T18:00+07:00",
+          "topik": "Diskudi pembuatan laporan PKL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aaba7f244c07570d15a7c7b",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-17T16:20+07:00",
+          "selesai": "2026-09-17T17:20+07:00",
+          "topik": "Praktek menyusun lapoaran PKL, lanjutan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6abcfb644b89b351b342cb6b",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-24T13:20+07:00",
+          "selesai": "2026-09-24T14:20+07:00",
+          "topik": "Phrasa, Pragraf, dan Sitasi",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6abcfbea4b89b351b342cbb2",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T16:20+07:00",
+          "selesai": "2026-10-01T17:30+07:00",
+          "topik": "Kerangka dan Pendahuluan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Sistem Informasi Geografis",
+      "kode": "TIF 3 036",
+      "kelas": "5/B",
+      "moodle_course_id": "38425",
+      "satu_class_id": "6a7302dc88db9429977d1ffb",
+      "pertemuan": [
+        {
+          "id": "6a91412cbe4a3a2288998fad",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-21T15:06+07:00",
+          "selesai": "2026-08-21T16:00+07:00",
+          "topik": "Pendahuluan",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fae",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-28T15:05+07:00",
+          "selesai": "2026-08-28T16:00+07:00",
+          "topik": "Konsep Sistem Informasi Geografis",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998faf",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-04T15:37+07:00",
+          "selesai": "2026-09-04T16:20+07:00",
+          "topik": "Definisi Dan Ruang Lingkup Sistem Informasi Geografis",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb0",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-10T16:55+07:00",
+          "selesai": "2026-09-10T17:00+07:00",
+          "topik": "Sejarah Dan Perkembangan Sistem Informasi Geografis",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb1",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-17T16:43+07:00",
+          "selesai": "2026-09-17T17:40+07:00",
+          "topik": "Konsep",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb2",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-24T16:33+07:00",
+          "selesai": "2026-09-24T17:30+07:00",
+          "topik": "Sistem Dan Sistem Informasi",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb3",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T16:24+07:00",
+          "selesai": "2026-10-01T17:30+07:00",
+          "topik": "Perancangan Basis Data Sistem Informasi Geografis",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb4",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb5",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb6",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb7",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb8",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fb9",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fba",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fbb",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91412cbe4a3a2288998fbc",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Rekayasa Perangkat Lunak",
+      "kode": "TIF 3 032",
+      "kelas": "5/B",
+      "moodle_course_id": "38428",
+      "satu_class_id": "6a7307d590eef154a2895d9f",
+      "pertemuan": [
+        {
+          "id": "6a91561acc06261c2ec2daf9",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-21T09:40+07:00",
+          "selesai": "2026-08-21T11:30+07:00",
+          "topik": "Pendahuluan RPL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2dafa",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-28T09:40+07:00",
+          "selesai": "2026-08-28T11:30+07:00",
+          "topik": "Lanjutan pengenalan RPL, dan contoh contoh",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2dafb",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-04T08:00+07:00",
+          "selesai": "2026-09-04T09:40+07:00",
+          "topik": "Karakteristik RPL",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2dafc",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-11T09:40+07:00",
+          "selesai": "2026-09-11T11:20+07:00",
+          "topik": "Sftware Crisis",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2dafd",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-18T09:50+07:00",
+          "selesai": "2026-09-18T11:40+07:00",
+          "topik": "Model penembangan perankat lunak, Agile dan Scrum dan Requirement Engineering",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2dafe",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-25T09:40+07:00",
+          "selesai": "2026-09-25T12:00+07:00",
+          "topik": "Kebutuhan fungsional, dan Non Fungsional",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2daff",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-02T10:00+07:00",
+          "selesai": "2026-10-02T11:40+07:00",
+          "topik": "UML dan Use Case Diagram",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a91561acc06261c2ec2db00",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db01",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db02",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db03",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db04",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db05",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db06",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db07",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a91561acc06261c2ec2db08",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Sistem Pendukung Keputusan",
+      "kode": "TIF 3 029",
+      "kelas": "5/B",
+      "moodle_course_id": "38427",
+      "satu_class_id": "6a7306584db23b08dfb2fac0",
+      "pertemuan": [
+        {
+          "id": "6a857279618aee272c55478b",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-21T08:50+07:00",
+          "selesai": "2026-08-21T09:40+07:00",
+          "topik": "Pengantar Sistem Pendukung Keputusan ",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c55478c",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-28T13:29+07:00",
+          "selesai": "2026-08-28T14:20+07:00",
+          "topik": "Proses Pengambilan Keputusan ",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c55478d",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-01T12:30+07:00",
+          "selesai": "2026-09-01T12:50+07:00",
+          "topik": "Sejarah SPK & Taksonomi SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c55478e",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-15T12:00+07:00",
+          "selesai": "2026-09-15T14:50+07:00",
+          "topik": "Arsitektur Sistem Pendukung Keputusan ",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c55478f",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-18T14:00+07:00",
+          "selesai": "2026-09-18T14:50+07:00",
+          "topik": "Sistem Informasi Pendukung Keputusan",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c554790",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-22T12:30+07:00",
+          "selesai": "2026-09-22T13:20+07:00",
+          "topik": "Metode Dalam SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c554791",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T11:00+07:00",
+          "selesai": "2026-10-01T11:50+07:00",
+          "topik": "Presentasi tugas setiap mhs - Tentang SI dalam SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a857279618aee272c554792",
+          "pertemuan": 8,
+          "nama": "Pertemuan 8",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554793",
+          "pertemuan": 9,
+          "nama": "Pertemuan 9",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554794",
+          "pertemuan": 10,
+          "nama": "Pertemuan 10",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554795",
+          "pertemuan": 11,
+          "nama": "Pertemuan 11",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554796",
+          "pertemuan": 12,
+          "nama": "Pertemuan 12",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554797",
+          "pertemuan": 13,
+          "nama": "Pertemuan 13",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554798",
+          "pertemuan": 14,
+          "nama": "Pertemuan 14",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c554799",
+          "pertemuan": 15,
+          "nama": "Pertemuan 15",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        },
+        {
+          "id": "6a857279618aee272c55479a",
+          "pertemuan": 16,
+          "nama": "Pertemuan 16",
+          "mulai": null,
+          "selesai": null,
+          "topik": null,
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": []
+        }
+      ]
+    },
+    {
+      "matkul": "Praktikum Sistem Pendukung Keputusan",
+      "kode": "TIF 3 029 P",
+      "kelas": "5/B",
+      "moodle_course_id": "38431",
+      "satu_class_id": "6a730a9790eef154a2895dba",
+      "pertemuan": [
+        {
+          "id": "6a857323931dee154fa49529",
+          "pertemuan": 1,
+          "nama": "Pertemuan 1",
+          "mulai": "2026-08-21T10:10+07:00",
+          "selesai": "2026-08-21T11:00+07:00",
+          "topik": "Praktik Sejarah SPK - Kuis",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR"
+          ]
+        },
+        {
+          "id": "6a8fb9385da8730a3684b8e8",
+          "pertemuan": 2,
+          "nama": "Pertemuan 2",
+          "mulai": "2026-08-28T10:30+07:00",
+          "selesai": "2026-08-28T11:20+07:00",
+          "topik": "Praktik Proses Pengambilan Keputusan ",
+          "status": null,
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6a93fe21cc410d4dbf86de38",
+          "pertemuan": 3,
+          "nama": "Pertemuan 3",
+          "mulai": "2026-09-01T12:50+07:00",
+          "selesai": "2026-09-01T13:40+07:00",
+          "topik": "Taksonomi SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aa396043490e001d4f76106",
+          "pertemuan": 4,
+          "nama": "Pertemuan 4",
+          "mulai": "2026-09-15T12:50+07:00",
+          "selesai": "2026-09-15T14:40+07:00",
+          "topik": "Praktik Arsitektur SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6aab6a42530a6a025f53de56",
+          "pertemuan": 5,
+          "nama": "Pertemuan 5",
+          "mulai": "2026-09-18T14:50+07:00",
+          "selesai": "2026-09-18T15:40+07:00",
+          "topik": "Sistem Informasi dalam SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6ab0fa2d6caaa51a12739b60",
+          "pertemuan": 6,
+          "nama": "Pertemuan 6",
+          "mulai": "2026-09-22T13:20+07:00",
+          "selesai": "2026-09-22T14:30+07:00",
+          "topik": "Praktik Metode dalam SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        },
+        {
+          "id": "6ab4ac496caaa51a1274259c",
+          "pertemuan": 7,
+          "nama": "Pertemuan 7",
+          "mulai": "2026-10-01T11:50+07:00",
+          "selesai": "2026-10-01T12:40+07:00",
+          "topik": "Presentasi tugas setiap mhs - Tentang SI dalam SPK",
+          "status": "hadir",
+          "dibuka": false,
+          "perlu_diisi": false,
+          "cara": [
+            "QR",
+            "langsung"
+          ]
+        }
+      ]
+    },
+    {
+      "matkul": "Praktek Kerja Lapangan",
+      "kode": "TIF 3 034",
+      "kelas": "5/B",
+      "moodle_course_id": "38433",
+      "satu_class_id": "6a730b1dc4281e495e9a0a72",
+      "pertemuan": []
+    }
+  ]
+}

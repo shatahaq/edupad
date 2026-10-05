@@ -1,0 +1,769 @@
+---
+course_id: "38408"
+course: "[TIF 3 031] Pemrograman Visual - Kelas 5/B"
+pertemuan: 3
+section: "Pertemuan 3-Variabel, Konstanta, dan Tipe Data"
+section_index: 3
+title: "Variabel, Konstanta, dan Tipe Data"
+type: "resource"
+source_file: "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/03_Pertemuan 3-Variabel, Konstanta, dan Tipe Data/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penama.pdf"
+source_url: "https://kelas.usu.ac.id/pluginfile.php/635138/mod_resource/content/1/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penamaan%281%29.pdf"
+activity_url: "https://kelas.usu.ac.id/mod/resource/view.php?id=207378"
+converter: "pymupdf4llm+ocr(1 hal)"
+---
+
+<!-- halaman 1 (OCR) -->
+
+**1**
+
+# Pemrograman Visual
+TIF 3031  •  Teknik Informatika D-3
+
+**Pertemuan 3 — Deklarasi Variabel,** Konstanta, dan Aturan Penamaan
+
+**Insidini Fawwaz, M.Kom**
+
+O
+
+O
+
+<!-- halaman 2 -->
+
+**3**
+
+**ORIENTASI**
+
+## Dari Form ke Data: Apa yang Disimpan Program?
+Form Data
+Nama Alya Input  → Variabel → Proses → Output
+GUI
+Jumlah 2
+Harga 15000
+Tampilan menerima input. Variabel
+menyimpan nilai agar dapat diproses oleh
+kode.
+Proses
+
+<!-- halaman 3 -->
+
+**4**
+
+**VARIABEL**
+
+## Apa Itu Variabel?
+- Variabel adalah tempat menyimpan nilai yang dapat berubah selama program berjalan.
+
+- Setiap variabel memiliki nama, tipe data, dan nilai.
+
+□ **Analogi**
+
+Variabel seperti kotak berlabel: label = nama variabel, isi kotak = nilai.
+
+- Nilai variabel dapat berasal dari input pengguna, hasil perhitungan, atau proses program.
+
+**Contoh**
+
+```
+Dim nama As String
+nama = "Alya"
+```
+
+<!-- halaman 4 -->
+
+**5**
+
+**VARIABEL**
+
+## Anatomi Deklarasi Variabel
+Deklarasi
+
+```
+Dim umur As Integer
+```
+
+Dim umur
+As Integer
+kata kunci deklarasi nama variabel tipe data
+
+### Dim  →  nama variabel  →  As  →  tipe data
+<!-- halaman 5 -->
+
+**6**
+
+**VARIABEL**
+
+## Cara Mendeklarasikan Variabel di Visual Basic
+**Deklarasi eksplisit**
+
+✓ **Prinsip** `Dim nama As String` Gunakan tipe data yang sesuai dengan nilai `Dim umur As Integer` yang akan disimpan. `Dim nilai As Double Dim aktif As Boolean` ! **Hindari** Nama variabel yang tidak menjelaskan isi, misalnya a, x1, data2 tanpa konteks.
+
+<!-- halaman 6 -->
+
+**7**
+
+**TIPE DATA**
+
+## String — Menyimpan Teks
+**Contoh String**
+
+```
+Dim nama As String = "Rani"
+Dim kota As String = "Medan"
+```
+
+**Teks ditulis di dalam tanda petik ganda.**
+
+Cocok untuk
+Nama, alamat, kode, email, keterangan,
+judul.
+Form Data
+Nama Rani
+Kota Medan
+Proses
+
+<!-- halaman 7 -->
+
+**8**
+
+**TIPE DATA**
+
+## Integer — Menyimpan Bilangan Bulat
+**Contoh Integer** `Dim umur As Integer = 20 Dim jumlahBarang As Integer = 3` **20   3   150   -5**
+
+**Contoh penggunaan** Umur, jumlah barang, stok, nomor urut. **Bukan untuk** Nilai pecahan seperti 3.75 atau 12.5.
+
+<!-- halaman 8 -->
+
+**9**
+
+**TIPE DATA**
+
+## Double — Menyimpan Bilangan Pecahan
+**Contoh Double**
+
+###### Cocok untuk
+```
+Dim ipk As Double = 3.75
+Dim berat As Double = 52.4
+```
+
+IPK, berat, suhu, hasil pengukuran, nilai desimal.
+
+###### Perhatikan
+**3.75   52.4   0.5**
+
+Gunakan titik sebagai pemisah desimal pada literal kode VB.
+
+<!-- halaman 9 -->
+
+**10**
+
+**TIPE DATA**
+
+## Boolean — Menyimpan Nilai Logika
+**Contoh Boolean**
+
+```
+Dim sudahLogin As Boolean = True
+Dim isAktif As Boolean = False
+```
+
+✓ True
+Kondisi benar / aktif / terpenuhi.
+
+× False
+
+**Boolean sering dipakai untuk mengendalikan keputusan program.**
+
+Kondisi salah / tidak aktif / belum terpenuhi.
+
+<!-- halaman 10 -->
+
+**11**
+
+**TIPE DATA**
+
+## Date — Menyimpan Tanggal dan Waktu
+**Contoh Date**
+
+###### Contoh penggunaan
+```
+Dim tanggalLahir As Date = #5/10/2005#
+Dim sekarang As Date = Date.Now
+```
+
+Tanggal lahir, tanggal transaksi, waktu login, jadwal.
+
+**Visual**
+
+Pada GUI, data tanggal sering diambil dari DateTimePicker.
+
+<!-- halaman 11 -->
+
+**12**
+
+**TIPE DATA**
+
+## Ringkasan Tipe Data Dasar
+|**Tipe Data**|**Digunakan untuk**|**Contoh**|
+|---|---|---|
+|**String**|Teks|"Andi"|
+|**Integer**|Bilangan bulat|25|
+|**Double**|Bilangan pecahan|3.75|
+|**Boolean**|Logika|True / False|
+|**Date**|Tanggal/waktu|#5/10/2026#|
+
+<!-- halaman 12 -->
+
+**13**
+
+**VARIABEL**
+
+## Memberi Nilai pada Variabel
+**Deklarasi + Assignment**
+
+Dim nama As String
+Deklarasi Isi nilai Gunakan
+→ →
+nama = "Budi"
+Dim umur As Integer
+umur = 21
+Tanda = digunakan untuk
+memasukkan nilai ke variabel.
+
+<!-- halaman 13 -->
+
+**14**
+
+**VARIABEL**
+
+## Deklarasi dan Inisialisasi Sekaligus
+**Lebih ringkas**
+
+```
+Dim nama As String = "Salsa"
+Dim umur As Integer = 19
+Dim ipk As Double = 3.82
+```
+
+Deklarasi
+Membuat variabel.
+Inisialisasi
+Memberikan nilai awal.
+
+##### Keduanya dapat dilakukan dalam satu baris.
+<!-- halaman 14 -->
+
+**15**
+
+**VARIABEL**
+
+## Nilai Variabel Dapat Berubah
+**Perubahan nilai**
+
+Dim jumlah As Integer = 1
+1 2 3
+→ →
+jumlah = 2
+jumlah = jumlah + 1
+' nilai akhir: 3
+Inilah alasan disebut variable:
+nilainya dapat bervariasi selama
+program berjalan.
+
+<!-- halaman 15 -->
+
+**16**
+
+**CONTOH**
+
+## Contoh: Menyimpan Input dari TextBox
+Form Data
+Button Click
+Nama Ayu Dim nama As String
+nama = txtNama.Text
+Umur 20
+lblHasil.Text = nama
+Kota Medan
+txtNama.Text → dibaca → disimpan ke variabel
+Proses
+nama → ditampilkan ke Label
+
+<!-- halaman 16 -->
+
+**17**
+
+**CONTOH**
+
+## Input TextBox adalah Teks: Bagaimana dengan Angka?
+**Konversi sederhana**
+
+```
+Dim jumlah As Integer
+jumlah = CInt(txtJumlah.Text)
+```
+
+"5" dari  → CInt(...) → 5 sebagai
+TextBox Integer
+
+! **Catatan**
+
+Pada aplikasi nyata, input perlu divalidasi agar program tidak error ketika pengguna memasukkan teks non-angka.
+
+<!-- halaman 17 -->
+
+**18**
+
+**SCOPE**
+
+## Variabel Lokal
+- Dideklarasikan di dalam prosedur atau event.
+
+- Hanya dapat digunakan pada bagian tempat variabel tersebut dibuat.
+
+- Cocok untuk nilai sementara yang hanya diperlukan saat event berjalan.
+
+**Contoh lokal**
+
+```
+Private Sub btnHitung_Click(...) Handles btnHitung.Click
+Dim total As Double
+total = 10000 * 2
+End Sub
+```
+
+**total hanya digunakan di event btnHitung_Click.**
+
+<!-- halaman 18 -->
+
+**19**
+
+**SCOPE**
+
+## Variabel Tingkat Form
+- Dideklarasikan di dalam class Form, tetapi di luar event/prosedur.
+
+- Dapat digunakan oleh beberapa event pada Form yang sama.
+
+- Gunakan bila data memang perlu dipertahankan antar-event.
+
+###### Contoh tingkat Form
+```
+Public Class Form1
+Dim totalBelanja As Double
+```
+
+```
+Private Sub btnTambah_Click(...)
+totalBelanja = totalBelanja + 10000
+End Sub
+End Class
+```
+
+<!-- halaman 19 -->
+
+**20**
+
+**SCOPE**
+
+## Lokal vs Tingkat Form
+L Variabel Lokal F Variabel Tingkat Form
+Dipakai hanya dalam satu event/prosedur. Dipakai oleh beberapa event dalam Form.
+Lebih aman untuk data sementara. Cocok untuk data yang perlu
+dipertahankan.
+
+### Pilih scope sekecil mungkin sesuai kebutuhan.
+<!-- halaman 20 -->
+
+**21**
+
+**KONSTANTA**
+
+## Apa Itu Konstanta?
+- Konstanta menyimpan nilai yang tidak boleh berubah selama program berjalan.
+
+- Deklarasi konstanta menggunakan kata kunci Const.
+
+**Contoh Const**
+
+```
+Const PPN As Double = 0.11
+Const NAMA_APP As String = "KasirKu"
+```
+
+- Konstanta cocok untuk nilai tetap yang digunakan berulang.
+
+**Kunci**
+
+Variabel = dapat berubah. Konstanta = tetap.
+
+<!-- halaman 21 -->
+
+**22**
+
+**KONSTANTA**
+
+## Variabel vs Konstanta
+V Variabel C Konstanta
+Dim diskon As Double = 0.1 Const PPN As Double = 0.11
+diskon dapat diubah. PPN tidak boleh diubah.
+
+#### Gunakan Const bila nilai memang merupakan aturan tetap dalam program.
+<!-- halaman 22 -->
+
+**23**
+
+**KONSTANTA**
+
+## Contoh Konstanta dalam Aplikasi
+% PPN 20 Batas Maksimum A Nama Aplikasi
+Const PPN As Double = 0.11 Const MAX_ITEM As Integer = 20 Const APP_NAME As String =
+"KasirKu"
+
+##### Nilai yang dipakai berkali-kali sebaiknya tidak ditulis sebagai 'angka ajaib' di banyak tempat.
+<!-- halaman 23 -->
+
+**24**
+
+**KONSTANTA**
+
+## Hindari Magic Number
+**Kurang jelas**
+
+```
+total = harga + (harga * 0.11)
+```
+
+**Lebih jelas**
+
+```
+Const PPN As Double = 0.11
+total = harga + (harga * PPN)
+```
+
+✓ Mengapa lebih baik?
+Kode lebih mudah dibaca, diubah, dan dipelihara.
+
+<!-- halaman 24 -->
+
+**25**
+
+**PENAMAAN**
+
+## Apa Itu Identifier?
+- Identifier adalah nama yang diberikan kepada elemen program.
+
+- Contohnya: nama variabel, konstanta, prosedur, fungsi, class, dan kontrol GUI.
+
+- Identifier yang baik membuat kode lebih mudah dibaca.
+
+**namaMahasiswa**
+
+variabel
+
+**PPN**
+
+konstanta
+
+**btnSimpan**
+
+Button
+
+<!-- halaman 25 -->
+
+**26**
+
+**PENAMAAN**
+
+## Aturan Dasar Penamaan Identifier
+- Gunakan huruf, angka, dan underscore (_).
+
+- Nama tidak boleh diawali dengan angka.
+
+- Jangan menggunakan spasi.
+
+- Jangan menggunakan kata kunci Visual Basic sebagai nama identifier.
+
+✓ **Valid** nama nilai1 total_harga jumlahBarang
+
+- Pilih nama yang bermakna dan konsisten.
+
+<!-- halaman 26 -->
+
+**27**
+
+**PENAMAAN**
+
+## Contoh Nama yang Tidak Valid
+× 1nama × total harga
+diawali angka mengandung spasi
+× Dim × nilai-rata
+kata kunci VB mengandung tanda -
+
+#### Perbaiki: nama1, totalHarga, dimensi, nilaiRata
+<!-- halaman 27 -->
+
+**28**
+
+**PENAMAAN**
+
+## Nama Harus Menjelaskan Isi
+× Kurang jelas ✓ Lebih jelas
+Dim x As Integer Dim jumlahBarang As Integer
+Dim a As Double Dim totalBayar As Double
+Dim d As String Dim namaPelanggan As String
+
+#### Kode dibaca lebih sering daripada ditulis. Nama yang jelas mengurangi tebakan.
+<!-- halaman 28 -->
+
+**29**
+
+**PENAMAAN**
+
+## Konvensi camelCase untuk Variabel
+**camelCase**
+
+Pola
+
+```
+Dim namaMahasiswa As String
+Dim jumlahBarang As Integer
+Dim totalBelanja As Double
+```
+
+Kata pertama huruf kecil; kata berikutnya diawali huruf besar.
+
+**Tujuan**
+
+Membuat nama multi-kata tetap mudah dibaca tanpa spasi.
+
+<!-- halaman 29 -->
+
+**30**
+
+**PENAMAAN**
+
+## Konvensi Nama Konstanta
+**Konstanta**
+
+```
+Const PPN As Double = 0.11
+Const MAX_ITEM As Integer = 20
+Const APP_NAME As String = "KasirKu"
+```
+
+C **Konsistensi**
+
+Boleh memakai PascalCase atau UPPER_CASE sesuai standar tim. Yang terpenting: konsisten.
+
+**Dalam materi ini, contoh konstanta sering dibuat menonjol agar mudah dibedakan.**
+
+<!-- halaman 30 -->
+
+**31**
+
+**PENAMAAN**
+
+## Penamaan Kontrol GUI: Prefix yang Informatif
+**Kontrol Prefix Contoh Name Form frm** frmKasir **Button btn** btnSimpan **Label lbl** lblTotal **TextBox txt** txtNama **ComboBox cbo** cboKategori
+
+**Prefix membantu developer mengenali jenis kontrol saat membaca kode.**
+
+<!-- halaman 31 -->
+
+**32**
+
+**PENAMAAN**
+
+## Property Name vs Text
+Form Data
+N Name
+Nama Budi Identitas kontrol di dalam kode.
+Contoh: btnSimpan
+Umur 20
+T Text
+Tulisan yang biasanya dilihat pengguna.
+Proses Contoh: Simpan
+
+##### btnSimpan.Text = "Simpan"
+<!-- halaman 32 -->
+
+**33**
+
+**PENAMAAN**
+
+## button1 atau btnSimpan?
+× button1 ✓ btnSimpan
+Tidak menjelaskan fungsi tombol. Jenis kontrol dan fungsi langsung terlihat.
+Sulit ketika Form memiliki banyak Button. Lebih mudah saat debugging.
+
+### Nama komponen adalah peta bagi developer saat membaca kode.
+<!-- halaman 33 -->
+
+**34**
+
+**STUDI KASUS**
+
+## Studi Kasus: Form Pemesanan Makanan
+Form Data
+Data yang digunakan
+Menu Nasi Goreng Dim jumlah As Integer = CInt(txtJumlah.Text)
+Dim harga As Double = 18000
+Jumlah 2 Const DISKON As Double = 0.1
+Dim total As Double
+Harga 18000 total = jumlah * harga
+Diskon 10%
+Proses Variabel: jumlah, harga, total  |  Konstanta: DISKON
+|  Kontrol: txtJumlah
+
+<!-- halaman 34 -->
+
+**35**
+
+**STUDI KASUS**
+
+## Menghitung Total dengan Variabel dan Konstanta
+**Kode**
+
+```
+Dim jumlahAs Integer = 2
+Dim hargaAs Double = 18000
+Const DISKON As Double = 0.1
+```
+
+```
+Dim subtotal As Double = jumlah* harga
+Dim total As Double = subtotal -(subtotal * DISKON)
+```
+
+= **Hasil**
+
+Subtotal = 36.000 Diskon = 3.600 Total = 32.400
+
+<!-- halaman 35 -->
+
+**36**
+
+**STUDI KASUS**
+
+## Menghubungkan Variabel dengan Event Button Click
+**Event Click**
+
+```
+Private Sub btnHitung_Click(...) Handles btnHitung.Click
+Dim jumlah As Integer = CInt(txtJumlah.Text)
+Dim harga As Double = 18000
+Dim total As Double = jumlah * harga
+lblTotal.Text = total.ToString()
+End Sub
+```
+
+**Klik Baca Hitung → Tampilkan Button****→** **input****→**
+
+**Variabel menjadi penghubung antara input GUI dan hasil proses.**
+
+<!-- halaman 36 -->
+
+**37**
+
+**KESALAHAN**
+
+## Kesalahan Umum: Tipe Data Tidak Sesuai
+**Salah**
+
+```
+Dim umur As Integer = "dua puluh"
+```
+
+Benar
+
+```
+Dim umur As Integer = 20
+```
+
+! Mengapa?
+Integer digunakan untuk bilangan bulat, bukan teks.
+
+<!-- halaman 37 -->
+
+**38**
+
+**KESALAHAN**
+
+## Kesalahan Umum: Nama Terlalu Pendek
+**Sulit dibaca Lebih jelas** `Dim a As Double Dim harga As Double Dim b As Double Dim jumlah As Double Dim c As Double Dim total As Double`
+
+**Nama pendek boleh untuk konteks sangat terbatas, tetapi untuk aplikasi gunakan nama yang menjelaskan makna.**
+
+<!-- halaman 38 -->
+
+**39**
+
+**KESALAHAN**
+
+## Kesalahan Umum: Menggunakan Kata Kunci
+**Jangan** ! **Kata kunci VB** `Dim Dim As String` Dim, As, Integer, String, If, Then, Else, For, Next, `Dim Integer As Integer` Sub, Function, Class, dan lainnya.
+
+✓ **Solusi** Pilih nama berdasarkan makna data, misalnya dimensi, jumlah, namaKelas.
+
+<!-- halaman 39 -->
+
+**40**
+
+**LATIHAN**
+
+## Latihan 1 — Baca Kode
+**Perhatikan**
+
+- Mana yang termasuk variabel?
+
+```
+Dim nama As String = "Rina"
+Dim jumlah As Integer = 3
+Const HARGA As Double = 12000
+Dim total As Double = jumlah * HARGA
+```
+
+- Mana yang termasuk konstanta?
+
+- Apa tipe data masing-masing?
+
+- Berapa nilai total?
+
+<!-- halaman 40 -->
+
+**41**
+
+**LATIHAN**
+
+## Latihan 2 — Valid atau Tidak?
+? **namaMahasiswa** ? **2nilai** Tentukan alasannya. Tentukan alasannya.
+
+? jumlahBarang ? Dim
+Tentukan alasannya. Tentukan alasannya.
+
+? **total harga** Tentukan alasannya. ? **nilai_akhir** Tentukan alasannya.
+
+###### Diskusikan aturan yang dilanggar atau dipenuhi.
+<!-- halaman 41 -->
+
+**44**
+
+**RANGKUMAN**
+
+## Rangkuman Pertemuan 3
+1 **Variabel**
+
+Nilainya dapat berubah. Deklarasi: Dim.
+
+2 **Tipe Data** String, Integer, Double, Boolean, Date.
+
+3 **Konstanta**
+
+Nilainya tetap. Deklarasi: Const.
+
+4 **Penamaan**
+
+Valid, bermakna, konsisten, mudah dibaca.
+
+**Kode yang baik bukan hanya berjalan, tetapi juga mudah dipahami.**

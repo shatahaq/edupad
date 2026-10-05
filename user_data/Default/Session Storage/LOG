@@ -1,0 +1,13 @@
+2026/09/30-21:12:17.425 1dd8 Reusing MANIFEST C:\Users\Laptop\Documents\Tugas_Akhir\user_data\Default\Session Storage/MANIFEST-000001
+2026/09/30-21:12:17.425 1dd8 Recovering log #4
+2026/09/30-21:12:17.426 1dd8 Level-0 table #6: started
+2026/09/30-21:12:17.430 1dd8 Level-0 table #6: 16052 bytes OK
+2026/09/30-21:12:17.430 1dd8 Recovering log #5
+2026/09/30-21:12:17.430 1dd8 Reusing old log C:\Users\Laptop\Documents\Tugas_Akhir\user_data\Default\Session Storage/000005.log 
+2026/09/30-21:12:17.432 1dd8 Delete type=0 #4
+2026/09/30-21:16:20.772 2d44 Level-0 table #8: started
+2026/09/30-21:16:20.776 1dd8 Current memtable full; waiting...
+2026/09/30-21:16:20.777 2d44 Level-0 table #8: 71605 bytes OK
+2026/09/30-21:16:20.781 2d44 Delete type=0 #5
+2026/09/30-21:16:20.782 2d44 Level-0 table #10: started
+2026/09/30-21:16:20.788 2d44 Level-0 table #10: 231849 bytes OK

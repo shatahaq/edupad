@@ -1,0 +1,220 @@
+---
+course_id: "38419"
+course: "[TIF 3 037 P] Praktikum E-Application - Kelas 5/B1"
+pertemuan: 7
+section: "Pengolahan Data Menggunakan pandas"
+section_index: 7
+title: "Pertemuan 7"
+type: "resource"
+source_file: "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/07_Pengolahan Data Menggunakan pandas/Pertemuan 7.pdf"
+source_url: "https://kelas.usu.ac.id/pluginfile.php/641501/mod_resource/content/1/Pertemuan%207.pdf"
+activity_url: "https://kelas.usu.ac.id/mod/resource/view.php?id=212692"
+converter: "pymupdf4llm+ocr(7 hal)"
+---
+
+<!-- halaman 1 (OCR) -->
+
+Aslab Teknik **HOME** Informatika K **Pertemuan 7 Praktikum E-Application**
+
+ABOUT
+
+**Nadya Lahfah Dhea Tri Lova Simanjuntak**
+
+**HOME**
+
+MORE
+
+<!-- halaman 2 (OCR) -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+# VIrorikadAslab Teknik
+
+#### PENGOLAHAN DATA MENGGUNAKAN PANDAS
+<!-- halaman 3 -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+### Apa Itu Pandas?
+Pandas adalah library Python yang digunakan untuk mengolah, memanipulasi, dan menganalisis data. Pandas sangat berguna ketika data yang kita miliki berbentuk tabel, seperti:
+
+Data mahasiswa Data nilai Data penjualan Data cuaca Data kasus Data pelanggan
+
+**Pandas membantu kita mengolah data tabel dengan Python dengan lebih mudah dan cepat.**
+
+<!-- halaman 4 -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+#### Mengapa Menggunakan Pandas?
+Tanpa Pandas, Python memang bisa membaca file menggunakan fungsi seperti open(). Namun, jika data berbentuk tabel dan jumlahnya banyak, pengolahannya menjadi kurang praktis. Dengan Pandas kita dapat Membaca, Menampilkan, Mengambil, Mengurutkan, Menghapus, Mengisi, Menghitung, Mengelompokkan data, Menyiapkan data untuk visualisasi
+
+**Pandas membuat data lebih mudah untuk dibaca, diolah, dan dianalisis.**
+
+<!-- halaman 5 (OCR) -->
+
+Aslab Teknik KInformatika
+
+HOME
+
+**ABOUT**
+
+MORE
+
+##### INSTALASI DAN IMPORT
+- (.venv) PS D:\Eapplication> pip install pandas Collecting pandas Using cachedpandas-3.0.6-cp313-cp313-win_amd64.whl.metadata(19 kB)
+
+- Collecting numpy>=1.26.0 (from pandas)
+
+<!-- halaman 6 (OCR) -->
+
+Aslab Teknik Informatika
+
+HOME
+
+**ABOUT**
+
+MORE
+
+#### STRUKTUR DATA PANDAS
+1. **Series** Digunakan untuk menyimpan satu kolom data/struktur data satu dimensi.
+
+Contoh :
+
+Output :
+
+1 import pandas as pd 2 3 data = pd.Series(["Dhea' "Nadya","Alya"]) 4 print(data)
+
+0 Dhea 1 Nadya 2 Alya dtype: str
+
+**SERIES = 1 KOLOM EXCEL. TIAP BARISNYA PUNYA NOMOR URUT (INDEX).**
+
+<!-- halaman 7 -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+### STRUKTUR DATA PANDAS
+2. **DataFrame** adalah struktur data dua dimensi yang terdiri dari baris dan kolom.
+
+Contoh :
+
+Output :
+
+**DATAFRAME = SELURUH SHEET EXCEL. ADA BARIS (INDEX) DAN KOLOM (LABEL).**
+
+<!-- halaman 8 (OCR) -->
+
+Aslab Teknik Informatika
+
+HOME
+
+**ABOUT**
+
+MORE
+
+#### Fungsi Dasar Pandas yang Wajib Diketahui
+|Fungsi|Kegunaan|
+|---|---|
+|pd.read_csv('file.csv')|Membaca data dari file CSV|
+|df.head()|Menampilkan beberapa baris pertama|
+|df.info()|Menampilkan info kolom dan tipe data|
+|df.describe()|Statistik ringkas dari data numerik|
+|df['kolom']|Mengambil satu kolom|
+|df[['kolom1', 'kolom2']]|Mengambil beberapa kolom|
+|df.sort_values('kolom')|Mengurutkan data|
+|df.dropna()|Menghapus data kosong|
+|df.fillna(nilai)|Mengisi data kosong|
+|df.groupby('kolom').sum()|Mengelompokkan dan menghitung total|
+
+<!-- halaman 9 (OCR) -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+### Aslab Teknik KInformatika
+
+#### Membaca dan Menampilkan Data Kasus OSN
+###### import pandas as pd
+
+###### df = pd.read_csv("osn.csv" print(df.head())
+
+|No|Nama Peserta Ge
+|nder
+Sekolah|Provinsi|Jenjang Sekolah|Kelas|Medali Prize T|ambahan|Tahun|
+|---|---|---|---|---|---|---|---|---|
+|0
+0
+|Gangsar Lintas Damai
+|MA Amanatul Ummah
+|Jawa Timur
+
+SMA|
+ 11.0|Partisipan|NaN|2016|
+|1
+1|Muhammad Khairul Ihsan|MAN 1 Banda Aceh
+|Aceh
+|SMA|11.0|Partisipan|NaN|2021|
+|2
+2|Farhannur
+|MAN 1 Banda Aceh
+|Aceh
+|SMA|11.0|Emas|NaN|2022|
+|3
+3|Muhammad Fathoni|MAN 1 Banda Aceh|Aceh
+|SMA|11.0|Partisipan|NaN|2022|
+|4
+4|Rahmat MI|MAN 1 Banda Aceh|Aceh|SMA|11.0|Partisipan|NaN|2022|
+
+2 2
+3 3
+4 4
+
+<!-- halaman 10 -->
+
+HOME
+
+**ABOUT**
+
+MORE
+
+### Cara Kerja Sistem
+Backend (Python) bertugas: 1.Membaca file CSV
+
+Frontend (JavaScript) bertugas: Menerima data dari Python Menggunakan data tersebut Membuat grafik dengan Chart.js Menampilkan grafik pada HTML
+
+- 2.Menggunakan Pandas untuk mengolah data
+
+3.Mengelompokkan data
+
+4.Menyiapkan data untuk grafik 5.Mengirim data ke JavaScript menggunakan Eel
+
+<!-- halaman 11 (OCR) -->
+
+ABOUT
+
+**MORE**
+
+## K IlnrotikaAslab Teknik
+
+Thank You!
+
+HOME

@@ -1,0 +1,220 @@
+---
+course_id: "38418"
+course: "[TIF 3 037 P] Praktikum E-Application - Kelas 5/A1"
+pertemuan: 4
+section: "Packaging dan Distribusi Aplikasi Python"
+section_index: 4
+title: "pertemuan 4"
+type: "resource"
+source_file: "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/04_Packaging dan Distribusi Aplikasi Python/Pertemuan 4.pdf"
+source_url: "https://kelas.usu.ac.id/pluginfile.php/636505/mod_resource/content/2/Pertemuan%204.pdf"
+activity_url: "https://kelas.usu.ac.id/mod/resource/view.php?id=208450"
+converter: "pymupdf4llm+ocr(4 hal)"
+---
+
+<!-- halaman 1 (OCR) -->
+
+Aslab Teknik **HOME** Informatika K **Pertemuan 4 Praktikum E-Application**
+
+**Nadya Lahfah Dhea Tri Lova Simanjuntak**
+
+**HOME**
+
+ABOUT
+
+MORE
+
+<!-- halaman 2 (OCR) -->
+
+# VIrorikadAslab Teknik
+
+**HOME**
+
+ABOUT
+
+MORE
+
+### Packaging dan Distribusi Aplikasi Python ke Format Executable (.exe)
+<!-- halaman 3 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+## Apa itu Packaging?
+Packaging adalah proses membungkus (bundling) seluruh kode sumber Python, interpreter mini, serta pustaka pihak ketiga ke dalam satu format biner mandiri (.exe). Dimana packaging mengubah program yang awalnya berupa file teks skrip mentah (.py) menjadi aplikasi desktop utuh yang siap dieksekusi langsung oleh sistem operasi
+
+<!-- halaman 4 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+### Kenapa Aplikasi Perlu di-Packaging?
+**Bebas Ketergantungan (No Python Required):** Pengguna akhir tidak perlu menginstal Python, mengatur Environment Variables, ataupun menjalankan pip install
+
+**Distribusi Sekali Klik:** Pengguna cukup melakukan double-click pada file .exe seperti software komersial umumnya
+
+**Proteksi Kode Sumber:** Menghindari manipulasi logika program oleh pengguna karena kode tidak lagi terekspos terbuka
+
+**Standarisasi Rilis Desktop:** Memisahkan lingkungan pengembangan (development) dengan produk akhir yang siap didistribusikan (production/release)
+
+<!-- halaman 5 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+### Pengenalan PyInstaller
+PyInstaller adalah pustaka untuk mengemas skrip Python dan dependensinya menjadi aplikasi mandiri (executable). Fungsinya menggabungkan interpreter, modul, dan berkas proyek secara otomatis tanpa konfigurasi rumit
+
+**Mekanisme Kerja:**
+
+Memindai berkas utama (main.py) untuk mendeteksi semua pustaka yang diimpor
+
+Mengumpulkan berkas biner pendukung ke dalam satu lingkungan terisolasi Menghasilkan direktori keluaran berisi berkas .exe yang siap dijalankan langsung di sistem operasi Windows
+
+<!-- halaman 6 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+## Mode Output Packaging Mode Folder (--onedir):
+Menghasilkan satu folder berisi file .exe dan kumpulan pustaka pendukung (.dll) secara terpisah
+
+Waktu buka aplikasi (startup time) lebih cepat Kurang praktis didistribusikan karena file pendukung tidak boleh terpisah
+
+**Mode Berkas Tunggal (--onefile):**
+
+Mengompres seluruh modul dan dependensi ke dalam satu file .exe utuh Distribusi sangat praktis dan tampilan direktori bersih
+
+Membutuhkan waktu ekstra beberapa detik saat pertama kali dibuka karena sistem mengekstrak dependensi ke folder sementara
+
+<!-- halaman 7 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+### Masalah Aset Non-Python
+Secara default, PyInstaller hanya mendeteksi berkas skrip Python, sehingga folder antarmuka seperti web/ (index.html, style.css, dan script.js) tidak akan terbawa saat proses pembuatan aplikasi. Hal ini menyebabkan program langsung crash karena Eel gagal menemukan halaman antarmukanya. Untuk mengatasinya, gunakan parameter --add-data **“folder_asal;folder_tujuan”** agar folder aset web disalin secara otomatis ke dalam paket aplikasi
+
+<!-- halaman 8 (OCR) -->
+
+#### Aslab Teknik Informatika
+
+main.py >
+
+- 1 import eel
+
+- 2 import os
+
+- 3 import sys
+
+- 4
+
+- 5 ifgetattr(sys, 'frozen', False):
+
+- 6 EXE_DIR = os.path.dirname(sys.executable)
+
+- 7 BASE_DIR = os.path.abspath(os.path.join(EXE_DIR, '..'))
+
+- 8 else:
+
+- 9 BASE_DIR = os.path.dirname(os.path.abspath(__file_
+
+- 10
+
+- 11 NOTES_DIR = os.path.join(BASE_DIR, 'notes')
+
+- 12
+
+- 13 if not os.path.exists(NOTES_DIR):
+
+14 os.makedirs(NOTES_DIR) 15
+
+- 16 eel.init('web')
+
+17
+
+- 18 @eel.expose
+
+- 19 def simpan_catatan(judul, isi):
+
+20 path = os.path.join(NOTES_DIR, f"{judul.strip()}.txt") 21 with open(path, encoding='utf-8') as f: 22 f.write(isi) 23 return "Tersimpan" 24 25 @eel.expose 26 def ambil_semua_catatan(): 27 return [f.replace('.txt', '') for f in os.listdir(NOTES_DIR 28 if f.endswith('.txt')] 29
+
+##### HOME
+##### ABOUT
+
+##### MORE
+
+main.py >ambil_semua_catatan wee⊥.expuse
+
+- 19 def simpan_catatan(judul, isi): 20 path = os.path.join(NOTES_DIR, f"{judul.strip()}.txt") 21 with open(path, encoding='utf-8') as f:
+
+- 22 f.write(isi)
+
+- 23 return "Tersimpan"
+
+- 24
+
+- 25 @eel.expose
+
+- 26 def ambil_semua_catatan(): 27 return [f.replace('.txt', ') _for f in os.listdir(NOTES_DIR) 28 if f.endswith('.txt')] 29
+
+- 30 @eel.expose
+
+- 31 def baca_isi_catatan(judul):
+
+32 path = os.path.join(NOTES_DIR, f"{judul}.txt") 33 if os.path.exists(path):
+
+34 with open(path, encoding='utf-8')) as f: 35 return f.read() 36 return" n
+
+37
+
+38 @eel.expose 39 def hapus_catatan(judul):
+
+40 path = os.path.join(NOTES_DIR, f"{judul.strip()}.txt") 41 if os.path.exists(path):
+
+42 os.remove(path) 43 return True 44 return False
+
+- 45
+
+46 eel.start('index.html', size=(900, 600))
+
+<!-- halaman 9 -->
+
+**HOME**
+
+ABOUT
+
+MORE
+
+Sebelum melakukan kompilasi, buka Terminal pada VS Code di direktori proyek Mini Notebook, lalu pasang pustaka PyInstaller: **pip install pyinstaller**
+
+Untuk memastikan instalasi berhasil dan modul siap digunakan, periksa versinya: **pyinstaller --version**
+
+Eksekusi Perintah Build Proyek **pyinstaller --noconsole --onefile --add-data "web;web" main.py**
+
+<!-- halaman 10 (OCR) -->
+
+## K IlnrotikaAslab Teknik
+
+Thank You!
+
+**HOME**
+
+ABOUT
+
+MORE

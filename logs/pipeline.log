@@ -1,0 +1,9 @@
+2026-09-30 21:12:15,754 INFO === Pipeline dimulai ===
+2026-09-30 21:16:20,907 INFO     [selesai] 58 aktivitas, 89 file tercatat, 0 error. Manifest: C:\Users\Laptop\Documents\Tugas_Akhir\data\materials\manifest.json
+2026-09-30 21:16:20,907 INFO [ok] scrape selesai dalam 245 detik (kode 0)
+2026-09-30 21:17:30,575 INFO     [selesai] 18 tugas/kuis, 8 belum dikumpulkan, 0 error.
+2026-09-30 21:17:30,575 INFO [ok] assignments selesai dalam 70 detik (kode 0)
+2026-09-30 21:17:30,855 INFO     [selesai] 0 dikonversi, 89 tidak berubah, 0 gagal (0 dtk).
+2026-09-30 21:17:30,855 INFO [ok] convert selesai dalam 0 detik (kode 0)
+2026-09-30 21:17:31,200 INFO     [selesai] 89 dokumen dibaca: 36 di luar KRS, 0 duplikat, 0 kosong -> 53 dokumen bersih
+2026-09-30 21:17:31,201 INFO [ok] corpus selesai dalam 0 detik (kode 0)

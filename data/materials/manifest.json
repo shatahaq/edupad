@@ -1,0 +1,1744 @@
+{
+  "generated_at": "2026-09-30T21:16:20+07:00",
+  "courses": {
+    "38404": {
+      "id": "38404",
+      "course": "[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38404",
+      "scraped_at": "2026-09-30T21:13:33+07:00",
+      "sections": [
+        {
+          "section": "Relational Foundations and SQL Mastery",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=1",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=1",
+            "size": 249,
+            "sha256": "dc798947ceef1cb90e37aeb851ce8d9445f777191d15203bf0329f661a522790",
+            "downloaded_at": "2026-09-30T21:13:33+07:00"
+          },
+          "items": [
+            {
+              "title": "Check your knowledge",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=195401",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Check your knowledge.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=195401",
+                  "size": 1373,
+                  "sha256": "72e9ccf64bfe8dbc4a20e9f4ea0b28a6e33c9e8fb0d977ef1f5c9674128a0c7d",
+                  "downloaded_at": "2026-09-30T21:13:36+07:00"
+                }
+              ]
+            },
+            {
+              "title": "Reading 1: Foundations of Database Management Systems",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213104",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 1_ Foundations of Database Management Systems.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213104",
+                  "size": 1072,
+                  "sha256": "265b39b38ff93136d18dab901115509a7a94ea228fe753976195327280d35d69",
+                  "downloaded_at": "2026-09-30T21:13:39+07:00"
+                }
+              ]
+            },
+            {
+              "title": "Reading 2: The Evolution of Database Systems",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213105",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 2_ The Evolution of Database Systems.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213105",
+                  "size": 1028,
+                  "sha256": "eeb6bf2813844aad12eff0e5b1dc27d8cabe0c723bf19627bc4cd4819591eaa0",
+                  "downloaded_at": "2026-09-30T21:13:42+07:00"
+                }
+              ]
+            },
+            {
+              "title": "Reading 3: Relational Model Principles and Integrity",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213106",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 3_ Relational Model Principles and Integrity.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213106",
+                  "size": 995,
+                  "sha256": "312ed6d486c0842ca0a600bbf9e13772232386f6561aa19e4ea4ae4f39a8b8bb",
+                  "downloaded_at": "2026-09-30T21:13:45+07:00"
+                }
+              ]
+            },
+            {
+              "title": "Reading 4: SQL Query Mastery - Syntax to Advanced Joins",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213107",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/01_Relational Foundations and SQL Mastery/Reading 4_ SQL Query Mastery - Syntax to Advanced Joins.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213107",
+                  "size": 976,
+                  "sha256": "1110e4b1983382b5f5a4759233d805901db5b23f0da7a8919c461c7773e7bdb9",
+                  "downloaded_at": "2026-09-30T21:13:48+07:00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Database Engine and Architecture",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=2",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=2",
+            "size": 248,
+            "sha256": "3995fd452b19ee047339efe7868648786e051076e6251b8db29591600e55a7ed",
+            "downloaded_at": "2026-09-30T21:13:48+07:00"
+          },
+          "items": [
+            {
+              "title": "Deep Dive: Storage Engines, Indexing, and Concurrency",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213190",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/02_Database Engine and Architecture/Deep Dive_ Storage Engines, Indexing, and Concurrency.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213190",
+                  "size": 1298,
+                  "sha256": "8c0d5d2227934a68b0d2000758525cf952f7d8f8cb31f26f9f3c0fbd8d73a118",
+                  "downloaded_at": "2026-09-30T21:13:51+07:00"
+                }
+              ]
+            },
+            {
+              "title": "Interactive B+ Tree and Index Simulator",
+              "type": "url",
+              "activity_url": "https://kelas.usu.ac.id/mod/url/view.php?id=213191",
+              "files": [],
+              "external_url": "https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html"
+            }
+          ]
+        },
+        {
+          "section": "Architecting Scalable Database Systems",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=3",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=3",
+            "size": 275,
+            "sha256": "d00cc018805e6ac2bbc4ace08bce527c234fd0be8839f3c89b6c6e45cf01bb29",
+            "downloaded_at": "2026-09-30T21:13:53+07:00"
+          },
+          "items": [
+            {
+              "title": "Database Scalability and High Availability Blueprint",
+              "type": "page",
+              "activity_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213196",
+              "files": [
+                {
+                  "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/03_Architecting Scalable Database Systems/Database Scalability and High Availability Blueprint.md",
+                  "source_url": "https://kelas.usu.ac.id/mod/page/view.php?id=213196",
+                  "size": 1418,
+                  "sha256": "f309b18c1b8be48f83ec8a59eddd3feb9f920d7b34616fc3c1fd1066e6c22150",
+                  "downloaded_at": "2026-09-30T21:13:56+07:00"
+                }
+              ]
+            },
+            {
+              "title": "PostgreSQL High Availability & Clustering Guide",
+              "type": "url",
+              "activity_url": "https://kelas.usu.ac.id/mod/url/view.php?id=213197",
+              "files": [],
+              "external_url": "https://www.postgresql.org/docs/current/high-availability.html"
+            },
+            {
+              "title": "Architecting Simulation",
+              "type": "url",
+              "activity_url": "https://kelas.usu.ac.id/mod/url/view.php?id=212758",
+              "files": [],
+              "external_url": "https://claude.ai/artifact/LBvuGjgV2Ewz94FWBaAhNu"
+            }
+          ]
+        },
+        {
+          "section": "Polyglot Persistence in Practice",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=4",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/04_Polyglot Persistence in Practice/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=4",
+            "size": 261,
+            "sha256": "fc40fca730791dd650068bcb18c2ad55ec1535fa4c15c9c2b33afe0bddc2fe06",
+            "downloaded_at": "2026-09-30T21:14:01+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "Unstructured Data and NoSQL",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=5",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/05_Unstructured Data and NoSQL/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=5",
+            "size": 252,
+            "sha256": "f4487727ab105c75b14c86222651db07d6fbfc5d1c4a3fbd718c25babf64ec2b",
+            "downloaded_at": "2026-09-30T21:14:01+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "Real-World Architecture Case Studies",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=6",
+          "summary": {
+            "path": "38404_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_B/06_Real-World Architecture Case Studies/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38404&section=6",
+            "size": 241,
+            "sha256": "2115cafc78e4f652b5dab21634a4672db048ef1677d8cb7b03247ce4b7a38ca0",
+            "downloaded_at": "2026-09-30T21:14:01+07:00"
+          },
+          "items": []
+        }
+      ]
+    },
+    "38406": {
+      "id": "38406",
+      "course": "[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38406",
+      "scraped_at": "2026-09-30T21:13:18+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38406&section=0",
+          "summary": {
+            "path": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38406&section=0",
+            "size": 842,
+            "sha256": "f8e410e82ed8395c3cabc7fb5af559515a541763996dd5c6a50f6feb015ff53b",
+            "downloaded_at": "2026-09-30T21:13:18+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "03 - Monitoring Kapasitas & Kinerja Database",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38406&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=209007",
+              "files": [
+                {
+                  "path": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/637140/mod_resource/content/1/Pertemuan%203.pdf",
+                  "size": 2429733,
+                  "sha256": "be26aac82557f185f7889a99ebf3031bf7506813b3d19e8954aab892bcaef0d5",
+                  "downloaded_at": "2026-09-30T16:05:24"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "04 - Tata Kelola Data (Data Dictionary)",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38406&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=211079",
+              "files": [
+                {
+                  "path": "38406_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/639629/mod_resource/content/2/Pertemuan%204.pdf",
+                  "size": 3190867,
+                  "sha256": "b894ca72c031bdccd857cbbb4abba814afc3ccb85bfa762a31fa44c7b1b382dc",
+                  "downloaded_at": "2026-09-30T16:05:29"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38431": {
+      "id": "38431",
+      "course": "[TIF 3 029 P] Praktikum Sistem Pendukung Keputusan - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38431",
+      "scraped_at": "2026-09-30T21:12:26+07:00",
+      "sections": []
+    },
+    "38429": {
+      "id": "38429",
+      "course": "[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/A",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38429",
+      "scraped_at": "2026-09-30T21:12:30+07:00",
+      "sections": [
+        {
+          "section": "Pengantar SPK",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pengantar SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=198302",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/01_Pengantar SPK/1-2 Pengantar SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/620845/mod_resource/content/2/1-2%20Pengantar%20SPK.pdf",
+                  "size": 599013,
+                  "sha256": "e447f7bb022eb199a03124968a690e3ab07b72eec5c1f0be2c309a9411099097",
+                  "downloaded_at": "2026-09-30T16:08:09"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Proses Pengambilan Keputusan",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Proses Pengambilan Keputusan",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=198306",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/02_Proses Pengambilan Keputusan/2 A Proses Pengambilan Keputusan.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/620849/mod_resource/content/4/2%20A%20Proses%20Pengambilan%20Keputusan.pdf",
+                  "size": 708725,
+                  "sha256": "51e6c96f128639fa7db9783ac19e1b211dd281bd41e9b34831da241aad7e2282",
+                  "downloaded_at": "2026-09-30T16:08:14"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Sejarah Sistem Pendukung Keputiusan",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Sejarah SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=199365",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/03_Sejarah Sistem Pendukung Keputiusan/3 Sejarah SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/623275/mod_resource/content/1/3%20Sejarah%20SPK%20.pdf",
+                  "size": 595692,
+                  "sha256": "d56c48a9544d5df1fdb4ae8e974ed788400eb20836c0608bd08d250c15b2ffad",
+                  "downloaded_at": "2026-09-30T16:08:19"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "4. Arsitektur SPK",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Arsitektur SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=205956",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/633372/mod_resource/content/1/4%20Arsitektur%20SPK.pdf",
+                  "size": 626446,
+                  "sha256": "a982de31f6be759e8c886e186c4b7d60bf1eb7cee37de7d20b63024526f93ee0",
+                  "downloaded_at": "2026-09-30T16:08:24"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "5. Sistem Informasi Pendukung Keputusan",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Sistem Informasi Pendukung Keputusan",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208477",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636538/mod_resource/content/1/56%20Sistem%20Informasi%20PK.pdf",
+                  "size": 516325,
+                  "sha256": "94731aeb41a9ce576d9670e6de677e02f165a10fdac8c5e825f2b08488c1c873",
+                  "downloaded_at": "2026-09-30T16:08:30"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "6. Metode dalam SPK",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38429&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "Metode Dalam SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=210216",
+              "files": [
+                {
+                  "path": "38429_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_A/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/638599/mod_resource/content/1/6-7%20Metode%20dalam%20SPK.pdf",
+                  "size": 1068694,
+                  "sha256": "cef5bc43a85f504a4fea46c7c1498612579260ad697a3909f5b9bc3c4f5bfd6f",
+                  "downloaded_at": "2026-09-30T16:08:35"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38427": {
+      "id": "38427",
+      "course": "[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38427",
+      "scraped_at": "2026-09-30T21:12:49+07:00",
+      "sections": [
+        {
+          "section": "Pengantar SPK",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pengantar SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=198307",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/01_Pengantar SPK/1 Pengantar SPK VB.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/620850/mod_resource/content/3/1%20Pengantar%20SPK%20VB.pdf",
+                  "size": 747365,
+                  "sha256": "9694925486d03525dd39ca0c4780863bc5fc44ba5b6d1c1066bbb5e302d66745",
+                  "downloaded_at": "2026-09-30T16:08:44"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 2",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Proses Pengambilan Keputusan",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=198308",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/02_Topic 2/2 B Proses Pengambilan Keputusan.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/620851/mod_resource/content/2/2%20B%20Proses%20Pengambilan%20Keputusan.pdf",
+                  "size": 708797,
+                  "sha256": "7f1e2316df16309ee8f12d60ab0b7633880ecdf3d53610941842fa7eba0d4642",
+                  "downloaded_at": "2026-09-30T16:08:49"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Sejarah Sistem Pendukung Keputusan",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Sejarah SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=199366",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/03_Sejarah Sistem Pendukung Keputusan/3 Sejarah SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/623276/mod_resource/content/1/3%20Sejarah%20SPK%20.pdf",
+                  "size": 595692,
+                  "sha256": "d56c48a9544d5df1fdb4ae8e974ed788400eb20836c0608bd08d250c15b2ffad",
+                  "downloaded_at": "2026-09-30T16:08:55"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "4. Arsitektur SPK",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Arsitektur SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=206006",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/04_4. Arsitektur SPK/4 Arsitektur SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/633446/mod_resource/content/1/4%20Arsitektur%20SPK.pdf",
+                  "size": 626446,
+                  "sha256": "a982de31f6be759e8c886e186c4b7d60bf1eb7cee37de7d20b63024526f93ee0",
+                  "downloaded_at": "2026-09-30T16:09:00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "5. Sistem Informasi Pendukung Keputusan",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Sistem Informasi Pendukung Keputusan",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208481",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/05_5. Sistem Informasi Pendukung Keputusan/56 Sistem Informasi PK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636542/mod_resource/content/1/56%20Sistem%20Informasi%20PK.pdf",
+                  "size": 516325,
+                  "sha256": "94731aeb41a9ce576d9670e6de677e02f165a10fdac8c5e825f2b08488c1c873",
+                  "downloaded_at": "2026-09-30T16:09:05"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "6. Metode dalam SPK",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38427&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "Metode dalam SPK",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=210218",
+              "files": [
+                {
+                  "path": "38427_[TIF 3 029] Sistem Pendukung Keputusan - Kelas 5_B/06_6. Metode dalam SPK/6-7 Metode dalam SPK.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/638601/mod_resource/content/1/6-7%20Metode%20dalam%20SPK.pdf",
+                  "size": 1068694,
+                  "sha256": "cef5bc43a85f504a4fea46c7c1498612579260ad697a3909f5b9bc3c4f5bfd6f",
+                  "downloaded_at": "2026-09-30T16:09:10"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38417": {
+      "id": "38417",
+      "course": "[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas 5/A",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38417",
+      "scraped_at": "2026-09-30T21:13:09+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38417&section=0",
+          "summary": {
+            "path": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38417&section=0",
+            "size": 842,
+            "sha256": "2bcb8a1d71a437f7ddc19e48dc4cfd503d48594af3feca995fb7a4edad022c21",
+            "downloaded_at": "2026-09-30T21:13:09+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "03 - Monitoring Kapasitas & Kinerja Database",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38417&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=209010",
+              "files": [
+                {
+                  "path": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/03_03 - Monitoring Kapasitas & Kinerja Database/Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/637143/mod_resource/content/2/Pertemuan%203.pdf",
+                  "size": 2429733,
+                  "sha256": "be26aac82557f185f7889a99ebf3031bf7506813b3d19e8954aab892bcaef0d5",
+                  "downloaded_at": "2026-09-30T16:09:20"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "04 - Tata Kelola Data (Data Dictionary)",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38417&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=211076",
+              "files": [
+                {
+                  "path": "38417_[TIF 3 030 P] Praktikum Manajemen Sistem Basis Data - Kelas/04_04 - Tata Kelola Data (Data Dictionary)/Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/639626/mod_resource/content/1/Pertemuan%204.pdf",
+                  "size": 3190867,
+                  "sha256": "b894ca72c031bdccd857cbbb4abba814afc3ccb85bfa762a31fa44c7b1b382dc",
+                  "downloaded_at": "2026-09-30T16:09:25"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38416": {
+      "id": "38416",
+      "course": "[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5/A",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38416",
+      "scraped_at": "2026-09-30T21:13:27+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38416&section=0",
+          "summary": null,
+          "items": [
+            {
+              "title": "Rencana Pembelajaran Semester",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=192114",
+              "files": [
+                {
+                  "path": "38416_[TIF 3 030] Manajemen Sistem Basis Data - Kelas 5_A/00_General/TIF3030 Manajemen Sistem Basis Data.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/606326/mod_resource/content/2/TIF3030%20Manajemen%20Sistem%20Basis%20Data.pdf",
+                  "size": 307922,
+                  "sha256": "abb95480dc961ae2f69b9936c6d8caec988424515330943911fdec72549ab739",
+                  "downloaded_at": "2026-09-30T16:09:43"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38409": {
+      "id": "38409",
+      "course": "[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/A1",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38409",
+      "scraped_at": "2026-09-30T21:14:05+07:00",
+      "sections": [
+        {
+          "section": "Topic 1",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 1",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213234",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/01_Topic 1/Pertemuan 1.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642199/mod_resource/content/1/Pertemuan%201.pdf",
+                  "size": 3593182,
+                  "sha256": "cd32abbdd06b37414c36408175c4abc87f225e5a731b083989dc71d5a80c5867",
+                  "downloaded_at": "2026-09-30T16:10:26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 2",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 2",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213235",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/02_Topic 2/Pertemuan 2.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642200/mod_resource/content/1/Pertemuan%202.pdf",
+                  "size": 5158342,
+                  "sha256": "45c5549fa0beef2eca384839b367a0d37bfff6b86aaf6426bbbaf603c58e75c6",
+                  "downloaded_at": "2026-09-30T16:10:31"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 3",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213236",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/03_Topic 3/Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642201/mod_resource/content/1/Pertemuan%203.pdf",
+                  "size": 10088977,
+                  "sha256": "05ece47becee1202ec44e5b87abc5180b8432aea78723fa097c5aa579a00c497",
+                  "downloaded_at": "2026-09-30T16:10:38"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 4",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213238",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/04_Topic 4/Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642203/mod_resource/content/1/Pertemuan%204.pdf",
+                  "size": 8232593,
+                  "sha256": "e4d4e895b5263ed3bb96e069e77db2985f4b882b6d262d1b42275d5d3d340154",
+                  "downloaded_at": "2026-09-30T16:10:44"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 5",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 5",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213239",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/05_Topic 5/Pertemuan 5.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642204/mod_resource/content/1/Pertemuan%205.pdf",
+                  "size": 9227069,
+                  "sha256": "0bff629026d1e8a28a424c98ab3c8c2c74993a4d6184bcbec626ff4b980a070d",
+                  "downloaded_at": "2026-09-30T16:10:50"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 6",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38409&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 6",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213240",
+              "files": [
+                {
+                  "path": "38409_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_A1/06_Topic 6/Pertemuan 6.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642205/mod_resource/content/1/Pertemuan%206.pdf",
+                  "size": 4041361,
+                  "sha256": "fc437d1eb042ea66f32ea5a08e446ab44716d414677fe998b64967893e4793c2",
+                  "downloaded_at": "2026-09-30T16:10:56"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38415": {
+      "id": "38415",
+      "course": "[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5/B1",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38415",
+      "scraped_at": "2026-09-30T21:14:25+07:00",
+      "sections": [
+        {
+          "section": "Topic 1",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 1",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213228",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/01_Topic 1/Pertemuan 1.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642193/mod_resource/content/1/Pertemuan%201.pdf",
+                  "size": 3593182,
+                  "sha256": "cd32abbdd06b37414c36408175c4abc87f225e5a731b083989dc71d5a80c5867",
+                  "downloaded_at": "2026-09-30T16:11:06"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 2",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 2",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213229",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/02_Topic 2/Pertemuan 2.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642194/mod_resource/content/1/Pertemuan%202.pdf",
+                  "size": 5158342,
+                  "sha256": "45c5549fa0beef2eca384839b367a0d37bfff6b86aaf6426bbbaf603c58e75c6",
+                  "downloaded_at": "2026-09-30T16:11:11"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 3",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213230",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/03_Topic 3/Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642195/mod_resource/content/1/Pertemuan%203.pdf",
+                  "size": 10088977,
+                  "sha256": "05ece47becee1202ec44e5b87abc5180b8432aea78723fa097c5aa579a00c497",
+                  "downloaded_at": "2026-09-30T16:11:18"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 4",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213231",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/04_Topic 4/Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642196/mod_resource/content/1/Pertemuan%204.pdf",
+                  "size": 8232593,
+                  "sha256": "e4d4e895b5263ed3bb96e069e77db2985f4b882b6d262d1b42275d5d3d340154",
+                  "downloaded_at": "2026-09-30T16:11:25"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 5",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 5",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213232",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/05_Topic 5/Pertemuan 5.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642197/mod_resource/content/1/Pertemuan%205.pdf",
+                  "size": 9227069,
+                  "sha256": "0bff629026d1e8a28a424c98ab3c8c2c74993a4d6184bcbec626ff4b980a070d",
+                  "downloaded_at": "2026-09-30T16:11:31"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Topic 6",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38415&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 6",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=213233",
+              "files": [
+                {
+                  "path": "38415_[TIF 3 031 P] Praktikum Pemrograman Visual - Kelas 5_B1/06_Topic 6/Pertemuan 6.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/642198/mod_resource/content/1/Pertemuan%206.pdf",
+                  "size": 4041361,
+                  "sha256": "fc437d1eb042ea66f32ea5a08e446ab44716d414677fe998b64967893e4793c2",
+                  "downloaded_at": "2026-09-30T16:11:37"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38408": {
+      "id": "38408",
+      "course": "[TIF 3 031] Pemrograman Visual - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38408",
+      "scraped_at": "2026-09-30T21:14:44+07:00",
+      "sections": [
+        {
+          "section": "Pertemuan 1-Pengenalan Pemrograman Visual",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38408&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pengenalan",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=207375",
+              "files": [
+                {
+                  "path": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/01_Pertemuan 1-Pengenalan Pemrograman Visual/Pertemuan1_PemrogramanVisual.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/635135/mod_resource/content/1/Pertemuan1_PemrogramanVisual.pdf",
+                  "size": 655834,
+                  "sha256": "8837281c06bc163a1a7d4648facd6d113382dded129b1180fb9bc3f4561e47dc",
+                  "downloaded_at": "2026-09-30T16:11:46"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pertemuan 2-Komponen Visual Dasar",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38408&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Komponen Visual Dasar",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=207376",
+              "files": [
+                {
+                  "path": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/02_Pertemuan 2-Komponen Visual Dasar/Pertemuan2_Komponen_Visual_Dasar.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/635136/mod_resource/content/1/Pertemuan2_Komponen_Visual_Dasar.pdf",
+                  "size": 2552355,
+                  "sha256": "a8310aed25565d7901b8b6da2caa499bef61ae0221031523305c5bb5b5a19d2c",
+                  "downloaded_at": "2026-09-30T16:11:51"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pertemuan 3-Variabel, Konstanta, dan Tipe Data",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38408&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Variabel, Konstanta, dan Tipe Data",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=207378",
+              "files": [
+                {
+                  "path": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/03_Pertemuan 3-Variabel, Konstanta, dan Tipe Data/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penama.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/635138/mod_resource/content/1/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penamaan%281%29.pdf",
+                  "size": 713537,
+                  "sha256": "36776a44c827dbaa75d52bc0f755e8e0fb5196d492281684c4685f011da92eac",
+                  "downloaded_at": "2026-09-30T16:11:56"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38408&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Operator dan Ekspresi pada Aplikasi Visual",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=207380",
+              "files": [
+                {
+                  "path": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/04_Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual/Pertemuan4_Pemrograman Visual.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf",
+                  "size": 586057,
+                  "sha256": "06acb2eb22afc9ccca81615ab668434b5f7cd5e0968f219338d8d41318ee76a1",
+                  "downloaded_at": "2026-09-30T16:12:02"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pertemuan 5-Percabangan If-Else",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38408&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Percabangan If-Else",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=210017",
+              "files": [
+                {
+                  "path": "38408_[TIF 3 031] Pemrograman Visual - Kelas 5_B/05_Pertemuan 5-Percabangan If-Else/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Vis.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/638375/mod_resource/content/1/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Visual.pdf",
+                  "size": 1807404,
+                  "sha256": "5bec71025adc40eda2192fb541e9ea1346503954574fd14551b473acf450e6c2",
+                  "downloaded_at": "2026-09-30T16:12:07"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38428": {
+      "id": "38428",
+      "course": "[TIF 3 032] Rekayasa Perangkat Lunak - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38428",
+      "scraped_at": "2026-09-30T21:15:01+07:00",
+      "sections": []
+    },
+    "38423": {
+      "id": "38423",
+      "course": "[TIF 3 033 P] Praktikum Teknik Penulisan Karya Ilmiah - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38423",
+      "scraped_at": "2026-09-30T21:15:05+07:00",
+      "sections": []
+    },
+    "38422": {
+      "id": "38422",
+      "course": "[TIF 3 033] Teknik Penulisan Karya Ilmiah - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38422",
+      "scraped_at": "2026-09-30T21:15:09+07:00",
+      "sections": []
+    },
+    "38433": {
+      "id": "38433",
+      "course": "[TIF 3 034] Praktek Kerja Lapangan - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38433",
+      "scraped_at": "2026-09-30T21:15:13+07:00",
+      "sections": []
+    },
+    "38411": {
+      "id": "38411",
+      "course": "[TIF 3 035 P] Praktikum Manajemen Proyek IT - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38411",
+      "scraped_at": "2026-09-30T21:15:17+07:00",
+      "sections": []
+    },
+    "38410": {
+      "id": "38410",
+      "course": "[TIF 3 035] Manajemen Proyek IT - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38410",
+      "scraped_at": "2026-09-30T21:15:25+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=0",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=0",
+            "size": 1298,
+            "sha256": "94e85eedf525f5bfcbb6d260e3db793af39935fb06d7cc66989d34e997e88d41",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583964/Sem%205%20RPS%20Manajemen%20Proyek%20TI%20%28TIK2111%29.docx?time=1787125149600",
+              "size": 599308,
+              "sha256": "ddca8a7c00133a019109003569133f6c11ca0dba639eae5a6546ea7c6a5165f7",
+              "downloaded_at": "2026-09-30T16:41:55"
+            }
+          ]
+        },
+        {
+          "section": "Konsep Dasar & Siklus Hidup Proyek TI",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=1",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=1",
+            "size": 3621,
+            "sha256": "6ca62058afbb2d9fb8d56260999dc78203b25e4eeb2e412a634f565ecd26f20f",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583965/MPIT1.pptx",
+              "size": 1232620,
+              "sha256": "5bb2c03126af0d0b1c8944eac7e8adaa929857d6b81694d2145ea2248586b7bf",
+              "downloaded_at": "2026-09-30T16:41:58"
+            }
+          ]
+        },
+        {
+          "section": "Metodologi & Standar Manajemen Proyek TI",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=2",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=2",
+            "size": 4247,
+            "sha256": "c7a249fec7fe630a41ea534ea3f42320bc9f92a927d097ecc11d750d3d2ca5c0",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583966/MPIT2.pptx",
+              "size": 1061070,
+              "sha256": "2ce2b37f31f6e9521e76eb82f3e456de29bbcc4c6901d2c922b0e46c49487284",
+              "downloaded_at": "2026-09-30T16:42:01"
+            }
+          ]
+        },
+        {
+          "section": "Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=3",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=3",
+            "size": 4559,
+            "sha256": "683e57a8b36e281f20a4aa621c877406c245c858da7404d75b889404af6d0c9d",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583967/MPIT3.pptx",
+              "size": 1066082,
+              "sha256": "fd32a82dbd976312a320371e5711fe7a0323fd7add70b87a6babc4d8ccfcd2cb",
+              "downloaded_at": "2026-09-30T16:42:04"
+            }
+          ]
+        },
+        {
+          "section": "Ruang Lingkup Proyek & Work Breakdown Structure (WBS)",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=4",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=4",
+            "size": 5263,
+            "sha256": "629821ab37b38facd036f1970af756a4b8202de42432a620abe0f62988ce3236",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583968/MPIT4.pptx",
+              "size": 1051525,
+              "sha256": "1abf8033c70250ae5398d0e4dbf0aeb4378dea56a80ab2aa3983c5cae9034a37",
+              "downloaded_at": "2026-09-30T16:42:06"
+            }
+          ]
+        },
+        {
+          "section": "Manajemen Waktu & Penjadwalan Proyek: Gantt Chart",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=5",
+          "summary": {
+            "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38410&section=5",
+            "size": 4627,
+            "sha256": "7896bb8cd0537066d8de92cfdd9fb5074691d30b5c06cba684a50e85ca7a0ced",
+            "downloaded_at": "2026-09-30T21:15:25+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38410_[TIF 3 035] Manajemen Proyek IT - Kelas 5_B/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/557013/course/section/583969/MPIT5.pptx",
+              "size": 1007660,
+              "sha256": "35c9efbf5821d48671ced2f19a0abbf8524dbbb9993eca99e46cbceb2b755bdc",
+              "downloaded_at": "2026-09-30T16:42:09"
+            }
+          ]
+        }
+      ]
+    },
+    "38402": {
+      "id": "38402",
+      "course": "[TIF 3 036 P] Praktikum Sistem Informasi Geografis - Kelas 5/B1",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38402",
+      "scraped_at": "2026-09-30T21:15:29+07:00",
+      "sections": []
+    },
+    "38425": {
+      "id": "38425",
+      "course": "[TIF 3 036] Sistem Informasi Geografis - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38425",
+      "scraped_at": "2026-09-30T21:15:32+07:00",
+      "sections": []
+    },
+    "38419": {
+      "id": "38419",
+      "course": "[TIF 3 037 P] Praktikum E-Application - Kelas 5/B1",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38419",
+      "scraped_at": "2026-09-30T21:15:58+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=0",
+          "summary": {
+            "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=0",
+            "size": 766,
+            "sha256": "34a487c8c2598f9af5714ccf0666d2993edd835e93687fb8fb7e176414ad039b",
+            "downloaded_at": "2026-09-30T21:15:58+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "Pengenalan E-Application dan Eel",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 1",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208248",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/01_Pengenalan E-Application dan Eel/Materi Pertemuan 1.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636272/mod_resource/content/2/Materi%20Pertemuan%201.pdf",
+                  "size": 7707543,
+                  "sha256": "3ba111f05d7cf81a8b189c47f4f3b53026451b5ccbc086f168051e780f6070ee",
+                  "downloaded_at": "2026-09-30T16:12:48"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Konsep Dasar Eel dan Komunikasi Frontend-Backend",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 2",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208251",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Materi Pertemuan 2.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636275/mod_resource/content/1/Materi%20Pertemuan%202.pdf",
+                  "size": 5937486,
+                  "sha256": "ce04eb7cfc316426a21577db35be5c041a2dc2538effe08fa4a3f1b9768b144d",
+                  "downloaded_at": "2026-09-30T16:12:54"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pembuatan Aplikasi Note Teks dengan Eel",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208252",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/03_Pembuatan Aplikasi Note Teks dengan Eel/Materi Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636276/mod_resource/content/1/Materi%20Pertemuan%203.pdf",
+                  "size": 13974790,
+                  "sha256": "3aa7ef39c5f91d175541613cc5305fc7fedbbad86554989d19dca76ca9566c11",
+                  "downloaded_at": "2026-09-30T16:13:02"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Packaging dan Distribusi Aplikasi Python",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208255",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/04_Packaging dan Distribusi Aplikasi Python/Materi Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636279/mod_resource/content/1/Materi%20Pertemuan%204.pdf",
+                  "size": 6175740,
+                  "sha256": "210600a6c46b27aea4f3f54f4bdaabc6425ba1c5b42035c99c858949208339f6",
+                  "downloaded_at": "2026-09-30T16:13:07"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Integrasi Database MySQL pada E-Application",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 5",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208420",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/05_Integrasi Database MySQL pada E-Application/Materi Pertemuan 5.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636474/mod_resource/content/1/Materi%20Pertemuan%205.pdf",
+                  "size": 6253639,
+                  "sha256": "ca19dfec1e855d6df65570e2bd04b4c5035dfe556d5ed302df527f9189831138",
+                  "downloaded_at": "2026-09-30T16:13:13"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pengolahan dan Transfer Data Media Menggunakan Base64 dalam Python dan Eel",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 6",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=210185",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/638567/mod_resource/content/2/Pertemuan%206.pdf",
+                  "size": 5082137,
+                  "sha256": "1bfbeac194752facdb77248cd3b284026aadd3be5d9d2a41538ad3c1cae57c8f",
+                  "downloaded_at": "2026-09-30T16:13:19"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pengolahan Data Menggunakan pandas",
+          "index": 7,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38419&section=7",
+          "summary": null,
+          "items": [
+            {
+              "title": "Pertemuan 7",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=212692",
+              "files": [
+                {
+                  "path": "38419_[TIF 3 037 P] Praktikum E-Application - Kelas 5_B1/07_Pengolahan Data Menggunakan pandas/Pertemuan 7.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/641501/mod_resource/content/1/Pertemuan%207.pdf",
+                  "size": 7054169,
+                  "sha256": "c64e24c9e6da818f6569762ece6f4beac0c197b929723cb3c701a66e1e65b2b7",
+                  "downloaded_at": "2026-09-30T16:13:25"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "38413": {
+      "id": "38413",
+      "course": "[TIF 3 037] E-Application - Kelas 5/B",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38413",
+      "scraped_at": "2026-09-30T21:16:20+07:00",
+      "sections": []
+    },
+    "38403": {
+      "id": "38403",
+      "course": "[TIF 3 035] Manajemen Proyek IT - Kelas 5/A",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38403",
+      "scraped_at": "2026-09-30T21:15:21+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=0",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=0",
+            "size": 1279,
+            "sha256": "13ee01d030a45fcf800fd0b4a441f671eaa045a6d3bd9979b3eff4e5d8ee257f",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/00_General/Sem 5 RPS Manajemen Proyek TI (TIK2111).docx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583845/Sem%205%20RPS%20Manajemen%20Proyek%20TI%20%28TIK2111%29.docx",
+              "size": 599308,
+              "sha256": "ddca8a7c00133a019109003569133f6c11ca0dba639eae5a6546ea7c6a5165f7",
+              "downloaded_at": "2026-09-30T16:47:08"
+            }
+          ]
+        },
+        {
+          "section": "Konsep Dasar & Siklus Hidup Proyek TI",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=1",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=1",
+            "size": 3621,
+            "sha256": "fcb97823bb1b7f0ed1c0fb9716abbc0757b23c2e8c5165665160962e8e7c3d10",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/01_Konsep Dasar & Siklus Hidup Proyek TI/MPIT1.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583846/MPIT1.pptx",
+              "size": 1232620,
+              "sha256": "5bb2c03126af0d0b1c8944eac7e8adaa929857d6b81694d2145ea2248586b7bf",
+              "downloaded_at": "2026-09-30T16:47:11"
+            }
+          ]
+        },
+        {
+          "section": "Metodologi & Standar Manajemen Proyek TI",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=2",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=2",
+            "size": 4247,
+            "sha256": "b4ad39f5a03cf47eedf822a54ead54de6ffd34b2b80cd8f962958525ca189081",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/02_Metodologi & Standar Manajemen Proyek TI/MPIT2.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583847/MPIT2.pptx",
+              "size": 1061070,
+              "sha256": "2ce2b37f31f6e9521e76eb82f3e456de29bbcc4c6901d2c922b0e46c49487284",
+              "downloaded_at": "2026-09-30T16:47:14"
+            }
+          ]
+        },
+        {
+          "section": "Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=3",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=3",
+            "size": 4559,
+            "sha256": "53a91a4a32fad8b2478848b98b5a9273729d526a7d0d60615ace89bf42a42354",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/03_Struktur Organisasi, Peran & Kepemimpinan Tim Proyek TI/MPIT3.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583848/MPIT3.pptx",
+              "size": 1066082,
+              "sha256": "fd32a82dbd976312a320371e5711fe7a0323fd7add70b87a6babc4d8ccfcd2cb",
+              "downloaded_at": "2026-09-30T16:47:16"
+            }
+          ]
+        },
+        {
+          "section": "Ruang Lingkup Proyek & Work Breakdown Structure (WBS)",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=4",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=4",
+            "size": 5263,
+            "sha256": "fbfdc475d883d1b25b11add24711b702064e1c67b97e4bdd6c02383d01091f42",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/04_Ruang Lingkup Proyek & Work Breakdown Structure (WBS)/MPIT4.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583849/MPIT4.pptx",
+              "size": 1051525,
+              "sha256": "1abf8033c70250ae5398d0e4dbf0aeb4378dea56a80ab2aa3983c5cae9034a37",
+              "downloaded_at": "2026-09-30T16:47:19"
+            }
+          ]
+        },
+        {
+          "section": "Manajemen Waktu & Penjadwalan Proyek: Gantt Chart",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=5",
+          "summary": {
+            "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38403&section=5",
+            "size": 4627,
+            "sha256": "551513067ded7e962d631b4f1f1831c67a65e3878c720c6c2117114ed6c7696a",
+            "downloaded_at": "2026-09-30T21:15:21+07:00"
+          },
+          "items": [],
+          "summary_files": [
+            {
+              "path": "38403_[TIF 3 035] Manajemen Proyek IT - Kelas 5_A/05_Manajemen Waktu & Penjadwalan Proyek_ Gantt Chart/MPIT5.pptx",
+              "source_url": "https://kelas.usu.ac.id/pluginfile.php/556992/course/section/583850/MPIT5.pptx",
+              "size": 1007660,
+              "sha256": "35c9efbf5821d48671ced2f19a0abbf8524dbbb9993eca99e46cbceb2b755bdc",
+              "downloaded_at": "2026-09-30T16:47:22"
+            }
+          ]
+        }
+      ]
+    },
+    "38418": {
+      "id": "38418",
+      "course": "[TIF 3 037 P] Praktikum E-Application - Kelas 5/A1",
+      "url": "https://kelas.usu.ac.id/course/view.php?id=38418",
+      "scraped_at": "2026-09-30T21:15:36+07:00",
+      "sections": [
+        {
+          "section": "General",
+          "index": 0,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=0",
+          "summary": {
+            "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/00_General/00_Deskripsi pertemuan.md",
+            "source_url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=0",
+            "size": 689,
+            "sha256": "285d1ad005fb311cc76669a74e6cb0a189764aa9f0322d2bbf3acd3095ed6c3d",
+            "downloaded_at": "2026-09-30T21:15:36+07:00"
+          },
+          "items": []
+        },
+        {
+          "section": "Pengenalan E-Application dan Eel",
+          "index": 1,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=1",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 1",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208433",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/01_Pengenalan E-Application dan Eel/Pertemuan 1.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636488/mod_resource/content/3/Pertemuan%201.pdf",
+                  "size": 7688180,
+                  "sha256": "1c66ee5311e2fffb421b3984fad01678313c794be26ee39059912dec6316a967",
+                  "downloaded_at": "2026-09-30T16:29:13"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Konsep Dasar Eel dan Komunikasi Frontend-Backend",
+          "index": 2,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=2",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 2",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208435",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/02_Konsep Dasar Eel dan Komunikasi Frontend-Backend/Pertemuan 2.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636490/mod_resource/content/2/Pertemuan%202.pdf",
+                  "size": 5937475,
+                  "sha256": "1b1c0d4d68724738c17345828e2aeec98f68c0b7c009a4ffc81d7f7a21d2221e",
+                  "downloaded_at": "2026-09-30T16:29:19"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pembuatan Aplikasi Note Teks dengan Eel",
+          "index": 3,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=3",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 3",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208449",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/03_Pembuatan Aplikasi Note Teks dengan Eel/Pertemuan 3.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636504/mod_resource/content/1/Pertemuan%203.pdf",
+                  "size": 14690794,
+                  "sha256": "fbb1400209f3a5c04879deb3ba6c4be01b8f1d4f5fb802666576a036096a1bc2",
+                  "downloaded_at": "2026-09-30T16:29:27"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Packaging dan Distribusi Aplikasi Python",
+          "index": 4,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=4",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 4",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208450",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/04_Packaging dan Distribusi Aplikasi Python/Pertemuan 4.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636505/mod_resource/content/2/Pertemuan%204.pdf",
+                  "size": 6175743,
+                  "sha256": "7ab35a9d4bc870aa463a0dfafdbadf7d9809f722af2ca0452b58d8aead584a25",
+                  "downloaded_at": "2026-09-30T16:29:32"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Integrasi Database MySQL pada E-Application",
+          "index": 5,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=5",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 5",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=208453",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/05_Integrasi Database MySQL pada E-Application/Pertemuan 5.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/636508/mod_resource/content/1/Pertemuan%205.pdf",
+                  "size": 5536613,
+                  "sha256": "dda7db153186df941660aec95ca923bae298c0abbd1e8d127ef2590e8006b54e",
+                  "downloaded_at": "2026-09-30T16:29:38"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "Pengolahan dan Transfer Data Media Menggunakan Base64 dalam Python dan Eel",
+          "index": 6,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=6",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 6",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=209715",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/06_Pengolahan dan Transfer Data Media Menggunakan Base64 dalam/Pertemuan 6.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/637979/mod_resource/content/3/Pertemuan%206.pdf",
+                  "size": 5082137,
+                  "sha256": "1bfbeac194752facdb77248cd3b284026aadd3be5d9d2a41538ad3c1cae57c8f",
+                  "downloaded_at": "2026-09-30T16:29:44"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section": "pengolahan data menggunakan pandas",
+          "index": 7,
+          "url": "https://kelas.usu.ac.id/course/view.php?id=38418&section=7",
+          "summary": null,
+          "items": [
+            {
+              "title": "pertemuan 7",
+              "type": "resource",
+              "activity_url": "https://kelas.usu.ac.id/mod/resource/view.php?id=212660",
+              "files": [
+                {
+                  "path": "38418_[TIF 3 037 P] Praktikum E-Application - Kelas 5_A1/07_pengolahan data menggunakan pandas/Pertemuan 7.pdf",
+                  "source_url": "https://kelas.usu.ac.id/pluginfile.php/641456/mod_resource/content/1/Pertemuan%207.pdf",
+                  "size": 7054169,
+                  "sha256": "c64e24c9e6da818f6569762ece6f4beac0c197b929723cb3c701a66e1e65b2b7",
+                  "downloaded_at": "2026-09-30T16:29:50"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
