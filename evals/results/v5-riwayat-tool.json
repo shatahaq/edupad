@@ -1,0 +1,530 @@
+{
+  "label": "v5-riwayat-tool",
+  "waktu": "2026-10-01T21:47:22+07:00",
+  "konfigurasi": {
+    "memory": true,
+    "detail": false,
+    "ringkasan_pertemuan": true
+  },
+  "ringkasan": {
+    "jawaban": 6,
+    "token_per_jawaban": 9766.833,
+    "token_miss_per_jawaban": 3696,
+    "output_per_jawaban": 460.167,
+    "panggilan_llm_per_jawaban": 2,
+    "biaya_usd_per_jawaban": 0.001695,
+    "detik_per_jawaban": 5.067,
+    "sumber_tepat": 1.0,
+    "kata_kunci": 1.0,
+    "tools_tepat": null,
+    "mengaku_tidak_ada": null,
+    "judge_ketepatan": 5,
+    "judge_kelengkapan": 4.833,
+    "halusinasi": 0,
+    "token_judge_total": 66811
+  },
+  "jawaban": [
+    {
+      "case": "followup-operator",
+      "q": "Apa saja jenis operator di pemrograman visual?",
+      "tanggal": "Kamis, 01-10-2026 21:46 WIB",
+      "speech": "Dari materi Pemrograman Visual pertemuan empat, operator di VB.NET dibagi empat kelompok utama: aritmatika, perbandingan, logika, dan penggabungan. Aritmatika untuk hitungan seperti tambah bagi dan Mod, perbandingan untuk membandingkan nilai, logika untuk menggabungkan kondisi, dan tanda dan untuk menggabung teks. Detailnya sudah tampil di layar.",
+      "screen": [
+        "- Pertemuan 4: Operator dan Ekspresi",
+        "- Aritmatika: + - / \\ Mod ^",
+        "- Perbandingan: = <> > < >= <=",
+        "- Logika: And Or Not Xor",
+        "- Penggabungan teks: &",
+        "- Sumber: Pemrograman Visual,",
+        "  Pertemuan 4"
+      ],
+      "detail": "",
+      "tools": [
+        "search_materials({\"query\": \"jenis-jenis operator dalam pemrograman visual\", \"course\": \"Pemrograman Visual\"})"
+      ],
+      "konteks": [
+        "search_materials({\"query\": \"jenis-jenis operator dalam pemrograman visual\", \"course\": \"Pemrograman Visual\"}) -> {\"hasil\": [{\"id\": \"2446f61d290d3c91\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [4], \"section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"judul\": \"Operator dan Ekspresi pada Aplikasi Visual\", \"lokasi\": \"halaman 1-10\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf\", \"isi\": \"**OPERATOR & EKSPRESI dalam Visual Basic.NET Insidini Fawwaz, M.Kom** <mark>H</mark>\\n\\nPemrograman Visual\\n\\n2. ## Apa itu Operator?\\n### Simbol yang melakukan operasi terhadap satu atau lebih nilai.\\n\\nOperator\\n\\n- Operand: nilai yang dioperasikan\\n\\n- Operator: simbol operasinya\\n\\n25.000   × 4   =   100.000\\n\\n   - Hasil: nilai setelah operasi\\n\\n- × adalah operator perkalian\\n\\n3. ## Jenis Operator di VB.NET\\nEmpat kelompok utama yang paling sering dipakai dalam aplikasi visual.\\n\\nAritmatika\\n\\n+  −  *  /  \\\\ Mod\\n\\nLogika And  Or  Not  Xor\\n\\nPerbandingan =  <>  >  <  >=  <=\\n\\nPenggabungan &\\n\\n4. ## Operator Aritmatika\\nDigunakan untuk perhitungan numerik.\\n\\nHarga Jumlah\\n→ × → → = → 100.000\\n25.000 4\\n\\nContoh penggunaan lainnya: subtotal belanja, rata-rata nilai, diskon, pajak, konversi suhu.\\n\\n5. ## Daftar Operator Aritmatika\\nPerhatikan perbedaan /, \\\\ dan Mod.\\n\\n|**Operator**|**Fungsi**|**Contoh**|**Hasil**|\\n|---|---|---|---|\\n|**+**|**Penjumlahan**|**10 + 5**|**15**|\\n|**-**|**Pengurangan**|**10 - 5**|**5**|\\n|*****|**Perkalian**|**10 * 5**|**50**|\\n|**/**|**Pembagian biasa**|**10 / 4**|**2,5**|\\n|**\\\\**|**Pembagian bulat**|**10 \\\\ 4**|**2**|\\n|**Mod**|**Sisa pembagian**|**10 Mod 4**|**2**|\\n|**^**|**Pangkat**|**2 ^ 3**|**8**|\\n\\n6. ## Contoh: Menghitung Total Belanja\\nOperator aritmatika membentuk proses dari input menuju output.\\n\\nHarga Jumlah Subtotal\\n→ × → → = →\\n50.000 3 150.000\\nContoh VB.NET\\nsubtotal = harga * jumlah\\n\\n7. ## / vs \\\\ vs Mod\\nTiga operator pembagian, tiga tujuan berbeda.\\n\\n/ \\\\\\nPembagian biasa Pembagian bulat\\n10 / 4 10 \\\\ 4\\nHasil: 2,5 Hasil: 2\\n\\nMod Sisa pembagian** 10 Mod 4 **Hasil: 2\\n\\n8. ## Contoh Mod: Bilangan Genap atau Ganjil\\nJika sisa pembagian oleh 2 adalah 0, bilangan tersebut genap.\\n\\nAngka Sisa\\n→ Mod 2 → → GENAP\\n18 0\\nContoh VB.NET\\n18 Mod 2 = 0\\n\\n###### Pertanyaan: bagaimana hasilnya jika \"}, {\"id\": \"252fa328fbc85771\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [4], \"section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"judul\": \"Operator dan Ekspresi pada Aplikasi Visual\", \"lokasi\": \"halaman 19-26\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf\", \"isi\": \"19. ## OrElse: OR dengan Short-Circuit\\nKondisi kedua tidak dievaluasi jika kondisi pertama sudah True.\\n\\nKondisi 1 Kondisi 2\\n→ OrElse → → True\\nTrue Dilewati\\n\\n##### Prinsipnya: begitu hasil akhir sudah dapat dipastikan, evaluasi berhenti.\\n\\n20. # Operator Assignment\\nMemberikan atau memperbarui nilai pada variabel.\\n\\ntotal = 100000 total += 5000\\nNilai 100000 disimpan Artinya:\\nke variabel total. total = total + 5000\\n\\n21. ## Operator Penggabungan String: &\\nDigunakan untuk menggabungkan teks.\\n\\n\\\"Selamat\\n\\\"Selamat \\\" → & → \\\"Datang\\\" → = →\\nDatang\\\"\\nContoh VB.NET\\npesan = \\\"Halo, \\\" & nama\\n\\n###### Untuk teks, gunakan & agar maksud penggabungan lebih jelas.\\n\\n22. ## Mengapa & Lebih Aman untuk String?\\nTanda + dapat membingungkan antara penjumlahan dan penggabungan.\\n\\n**\\\"22\\\" & \\\"33\\\" \\\"22\\\" + \\\"33\\\" Hasil → \\\"2233\\\" Makna dapat bergantung pada tipe data/konversi.** Jelas: menggabungkan teks\\n\\n23. ## Apa itu Ekspresi?\\n### Kombinasi operand dan operator yang menghasilkan sebuah nilai.\\n\\nsubtotal + (subtotal * 0.11)\\n\\n(subtotal ×\\nsubtotal → + → → = → total\\n0,11)\\n\\nEkspresi dapat sederhana atau terdiri dari beberapa operasi sekaligus.\\n\\n24. ## Prioritas Operator\\nUrutan evaluasi memengaruhi hasil ekspresi.\\n\\n10 + 2 × 5 (10 + 2) × 5\\n= 10 + 10 = 12 × 5\\n= 20 = 60\\n\\n###### Gunakan tanda kurung jika ingin memperjelas urutan proses.\\n\\n25. ## Urutan Prioritas yang Perlu Diingat\\nDari yang dievaluasi lebih dahulu menuju yang lebih akhir.\\n\\n**1 ( )** Tanda kurung **2 ^** Pangkat **3 * / \\\\ Mod** Kali & bagi **4 + -** Tambah & kurang **5 Perbandingan** = <> > < >= <= **6 Not → And → Or** Logika\\n\\n26. ## Studi Kasus: Diskon + PPN\\nBeberapa operator dapat bekerja dalam satu alur komputasi.\\n\\nSetelah\\nSubtotal Diskon PPN Total\\n→ → diskon → →\\n200.000 10% 11% 199.800\\n180.000\\nContoh VB.NET\\ndiskon = subtotal * 0.10\\ntotal = (subtotal - di\"}, {\"id\": \"89b61f61d6f40f60\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [4], \"section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"judul\": \"Operator dan Ekspresi pada Aplikasi Visual\", \"lokasi\": \"halaman 11-18\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf\", \"isi\": \"11. ## Contoh Perbandingan: Status Kelulusan\\nSatu kondisi sederhana dapat menentukan keluaran aplikasi.\\n\\nNilai\\n→ >= 75 → True → LULUS\\n82. #### Ekspresi kondisi: nilai >= 75\\nOperator tidak menghitung nilai baru, tapi mengevaluasi hubungan dua nilai.\\n\\n12. ## Operator Logika\\nMenggabungkan atau membalik kondisi Boolean.\\n\\nAnd\\nSemua kondisi harus True\\nNot\\nMembalik True  False\\n\\nOr\\nMinimal satu kondisi True\\nXor\\nTepat satu kondisi True\\n\\n13. ## AND: Semua Syarat Harus Terpenuhi\\nCocok ketika keputusan membutuhkan lebih dari satu syarat wajib.\\n\\nNilai >= 75 Kehadiran >= 80%\\n→ AND → → LULUS\\nTrue True\\nKondisi A Kondisi B A And B\\nTrue True True\\nTrue False False\\nFalse True False\\nFalse False False\\n\\n14. ## Contoh AND pada Aplikasi Akademik\\nMahasiswa lulus jika nilai dan kehadiran memenuhi syarat.\\n\\nSyarat 1 Nilai ≥ 75 Syarat 2 Kehadiran ≥ 80%\\n\\nContoh VB.NET** `lulus = (nilai >= 75) And (kehadiran >= 80)` **Jika salah satu False → hasil False\\n\\n15. ## OR: Cukup Salah Satu Syarat\\nCocok ketika ada beberapa alternatif yang sama-sama dapat memenuhi keputusan.\\n\\nMember Belanja ≥ 500rb\\n→ OR → → DAPAT DISKON\\nTrue False\\nKondisi A Kondisi B A Or B\\nTrue True True\\nTrue False True\\nFalse True True\\nFalse False False\\n\\n16. ## XOR: Tepat Satu Kondisi True\\nBerbeda dari OR: jika keduanya True, XOR menghasilkan False.\\n\\nA B A Xor B\\nTrue True False\\nTrue False True\\nFalse True True\\nFalse False False\\n\\n##### Ingat: XOR = 'salah satu, tetapi bukan keduanya'.\\n\\n17. ## NOT: Membalik Nilai Logika\\nTrue menjadi False, dan False menjadi True.\\n\\nisLogin\\n→ NOT → False\\nTrue\\nEkspresi Not Ekspresi\\nTrue False\\nFalse True\\n\\n18. ## AndAlso: AND dengan Short-Circuit\\nKondisi kedua tidak dievaluasi jika kondisi pertama sudah False.\\n\\nKondisi 1 Kondisi 2 → AndAlso → → False False Dilewati\\n\\n##### Mengapa berguna?\\n- Lebih efisien\\n\\n- Dapat menc\"}, {\"id\": \"f3028ca39e1770e2\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [3], \"section\": \"Pertemuan 3-Variabel, Konstanta, dan Tipe Data\", \"judul\": \"Variabel, Konstanta, dan Tipe Data\", \"lokasi\": \"halaman 8-15\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635138/mod_resource/content/1/Pertemuan_3_Pemrograman_Visual_Variabel_Konstanta_Penamaan%281%29.pdf\", \"isi\": \"9. TIPE DATA\\n\\n## Double — Menyimpan Bilangan Pecahan\\nContoh Double\\n\\n###### Cocok untuk\\n```\\nDim ipk As Double = 3.75\\nDim berat As Double = 52.4\\n```\\n\\nIPK, berat, suhu, hasil pengukuran, nilai desimal.\\n\\n###### Perhatikan\\n3.75   52.4   0.5\\n\\nGunakan titik sebagai pemisah desimal pada literal kode VB.\\n\\n10. TIPE DATA\\n\\n## Boolean — Menyimpan Nilai Logika\\nContoh Boolean\\n\\n```\\nDim sudahLogin As Boolean = True\\nDim isAktif As Boolean = False\\n```\\n\\n✓ True\\nKondisi benar / aktif / terpenuhi.\\n\\n× False\\n\\nBoolean sering dipakai untuk mengendalikan keputusan program.\\n\\nKondisi salah / tidak aktif / belum terpenuhi.\\n\\n11. TIPE DATA\\n\\n## Date — Menyimpan Tanggal dan Waktu\\nContoh Date\\n\\n###### Contoh penggunaan\\n```\\nDim tanggalLahir As Date = #5/10/2005#\\nDim sekarang As Date = Date.Now\\n```\\n\\nTanggal lahir, tanggal transaksi, waktu login, jadwal.\\n\\nVisual\\n\\nPada GUI, data tanggal sering diambil dari DateTimePicker.\\n\\n12. TIPE DATA\\n\\n## Ringkasan Tipe Data Dasar\\n|**Tipe Data**|**Digunakan untuk**|**Contoh**|\\n|---|---|---|\\n|**String**|Teks|\\\"Andi\\\"|\\n|**Integer**|Bilangan bulat|25|\\n|**Double**|Bilangan pecahan|3.75|\\n|**Boolean**|Logika|True / False|\\n|**Date**|Tanggal/waktu|#5/10/2026#|\\n\\n13. VARIABEL\\n\\n## Memberi Nilai pada Variabel\\nDeklarasi + Assignment\\n\\nDim nama As String\\nDeklarasi Isi nilai Gunakan\\n→ →\\nnama = \\\"Budi\\\"\\nDim umur As Integer\\numur = 21\\nTanda = digunakan untuk\\nmemasukkan nilai ke variabel.\\n\\n14. VARIABEL\\n\\n## Deklarasi dan Inisialisasi Sekaligus\\nLebih ringkas\\n\\n```\\nDim nama As String = \\\"Salsa\\\"\\nDim umur As Integer = 19\\nDim ipk As Double = 3.82\\n```\\n\\nDeklarasi\\nMembuat variabel.\\nInisialisasi\\nMemberikan nilai awal.\\n\\n##### Keduanya dapat dilakukan dalam satu baris.\\n\\n15. VARIABEL\\n\\n## Nilai Variabel Dapat Berubah\\nPerubahan nilai\\n\\nDim jumlah As Integer = 1\\n1 2 3\\n→ →\\njumlah = 2\\njumlah = jumlah + 1\\n' nilai akhir:\"}], \"waktu_ms\": 2104}"
+      ],
+      "sources": [
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Operator dan Ekspresi pada Aplikasi Visual"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Operator dan Ekspresi pada Aplikasi Visual"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Operator dan Ekspresi pada Aplikasi Visual"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Variabel, Konstanta, dan Tipe Data"
+        }
+      ],
+      "seconds": 5.6,
+      "usage": {
+        "calls": 2,
+        "total": 9090,
+        "cache_hit": 5376,
+        "cache_miss": 3344,
+        "output": 370,
+        "reasoning": 49,
+        "cost_usd": 0.001479
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 5,
+        "halusinasi": false,
+        "catatan": "Jawaban menyebut empat kelompok operator VB.NET (aritmatika, perbandingan, logika, penggabungan) beserta contoh simbolnya, sesuai materi Pertemuan 4. Layar melengkapi rincian operator tiap kelompok secara tepat.",
+        "usage": {
+          "prompt_tokens": 7614,
+          "completion_tokens": 172,
+          "total_tokens": 7786,
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 84
+          },
+          "prompt_cache_hit_tokens": 128,
+          "prompt_cache_miss_tokens": 7486
+        }
+      }
+    },
+    {
+      "case": "followup-operator",
+      "q": "Kasih contoh yang logika dong",
+      "tanggal": "Kamis, 01-10-2026 21:46 WIB",
+      "speech": "Contoh dari materi Pemrograman Visual pertemuan empat ya. And dipakai saat semua syarat wajib terpenuhi, misalnya lulus sama dengan nilai minimal tujuh puluh lima And kehadiran minimal delapan puluh persen. Or cukup salah satu, contohnya diskon kalau member Or belanja di atas lima ratus ribu. Kalau Not itu membalik nilai, jadi isLogin True jadi False, dan Xor bernilai benar hanya kalau tepat satu kondisi benar.",
+      "screen": [
+        "- AND: semua syarat harus True",
+        "- lulus = (nilai>=75) And (hadir>=80)",
+        "- OR: cukup salah satu True",
+        "- diskon = member Or belanja>=500000",
+        "- XOR: tepat satu True, dua-duanya",
+        "  False",
+        "- NOT: membalik True jadi False",
+        "- Sumber: Pemrograman Visual pertemuan",
+        "  4"
+      ],
+      "detail": "",
+      "tools": [
+        "get_meeting({\"course\": \"Pemrograman Visual\", \"meeting\": 4, \"full\": true})"
+      ],
+      "konteks": [
+        "get_meeting({\"course\": \"Pemrograman Visual\", \"meeting\": 4, \"full\": true}) -> {\"matkul\": \"Pemrograman Visual\", \"pertemuan\": 4, \"judul_section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"terpotong\": false, \"isi\": \"# Pemrograman Visual (TIF 3 031, kelas 5/B) — Pertemuan 4\\n\\nDosen: Insidini Fawwaz M.Kom\\n\\n## Operator dan Ekspresi pada Aplikasi Visual\\n\\n*Sumber: https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf · berisi teks hasil OCR*\\n\\n<!-- halaman 1 -->\\n**OPERATOR & EKSPRESI dalam Visual Basic.NET Insidini Fawwaz, M.Kom** <mark>H</mark>\\n\\nPemrograman Visual\\n\\n<!-- halaman 2 -->\\n2. ## Apa itu Operator?\\n### Simbol yang melakukan operasi terhadap satu atau lebih nilai.\\n\\nOperator\\n\\n- Operand: nilai yang dioperasikan\\n\\n- Operator: simbol operasinya\\n\\n25.000   × 4   =   100.000\\n\\n   - Hasil: nilai setelah operasi\\n\\n- × adalah operator perkalian\\n\\n<!-- halaman 3 -->\\n3. ## Jenis Operator di VB.NET\\nEmpat kelompok utama yang paling sering dipakai dalam aplikasi visual.\\n\\nAritmatika\\n\\n+  −  *  /  \\\\ Mod\\n\\nLogika And  Or  Not  Xor\\n\\nPerbandingan =  <>  >  <  >=  <=\\n\\nPenggabungan &\\n\\n<!-- halaman 4 -->\\n4. ## Operator Aritmatika\\nDigunakan untuk perhitungan numerik.\\n\\nHarga Jumlah\\n→ × → → = → 100.000\\n25.000 4\\n\\nContoh penggunaan lainnya: subtotal belanja, rata-rata nilai, diskon, pajak, konversi suhu.\\n\\n<!-- halaman 5 -->\\n5. ## Daftar Operator Aritmatika\\nPerhatikan perbedaan /, \\\\ dan Mod.\\n\\n|**Operator**|**Fungsi**|**Contoh**|**Hasil**|\\n|---|---|---|---|\\n|**+**|**Penjumlahan**|**10 + 5**|**15**|\\n|**-**|**Pengurangan**|**10 - 5**|**5**|\\n|*****|**Perkalian**|**10 * 5**|**50**|\\n|**/**|**Pembagian biasa**|**10 / 4**|**2,5**|\\n|**\\\\**|**Pembagian bulat**|**10 \\\\ 4**|**2**|\\n|**Mod**|**Sisa pembagian**|**10 Mod 4**|**2**|\\n|**^**|**Pangkat**|**2 ^ 3**|**8**|\\n\\n<!-- halaman 6 -->\\n6. ## Contoh: Menghitung Total Belanja\\nOperator aritmatika membentuk proses dari input menuju output.\\n\\nHarga Jumlah Subtotal\\n→ × → → = →\\n50.000 3 150.000\\nContoh VB.NET\\nsubtotal = harga * jumlah\\n\\n<!-- halaman 7 -->\\n7. ## / vs \\\\ vs Mod\\nTiga operator pembagian, tiga tujuan berbeda.\\n\\n/ \\\\\\nPembagian biasa Pembagian bulat\\n10 / 4 10 \\\\ 4\\nHasil: 2,5 Hasil: 2\\n\\nMod Sisa pembagian** 10 Mod 4 **Hasil: 2\\n\\n<!-- halaman 8 -->\\n8. ## Contoh Mod: Bilangan Genap atau Ganjil\\nJika sisa pembagian oleh 2 adalah 0, bilangan tersebut genap.\\n\\nAngka Sisa\\n→ Mod 2 → → GENAP\\n18 0\\nContoh VB.NET\\n18 Mod 2 = 0\\n\\n###### Pertanyaan: bagaimana hasilnya jika angkanya 17?\\n\\n<!-- halaman 9 -->\\n9. ## Operator Perbandingan\\nMembandingkan dua nilai dan menghasilkan Boolean: True atau False.\\n\\n80  >=  75\\nHasil: True\\n\\n60  >=  75\\nHasil: False\\n\\n<!-- halaman 10 -->\\n10. ## Daftar Operator Perbandingan\\nDigunakan pada keputusan, validasi, filter, dan kondisi.\\n\\nOperator Arti Contoh\\n= Sama dengan nilai = 75\\n<> Tidak sama dengan status <> \\\"Aktif\\\"\\n> Lebih besar nilai > 75\\n< Lebih kecil stok < 5\\n>= Lebih besar/sama nilai >= 75\\n<= Lebih kecil/sama umur <= 17\\n\\n<!-- halaman 11 -->\\n11. ## Contoh Perbandingan: Status Kelulusan\\nSatu kondisi sederhana dapat menentukan keluaran aplikasi.\\n\\nNilai\\n→ >= 75 → True → LULUS\\n82. #### Ekspresi kondisi: nilai >= 75\\nOperator tidak menghitung nilai baru, tapi mengevaluasi hubungan dua nilai.\\n\\n<!-- halaman 12 -->\\n12. ## Operator Logika\\nMenggabungkan atau membalik kondisi Boolean.\\n\\nAnd\\nSemua kondisi harus True\\nNot\\nMembalik True  False\\n\\nOr\\nMinimal satu kondisi True\\nXor\\nTepat satu kondisi True\\n\\n<!-- halaman 13 -->\\n13. ## AND: Semua Syarat Harus Terpenuhi\\nCocok ketika keputusan membutuhkan lebih dari satu syarat wajib.\\n\\nNilai >= 75 Kehadiran >= 80%\\n→ AND → → LULUS\\nTrue True\\nKondisi A Kondisi B A And B\\nTrue True True\\nTrue False False\\nFalse True False\\nFalse False False\\n\\n<!-- halaman 14 -->\\n14. ## Contoh AND pada Aplikasi Akademik\\nMahasiswa lulus jika nilai dan kehadiran memenuhi syarat.\\n\\nSyarat 1 Nilai ≥ 75 Syarat 2 Kehadiran ≥ 80%\\n\\nContoh VB.NET** `lulus = (nilai >= 75) And (kehadiran >= 80)` **Jika salah satu False → hasil False\\n\\n<!-- halaman 15 -->\\n15. ## OR: Cukup Salah Satu Syarat\\nCocok ketika ada beberapa alternatif yang sama-sama dapat memenuhi keputusan.\\n\\nMember Belanja ≥ 500rb\\n→ OR → → DAPAT DISKON\\nTrue False\\nKondisi A Kondisi B A Or B\\nTrue True True\\nTrue False True\\nFalse True True\\nFalse False False\\n\\n<!-- halaman 16 -->\\n16. ## XOR: Tepat Satu Kondisi True\\nBerbeda dari OR: jika keduanya True, XOR menghasilkan False.\\n\\nA B A Xor B\\nTrue True False\\nTrue False True\\nFalse True True\\nFalse False False\\n\\n##### Ingat: XOR = 'salah satu, tetapi bukan keduanya'.\\n\\n<!-- halaman 17 -->\\n17. ## NOT: Membalik Nilai Logika\\nTrue menjadi False, dan False menjadi True.\\n\\nisLogin\\n→ NOT → False\\nTrue\\nEkspresi Not Ekspresi\\nTrue False\\nFalse True\\n\\n<!-- halaman 18 -->\\n18. ## AndAlso: AND dengan Short-Circuit\\nKondisi kedua tidak dievaluasi jika kondisi pertama sudah False.\\n\\nKondisi 1 Kondisi 2 → AndAlso → → False False Dilewati\\n\\n##### Mengapa berguna?\\n- Lebih efisien\\n\\n- Dapat mencegah evaluasi yang tidak perlu\\n\\n- Sering lebih aman pada kondisi bertingkat\\n\\n<!-- halaman 19 -->\\n19. ## OrElse: OR dengan Short-Circuit\\nKondisi kedua tidak dievaluasi jika kondisi pertama sudah True.\\n\\nKondisi 1 Kondisi 2\\n→ OrElse → → True\\nTrue Dilewati\\n\\n##### Prinsipnya: begitu hasil akhir sudah dapat dipastikan, evaluasi berhenti.\\n\\n<!-- halaman 20 -->\\n20. # Operator Assignment\\nMemberikan atau memperbarui nilai pada variabel.\\n\\ntotal = 100000 total += 5000\\nNilai 100000 disimpan Artinya:\\nke variabel total. total = total + 5000\\n\\n<!-- halaman 21 -->\\n21. ## Operator Penggabungan String: &\\nDigunakan untuk menggabungkan teks.\\n\\n\\\"Selamat\\n\\\"Selamat \\\" → & → \\\"Datang\\\" → = →\\nDatang\\\"\\nContoh VB.NET\\npesan = \\\"Halo, \\\" & nama\\n\\n###### Untuk teks, gunakan & agar maksud penggabungan lebih jelas.\\n\\n<!-- halaman 22 -->\\n22. ## Mengapa & Lebih Aman untuk String?\\nTanda + dapat membingungkan antara penjumlahan dan penggabungan.\\n\\n**\\\"22\\\" & \\\"33\\\" \\\"22\\\" + \\\"33\\\" Hasil → \\\"2233\\\" Makna dapat bergantung pada tipe data/konversi.** Jelas: menggabungkan teks\\n\\n<!-- halaman 23 -->\\n23. ## Apa itu Ekspresi?\\n### Kombinasi operand dan operator yang menghasilkan sebuah nilai.\\n\\nsubtotal + (subtotal * 0.11)\\n\\n(subtotal ×\\nsubtotal → + → → = → total\\n0,11)\\n\\nEkspresi dapat sederhana atau terdiri dari beberapa operasi sekaligus.\\n\\n<!-- halaman 24 -->\\n24. ## Prioritas Operator\\nUrutan evaluasi memengaruhi hasil ekspresi.\\n\\n10 + 2 × 5 (10 + 2) × 5\\n= 10 + 10 = 12 × 5\\n= 20 = 60\\n\\n###### Gunakan tanda kurung jika ingin memperjelas urutan proses.\\n\\n<!-- halaman 25 -->\\n25. ## Urutan Prioritas yang Perlu Diingat\\nDari yang dievaluasi lebih dahulu menuju yang lebih akhir.\\n\\n**1 ( )** Tanda kurung **2 ^** Pangkat **3 * / \\\\ Mod** Kali & bagi **4 + -** Tambah & kurang **5 Perbandingan** = <> > < >= <= **6 Not → And → Or** Logika\\n\\n<!-- halaman 26 -->\\n26. ## Studi Kasus: Diskon + PPN\\nBeberapa operator dapat bekerja dalam satu alur komputasi.\\n\\nSetelah\\nSubtotal Diskon PPN Total\\n→ → diskon → →\\n200.000 10% 11% 199.800\\n180.000\\nContoh VB.NET\\ndiskon = subtotal * 0.10\\ntotal = (subtotal - diskon) * 1.11\\n\\n###### Aritmatika membentuk nilai; perbandingan/logika menentukan kapan aturan diterapkan.\\n\\n<!-- halaman 27 -->\\n27. ## Pilih Operator yang Tepat\\nFokus pada logika, bukan menghafal sintaks.\\n\\nMenghitung subtotal harga × jumlah *\\nMengecek nilai minimal 75 >=\\nAnd /\\nDua syarat wajib terpenuhi\\nAndAlso\\nSalah satu dari dua syarat cukup Or / OrElse\\nMengecek genap atau ganjil Mod\\nMenggabungkan nama depan & belakang &\\n\\n<!-- halaman 28 -->\\n28. ## Ringkasan\\nOperator adalah alat; ekspresi adalah cara kita menyusun logika komputasi.\\n\\nAritmatika Perbandingan Logika String\\nmenggabungkan\\nmenghitung menilai kondisi menggabungkan teks\\nkondisi\\nPahami masalah → pilih operator → susun ekspresi → evaluasi hasil\\n\\n<!-- halaman 29 -->\\n29. # <u>Tugas: Analisis Operator dan Ekspresi pada Aplikasi</u>\\nSebuah aplikasi pemesanan makanan memiliki ketentuan berikut:\\n\\n- Harga makanan adalah **Rp35.000/porsi**. Pengguna dapat memesan beberapa porsi. Jika membeli **minimal 5 porsi**, mendapat diskon **10%**. Jika pengguna merupakan **member DAN subtotal minimal Rp150.000**, mendapat tambahan diskon **5%**. Total diskon maksimal **15%**. Setelah diskon, dikenakan biaya layanan **5%**. Jika total setelah diskon masih **kurang dari Rp200.000**, dikenakan ongkir **Rp10.000**.\\n\\nMahasiswa diminta:\\n\\n- Tentukan **input, proses, dan output** dari aplikasi tersebut.\\n\\n- Identifikasi operator yang diperlukan (*, +, >=, <, And, dan sebagainya) dan **jelaskan fungsi masingmasing**.\\n\\n- Buat ekspresi untuk menghitung: subtotal, diskon, totalSetelahDiskon, biayaLayanan, ongkir, dan totalBayar\\n\\n- Tuliskan kondisi logika untuk menentukan:\\n\\n   - ✓ diskon 10%;\\n\\n   - ✓ tambahan diskon member 5%;\\n\\n   - ✓ pemberian ongkir Rp10.000.\\n\\n- Buat **diagram sederhana**:\\n\\nInput → Perhitungan → Pemeriksaan Kondisi → Output\\n\\nKetentuan:\\n\\n- Tugas diketik di word\\n\\n- Dikumpulkan di kelas USU\\n\\n- Paling lambat hari Jumat, tgl 18 September.\\n\"}"
+      ],
+      "sources": [
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual"
+        }
+      ],
+      "seconds": 3.5,
+      "usage": {
+        "calls": 2,
+        "total": 9834,
+        "cache_hit": 5888,
+        "cache_miss": 3477,
+        "output": 469,
+        "reasoning": 122,
+        "cost_usd": 0.001641
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 5,
+        "halusinasi": false,
+        "catatan": "Semua contoh logika (And lulus nilai>=75 dan hadir>=80, Or diskon member atau belanja>=500rb, Xor tepat satu, Not membalik) sesuai materi pertemuan 4. Keempat operator logika tercakup dengan contoh yang tepat.",
+        "usage": {
+          "prompt_tokens": 7692,
+          "completion_tokens": 288,
+          "total_tokens": 7980,
+          "prompt_tokens_details": {
+            "cached_tokens": 1280
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 196
+          },
+          "prompt_cache_hit_tokens": 1280,
+          "prompt_cache_miss_tokens": 6412
+        }
+      }
+    },
+    {
+      "case": "followup-spk-history",
+      "q": "Apa itu sistem pendukung keputusan?",
+      "tanggal": "Kamis, 01-10-2026 21:46 WIB",
+      "speech": "Dari materi Sistem Pendukung Keputusan pertemuan satu dan lima, SPK atau DSS adalah sistem terkomputerisasi yang memberi dukungan otomatis pada proses pengambilan keputusan, bukan menggantikan manusia. SPK terdiri dari tiga bagian utama: model, sumber data, dan antarmuka pengguna. Bedanya dengan sistem informasi manajemen, SPK menyajikan informasi yang fleksibel dan interaktif untuk menganalisis masalah spesifik.",
+      "screen": [
+        "- SPK/DSS: dukungan otomatis keputusan",
+        "- Bukan pengganti pengambil keputusan",
+        "- Komponen: model, data, antarmuka",
+        "- Fleksibel dan interaktif",
+        "- Sumber: SPK pertemuan 1 dan 5"
+      ],
+      "detail": "",
+      "tools": [
+        "search_materials({\"query\": \"Apa itu sistem pendukung keputusan dan komponennya\", \"course\": \"SPK\"})"
+      ],
+      "konteks": [
+        "search_materials({\"query\": \"Apa itu sistem pendukung keputusan dan komponennya\", \"course\": \"SPK\"}) -> {\"hasil\": [{\"id\": \"bf83a2285071fa0f\", \"matkul\": \"Sistem Pendukung Keputusan\", \"pertemuan\": [5], \"section\": \"5. Sistem Informasi Pendukung Keputusan\", \"judul\": \"Sistem Informasi Pendukung Keputusan\", \"lokasi\": \"halaman 1-7\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/636542/mod_resource/content/1/56%20Sistem%20Informasi%20PK.pdf\", \"isi\": \"Universitas Transformation Kampus Sumatera Utara Towards the Ultimate Merdeka INDONES\\n\\n SISTEM INFORMASI PK Kuliah ke-5&6 Teknik Informatika – Program D3 Dr. Esther Nababan, M.Sc.\\n\\n|Sistem In|formasi Penduku\\nManagement\\n**Information Systems**|ng Keputusan\\nDecision Support\\n**Systems**|\\n|---|---|---|\\n|**Decision**\\nsupport\\n**provided**|Memberikan informasi tentang\\nkinerjaorganisasi|Memberikan informasi dan\\nteknik untuk menganalisis\\nmasalahspesifik|\\n|**Information**\\nform and\\n**frequency**|Laporan dan tanggapan\\nberkala,pengecualian,\\npermintaan, dan dorongan|Pertanyaan dan tanggapan\\ninteraktif|\\n|**Information**\\n**format**|Format yang telah ditentukan\\nsebelumnya dantetap|Format yangfleksibel,\\nadaptif,dan dapat\\ndisesuaikan|\\n|**Information**\\nprocessing\\n**methodology**|Informasi yang dihasilkan\\nmelalui ekstraksi dan\\nmanipulasi data bisnis|Informasi yang dihasilkan\\ndaripemodelan analitis data\\nbisnis|\\n\\n## Definisi:\\n\\n- DBMS - Sistem untuk menyimpan dan mengambil data dan memproses kueri\\n\\n- Gudang data - Basis data terkonsolidasi, biasanya dikumpulkan dari berbagai sumber utama, terorganisir dan dioptimalkan untuk pelaporan dan analisis\\n\\n- MIS - Sistem untuk memberi para manajer ringkasan informasi yang relevan dengan keputusan\\n\\n- Sistem pakar - sistem terkomputerisasi yang menunjukkan perilaku seperti pakar dalam domain masalah tertentu\\n\\n- Bantuan keputusan - dukungan otomatis untuk membantu pengguna menyesuaikan diri dengan beberapa ideal normatif pengambilan keputusan rasional\\n\\n- DSS - memberikan dukungan otomatis untuk setiap atau semua aspek proses pengambilan keputusan\\n\\n- • EIS (Executive information system) - Semacam DSS khusus untuk kebutuhan eksekutif puncak\\n\\nSistem Informasi Manajemen/ _Management Information Systems_\\n\\nØMIS (SIM)\\n\\n- Menghasilkan produk informasi yang menduk\"}, {\"id\": \"84a7b09c99da1637\", \"matkul\": \"Sistem Pendukung Keputusan\", \"pertemuan\": [1], \"section\": \"Pengantar SPK\", \"judul\": \"Pengantar SPK\", \"lokasi\": \"halaman 9-16\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/620850/mod_resource/content/3/1%20Pengantar%20SPK%20VB.pdf\", \"isi\": \"#### Sistem pendukung keputusan berbasis spreadsheet\\n\\n- DSS terdiri dari model, sumber data, dan antarmuka pengguna.\\n\\n- Ketika model diimplementasikan di Excel, dimungkinkan untuk menggunakan Visual Basic for Applications (VBA) untuk membuat sistem lebih efisien dengan mengotomatiskan tugas-tugas interaktif yang seharusnya diulang secara rutin oleh pengguna.\\n\\n- VBA juga dapat membuat sistem lebih kuat dengan memperluas fungsionalitas model spreadsheet dan dengan menyesuaikan penggunaannya.\\n\\n### Contoh Pengambilan Keputusan (HIPOTESIS)\\n\\n• Negara dunia ketiga akan membangun sistem perkeretaapian untuk menghubungkan kawasan industri pedalaman yang potensial dan kawasan pertanian yang baik dengan pelabuhan.\\n\\n### Contoh Pengambilan Keputusan (HIPOTESIS)\\n\\n- Untuk keberhasilan proyek itu membutuhkan pasokan tenaga kerja terampil. Untuk mengatasi masalah ini pusat pelatihan harus didirikan untuk melatih pekerja pada saat pabrik siap.\\n\\n### Contoh Pengambilan Keputusan (HIPOTESIS)\\n\\n- Badan Pembangunan juga merekomendasikan lahan subur di daerah tersebut harus disiapkan untuk pertanian intensif untuk menyediakan makanan bagi konsumsi masyarakat yang bekerja di industri.\\n\\n- Kereta api harus menghubungkan kawasan industri, pertanian dan pelabuhan.\\n\\n## <mark>MASALAH YANG DITANGANI</mark>\\n\\n- Apakah rutenya optimal? Apakah semua kemungkinan pengguna terhubung?\\n\\n- Apa saja rute yang mungkin?\\n\\n- Pertumbuhan lalu lintas: Sejauh mana perkembangan perkeretaapian bergantung pada pembangunan pelabuhan, kota baru, bandara, kawasan industri dan kawasan pertanian?\\n\\n- Persaingan: Sampai sejauh mana pembangunan jalan yang lebih baik akan menghilangkan kebutuhan akan perkeretaapian?\\n\\n# <mark>MASALAH YANG DITANGANI</mark>\\n\\n- Masalah teknik: Berapa banyak listrik yang dibutuhkan untuk kereta listrik?\"}, {\"id\": \"782008bd0d6b7358\", \"matkul\": \"Sistem Pendukung Keputusan\", \"pertemuan\": [3], \"section\": \"Sejarah Sistem Pendukung Keputusan\", \"judul\": \"Sejarah SPK\", \"lokasi\": \"halaman 6-10\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/623276/mod_resource/content/1/3%20Sejarah%20SPK%20.pdf\", \"isi\": \"Kampus\\nDecision Support System Merdeka\\nINDONESIA JAYA\\nOperations Research\\nManagement Science\\nInformation Systems\\nAI/Expert Systems\\n1940's\\nOptínization\\nTransaction Cognitive Science\\nExpert Systems\\nProcessing Systems\\nSimúlation  unt\\nMÍS Knowledge Decision Making\\nRepresentation\\nHuman/Computer\\nInteraction\\n2000+\\nDecision Support Systems\\nSasaran: Menggunakan bagian terbaik dari IS, OR/MS, AI & ilmu\\nkognitif (multi disiplin ttg budi dan kecerdasan) untuk mendukung\\nkeputusan yang lebih efektif\\n\\n## Pendekatan untuk desain dan konstruksi DSS\\n\\n- Studi tentang pengembangan DSS yang dilakukan selama 15 tahun terakhir telah mengidentifikasi <mark>lebih dari 30 pendekatan</mark> yang berbeda untuk desain dan konstruksi metode dan sistem pendukung keputusan.\\n\\n- • Tidak satupun dari pendekatan ini yang mendominasi dan berbagai proses pengembangan DSS. Biasanya tetap sangat berbeda dan spesifik untuk proyek.\\n\\n- Situasi ini dapat diartikan sebagai tanda bahwa bidang pengembangan DSS harus segera memasuki tahap formalisasi.\\n\\n# Ringkasan sistem DSS komersial\\n\\nSistem DSS komersial meliputi tujuh jenis DSS:\\n\\n- <mark>File Drawer Systems,</mark> yang menyediakan akses ke item data.\\n\\n- <mark>Sistem Analisis Data,</mark> yang mendukung manipulasi data dengan alat terkomputerisasi untuk tugas tertentu.\\n\\n- <mark>Analisis Sistem informasi,</mark> yang menyediakan akses ke serangkaian database berorientasi keputusan dan model kecil.\\n\\n- <mark>Model akuntansi dan keuangan,</mark> yang menghitung konsekuensi dari tindakan yang mungkin dilakukan.\\n\\n- <mark>Model representasional,</mark> yang memperkirakan konsekuensi tindakan berdasarkan model simulasi.\\n\\n- <mark>Model optimasi,</mark> yang memberikan pedoman tindakan dengan menghasilkan solusi optimal\\n\\n- <mark>Model saran,</mark> yang melakukan pemrosesan\"}, {\"id\": \"5b5da2ac5b0923ac\", \"matkul\": \"Sistem Pendukung Keputusan\", \"pertemuan\": [3], \"section\": \"Sejarah Sistem Pendukung Keputusan\", \"judul\": \"Sejarah SPK\", \"lokasi\": \"halaman 1-5\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/623276/mod_resource/content/1/3%20Sejarah%20SPK%20.pdf\", \"isi\": \"Universitas Transformation\\nKampus\\nSumatera Utara Towards the Ultimate Merdeka\\nINDONES\\n\\n SEJARAH SPK & TAKSONOMI SPK Kuliah ke-3 Teknik Informatika – Program D3 Prof. Dr. Esther Nababan, M.Sc.\\n\\n# Sejarah secara ringkas\\n\\n- Akademisi dan para peneliti dari berbagai disiplin ilmu telah mempelajari DSS selama kurang lebih 40 tahun.\\n\\n- Menurut Keen dan Scott Morton (1978), konsep pendukung keputusan telah berkembang dari dua bidang utama penelitian:\\n\\n   - studi teoritis pengambilan keputusan organisasi yang dilakukan di Institut Teknologi Carnegie selama akhir 1950-an dan awal 1960-an\\n\\n   - pekerjaan teknis pada sistem komputer interaktif, terutama dilakukan di Massachusetts Institute of Technology pada 1960an.\\n\\n- Dianggap bahwa konsep DSS menjadi bidang penelitian tersendiri di pertengahan tahun 1970-an, dan semakin dikembangkan secara intens pada era tahun 1980-an.\\n\\n- Pada pertengahan dan akhir 1980-an, <mark>Sistem Informasi Eksekutif (EIS),</mark> sistem pendukung keputusan kelompok\\n\\n   - ( <mark>GroupDecisionSupportSystem)</mark>, dan sistem pendukung keputusan organisasi (OrganizationDSS) berevolusi dari pengguna tunggal (single user) dan DSS berorientasi model.\\n\\n- Mulai sekitar tahun 1990, pergudangan data dan pemrosesan analitis on-line ( <mark>OnlineAnaliticalProcessing)</mark> mulai memperluas cakupan DSS.\\n\\n- Saat memasuki era milenium, aplikasi analitis berbasis Web mulai diperkenalkan.\\n\\n# Executive Information System\\n\\n- Sistem informasi eksekutif (EIS) adalah sistem pendukung keputusan (DSS) yang digunakan untuk membantu eksekutif senior dalam proses pengambilan keputusan. Hal ini dilakukan dengan menyediakan akses mudah ke data penting yang diperlukan untuk mencapai tujuan strategis dalam suatu organisasi. EIS biasanya menampilkan tampilan grafis pada antarmuka y\"}], \"waktu_ms\": 1897}"
+      ],
+      "sources": [
+        {
+          "course_id": "38427",
+          "matkul": "Sistem Pendukung Keputusan",
+          "pertemuan": [
+            5
+          ],
+          "judul": "Sistem Informasi Pendukung Keputusan"
+        },
+        {
+          "course_id": "38427",
+          "matkul": "Sistem Pendukung Keputusan",
+          "pertemuan": [
+            1
+          ],
+          "judul": "Pengantar SPK"
+        },
+        {
+          "course_id": "38427",
+          "matkul": "Sistem Pendukung Keputusan",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Sejarah SPK"
+        },
+        {
+          "course_id": "38427",
+          "matkul": "Sistem Pendukung Keputusan",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Sejarah SPK"
+        }
+      ],
+      "seconds": 5.2,
+      "usage": {
+        "calls": 2,
+        "total": 8416,
+        "cache_hit": 5376,
+        "cache_miss": 2638,
+        "output": 402,
+        "reasoning": 83,
+        "cost_usd": 0.001306
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 4,
+        "halusinasi": false,
+        "catatan": "Definisi DSS sebagai dukungan otomatis (bukan pengganti), tiga komponen (model, data, antarmuka), dan perbandingan dengan MIS semuanya sesuai materi pertemuan 1 dan 5. Yang belum disebut: DSS menyasar masalah semi-terstruktur/tidak terstruktur serta meningkatkan kemampuan individu maupun kelompok.",
+        "usage": {
+          "prompt_tokens": 12104,
+          "completion_tokens": 594,
+          "total_tokens": 12698,
+          "prompt_tokens_details": {
+            "cached_tokens": 1280
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 488
+          },
+          "prompt_cache_hit_tokens": 1280,
+          "prompt_cache_miss_tokens": 10824
+        }
+      }
+    },
+    {
+      "case": "followup-spk-history",
+      "q": "Terus sejarah perkembangannya gimana?",
+      "tanggal": "Kamis, 01-10-2026 21:46 WIB",
+      "speech": "Sejarah SPK dari materi Sistem Pendukung Keputusan pertemuan tiga: konsepnya lahir dari riset pengambilan keputusan organisasi di Carnegie dan sistem komputer interaktif di MIT sekitar tahun lima puluhan hingga enam puluhan. SPK jadi bidang penelitian sendiri di pertengahan tujuh puluhan, lalu meluas pada delapan puluhan dengan munculnya EIS dan DSS kelompok.",
+      "screen": [
+        "- Awal: riset Carnegie dan MIT",
+        "  1950-60an",
+        "- Jadi bidang sendiri pertengahan",
+        "  1970an",
+        "- 1980an: EIS dan DSS kelompok",
+        "- 1990an: data warehouse dan OLAP",
+        "- 2000an: analitis berbasis web",
+        "- Sumber: SPK pertemuan 3"
+      ],
+      "detail": "",
+      "tools": [
+        "get_meeting({\"course\": \"SPK\", \"meeting\": 3, \"full\": true})"
+      ],
+      "konteks": [
+        "get_meeting({\"course\": \"SPK\", \"meeting\": 3, \"full\": true}) -> {\"matkul\": \"Sistem Pendukung Keputusan\", \"pertemuan\": 3, \"judul_section\": \"Sejarah Sistem Pendukung Keputusan\", \"terpotong\": false, \"isi\": \"# Sistem Pendukung Keputusan (TIF 3 029, kelas 5/B) — Pertemuan 3\\n\\nDosen: Prof. Dr. Esther Sorta Mauli Nababan M.Sc\\n\\n## Sejarah SPK\\n\\n*Sumber: https://kelas.usu.ac.id/pluginfile.php/623276/mod_resource/content/1/3%20Sejarah%20SPK%20.pdf · berisi teks hasil OCR*\\n\\n<!-- halaman 1 -->\\nUniversitas Transformation\\nKampus\\nSumatera Utara Towards the Ultimate Merdeka\\nINDONES\\n\\n SEJARAH SPK & TAKSONOMI SPK Kuliah ke-3 Teknik Informatika – Program D3 Prof. Dr. Esther Nababan, M.Sc.\\n\\n<!-- halaman 2 -->\\n# Sejarah secara ringkas\\n\\n- Akademisi dan para peneliti dari berbagai disiplin ilmu telah mempelajari DSS selama kurang lebih 40 tahun.\\n\\n- Menurut Keen dan Scott Morton (1978), konsep pendukung keputusan telah berkembang dari dua bidang utama penelitian:\\n\\n   - studi teoritis pengambilan keputusan organisasi yang dilakukan di Institut Teknologi Carnegie selama akhir 1950-an dan awal 1960-an\\n\\n   - pekerjaan teknis pada sistem komputer interaktif, terutama dilakukan di Massachusetts Institute of Technology pada 1960an.\\n\\n- Dianggap bahwa konsep DSS menjadi bidang penelitian tersendiri di pertengahan tahun 1970-an, dan semakin dikembangkan secara intens pada era tahun 1980-an.\\n\\n<!-- halaman 3 -->\\n- Pada pertengahan dan akhir 1980-an, <mark>Sistem Informasi Eksekutif (EIS),</mark> sistem pendukung keputusan kelompok\\n\\n   - ( <mark>GroupDecisionSupportSystem)</mark>, dan sistem pendukung keputusan organisasi (OrganizationDSS) berevolusi dari pengguna tunggal (single user) dan DSS berorientasi model.\\n\\n- Mulai sekitar tahun 1990, pergudangan data dan pemrosesan analitis on-line ( <mark>OnlineAnaliticalProcessing)</mark> mulai memperluas cakupan DSS.\\n\\n- Saat memasuki era milenium, aplikasi analitis berbasis Web mulai diperkenalkan.\\n\\n<!-- halaman 4 -->\\n# Executive Information System\\n\\n- Sistem informasi eksekutif (EIS) adalah sistem pendukung keputusan (DSS) yang digunakan untuk membantu eksekutif senior dalam proses pengambilan keputusan. Hal ini dilakukan dengan menyediakan akses mudah ke data penting yang diperlukan untuk mencapai tujuan strategis dalam suatu organisasi. EIS biasanya menampilkan tampilan grafis pada antarmuka yang mudah digunakan.\\n\\n<!-- halaman 5 -->\\n# OLAP\\n\\n- Pemrosesan Analitik Online (OLAP, Online Analytical Processing) adalah teknologi yang digunakan untuk menata database bisnis besar dan mendukung kecerdasan bisnis. Database OLAP dibagi menjadi satu atau beberapa kubus, dan setiap kubus diatur dan dirancang oleh administrator kubus agar sesuai dengan cara Anda mengambil dan menganalisis data sehingga lebih mudah membuat dan menggunakan laporan PivotTable dan laporan PivotChart yang diperlukan\\n\\n<!-- halaman 6 -->\\nKampus\\nDecision Support System Merdeka\\nINDONESIA JAYA\\nOperations Research\\nManagement Science\\nInformation Systems\\nAI/Expert Systems\\n1940's\\nOptínization\\nTransaction Cognitive Science\\nExpert Systems\\nProcessing Systems\\nSimúlation  unt\\nMÍS Knowledge Decision Making\\nRepresentation\\nHuman/Computer\\nInteraction\\n2000+\\nDecision Support Systems\\nSasaran: Menggunakan bagian terbaik dari IS, OR/MS, AI & ilmu\\nkognitif (multi disiplin ttg budi dan kecerdasan) untuk mendukung\\nkeputusan yang lebih efektif\\n\\n<!-- halaman 7 -->\\n## Pendekatan untuk desain dan konstruksi DSS\\n\\n- Studi tentang pengembangan DSS yang dilakukan selama 15 tahun terakhir telah mengidentifikasi <mark>lebih dari 30 pendekatan</mark> yang berbeda untuk desain dan konstruksi metode dan sistem pendukung keputusan.\\n\\n- • Tidak satupun dari pendekatan ini yang mendominasi dan berbagai proses pengembangan DSS. Biasanya tetap sangat berbeda dan spesifik untuk proyek.\\n\\n- Situasi ini dapat diartikan sebagai tanda bahwa bidang pengembangan DSS harus segera memasuki tahap formalisasi.\\n\\n<!-- halaman 8 -->\\n# Ringkasan sistem DSS komersial\\n\\nSistem DSS komersial meliputi tujuh jenis DSS:\\n\\n- <mark>File Drawer Systems,</mark> yang menyediakan akses ke item data.\\n\\n- <mark>Sistem Analisis Data,</mark> yang mendukung manipulasi data dengan alat terkomputerisasi untuk tugas tertentu.\\n\\n- <mark>Analisis Sistem informasi,</mark> yang menyediakan akses ke serangkaian database berorientasi keputusan dan model kecil.\\n\\n- <mark>Model akuntansi dan keuangan,</mark> yang menghitung konsekuensi dari tindakan yang mungkin dilakukan.\\n\\n- <mark>Model representasional,</mark> yang memperkirakan konsekuensi tindakan berdasarkan model simulasi.\\n\\n- <mark>Model optimasi,</mark> yang memberikan pedoman tindakan dengan menghasilkan solusi optimal\\n\\n- <mark>Model saran,</mark> yang melakukan pemrosesan logis untuk keputusan tertentu yang disarankan untuk suatu tugas.\\n\\n<!-- halaman 9 -->\\n# Merupakan Studi Multidisiplin\\n\\n- DSS termasuk dalam lingkungan dengan landasan multidisiplin, termasuk (namun tidak eksklusif):\\n\\n   - Riset basis data,\\n\\n   - Kecerdasan buatan,\\n\\n   - Interaksi manusia-komputer,\\n\\n   - Metode simulasi,\\n\\n   - Rekayasa perangkat lunak, dan\\n\\n   - Telekomunikasi.\\n\\n<!-- halaman 10 -->\\n# Taksonomi\\n\\n- Menggunakan mode bantuan sebagai kriteria, _Power (2002)_ membedakan lima jenis DSS:\\n\\n   - DSS berbasis komunikasi,\\n\\n   - DSS berbasis data,\\n\\n   - DSS berbasis dokumen,\\n\\n   - DSS berbasis pengetahuan, dan\\n\\n   - DSS berbasis model.\\n\\n<!-- halaman 11 -->\\n## DSS berbasis model ( _Model-driven DSS)_\\n\\n- Sebuah model-driven DSS menekankan akses dan manipulasi model statistik, keuangan, optimasi, atau simulasi.\\n\\n- Model-driven DSS menggunakan data dan parameter yang disediakan oleh pengguna untuk membantu pengambil keputusan dalam menganalisis situasi; mereka belum tentu intensif data. Dicodess adalah contoh generator DSS berbasis model open source ( _Gachet 2004_ ).\\n\\n- Contoh lain:\\n\\n   - Spreadsheet dengan rumus / formula didalamnya\\n\\n   - Model peramalan statistik\\n\\n   - Model perutean yang optimal\\n\\n<!-- halaman 12 -->\\n# Data-driven (mengambil) DSS\\n\\n- DSS yang digerakkan oleh data atau DSS yang berorientasi pada data menekankan akses ke dan manipulasi rangkaian waktu data internal perusahaan dan, terkadang, data eksternal.\\n\\n- Sistem file sederhana yang diakses oleh alat kueri dan pengambilan menyediakan fungsionalitas tingkat dasar. Gudang data menyediakan fungsionalitas tambahan. OLAP menyediakan fungsionalitas tingkat tertinggi.\\n\\n- Contoh:\\n\\n   - Mengakses basis data anggaran untuk semua pemeliharaan ……\\n\\n   - Mengakses database INTERPOL untuk kejahatan dengan …….\\n\\n   - Mengakses database patroli perbatasan untuk semua insiden di sektor ……..\\n\\n<!-- halaman 13 -->\\n- Contoh:\\n\\n   - Mengumpulkan data mengenai pengamatan cuaca di semua stasiun dan melakukan peramalkan cuaca untuk keesokan harinya\\n\\n   - Kumpulkan data semua korban sipil untuk memprediksi korban selama satu bulan kedepan\\n\\n<!-- halaman 14 -->\\n## DSS yang digerakkan oleh komunikasi\\n\\n- DSS yang digerakkan oleh komunikasi menggunakan teknologi jaringan dan komunikasi untuk memfasilitasi kolaborasi dalam pengambilan keputusan. à hal ini mendukung lebih dari satu orang yang mengerjakan tugas bersama.\\n\\n- Contoh termasuk alat terintegrasi seperti Microsoft NetMeeting atau Groove (Stanhope 2002), konferensi Vide.\\n\\n- Hal ini terkait dengan sistem pendukung keputusan kelompok.\\n\\n<!-- halaman 15 -->\\n# DSS yang digerakkan oleh dokumen\\n\\n- DSS berbasis dokumen menggunakan teknologi penyimpanan dan pemrosesan untuk pengambilan dan analisis dokumen • mengelola, mengambil dan memanipulasi informasi tidak terstruktur dalam berbagai format elektronik.\\n\\n- Basis data dokumen dapat mencakup: Dokumen yang dipindai, dokumen hypertext, gambar, suara, dan video.\\n\\n- Mesin pencari merupakan alat utama yang terkait dengan dokumen DSS driven.\\n\\n<!-- halaman 16 -->\\n# DSS berbasis pengetahuan\\n\\n- <mark>DSS berbasis pengetahuan</mark> menyediakan keahlian pemecahan masalah khusus yang disimpan sebagai fakta, aturan, prosedur, atau dalam struktur serupa. Ini menyarankan atau merekomendasikan tindakan kepada manajer.\\n\\n- MYCIN: Program penalaran berbasis aturan yang membantu dokter mendiagnosis penyakit darah.\\n\\n<!-- halaman 17 -->\\n# Arsitektur\\n\\n- Tiga komponen dasar DSS:\\n\\n   - sistem manajemen basis data (DBMS),\\n\\n   - sistem manajemen model (MBMS), dan\\n\\n   - generasi dialog dan sistem manajemen (DGMS).\\n\\n- Komponen Manajemen Data menyimpan informasi (yang dapat dibagi lagi menjadi yang berasal dari penyimpanan data tradisional organisasi, dari sumber eksternal seperti Internet, atau dari wawasan dan pengalaman pribadi pengguna individu);\\n\\n- Komponen Manajemen Model menangani representasi peristiwa, fakta, atau situasi (menggunakan berbagai jenis model, dua contoh adalah model optimasi dan model pencarian tujuan); dan\\n\\n- Komponen Manajemen Antarmuka Pengguna tentu saja merupakan komponen yang memungkinkan pengguna berinteraksi dengan sistem.\\n\\n<!-- halaman 18 -->\\n# Detail Arsitektur\\n\\n- Meskipun penulis yang berbeda mengidentifikasi komponen yang berbeda dalam DSS, akademisi dan praktisi telah datang dengan arsitektur umum yang terbuat dari enam bagian yang berbeda:\\n\\n   - sistem manajemen data,\\n\\n   - sistem manajemen model,\\n\\n   - mesin pengetahuan,\\n\\n   - Antarmuka pengguna,\\n\\n   - arsitektur dan jaringan DSS, dan\\n\\n   - pengguna\\n\\n<!-- halaman 19 -->\\n# Typical Architecture\\n\\n- TPS: sistem pemrosesan transaksi\\n\\n- MODEL: representasi masalah\\n\\n- OLAP: pemrosesan analitik online\\n\\n- USER INTERFACE: bagaimana pengguna memasukkan masalah & menerima jawaban\\n\\n- DSS DATABASE: data terkini dari aplikasi atau grup\\n\\n- DATA MINING: teknologi untuk menemukan hubungan dalam basis data besar untuk prediksi\\n\\n<u>DSS DATA</u> EXTERNAL TPS BASE DATA DSS SOFTWARE SYSTEM MODELS USER INTERFACE OLAP TOOLS DATA MINING TOOLS USER\\n\\n<!-- halaman 20 -->\\n# DSS Model base\\n\\n- Basis model\\n\\n   - Komponen perangkat lunak yang terdiri dari model yang digunakan dalam rutinitas komputasi dan analitik yang secara matematis mengekspresikan hubungan antar variabel\\n\\n- Contoh:\\n\\n   - model pemrograman linier,\\n\\n   - Model peramalan regresi berganda\\n\\n   - Model nilai sekarang penganggaran modal\\n\\n<!-- halaman 21 -->\\n# Aplikasi\\n\\n- Ada kemungkinan teoretis untuk membangun sistem seperti itu dalam domain pengetahuan apa pun.\\n\\n   - Sistem pendukung keputusan klinis untuk diagnosis medis.\\n\\n   - petugas pinjaman bank memverifikasi kredit pemohon pinjaman\\n\\n   - sebuah perusahaan rekayasa yang memiliki tawaran pada beberapa proyek dan ingin tahu apakah mereka dapat bersaing dengan biaya mereka.\\n\\n   - DSS banyak digunakan dalam bisnis dan manajemen. Dasbor eksekutif dan perangkat lunak kinerja bisnis lainnya memungkinkan pengambilan keputusan yang lebih cepat, identifikasi tren negatif, dan alokasi sumber daya bisnis yang lebih baik.\\n\\n   - Area aplikasi, konsep, prinsip, dan teknik DSS yang berkembang adalah dalam produksi pertanian, pemasaran untuk pembangunan berkelanjutan.\\n\\n   - Contoh khusus menyangkut sistem Kereta Api Nasional Kanada, yang menguji peralatannya secara teratur menggunakan sistem pendukung keputusan.\\n\\n   - DSS dapat dirancang untuk membantu membuat keputusan di pasar saham, atau memutuskan area atau segmen mana yang akan dituju untuk memasarkan produk.\\n\\n<!-- halaman 22 -->\\n# Karakteristik dan Kemampuan DSS\\n\\nKarakteristik dan kemampuan utama DSS adalah sebagai berikut:\\n\\n1. Dukungan bagi pengambil keputusan dalam masalah semi terstruktur dan tidak terstruktur.\\n\\n2. Mendukung manajer di semua tingkatan.\\n\\n3. Mendukung individu dan kelompok.\\n\\n4. Dukungan untuk keputusan yang saling bergantung atau berurutan.\\n\\n5. Mendukung kecerdasan, desain, pilihan, dan implementasi.\\n\\n6. Mendukung berbagai proses dan gaya keputusan.\\n\\n7. DSS harus dapat beradaptasi dan fleksibel.\\n\\n8. DSS harus interaktif kemudahan penggunaan.\\n\\n9. Efektivitas, tetapi bukan efisiensi.\\n\\n10. Kontrol penuh oleh pengambil keputusan.\\n\\n11. Kemudahan pengembangan oleh pengguna akhir.\\n\\n12. Mendukung pemodelan dan analisis.\\n\\n13. Akses data.\\n\\n14. Mandiri, integrasi, dan berbasis Web\\n\\n<!-- halaman 23 -->\\n# Karakteristik DSS\\n\\n- **Analisis risiko awal (ilmu manajemen)**\\n\\n- **Model pemeriksaan menggunakan pengalaman, penilaian, dan intuisi**\\n\\n- **Model awal secara matematis benar, tetapi tidak lengkap**\\n\\n- **DSS memberikan analisis yang sangat cepat**\\n\\n- **DSS: fleksibel dan responsif. Memungkinkan intuisi dan penilaian manajerial**\\n\"}"
+      ],
+      "sources": [
+        {
+          "course_id": "38427",
+          "matkul": "Sistem Pendukung Keputusan",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Sejarah Sistem Pendukung Keputusan"
+        }
+      ],
+      "seconds": 3.0,
+      "usage": {
+        "calls": 2,
+        "total": 9968,
+        "cache_hit": 5760,
+        "cache_miss": 3830,
+        "output": 378,
+        "reasoning": 39,
+        "cost_usd": 0.001637
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 5,
+        "halusinasi": false,
+        "catatan": "Jawaban tepat dan mencakup garis waktu sejarah SPK sesuai materi pertemuan 3, termasuk Carnegie/MIT, pertengahan 1970-an, EIS/DSS kelompok, OLAP, dan analitis berbasis web. DETAIL kosong tidak dikurangi karena mode perangkat.",
+        "usage": {
+          "prompt_tokens": 8260,
+          "completion_tokens": 784,
+          "total_tokens": 9044,
+          "prompt_tokens_details": {
+            "cached_tokens": 1280
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 692
+          },
+          "prompt_cache_hit_tokens": 1280,
+          "prompt_cache_miss_tokens": 6980
+        }
+      }
+    },
+    {
+      "case": "followup-detail",
+      "q": "Apa itu eel.expose?",
+      "tanggal": "Kamis, 01-10-2026 21:47 WIB",
+      "speech": "eel.expose itu dekorator Python di library Eel yang membuka sebuah fungsi Python agar bisa dipanggil dari JavaScript. Jadi ia berfungsi sebagai jembatan komunikasi Python dan JavaScript, dan tanpa ini JavaScript tidak tahu fungsi apa yang tersedia di backend. Lengkapnya ada di materi Praktikum E-Application pertemuan tiga.",
+      "screen": [
+        "- Dekorator Python di library Eel",
+        "- Membuka fungsi Python agar dipanggil",
+        "  JS",
+        "- Jembatan komunikasi Python -",
+        "  JavaScript",
+        "- Tanpa ini, JS tak tahu fungsi",
+        "  backend",
+        "- Sumber: Praktikum E-Application",
+        "  pert. 3"
+      ],
+      "detail": "",
+      "tools": [
+        "search_materials({\"query\": \"apa itu eel.expose dan fungsinya\", \"course\": \"Pemrograman Visual\"})",
+        "search_materials({\"query\": \"eel.expose python javascript\"})"
+      ],
+      "konteks": [
+        "search_materials({\"query\": \"apa itu eel.expose dan fungsinya\", \"course\": \"Pemrograman Visual\"}) -> {\"hasil\": [{\"id\": \"252fa328fbc85771\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [4], \"section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"judul\": \"Operator dan Ekspresi pada Aplikasi Visual\", \"lokasi\": \"halaman 19-26\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf\", \"isi\": \"19. ## OrElse: OR dengan Short-Circuit\\nKondisi kedua tidak dievaluasi jika kondisi pertama sudah True.\\n\\nKondisi 1 Kondisi 2\\n→ OrElse → → True\\nTrue Dilewati\\n\\n##### Prinsipnya: begitu hasil akhir sudah dapat dipastikan, evaluasi berhenti.\\n\\n20. # Operator Assignment\\nMemberikan atau memperbarui nilai pada variabel.\\n\\ntotal = 100000 total += 5000\\nNilai 100000 disimpan Artinya:\\nke variabel total. total = total + 5000\\n\\n21. ## Operator Penggabungan String: &\\nDigunakan untuk menggabungkan teks.\\n\\n\\\"Selamat\\n\\\"Selamat \\\" → & → \\\"Datang\\\" → = →\\nDatang\\\"\\nContoh VB.NET\\npesan = \\\"Halo, \\\" & nama\\n\\n###### Untuk teks, gunakan & agar maksud penggabungan lebih jelas.\\n\\n22. ## Mengapa & Lebih Aman untuk String?\\nTanda + dapat membingungkan antara penjumlahan dan penggabungan.\\n\\n**\\\"22\\\" & \\\"33\\\" \\\"22\\\" + \\\"33\\\" Hasil → \\\"2233\\\" Makna dapat bergantung pada tipe data/konversi.** Jelas: menggabungkan teks\\n\\n23. ## Apa itu Ekspresi?\\n### Kombinasi operand dan operator yang menghasilkan sebuah nilai.\\n\\nsubtotal + (subtotal * 0.11)\\n\\n(subtotal ×\\nsubtotal → + → → = → total\\n0,11)\\n\\nEkspresi dapat sederhana atau terdiri dari beberapa operasi sekaligus.\\n\\n24. ## Prioritas Operator\\nUrutan evaluasi memengaruhi hasil ekspresi.\\n\\n10 + 2 × 5 (10 + 2) × 5\\n= 10 + 10 = 12 × 5\\n= 20 = 60\\n\\n###### Gunakan tanda kurung jika ingin memperjelas urutan proses.\\n\\n25. ## Urutan Prioritas yang Perlu Diingat\\nDari yang dievaluasi lebih dahulu menuju yang lebih akhir.\\n\\n**1 ( )** Tanda kurung **2 ^** Pangkat **3 * / \\\\ Mod** Kali & bagi **4 + -** Tambah & kurang **5 Perbandingan** = <> > < >= <= **6 Not → And → Or** Logika\\n\\n26. ## Studi Kasus: Diskon + PPN\\nBeberapa operator dapat bekerja dalam satu alur komputasi.\\n\\nSetelah\\nSubtotal Diskon PPN Total\\n→ → diskon → →\\n200.000 10% 11% 199.800\\n180.000\\nContoh VB.NET\\ndiskon = subtotal * 0.10\\ntotal = (subtotal - di\"}, {\"id\": \"000c784591ff7ac4\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [4], \"section\": \"Pertemuan 4-Operator dan Ekspresi pada Aplikasi Visual\", \"judul\": \"Operator dan Ekspresi pada Aplikasi Visual\", \"lokasi\": \"halaman 27-29\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/635140/mod_resource/content/1/Pertemuan4_Pemrograman%20Visual.pdf\", \"isi\": \"27. ## Pilih Operator yang Tepat\\nFokus pada logika, bukan menghafal sintaks.\\n\\nMenghitung subtotal harga × jumlah *\\nMengecek nilai minimal 75 >=\\nAnd /\\nDua syarat wajib terpenuhi\\nAndAlso\\nSalah satu dari dua syarat cukup Or / OrElse\\nMengecek genap atau ganjil Mod\\nMenggabungkan nama depan & belakang &\\n\\n28. ## Ringkasan\\nOperator adalah alat; ekspresi adalah cara kita menyusun logika komputasi.\\n\\nAritmatika Perbandingan Logika String\\nmenggabungkan\\nmenghitung menilai kondisi menggabungkan teks\\nkondisi\\nPahami masalah → pilih operator → susun ekspresi → evaluasi hasil\\n\\n29. # <u>Tugas: Analisis Operator dan Ekspresi pada Aplikasi</u>\\nSebuah aplikasi pemesanan makanan memiliki ketentuan berikut:\\n\\n- Harga makanan adalah **Rp35.000/porsi**. Pengguna dapat memesan beberapa porsi. Jika membeli **minimal 5 porsi**, mendapat diskon **10%**. Jika pengguna merupakan **member DAN subtotal minimal Rp150.000**, mendapat tambahan diskon **5%**. Total diskon maksimal **15%**. Setelah diskon, dikenakan biaya layanan **5%**. Jika total setelah diskon masih **kurang dari Rp200.000**, dikenakan ongkir **Rp10.000**.\\n\\nMahasiswa diminta:\\n\\n- Tentukan **input, proses, dan output** dari aplikasi tersebut.\\n\\n- Identifikasi operator yang diperlukan (*, +, >=, <, And, dan sebagainya) dan **jelaskan fungsi masingmasing**.\\n\\n- Buat ekspresi untuk menghitung: subtotal, diskon, totalSetelahDiskon, biayaLayanan, ongkir, dan totalBayar\\n\\n- Tuliskan kondisi logika untuk menentukan:\\n\\n   - ✓ diskon 10%;\\n\\n   - ✓ tambahan diskon member 5%;\\n\\n   - ✓ pemberian ongkir Rp10.000.\\n\\n- Buat **diagram sederhana**:\\n\\nInput → Perhitungan → Pemeriksaan Kondisi → Output\\n\\nKetentuan:\\n\\n- Tugas diketik di word\\n\\n- Dikumpulkan di kelas USU\\n\\n- Paling lambat hari Jumat, tgl 18 September.\"}, {\"id\": \"31ab6e2a5ac2896a\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [5], \"section\": \"Pertemuan 5-Percabangan If-Else\", \"judul\": \"Percabangan If-Else\", \"lokasi\": \"halaman 7-12\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/638375/mod_resource/content/1/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Visual.pdf\", \"isi\": \"SINTAKS\\n\\n# Bentuk 2 — If...Then...Else\\nDigunakan ketika ada dua kemungkinan hasil.\\n\\n## 1. If kondisi Then\\n```\\nIf kondisiThen\\nperintahJikaBenar\\nElse\\n```\\n\\n```\\nperintahJikaSalah\\nEnd If\\n```\\n\\nProgram **memeriksa suatu kondisi**. Kondisi tersebut akan menghasilkan True atau False.\\n\\n## 2. perintahJikaBenar\\nJika kondisi **True (benar)**, bagian ini yang dijalankan.\\n\\n## 3. Else\\nArtinya **“jika tidak”**. Jadi Else **tidak memiliki kondisi baru**. Ia dijalankan jika kondisi pada If tadi bernilai False. **4. perintahJikaSalah**\\n\\nDijalankan ketika kondisi pada If **False (salah)**. **5. End If**\\n\\nMenandai bahwa percabangan selesai.\\n\\n8\\n\\n# Contoh lain— If...Then...Else\\n- Digunakan ketika ada dua kemungkinan hasil.\\n\\n- Satu kondisi, dua kemungkinan output.\\n\\n```\\nDim nilaiAs Integer =\\nCInt(txtNilai.Text)\\nIf nilai>= 60 Then\\nlblHasil.Text= \\\"Lulus\\\"\\nElse\\nlblHasil.Text= \\\"Tidak Lulus\\\"\\nEnd If\\n```\\n\\n**Input** nilai\\n\\n**Kondisi** nilai >= 60\\n\\n**Output** Lulus / Tidak Lulus\\n\\n9\\n\\nFLOWCHART\\n\\n## Alur — If...Then...Else\\nMulai\\nTrue False\\nnilai >= 60?\\nLulus Tidak Lulus\\nSelesai\\n\\n10\\n\\nOPERATOR\\n\\n## Operator Perbandingan dalam Kondisi\\n= <> >\\nsama dengan tidak sama dengan lebih besar\\n< >= <=\\nlebih kecil lebih besar atau sama lebih kecil atau sama\\n\\n11\\n\\nOPERATOR\\n\\n# Operator Logika\\n## Digunakan ketika keputusan melibatkan lebih dari satu kondisi.\\n\\nAnd\\n\\nOr\\n\\nNot\\n\\nTrue hanya jika SEMUA kondisi True jika SALAH SATU kondisi True. Membalik nilai kondisi. True. **True → False** hari = \\\"Sabtu\\\" Or hari = \\\"Minggu\\\" **False → True** member = True And subtotal >= 150000 Jadi kalau hari **Sabtu → True**. stokHabis = False Kalau hari **Minggu → True**. Artinya stok **tidak habis**. **AND = semuanya harus** Kalau hari **Senin → False**. **terpenuhi.**\\n\\n12\\n\\nCONTOH\\n\\n# Contoh Kondisi dengan And\\nDua syarat harus terpenuhi secara bersam\"}, {\"id\": \"40fcc6cff31eb61c\", \"matkul\": \"Pemrograman Visual\", \"pertemuan\": [5], \"section\": \"Pertemuan 5-Percabangan If-Else\", \"judul\": \"Percabangan If-Else\", \"lokasi\": \"halaman 13-18\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/638375/mod_resource/content/1/Pertemuan_5_Struktur_Percabangan_If_Else_Pemrograman_Visual.pdf\", \"isi\": \"SINTAKS\\n\\n# Bentuk 3 — If...ElseIf...Else\\nDigunakan ketika pilihan hasil lebih dari dua.\\n\\nPrinsip\\n\\n```\\nIf kondisi1 Then\\nperintah1\\nElseIfkondisi2 Then\\nperintah2\\nElseIfkondisi3 Then\\nperintah3\\nElse\\nperintahLain\\nEnd If\\n```\\n\\nKondisi diperiksa dari atas ke bawah. Ketika satu kondisi True, cabang berikutnya tidak diperiksa lagi.\\n\\n14\\n\\nCONTOH\\n\\n# Contoh: Kategori Nilai\\n```\\nIf nilai>= 85 Then\\ngrade = \\\"A\\\"\\nElseIfnilai>= 75 Then\\ngrade = \\\"B\\\"\\nElseIfnilai>= 65 Then\\ngrade = \\\"C\\\"\\nElseIfnilai>= 50 Then\\ngrade = \\\"D\\\"\\nElse\\ngrade = \\\"E\\\"\\nEnd If\\n```\\n\\nElseIf artinya **“jika kondisi sebelumnya tidak terpenuhi, periksa kondisi berikutnya.”**\\n\\n15\\n\\nPENTING\\n\\n# Urutan Kondisi: Benar vs Salah\\nElseIf berhenti pada kondisi pertama yang bernilai True.\\n\\n**Benar Bermasalah** If nilai >= 85 Then If nilai >= 65 Then A C ElseIf nilai >= 75 Then ElseIf nilai >= 75 Then B B ElseIf nilai >= 65 Then ElseIf nilai >= 85 Then C A\\n\\n16\\n\\nKONSEP\\n\\n# Nested If — Percabangan Bersarang\\nIf dapat ditempatkan di dalam If lain atau percabangan bertingkat.\\n\\n```\\nIf nilai >= 60 Then\\n    If kehadiran >= 75 Then\\n        lblHasil.Text = \\\"Lulus\\\"\\n    Else\\n        lblHasil.Text = \\\"Tidak Lulus karena\\nkehadiran\\\"\\n    End If\\nElse\\n```\\n\\n```\\n    lblHasil.Text = \\\"Tidak Lulus karena\\nnilai\\\"\\nEnd If\\n```\\n\\n**Gunakan seperlunya** Nested If cocok untuk keputusan bertingkat, tetapi terlalu banyak tingkat akan membuat kode sulit dibaca.\\n\\n17\\n\\nVISUAL BASIC\\n\\n# If–Else di Dalam Event\\nPada aplikasi visual, percabangan biasanya dijalankan ketika event terjadi.\\n\\nUser isi input Klik Button\\n\\nLabel menampilkan\\nButton_Click If–Else\\nhasil\\n\\nPola umum\\n\\nInput dari kontrol → konversi tipe data → evaluasi kondisi → proses → tampilkan output.\\n\\n18\\n\\nPRAKTIK\\n\\n# Contoh Form: Cek Bilangan\\nKasus sederhana untuk memahami hubungan kontrol dan kode.\\n\\n**Desain Form** Label: Masukkan angk\"}], \"waktu_ms\": 1896}",
+        "search_materials({\"query\": \"eel.expose python javascript\"}) -> {\"hasil\": [{\"id\": \"192583b29becd856\", \"matkul\": \"Praktikum E-Application\", \"pertemuan\": [3], \"section\": \"Pembuatan Aplikasi Note Teks dengan Eel\", \"judul\": \"Pertemuan 3\", \"lokasi\": \"halaman 1-8\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/636276/mod_resource/content/1/Materi%20Pertemuan%203.pdf\", \"isi\": \"Aslab Teknik **HOME** Informatika K **Pertemuan 3 Praktikum E-Application**\\n\\nNadya Lahfah Dhea Tri Lova Simanjuntak\\n\\n## Pembuatan Aplikasi Note Teks (.txt)\\n\\n### penjelasan singkat:\\nDi pertemuan sebelumnya kita sudah belajar bagaimana JavaScript dan Python bisa saling berkomunikasi menggunakan Eel. Nah, sekarang kita akan memanfaatkan komunikasi tersebut untuk membuat aplikasi yang lebih nyata, yaitu aplikasi catatan atau Mini Notebook.\\n\\n#### 1.Fitur Mini Notebook\\n\\nmembaca Note\\n\\nmembuat Note menyimpan note\\n\\nrename note\\n\\ndelete note\\n\\nAslab Teknik\\nInformatika\\n\\nMulai Aplikasi\\nTampilkan\\nDaftar Catatan\\nPilih Catatan\\nSelesalTutup Aplikasi\\nBuat Baru\\nBuka Catatan &\\nTampilkan Isi Input Judul & Selesai / Tutup Aplikasi\\nIsi Catatan\\nAksi User\\nSimpan Hapus\\nRename\\nSave Note Rename Note Delete Note\\nvia main.py via main.py via main.py\\nUpdate Daftar Catatan\\n\\nDiagram Alur Kerja Aplikasi\\n\\n## 2. Apa Itu @eel.expose?\\n\\n@eel.expose adalah dekorator di Python yang digunakan untuk membuka (expose) sebuah fungsi Python agar bisa dipanggil dari JavaScript melalui Eel. fungsi Python hanya bisa dipanggil oleh Python sendiri. Dengan @eel.expose, fungsi tersebut menjadi seperti API internal yang dapat diakses langsung dari kode JavaScript/HTML\\n\\n### Kenapa ini penting?\\n@eel.expose adalah jembatan komunikasi Python ↔ JavaScript. Semua interaksi backend (Python) dengan frontend (HTML/JS) lewat Eel harus dimulai dengan fungsi yang di-expose Tanpa ini, JS tidak bisa tahu fungsi apa yang tersedia di Python\\n\\nInisialisasi Front End dan Lokasi Penyimpanan\\n\\nKode tersebut menyiapkan aplikasi Eel dan folder catatan. eel.init(\\\"web\\\") menunjuk folder antarmuka web, sedangkan NOTES_DIR menentukan tempat penyimpanan catatan. Jika folder belum ada, otomatis dibuat dengan os.makedirs().\\n\\nMengambil data yang ada dalam fo\"}, {\"id\": \"9068d522b7aa173c\", \"matkul\": \"Praktikum E-Application\", \"pertemuan\": [2], \"section\": \"Konsep Dasar Eel dan Komunikasi Frontend-Backend\", \"judul\": \"Pertemuan 2\", \"lokasi\": \"halaman 1-5\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/636275/mod_resource/content/1/Materi%20Pertemuan%202.pdf\", \"isi\": \"Aslab Teknik **HOME** Informatika K **Pertemuan 2 Praktikum E-Application**\\n\\nNadya Lahfah Dhea Tri Lova Simanjuntak\\n\\n## 1.Pemahaman Konsep Dasar Eel\\n\\nEel adalah library Python yang berfungsi sebagai jembatan untuk membangun aplikasi GUI desktop modern dengan memanfaatkan integrasi teknologi web. Python (Backend): Bertugas sebagai otak aplikasi untuk mengelola logika, perhitungan matematis, serta pengolahan data\\n\\nHTML, CSS, dan JavaScript (Frontend): Bertugas menyusun antarmuka visual agar pengguna dapat berinteraksi langsung dengan aplikasi\\n\\n**Peran Eel:** Menyatukan kedua sisi tersebut melalui koneksi internal, memungkinkan JavaScript memanggil fungsi Python dan sebaliknya tanpa memerlukan konfigurasi web server yang rumit\\n\\n## 2.Pengenalan Asynchronous\\n\\nPengembangan aplikasi dengan JavaScript, khususnya saat berkomunikasi dengan Python melalui Eel, kita menggunakan paradigma Asynchronous (async/await) **Kenapa perlu:**\\n\\nPemanggilan fungsi Python dari JavaScript tidak langsung menghasilkan jawaban\\n\\nPython mungkin butuh waktu untuk menghitung, membaca file, atau mengolah data.\\n\\nKalau JavaScript langsung melanjutkan tanpa menunggu hasil maka yang ditampilkan bisa kosong atau error\\n\\n## 3.Pengenalan Synchronous\\n\\nSynchronous (sinkron) berarti kode dieksekusi satu per satu, secara berurutan, dimana setiap operasi harus selesai sepenuhnya sebelum operasi berikutnya dimulai\\n\\nSifat pemblokiran ini memastikan setiap instruksi dijalankan sesuai urutan, tetapi dapat menyebabkan program menjadi tidak responsif jika ada tugas yang membutuhkan waktu lama, seperti permintaan data dari server, karena akan menunda eksekusi tugas selanjutnya\\n\\nAslab Teknik Informatika\\n\\nSynchronous Asynchronous\\n1 1\\n20 seconds\\n20 seconds\\n2 2\\n7 seconds\\n7 seconds\\n3 3\\n10 seconds\\nNumber of tasks Number of tasks\\n\"}, {\"id\": \"918e84490a1c17ee\", \"matkul\": \"Praktikum E-Application\", \"pertemuan\": [1], \"section\": \"Pengenalan E-Application dan Eel\", \"judul\": \"Pertemuan 1\", \"lokasi\": \"halaman 1-6\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/636272/mod_resource/content/2/Materi%20Pertemuan%201.pdf\", \"isi\": \"# Aslab Teknik **HOME** Informatika K **Pertemuan 1 Praktikum E-Application**\\n\\nNadya Lahfah Dhea Tri Lova Simanjuntak\\n\\n## 1. Apa itu E-Application\\n\\nE-Application (Electronic Application) adalah aplikasi yang dikembangkan dengan memanfaatkan teknologi digital untuk membantu pengguna menyelesaikan berbagai pekerjaan secara lebih efektif dan efisien.\\n\\nPada mata kuliah ini, E-Application berfokus pada pengembangan aplikasi desktop menggunakan library Eel pada Python, yang memungkinkan integrasi langsung antara Python dan antarmuka berbasis HTML. Melalui Eel, mahasiswa dapat mengembangkan aplikasi yang memanfaatkan Python sebagai backend dan HTML, CSS, serta JavaScript sebagai frontend.\\n\\n2. Apa itu GUI?\\n\\nGUI adalah antarmuka grafis yang memungkinkan pengguna berinteraksi dengan komputer menggunakan elemen visual, seperti tombol, ikon, menu, dan jendela.\\n\\nContoh GUI dalam Kehidupan Sehari-hari\\n\\nFile Explorer\\n\\nTelegram\\n\\nCalculator\\n\\nMicrosoft Word Spotify\\n\\n3. Apa itu Eel?\\n\\nEel adalah library Python yang berfungsi sebagai jembatan untuk membuat aplikasi desktop dengan tampilan berbasis web. Dengan Eel, kita dapat menggunakan HTML, CSS, dan JavaScript untuk membuat antarmuka (frontend), sedangkan Python digunakan untuk mengelola logika dan pemrosesan data (backend).\\n\\n## 4.Framework GUI\\n\\n### 2 **. Kivy**\\n\\n1. **Electron JS** Electron JS adalah framework berbasis JavaScript yang digunakan untuk mengembangkan aplikasi desktop dengan memanfaatkan teknologi web, seperti HTML, CSS, dan JavaScript. Framework ini banyak digunakan untuk membangun aplikasi modern.\\n\\nKivy adalah framework open-source berbasis Python yang digunakan untuk membuat aplikasi GUI pada berbagai platform, seperti desktop, perangkat seluler, dan perangkat layar sentuh. Kivy dikenal karena mampu menghasilkan tampilan y\"}, {\"id\": \"9d6d8403eb232090\", \"matkul\": \"Praktikum E-Application\", \"pertemuan\": [1], \"section\": \"Pengenalan E-Application dan Eel\", \"judul\": \"Pertemuan 1\", \"lokasi\": \"halaman 7-13\", \"sumber\": \"https://kelas.usu.ac.id/pluginfile.php/636272/mod_resource/content/2/Materi%20Pertemuan%201.pdf\", \"isi\": \"## 5.Instalasi Environment\\n\\n### VS CODE\\n### PYTHON\\nVscode kita jadikan IDE yang ideal sebagai medium kita menjalankan banyak bahasa pemrograman yang efisien\\n\\nMemastikan Enviroment Komputer sudah terinstal Python agar dapat langsung digunakan (install juga extension jika mau)\\n\\n**PIP** Package manager pada Python digunakan untuk menginstal berbagai library tambahan. Modul menjelaskan bahwa pip digunakan untuk mengakses library yang ada di Python\\n\\nEEL\\n\\nMengintall Library Eel di Command Prompt agar dapat langsung terinstall didesktop dan siap dipanggil atau di import pada Project kita\\n\\nAslab Teknik Informatika\\n\\nhttps://www.python.org/downloads/ (Mengintall Python) C:\\\\Users\\\\ASUS>python--version Python 3.13.2\\n\\nMenginstall dan Menjalankan pip C:\\\\Users\\\\ASUS>pip --version pip 25.0.1 from C:\\\\Users\\\\ASUS\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\Lib\\\\site-packages\\\\pip (python 3.13) Menginstall Eel pada library python kamu D:\\\\>pip install eel Collecting eel Downloading eel-0.18.2.tar.gz (26 kB) Installing build dependencies...done Getting requirements to build wheel done Preparing metadata (pyproject.toml) done\\n\\nAslab Teknik Informatika\\n\\n#### Menginstall Eel pada library python kamu\\n\\nD:\\\\>pip show eel Name: Eel Version: 0.18.2 Summary: For little HTML GUI applications, with easy Python/JS interop Home-page: https://github.com/python-eel/Eel Author: PythonEel Organisation Author-email: python-eel@protonmail.com License:\\n\\nLocation:C:\\\\Users\\\\ASUS\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\Lib\\\\site-packages Requires: bottle, bottle-websocket, future, importlib_resources, pyparsing, typing_extensions Required-by:\\n\\nD:\\\\>pip list Package Version altair 6.1.0 anyio 4.8.0 argon2-cffi 23.1.0 argon2-cffi-bindings 21.2.0\\n\\nVersion\\n\\nAslab Teknik Informatika\\n\\nABOUT MORE\\n\\n### 6.Membuat Project awal Eel\\n\\nPer\"}], \"waktu_ms\": 2478}"
+      ],
+      "sources": [
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Operator dan Ekspresi pada Aplikasi Visual"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            4
+          ],
+          "judul": "Operator dan Ekspresi pada Aplikasi Visual"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            5
+          ],
+          "judul": "Percabangan If-Else"
+        },
+        {
+          "course_id": "38408",
+          "matkul": "Pemrograman Visual",
+          "pertemuan": [
+            5
+          ],
+          "judul": "Percabangan If-Else"
+        },
+        {
+          "course_id": "38419",
+          "matkul": "Praktikum E-Application",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Pertemuan 3"
+        },
+        {
+          "course_id": "38419",
+          "matkul": "Praktikum E-Application",
+          "pertemuan": [
+            2
+          ],
+          "judul": "Pertemuan 2"
+        },
+        {
+          "course_id": "38419",
+          "matkul": "Praktikum E-Application",
+          "pertemuan": [
+            1
+          ],
+          "judul": "Pertemuan 1"
+        },
+        {
+          "course_id": "38419",
+          "matkul": "Praktikum E-Application",
+          "pertemuan": [
+            1
+          ],
+          "judul": "Pertemuan 1"
+        }
+      ],
+      "seconds": 7.6,
+      "usage": {
+        "calls": 2,
+        "total": 11382,
+        "cache_hit": 5376,
+        "cache_miss": 5653,
+        "output": 353,
+        "reasoning": 43,
+        "cost_usd": 0.002152
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 5,
+        "halusinasi": false,
+        "catatan": "Jawaban sesuai Materi Praktikum E-Application pertemuan 3: @eel.expose adalah dekorator Python yang membuka fungsi agar dapat dipanggil dari JavaScript dan menjadi jembatan komunikasi Python–JavaScript. Poin penting (definisi, fungsi, konsekuensi tanpa expose, sumber) sudah tercakup di SUARA dan LAYAR.",
+        "usage": {
+          "prompt_tokens": 15532,
+          "completion_tokens": 182,
+          "total_tokens": 15714,
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 71
+          },
+          "prompt_cache_hit_tokens": 128,
+          "prompt_cache_miss_tokens": 15404
+        }
+      }
+    },
+    {
+      "case": "followup-detail",
+      "q": "Jelaskan lebih detail dengan contoh kodenya",
+      "tanggal": "Kamis, 01-10-2026 21:47 WIB",
+      "speech": "Dekorator ditulis persis di atas fungsi Python, supaya fungsi itu bisa dipanggil JavaScript lewat eel.nama_fungsi. Contohnya fungsi save_note di main.py diberi @eel.expose, lalu dari tombol Save JavaScript memanggil eel.save_note dengan judul dan isi catatan. Jadi alurnya JavaScript ke Eel ke Python, baru menyimpan file txt, seperti di materi Praktikum E-Application pertemuan tiga.",
+      "screen": [
+        "- Python main.py:",
+        "- @eel.expose",
+        "- def save_note(title, content):",
+        "- tulis file .txt, return True",
+        "- JavaScript:",
+        "- await eel.save_note(t, isi)()",
+        "- Alur: JS - Eel - Python - file.txt",
+        "- Sumber: Prak. E-Application p3"
+      ],
+      "detail": "",
+      "tools": [
+        "get_meeting({\"course\": \"Praktikum E-Application\", \"meeting\": 3, \"full\": true})",
+        "search_materials({\"query\": \"eel.expose contoh kode fungsi Python dipanggil JavaScript\", \"course\": \"E-Application\"})"
+      ],
+      "konteks": [
+        "get_meeting({\"course\": \"Praktikum E-Application\", \"meeting\": 3, \"full\": true}) -> {\"matkul\": \"Praktikum E-Application\", \"pertemuan\": 3, \"judul_section\": \"Pembuatan Aplikasi Note Teks dengan Eel\", \"terpotong\": false, \"isi\": \"# Praktikum E-Application (TIF 3 037 P, kelas 5/B1) — Pertemuan 3\\n\\nDosen: Prof. Drs. Poltak Sihombing M.Kom., Ph.D\\n\\n## Pertemuan 3\\n\\n*Sumber: https://kelas.usu.ac.id/pluginfile.php/636276/mod_resource/content/1/Materi%20Pertemuan%203.pdf · berisi teks hasil OCR*\\n\\n<!-- halaman 1 -->\\nAslab Teknik **HOME** Informatika K **Pertemuan 3 Praktikum E-Application**\\n\\nNadya Lahfah Dhea Tri Lova Simanjuntak\\n\\n<!-- halaman 2 -->\\n## Pembuatan Aplikasi Note Teks (.txt)\\n\\n### penjelasan singkat:\\nDi pertemuan sebelumnya kita sudah belajar bagaimana JavaScript dan Python bisa saling berkomunikasi menggunakan Eel. Nah, sekarang kita akan memanfaatkan komunikasi tersebut untuk membuat aplikasi yang lebih nyata, yaitu aplikasi catatan atau Mini Notebook.\\n\\n<!-- halaman 3 -->\\n#### 1.Fitur Mini Notebook\\n\\nmembaca Note\\n\\nmembuat Note menyimpan note\\n\\nrename note\\n\\ndelete note\\n\\n<!-- halaman 4 -->\\nAslab Teknik\\nInformatika\\n\\nMulai Aplikasi\\nTampilkan\\nDaftar Catatan\\nPilih Catatan\\nSelesalTutup Aplikasi\\nBuat Baru\\nBuka Catatan &\\nTampilkan Isi Input Judul & Selesai / Tutup Aplikasi\\nIsi Catatan\\nAksi User\\nSimpan Hapus\\nRename\\nSave Note Rename Note Delete Note\\nvia main.py via main.py via main.py\\nUpdate Daftar Catatan\\n\\nDiagram Alur Kerja Aplikasi\\n\\n<!-- halaman 5 -->\\n## 2. Apa Itu @eel.expose?\\n\\n@eel.expose adalah dekorator di Python yang digunakan untuk membuka (expose) sebuah fungsi Python agar bisa dipanggil dari JavaScript melalui Eel. fungsi Python hanya bisa dipanggil oleh Python sendiri. Dengan @eel.expose, fungsi tersebut menjadi seperti API internal yang dapat diakses langsung dari kode JavaScript/HTML\\n\\n### Kenapa ini penting?\\n@eel.expose adalah jembatan komunikasi Python ↔ JavaScript. Semua interaksi backend (Python) dengan frontend (HTML/JS) lewat Eel harus dimulai dengan fungsi yang di-expose Tanpa ini, JS tidak bisa tahu fungsi apa yang tersedia di Python\\n\\n<!-- halaman 6 -->\\nInisialisasi Front End dan Lokasi Penyimpanan\\n\\nKode tersebut menyiapkan aplikasi Eel dan folder catatan. eel.init(\\\"web\\\") menunjuk folder antarmuka web, sedangkan NOTES_DIR menentukan tempat penyimpanan catatan. Jika folder belum ada, otomatis dibuat dengan os.makedirs().\\n\\n<!-- halaman 7 -->\\nMengambil data yang ada dalam folder dan menampilkannya didalam Aplikasi\\n\\nFungsi get_notes() di-expose agar bisa dipanggil dari JavaScript. Fungsinya mengambil daftar file.txt dalam folder NOTES_DIR, lalu menghapus ekstensi.txt sehingga hanya nama catatan saja yang dikembalikan sebagai daftar.\\n\\n<!-- halaman 8 -->\\nMenampilkan semua Note yang ada, menampilkan judulnya saja\\n\\nuntuk membaca isi catatan Fungsi read_note(title) digunakan berdasarkan judul. Pertama, dibuat path file dengan menambahkan txt pada judul. Jika file ada, isinya dibuka dan dibaca dengan encoding UTF8, lalu dikembalikan sebagai teks. Jika tidak ditemukan, fungsi mengembalikan string kosong.\\n\\n<!-- halaman 9 -->\\nAslab Teknik Iroike\\n\\n3. apa itu UTF-8\\n\\nUTF-8 (Unicode Transformation Format - 8-bit) adalah standar pengodean karakter yang paling umum digunakan di web untuk menyimpan dan menukar teks secara digital.\\n\\n<!-- halaman 10 -->\\nMenyimpan dan memperbarui note yang diubah didalam\\n\\nFungsi save_note(title, content) berfungsi menyimpan atau memperbarui catatan. File akan dibuat dengan nama sesuai judul dan berekstensi.txt, lalu isinya ditulis ulang menggunakan encoding UTF-8. Jika berhasil, fungsi mengembalikan True sebagai tanda penyimpanan sukses.\\n\\n<!-- halaman 11 -->\\nMenyimpan dan memperbarui note yang diubah didalam\\n\\nFungsi rename_note(old_title, new_title) dipakai untuk mengganti nama catatan. Pertama dibuat path lama dan path baru dengan ekstensi.txt. Jika file lama ada, maka os.rename akan mengubahnya menjadi nama baru, lalu mengembalikan True. Jika file lama tidak ditemukan, fungsi mengembalikan False.\\n\\n<!-- halaman 12 -->\\n### Menghapus dan melakukan Remove File\\nFungsi delete_note(title) digunakan untuk menghapus catatan. Pertama dibuat path file berdasarkan judul dengan ekstensi.txt. Jika file tersebut ada, maka os.remove akan menghapusnya dan fungsi mengembalikan True. Jika tidak ditemukan, fungsi mengembalikan False.\\n\\n<!-- halaman 13 -->\\nKode eel.start(...) ini digunakan untuk menjalankan aplikasi Eel. File awal yang dibuka adalah index.html dengan ukuran jendela 800x600 piksel.  Parameter block=True menjaga program tetap berjalan sampai jendela ditutup. Untuk menambahkan logo atau ikon aplikasi, bisa dilakukan saat proses build menggunakan PyInstaller dengan menyertakan file icon.\\n\\n<!-- halaman 14 -->\\n## QUIZ TIME 1\\nA. Python save_note() B. User mengetik catatan C. File.txt tersimpan\\n\\n### Susun Alur Aplikasi\\nD. JavaScript saveNote() E. eel.save_note(title, content)\\n\\npertanyaan:\\n\\n\\\"Urutkan proses ketika user mengetik catatan lalu menekan tombol Save sampai menjadi file.txt.\\\"\\n\\n<!-- halaman 15 -->\\n## QUIZ TIME 1\\n### Susun Alur Aplikasi\\nA. Python save_note() B. User mengetik catatan C. File.txt tersimpan D. JavaScript saveNote() E. eel.save_note(title, content)\\n\\nJAWABAN: B → D → E → A → C\\n\\npertanyaan:\\n\\n\\\"Urutkan proses ketika user mengetik catatan lalu menekan tombol Save sampai menjadi file.txt.\\\"\\n\\n<!-- halaman 16 -->\\n## Aslab Teknik KInformatika\\n\\n#### QUIZ TIME 2\\n@eel.exposedef save_note(title, content):\\n\\n.....\\n\\npertanyaan: Fungsi ini berada di bagian mana?\\n\\nA. HTML B. CSS\\n\\nC. JavaScript\\n\\nD. Python\\n\\n<!-- halaman 17 -->\\n## Aslab Teknik KInformatika\\n\\n#### QUIZ TIME 2\\n@eel.exposedef save_note(title, content):\\n\\n.....\\n\\npertanyaan: Fungsi ini berada di bagian mana?\\n\\nA. HTML B. CSS\\n\\nC. JavaScript\\n\\nD. Python\\n\\nJAWABAN: D. PYTHON\\n\\n<!-- halaman 18 -->\\n### Aslab Teknik KInrotika\\n\\n#### QUIZ TIME 3\\n   - Python\\n\\n##### Susun Alur\\n\\n● JavaScript\\n\\n● User\\n\\n● Eel\\n\\nFile TXT\\n\\n<!-- halaman 19 -->\\nAslab Teknik KInrotika\\n\\n#### QUIZ TIME 3\\nPython\\n\\n● JavaScript\\n\\n● User ● Eel\\n\\nFile TXT\\n\\nSusun Alur\\n\\nJAWABAN\\n\\nUSER ↓\\n\\nJAVASCRIPT\\n\\n↓ EEL ↓ PYTHON\\n\\n↓ FILE TXT\\n\\n<!-- halaman 20 -->\\n## QUIZ TIME 4\\nUrutkan proses yang terjadi ketika pengguna mengetik teks di area editor sampai diagram batang berubah secara real-time!\\n\\nA. JavaScript mengeksekusi updateChart() B. Nilai data diagram diperbarui dan chartInstance.update() dipanggil C. Event oninput terpicu pada elemen <textarea>\\n\\nD. Pengguna mengetik atau menambahkan karakter di editor E. Panjang karakter (text.length) dan jumlah kata dihitung\\n\\n<!-- halaman 21 -->\\n## QUIZ TIME 4\\nUrutkan proses yang terjadi ketika pengguna mengetik teks di area editor sampai diagram batang berubah secara real-time!\\n\\nA. JavaScript mengeksekusi updateChart() B. Nilai data diagram diperbarui dan chartInstance.update() dipanggil C. Event oninput terpicu pada elemen <textarea> D. Pengguna mengetik atau menambahkan karakter di editor E. Panjang karakter (text.length) dan jumlah kata dihitung\\n\\nD → C → A → E → B\\n\\nJAWABAN\\n\\n<!-- halaman 22 -->\\n## QUIZ TIME 5\\nUrutkan langkah-langkah kerja sistem dari saat pengguna memilih judul catatan di sidebar sampai isi catatan dan diagram statistik muncul di layar!\\n\\nA. Backend Python membaca berkas dengan open() dan mengembalikan teks via file.read()\\n\\nB. JavaScript menjalankan fungsi updateChart() untuk memperbarui grafik statistik teks C. Pengguna mengklik salah satu judul catatan di sidebar (onclick = buka(item)) D. Nilai judul dan isi catatan dimasukkan ke form input #judul dan #isi\\n\\nE. JavaScript memanggil backend secara asinkron lewat await eel.baca_isi_catatan(judul)()\\n\\n<!-- halaman 23 -->\\n## QUIZ TIME 5\\nUrutkan langkah-langkah kerja sistem dari saat pengguna memilih judul catatan di sidebar sampai isi catatan dan diagram statistik muncul di layar!\\n\\nA. Backend Python membaca berkas dengan open() dan mengembalikan teks via file.read()\\n\\nB. JavaScript menjalankan fungsi updateChart() untuk memperbarui grafik statistik teks C. Pengguna mengklik salah satu judul catatan di sidebar (onclick = buka(item)) D. Nilai judul dan isi catatan dimasukkan ke form input #judul dan #isi\\n\\nE. JavaScript memanggil backend secara asinkron lewat await eel.baca_isi_catatan(judul)()\\n\\nC → E → A → D → B\\n\\nJAWABAN\\n\\n<!-- halaman 24 -->\\n## QUIZ TIME 6\\nUrutkan proses penghapusan catatan dari sisi pengguna hingga berkas fisik hilang dan daftar antarmuka diperbarui!\\n\\nA. JavaScript memanggil loadList() untuk me-refresh daftar catatan di sidebar B. Tombol hapus (btn-delete) pada baris catatan diklik oleh pengguna\\n\\nC. JavaScript memicu fungsi Python dengan await eel.hapus_catatan(item)() D. Konfirmasi penghapusan disetujui (confirm())\\n\\nE. Backend Python mengeksekusi os.remove(path) pada folder notes/\\n\\n<!-- halaman 25 -->\\n## QUIZ TIME 6\\nUrutkan proses penghapusan catatan dari sisi pengguna hingga berkas fisik hilang dan daftar antarmuka diperbarui!\\n\\nA. JavaScript memanggil loadList() untuk me-refresh daftar catatan di sidebar B. Tombol hapus (btn-delete) pada baris catatan diklik oleh pengguna\\n\\nC. JavaScript memicu fungsi Python dengan await eel.hapus_catatan(item)() D. Konfirmasi penghapusan disetujui (confirm())\\n\\nE. Backend Python mengeksekusi os.remove(path) pada folder notes/\\n\\nJAWABAN\\n\\nB → D → C → E → A\\n\\n<!-- halaman 26 -->\\n# K IlnrotikaAslab Teknik\\n\\nThank You!\\n\"}",
+        "search_materials({\"query\": \"eel.expose contoh kode fungsi Python dipanggil JavaScript\", \"course\": \"E-Application\"}) -> {\"hasil\": [], \"waktu_ms\": 563}"
+      ],
+      "sources": [
+        {
+          "course_id": "38419",
+          "matkul": "Praktikum E-Application",
+          "pertemuan": [
+            3
+          ],
+          "judul": "Pembuatan Aplikasi Note Teks dengan Eel"
+        }
+      ],
+      "seconds": 5.5,
+      "usage": {
+        "calls": 2,
+        "total": 9911,
+        "cache_hit": 5888,
+        "cache_miss": 3234,
+        "output": 789,
+        "reasoning": 398,
+        "cost_usd": 0.001952
+      },
+      "checks": {
+        "sumber": true,
+        "kata_kunci": 1.0
+      },
+      "judge": {
+        "ketepatan": 5,
+        "kelengkapan": 5,
+        "halusinasi": false,
+        "catatan": "Contoh kode dan alur (JS → Eel → Python → file.txt) persis sesuai materi Pertemuan 3, termasuk save_note(title, content) yang mengembalikan True. Penjelasan posisi dekorator dan pemanggilan dari JavaScript sudah tepat dan cukup detail.",
+        "usage": {
+          "prompt_tokens": 13131,
+          "completion_tokens": 458,
+          "total_tokens": 13589,
+          "prompt_tokens_details": {
+            "cached_tokens": 1280
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 364
+          },
+          "prompt_cache_hit_tokens": 1280,
+          "prompt_cache_miss_tokens": 11851
+        }
+      }
+    }
+  ]
+}

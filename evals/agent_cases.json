@@ -1,0 +1,442 @@
+{
+  "keterangan": "Set uji AI agent. expect.sources = (course_id, pertemuan) yang harus terambil; null = cukup mata kuliahnya. not_found = jawaban wajib mengaku materi tidak ada.",
+  "cases": [
+    {
+      "id": "pv-if-else",
+      "turns": [
+        {
+          "q": "Apa itu percabangan if else di pemrograman visual?",
+          "expect": {
+            "sources": [
+              [
+                "38408",
+                5
+              ]
+            ],
+            "keywords": [
+              "if",
+              "else",
+              "kondisi"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pv-meeting-3",
+      "turns": [
+        {
+          "q": "Jelaskan materi pertemuan 3 Pemrograman Visual",
+          "expect": {
+            "sources": [
+              [
+                "38408",
+                3
+              ]
+            ],
+            "keywords": [
+              "variabel",
+              "tipe data"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pv-xor",
+      "turns": [
+        {
+          "q": "Operator Xor itu hasilnya kapan bernilai true?",
+          "expect": {
+            "sources": [
+              [
+                "38408",
+                4
+              ]
+            ],
+            "keywords": [
+              "xor",
+              "satu"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "prak-pv-loop",
+      "turns": [
+        {
+          "q": "Bedanya perulangan For Next dengan Do While di praktikum PV apa?",
+          "expect": {
+            "sources": [
+              [
+                "38415",
+                4
+              ]
+            ],
+            "keywords": [
+              "for",
+              "while"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "prak-pv-db",
+      "turns": [
+        {
+          "q": "Di praktikum pemrograman visual, koneksi ke PostgreSQL pakai apa?",
+          "expect": {
+            "sources": [
+              [
+                "38415",
+                6
+              ]
+            ],
+            "keywords": [
+              "npgsql"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "msbd-sharding",
+      "turns": [
+        {
+          "q": "Apa bedanya replikasi sinkron dan asinkron di database?",
+          "expect": {
+            "sources": [
+              [
+                "38404",
+                3
+              ]
+            ],
+            "keywords": [
+              "sinkron",
+              "latency"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "msbd-btree",
+      "turns": [
+        {
+          "q": "Kenapa B+ tree dipakai untuk index database?",
+          "expect": {
+            "sources": [
+              [
+                "38404",
+                2
+              ]
+            ],
+            "keywords": [
+              "b+"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "prak-msbd-dictionary",
+      "turns": [
+        {
+          "q": "Apa itu data dictionary?",
+          "expect": {
+            "sources": [
+              [
+                "38406",
+                4
+              ]
+            ],
+            "keywords": [
+              "metadata"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mpit-project",
+      "turns": [
+        {
+          "q": "Apa saja karakteristik proyek TI menurut materi manajemen proyek?",
+          "expect": {
+            "sources": [
+              [
+                "38410",
+                1
+              ]
+            ],
+            "keywords": [
+              "sementara",
+              "unik"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mpit-wbs",
+      "turns": [
+        {
+          "q": "Work breakdown structure itu apa?",
+          "expect": {
+            "sources": [
+              [
+                "38410",
+                4
+              ]
+            ],
+            "keywords": [
+              "wbs"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ea-pyinstaller",
+      "turns": [
+        {
+          "q": "Gimana cara packaging aplikasi Eel jadi satu file exe?",
+          "expect": {
+            "sources": [
+              [
+                "38419",
+                4
+              ]
+            ],
+            "keywords": [
+              "pyinstaller",
+              "onefile"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ea-pandas",
+      "turns": [
+        {
+          "q": "Cara membaca file CSV pakai pandas gimana?",
+          "expect": {
+            "sources": [
+              [
+                "38419",
+                7
+              ]
+            ],
+            "keywords": [
+              "read_csv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "spk-architecture",
+      "turns": [
+        {
+          "q": "Sebutkan komponen arsitektur sistem pendukung keputusan",
+          "expect": {
+            "sources": [
+              [
+                "38427",
+                4
+              ]
+            ],
+            "keywords": [
+              "model",
+              "data",
+              "antarmuka|user interface|dialog"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "spk-fuzzy",
+      "turns": [
+        {
+          "q": "Metode apa saja yang dibahas di materi metode dalam SPK?",
+          "expect": {
+            "sources": [
+              [
+                "38427",
+                6
+              ]
+            ],
+            "keywords": [
+              "fuzzy",
+              "regresi"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sig-missing",
+      "turns": [
+        {
+          "q": "Jelaskan sistem koordinat di mata kuliah SIG",
+          "expect": {
+            "not_found": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "rpl-missing",
+      "turns": [
+        {
+          "q": "Apa materi pertemuan 2 Rekayasa Perangkat Lunak?",
+          "expect": {
+            "not_found": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "assignments",
+      "turns": [
+        {
+          "q": "Tugas apa saja yang belum aku kumpulkan?",
+          "expect": {
+            "tools": [
+              "list_assignments"
+            ],
+            "keywords": [
+              "spk|sistem pendukung keputusan",
+              "msbd|basis data"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "followup-operator",
+      "turns": [
+        {
+          "q": "Apa saja jenis operator di pemrograman visual?",
+          "expect": {
+            "sources": [
+              [
+                "38408",
+                4
+              ]
+            ],
+            "keywords": [
+              "aritmatika|logika|perbandingan"
+            ]
+          }
+        },
+        {
+          "q": "Kasih contoh yang logika dong",
+          "expect": {
+            "sources": [
+              [
+                "38408",
+                4
+              ]
+            ],
+            "keywords": [
+              "and",
+              "or"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "followup-spk-history",
+      "turns": [
+        {
+          "q": "Apa itu sistem pendukung keputusan?",
+          "expect": {
+            "sources": [
+              [
+                "38427",
+                null
+              ]
+            ],
+            "keywords": [
+              "keputusan"
+            ]
+          }
+        },
+        {
+          "q": "Terus sejarah perkembangannya gimana?",
+          "expect": {
+            "sources": [
+              [
+                "38427",
+                3
+              ]
+            ],
+            "keywords": [
+              "1970|1978|scott morton"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "followup-detail",
+      "turns": [
+        {
+          "q": "Apa itu eel.expose?",
+          "expect": {
+            "sources": [
+              [
+                "38419",
+                null
+              ]
+            ],
+            "keywords": [
+              "expose"
+            ]
+          }
+        },
+        {
+          "q": "Jelaskan lebih detail dengan contoh kodenya",
+          "expect": {
+            "sources": [
+              [
+                "38419",
+                null
+              ]
+            ],
+            "keywords": [
+              "@eel.expose|eel.expose"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "presensi-hari-ini",
+      "turns": [
+        {
+          "q": "Presensi saya hari ini sudah terisi semua kan?",
+          "expect": {
+            "tools": [
+              "get_attendance"
+            ]
+          }
+        },
+        {
+          "q": "Yang belum terisi itu jam berapa dibukanya?",
+          "expect": {
+            "tools": [
+              "get_attendance"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

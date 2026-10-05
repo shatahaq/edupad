@@ -1,0 +1,10 @@
+# Versi yang terpasang & teruji di server produksi (Ubuntu 26.04, Python 3.14).
+beautifulsoup4==4.15.0
+firecrawl-anydoc==0.2.4
+markdownify==1.2.3
+onnxruntime==1.30.0
+playwright==1.63.0
+pymupdf==1.28.2
+pymupdf4llm==1.28.2
+rapidocr==3.9.2
+requests==2.34.2

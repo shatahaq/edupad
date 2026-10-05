@@ -1,0 +1,9 @@
+# Pasang dengan: crontab deploy/crontab  (sesuaikan path bila berbeda)
+# Jam server UTC (WIB = UTC+7).
+# Keepalive tiap 10 menit: Keycloak SATU memutus sesi yang menganggur ~30 menit.
+*/10 * * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad keepalive  >/dev/null 2>&1
+0 */2 * * *   cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad pipeline   >/dev/null 2>&1
+30 22 * * *   cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad schedule   >/dev/null 2>&1
+# Presensi: tiap 2 menit selama jam kuliah, 07:00-19:59 WIB (ada presensi yang dibuka hanya
+# ~8 menit); isi otomatis yang bisa "langsung", kegagalan di logs/attendance_fill_failures.jsonl
+*/2 0-12 * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad attendance --fill >/dev/null 2>&1

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edupad"
+version = "0.1.0"
+description = "Pengumpul & pengolah data kuliah USU untuk AI agent EduPad"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4>=4.12",
+    "firecrawl-anydoc>=0.2",
+    "markdownify>=1.1",
+    "onnxruntime>=1.20",
+    "playwright>=1.45",
+    "pymupdf>=1.26",
+    "pymupdf4llm>=1.26",
+    "rapidocr>=3.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+edupad = "edupad.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]  # panjang baris dijaga formatter, bukan linter
