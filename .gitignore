@@ -4,3 +4,15 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+
+# Indeks lokal alat bantu (codebase-memory), dibuat ulang otomatis
+.codebase-memory/
+
+# Rahasia: API key, kunci SSH server, cookie & profil browser login kampus.
+# Pindahkan ke server lewat scp (lihat deploy/SERVER.md), jangan lewat git.
+.env
+*.pem
+user_data/
+
+# Log hasil program berjalan
+logs/
