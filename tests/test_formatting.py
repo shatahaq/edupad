@@ -2,8 +2,10 @@ from edupad.agent import formatting as fmt
 
 
 def test_clean_speech_removes_markdown_code_and_urls():
-    text = ("## WBS\n**WBS** adalah *pemecahan* proyek 🎯.\n\n```vb\nDim x As Integer\n```\n"
-            "- poin satu\n- poin dua\nLihat [slide](https://kelas.usu.ac.id/x) — selesai.")
+    text = (
+        "## WBS\n**WBS** adalah *pemecahan* proyek 🎯.\n\n```vb\nDim x As Integer\n```\n"
+        "- poin satu\n- poin dua\nLihat [slide](https://kelas.usu.ac.id/x) — selesai."
+    )
     speech = fmt.clean_speech(text)
     for bad in ("#", "*", "`", "Dim x", "http", "🎯", "—"):
         assert bad not in speech
@@ -18,13 +20,17 @@ def test_clean_speech_cuts_at_sentence_end():
 
 
 def test_fit_screen_wraps_and_limits_lines():
-    screen = fmt.fit_screen("Work Breakdown Structure (WBS) lengkap",
-                            ["**100% rule**: semua pekerjaan tercakup tanpa kurang atau lebih", "≥ 5 porsi → diskon"]
-                            + [f"poin {i}" for i in range(20)])
+    screen = fmt.fit_screen(
+        "Work Breakdown Structure (WBS) lengkap",
+        ["**100% rule**: semua pekerjaan tercakup tanpa kurang atau lebih", "≥ 5 porsi → diskon"]
+        + [f"poin {i}" for i in range(20)],
+    )
     assert screen["title"] == "Work Breakdown Structure (WBS) lengkap"
     assert screen["title_size"] == "normal"
     assert fmt.fit_screen("WBS", [])["title_size"] == "large"
-    long_title = fmt.fit_screen("Validasi input angka menggunakan TryParse di Visual Basic", [])["title"]
+    long_title = fmt.fit_screen("Validasi input angka menggunakan TryParse di Visual Basic", [])[
+        "title"
+    ]
     assert len(long_title) <= fmt.SCREEN_COLS and long_title.endswith("...")
     assert len(screen["lines"]) == fmt.SCREEN_MAX_LINES
     assert all(len(line) <= fmt.SCREEN_COLS for line in screen["lines"])

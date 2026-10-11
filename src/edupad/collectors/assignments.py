@@ -66,7 +66,10 @@ class OcrCache:
         key = sha256_bytes(image)
         if key not in self.data:
             if self._engine is None:
-                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                with (
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()),
+                ):
                     from rapidocr import RapidOCR
 
                     self._engine = RapidOCR()
@@ -88,9 +91,15 @@ def select_courses(courses: list[dict]) -> list[dict]:
         kept = [c for c in courses if c["id"] in krs and c["id"] not in settings.ignored_courses]
         reason = "tidak ada di KRS"
     else:
-        kept = [c for c in courses if c["id"] not in settings.ignored_courses
-                and (not settings.student_class
-                     or course_class(c["name"]) in (None, settings.student_class))]
+        kept = [
+            c
+            for c in courses
+            if c["id"] not in settings.ignored_courses
+            and (
+                not settings.student_class
+                or course_class(c["name"]) in (None, settings.student_class)
+            )
+        ]
         reason = f"bukan kelas {settings.student_class or 'saya'}"
     for c in courses:
         if c not in kept:
@@ -108,17 +117,19 @@ def course_tasks(client: MoodleClient, course: dict) -> list[dict]:
         sec = sections.get(cm.get("sectionid"), {})
         number = sec.get("number", cm.get("sectionnumber"))
         title = unescape(sec.get("title") or f"Section {number}")
-        tasks.append({
-            "cmid": str(cm["id"]),
-            "jenis": MODULES[cm["module"]],
-            "module": cm["module"],
-            "judul": unescape(cm["name"]),
-            "course_id": course["id"],
-            "matkul": course["name"],
-            "section": title,
-            "pertemuan": meeting_number(title, number),
-            "url": cm.get("url") or f"{MOODLE_URL}/mod/{cm['module']}/view.php?id={cm['id']}",
-        })
+        tasks.append(
+            {
+                "cmid": str(cm["id"]),
+                "jenis": MODULES[cm["module"]],
+                "module": cm["module"],
+                "judul": unescape(cm["name"]),
+                "course_id": course["id"],
+                "matkul": course["name"],
+                "section": title,
+                "pertemuan": meeting_number(title, number),
+                "url": cm.get("url") or f"{MOODLE_URL}/mod/{cm['module']}/view.php?id={cm['id']}",
+            }
+        )
     return tasks
 
 
@@ -128,8 +139,10 @@ def calendar_deadlines(client: MoodleClient) -> dict[str, dict[str, int]]:
     today = date.today()
     for offset in range(-CALENDAR_MONTHS_BACK, CALENDAR_MONTHS_AHEAD + 1):
         year, month = divmod(today.year * 12 + today.month - 1 + offset, 12)
-        data = client.call("core_calendar_get_calendar_monthly_view",
-                           {"year": year, "month": month + 1, "courseid": 1, "day": 1, "mini": False})
+        data = client.call(
+            "core_calendar_get_calendar_monthly_view",
+            {"year": year, "month": month + 1, "courseid": 1, "day": 1, "mini": False},
+        )
         for week in data["weeks"]:
             for day in week["days"]:
                 for event in day["events"]:
@@ -166,7 +179,9 @@ def parse_assign(soup: BeautifulSoup) -> dict:
             th, td = tr.find("th"), tr.find("td")
             if not (th and td) or "___picture___" in td.get_text():  # template komentar kosong
                 continue
-            (feedback if in_feedback else rows)[th.get_text(" ", strip=True)] = td.get_text(" ", strip=True)
+            (feedback if in_feedback else rows)[th.get_text(" ", strip=True)] = td.get_text(
+                " ", strip=True
+            )
             files += [a.get_text(strip=True) for a in td.select("a[href*='assignsubmission_file']")]
             for cls in td.get("class", []):
                 if cls.startswith("submissionstatus"):
@@ -180,10 +195,15 @@ def parse_assign(soup: BeautifulSoup) -> dict:
     grade = next((v for k, v in feedback.items() if k.lower() in ("grade", "nilai")), None)
     return {
         "pengumpulan": submission,
-        "penilaian": {"submissiongraded": "sudah_dinilai",
-                      "submissionnotgraded": "belum_dinilai"}.get(grading),
-        "waktu": {"overdue": "lewat_deadline", "earlysubmission": "tepat_waktu",
-                  "latesubmission": "terlambat"}.get(timing),
+        "penilaian": {
+            "submissiongraded": "sudah_dinilai",
+            "submissionnotgraded": "belum_dinilai",
+        }.get(grading),
+        "waktu": {
+            "overdue": "lewat_deadline",
+            "earlysubmission": "tepat_waktu",
+            "latesubmission": "terlambat",
+        }.get(timing),
         "nilai": grade,
         "file_dikumpulkan": list(dict.fromkeys(files)),
         "detail": rows,
@@ -199,7 +219,9 @@ def parse_quiz(soup: BeautifulSoup) -> dict:
         headers = [th.get_text(" ", strip=True) for th in table.select("thead th")]
         for tr in table.select("tbody tr"):
             cells = [td.get_text(" ", strip=True) for td in tr.select("td")]
-            attempts.append(dict(zip(headers, cells, strict=False)))  # baris ringkasan bisa lebih pendek
+            attempts.append(
+                dict(zip(headers, cells, strict=False))
+            )  # baris ringkasan bisa lebih pendek
     grade = soup.select_one("#feedback")
     main = soup.select_one("div[role='main']")
     return {
@@ -237,8 +259,9 @@ def save_attachment(client: MoodleClient, url: str, cmid: str) -> dict:
     return info
 
 
-def task_description(soup: BeautifulSoup, client: MoodleClient, ocr: OcrCache,
-                     cmid: str) -> tuple[str, list[dict]]:
+def task_description(
+    soup: BeautifulSoup, client: MoodleClient, ocr: OcrCache, cmid: str
+) -> tuple[str, list[dict]]:
     parts = []
     box = soup.select_one(".activity-description")
     if box:
@@ -247,15 +270,20 @@ def task_description(soup: BeautifulSoup, client: MoodleClient, ocr: OcrCache,
             parts.append(md)
         for i, img in enumerate(box.select("img[src*='pluginfile.php']"), 1):
             try:
-                text = ocr.text(client.http.get(urljoin(MOODLE_URL, img["src"]), timeout=30).content)
+                text = ocr.text(
+                    client.http.get(urljoin(MOODLE_URL, img["src"]), timeout=30).content
+                )
             except Exception as e:
                 log.warning("      [ocr gagal] %s", e)
                 continue
             if text.strip():
                 parts.append(f"[Teks dari gambar soal {i} (OCR)]\n{text.strip()}")
     # Hanya lampiran soal dari dosen; file jawaban mahasiswa tidak diunduh.
-    links = [a["href"] for a in soup.select("a[href*='pluginfile.php']")
-             if re.search(r"/mod_(assign|quiz)/(intro|introattachment)/", a["href"])]
+    links = [
+        a["href"]
+        for a in soup.select("a[href*='pluginfile.php']")
+        if re.search(r"/mod_(assign|quiz)/(intro|introattachment)/", a["href"])
+    ]
     attachments = [save_attachment(client, url, cmid) for url in dict.fromkeys(links)]
     return "\n\n".join(parts), attachments
 
@@ -267,7 +295,9 @@ def summarize(task: dict, now: int) -> None:
     if task["module"] == "assign":
         done = status.get("pengumpulan") == "submitted"
         if done:
-            text = "Sudah dikumpulkan" + (" (terlambat)" if status.get("waktu") == "terlambat" else "")
+            text = "Sudah dikumpulkan" + (
+                " (terlambat)" if status.get("waktu") == "terlambat" else ""
+            )
             if status.get("penilaian") == "sudah_dinilai":
                 text += f", dinilai: {status.get('nilai') or '-'}"
         elif status.get("pengumpulan") == "draft":
@@ -291,17 +321,23 @@ def fetch_task(client: MoodleClient, task: dict, deadlines: dict, ocr: OcrCache,
     soup = BeautifulSoup(client.get_page(task["url"]), "html.parser")
     dates = activity_dates(soup)
     calendar = deadlines.get(task["cmid"], {})
-    due_ts = calendar.get("due") or calendar.get("close") or parse_moodle_date(
-        dates.get("Due") or dates.get("Closes") or dates.get("Closed") or "")
+    due_ts = (
+        calendar.get("due")
+        or calendar.get("close")
+        or parse_moodle_date(dates.get("Due") or dates.get("Closes") or dates.get("Closed") or "")
+    )
     open_ts = calendar.get("open") or parse_moodle_date(
-        dates.get("Opened") or dates.get("Opens") or dates.get("Allow submissions from") or "")
-    task.update({
-        "dibuka": ts_to_iso(open_ts),
-        "deadline": ts_to_iso(due_ts),
-        "deadline_ts": due_ts,
-        "tanggal_asli": dates,
-        "status": parse_assign(soup) if task["module"] == "assign" else parse_quiz(soup),
-    })
+        dates.get("Opened") or dates.get("Opens") or dates.get("Allow submissions from") or ""
+    )
+    task.update(
+        {
+            "dibuka": ts_to_iso(open_ts),
+            "deadline": ts_to_iso(due_ts),
+            "deadline_ts": due_ts,
+            "tanggal_asli": dates,
+            "status": parse_assign(soup) if task["module"] == "assign" else parse_quiz(soup),
+        }
+    )
     task["deskripsi"], task["lampiran"] = task_description(soup, client, ocr, task["cmid"])
     summarize(task, now)
     task["diperbarui"] = datetime.now(WIB).isoformat(timespec="minutes")
@@ -316,20 +352,34 @@ def write_summary(tasks: list[dict], generated: str) -> None:
     done = [t for t in tasks if t["sudah_dikumpulkan"]]
     lines = ["# Daftar Tugas & Kuis", "", f"Diperbarui: {generated} (WIB)", ""]
     for title, group in (("Belum dikumpulkan / dikerjakan", pending), ("Sudah dikumpulkan", done)):
-        lines += [f"## {title} ({len(group)})", "",
-                  "| Deadline | Mata kuliah | Tugas | Status |", "|---|---|---|---|"]
+        lines += [
+            f"## {title} ({len(group)})",
+            "",
+            "| Deadline | Mata kuliah | Tugas | Status |",
+            "|---|---|---|---|",
+        ]
         lines += [row(t) for t in group] + [""]
     lines += ["## Detail", ""]
     for t in tasks:
-        lines += [f"### {t['matkul']} — {t['judul']}", "",
-                  f"- Jenis: {t['jenis']}", f"- Pertemuan: {t['pertemuan'] or '-'} ({t['section']})",
-                  f"- Dibuka: {t.get('dibuka') or '-'}", f"- Deadline: {t.get('deadline') or '-'}",
-                  f"- Status: {t['status_ringkas']}", f"- Link: {t['url']}", ""]
+        lines += [
+            f"### {t['matkul']} — {t['judul']}",
+            "",
+            f"- Jenis: {t['jenis']}",
+            f"- Pertemuan: {t['pertemuan'] or '-'} ({t['section']})",
+            f"- Dibuka: {t.get('dibuka') or '-'}",
+            f"- Deadline: {t.get('deadline') or '-'}",
+            f"- Status: {t['status_ringkas']}",
+            f"- Link: {t['url']}",
+            "",
+        ]
         if t["status"].get("file_dikumpulkan"):
             lines += ["File dikumpulkan: " + ", ".join(t["status"]["file_dikumpulkan"]), ""]
         if t.get("deskripsi"):
             lines += ["**Soal:**", "", t["deskripsi"], ""]
-        lines += [f"Lampiran: {a['nama']} ({a.get('markdown') or a['path']})" for a in t.get("lampiran", [])]
+        lines += [
+            f"Lampiran: {a['nama']} ({a.get('markdown') or a['path']})"
+            for a in t.get("lampiran", [])
+        ]
     write_text_atomic(SUMMARY_FILE, "\n".join(lines) + "\n")
 
 
@@ -352,8 +402,12 @@ def run(course_ids: list[str] | None = None) -> int:
             for task in found:
                 try:
                     tasks.append(fetch_task(client, task, deadlines, ocr, now))
-                    log.info("  - %-45s %-17s %s", task["judul"][:45], task["deadline"] or "-",
-                             task["status_ringkas"])
+                    log.info(
+                        "  - %-45s %-17s %s",
+                        task["judul"][:45],
+                        task["deadline"] or "-",
+                        task["status_ringkas"],
+                    )
                 except LoginRequired:
                     raise
                 except Exception as e:
@@ -371,12 +425,17 @@ def run(course_ids: list[str] | None = None) -> int:
 
     if course_ids:  # sebagian mata kuliah diperbarui: pertahankan data mata kuliah lain
         updated = {t["cmid"] for t in tasks}
-        tasks += [t for cmid, t in previous.items()
-                  if cmid not in updated and t["course_id"] not in set(course_ids)]
+        tasks += [
+            t
+            for cmid, t in previous.items()
+            if cmid not in updated and t["course_id"] not in set(course_ids)
+        ]
     tasks.sort(key=lambda t: (t["sudah_dikumpulkan"], t.get("deadline_ts") or NO_DEADLINE))
     generated = datetime.now(WIB).isoformat(timespec="minutes")
     write_json(ASSIGNMENTS_FILE, {"diperbarui": generated, "tugas": tasks})
     write_summary(tasks, generated)
     pending = sum(not t["sudah_dikumpulkan"] for t in tasks)
-    log.info("\n[selesai] %d tugas/kuis, %d belum dikumpulkan, %d error.", len(tasks), pending, errors)
+    log.info(
+        "\n[selesai] %d tugas/kuis, %d belum dikumpulkan, %d error.", len(tasks), pending, errors
+    )
     return EXIT_ERROR if errors else EXIT_OK

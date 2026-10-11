@@ -43,12 +43,14 @@ TEXT_EXTS = {".md", ".txt"}
 HTML_EXTS = {".html", ".htm"}
 SUPPORTED_EXTS = ANYDOC_EXTS | TEXT_EXTS | HTML_EXTS | {".pdf", ".pptx"}
 
-OCR_MIN_CHARS = 200        # halaman dengan teks sesedikit ini...
+OCR_MIN_CHARS = 200  # halaman dengan teks sesedikit ini...
 OCR_MIN_IMAGE_AREA = 0.15  # ...dan gambar >= 15% luas halaman di-OCR
 
-_NS = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main",
-       "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
-       "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"}
+_NS = {
+    "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
+    "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+}
 
 
 # ------------------------------ PDF ------------------------------------------
@@ -56,8 +58,10 @@ def _needs_ocr(page) -> bool:
     if len(page.get_text().strip()) >= OCR_MIN_CHARS:
         return False
     area = page.rect.width * page.rect.height
-    return any((i["bbox"][2] - i["bbox"][0]) * (i["bbox"][3] - i["bbox"][1]) >= OCR_MIN_IMAGE_AREA * area
-               for i in page.get_image_info())
+    return any(
+        (i["bbox"][2] - i["bbox"][0]) * (i["bbox"][3] - i["bbox"][1]) >= OCR_MIN_IMAGE_AREA * area
+        for i in page.get_image_info()
+    )
 
 
 def pdf_to_markdown(path: Path) -> tuple[str, str]:
@@ -67,14 +71,21 @@ def pdf_to_markdown(path: Path) -> tuple[str, str]:
     doc = pymupdf.open(path)
     ocr_pages = [i for i, page in enumerate(doc) if _needs_ocr(page)]
     with contextlib.redirect_stdout(io.StringIO()):  # pymupdf4llm mencetak log ke stdout
-        pages = {p["metadata"]["page_number"]: p["text"]
-                 for p in pymupdf4llm.to_markdown(doc, page_chunks=True, use_ocr=False)}
+        pages = {
+            p["metadata"]["page_number"]: p["text"]
+            for p in pymupdf4llm.to_markdown(doc, page_chunks=True, use_ocr=False)
+        }
         if ocr_pages:
-            for p in pymupdf4llm.to_markdown(doc, pages=ocr_pages, page_chunks=True, force_ocr=True):
+            for p in pymupdf4llm.to_markdown(
+                doc, pages=ocr_pages, page_chunks=True, force_ocr=True
+            ):
                 pages[p["metadata"]["page_number"]] = p["text"]
     ocr_numbers = {i + 1 for i in ocr_pages}
-    parts = [f"<!-- halaman {n}{' (OCR)' if n in ocr_numbers else ''} -->\n\n{text}"
-             for n, text in sorted(pages.items()) if text.strip()]
+    parts = [
+        f"<!-- halaman {n}{' (OCR)' if n in ocr_numbers else ''} -->\n\n{text}"
+        for n, text in sorted(pages.items())
+        if text.strip()
+    ]
     converter = f"pymupdf4llm+ocr({len(ocr_pages)} hal)" if ocr_pages else "pymupdf4llm"
     return "\n\n".join(parts), converter
 
@@ -88,20 +99,30 @@ def _slide_text(root, skip_placeholders: tuple[str, ...] = ()) -> tuple[str | No
         if ph_type in skip_placeholders:
             continue
         for para in shape.iterfind(".//a:p", _NS):
-            text = re.sub(r"\s+", " ", "".join(t.text or "" for t in para.iter(f"{{{_NS['a']}}}t"))).strip()
+            text = re.sub(
+                r"\s+", " ", "".join(t.text or "" for t in para.iter(f"{{{_NS['a']}}}t"))
+            ).strip()
             if not text:
                 continue
             if ph_type in ("title", "ctrTitle") and title is None:
                 title = text
                 continue
             ppr = para.find("a:pPr", _NS)
-            bullet = ppr is not None and (ppr.find("a:buChar", _NS) is not None
-                                          or ppr.find("a:buAutoNum", _NS) is not None)
+            bullet = ppr is not None and (
+                ppr.find("a:buChar", _NS) is not None or ppr.find("a:buAutoNum", _NS) is not None
+            )
             level = int(ppr.get("lvl", 0)) if ppr is not None else 0
             lines.append(("  " * level + "- " if bullet else "") + text)
     for table in root.iter(f"{{{_NS['a']}}}tbl"):
-        rows = [["".join(t.text or "" for t in cell.iter(f"{{{_NS['a']}}}t")).strip().replace("|", "/")
-                 for cell in tr.iterfind("a:tc", _NS)] for tr in table.iterfind("a:tr", _NS)]
+        rows = [
+            [
+                "".join(t.text or "" for t in cell.iter(f"{{{_NS['a']}}}t"))
+                .strip()
+                .replace("|", "/")
+                for cell in tr.iterfind("a:tc", _NS)
+            ]
+            for tr in table.iterfind("a:tr", _NS)
+        ]
         if rows:
             lines += ["", "| " + " | ".join(rows[0]) + " |", "|" + "---|" * len(rows[0])]
             lines += ["| " + " | ".join(r) + " |" for r in rows[1:]]
@@ -113,22 +134,28 @@ def pptx_to_markdown(path: Path) -> tuple[str, str]:
         presentation = ET.fromstring(z.read("ppt/presentation.xml"))
         rels = ET.fromstring(z.read("ppt/_rels/presentation.xml.rels"))
         targets = {r.get("Id"): r.get("Target") for r in rels}
-        slide_paths = [posixpath.normpath(posixpath.join("ppt", targets[s.get(f"{{{_NS['r']}}}id")]))
-                       for s in presentation.find("p:sldIdLst", _NS)]
+        slide_paths = [
+            posixpath.normpath(posixpath.join("ppt", targets[s.get(f"{{{_NS['r']}}}id")]))
+            for s in presentation.find("p:sldIdLst", _NS)
+        ]
         names = set(z.namelist())
         parts = []
         for number, slide_path in enumerate(slide_paths, 1):
             title, lines = _slide_text(ET.fromstring(z.read(slide_path)))
             notes: list[str] = []
-            rel_path = posixpath.join(posixpath.dirname(slide_path), "_rels",
-                                      posixpath.basename(slide_path) + ".rels")
+            rel_path = posixpath.join(
+                posixpath.dirname(slide_path), "_rels", posixpath.basename(slide_path) + ".rels"
+            )
             if rel_path in names:
                 for rel in ET.fromstring(z.read(rel_path)):
                     if rel.get("Type", "").endswith("/notesSlide"):
                         notes_path = posixpath.normpath(
-                            posixpath.join(posixpath.dirname(slide_path), rel.get("Target")))
-                        _, notes = _slide_text(ET.fromstring(z.read(notes_path)),
-                                               skip_placeholders=("sldImg", "sldNum"))
+                            posixpath.join(posixpath.dirname(slide_path), rel.get("Target"))
+                        )
+                        _, notes = _slide_text(
+                            ET.fromstring(z.read(notes_path)),
+                            skip_placeholders=("sldImg", "sldNum"),
+                        )
             if not (title or lines or notes):
                 continue
             block = [f"<!-- slide {number} -->", "", f"## {title}" if title else "", *lines]
@@ -145,7 +172,10 @@ def convert_file(path: Path) -> tuple[str, str]:
     if ext in TEXT_EXTS:
         md, converter = path.read_text(encoding="utf-8"), "salin"
     elif ext in HTML_EXTS:
-        md, converter = html_to_markdown(path.read_text(encoding="utf-8", errors="replace")), "markdownify"
+        md, converter = (
+            html_to_markdown(path.read_text(encoding="utf-8", errors="replace")),
+            "markdownify",
+        )
     elif ext == ".pdf":
         md, converter = pdf_to_markdown(path)
     elif ext == ".pptx":
@@ -170,15 +200,30 @@ def iter_sources(manifest: dict):
                 "pertemuan": meeting_number(section["section"], section["index"]),
             }
             if section.get("summary"):
-                yield {**base, "title": f"Deskripsi: {section['section']}", "type": "deskripsi",
-                       "activity_url": section.get("url"), **_file_meta(section["summary"])}
+                yield {
+                    **base,
+                    "title": f"Deskripsi: {section['section']}",
+                    "type": "deskripsi",
+                    "activity_url": section.get("url"),
+                    **_file_meta(section["summary"]),
+                }
             for f in section.get("summary_files", []):
-                yield {**base, "title": Path(f["path"]).stem, "type": "lampiran-deskripsi",
-                       "activity_url": section.get("url"), **_file_meta(f)}
+                yield {
+                    **base,
+                    "title": Path(f["path"]).stem,
+                    "type": "lampiran-deskripsi",
+                    "activity_url": section.get("url"),
+                    **_file_meta(f),
+                }
             for item in section["items"]:
                 for f in item["files"]:
-                    yield {**base, "title": item["title"], "type": item["type"],
-                           "activity_url": item["activity_url"], **_file_meta(f)}
+                    yield {
+                        **base,
+                        "title": item["title"],
+                        "type": item["type"],
+                        "activity_url": item["activity_url"],
+                        **_file_meta(f),
+                    }
 
 
 def _file_meta(f: dict) -> dict:
@@ -192,7 +237,11 @@ def _meta_hash(meta: dict) -> str:
 
 def front_matter(meta: dict) -> str:
     # String JSON juga string YAML yang valid (aman untuk judul berisi ":").
-    return "---\n" + "\n".join(f"{k}: {json.dumps(v, ensure_ascii=False)}" for k, v in meta.items()) + "\n---\n\n"
+    return (
+        "---\n"
+        + "\n".join(f"{k}: {json.dumps(v, ensure_ascii=False)}" for k, v in meta.items())
+        + "\n---\n\n"
+    )
 
 
 def output_path(source_file: str) -> Path:
@@ -203,8 +252,18 @@ def output_path(source_file: str) -> Path:
 
 
 # ------------------------------ entry point ----------------------------------
-FRONT_MATTER_KEYS = ("course_id", "course", "pertemuan", "section", "section_index", "title",
-                     "type", "source_file", "source_url", "activity_url")
+FRONT_MATTER_KEYS = (
+    "course_id",
+    "course",
+    "pertemuan",
+    "section",
+    "section_index",
+    "title",
+    "type",
+    "source_file",
+    "source_url",
+    "activity_url",
+)
 
 
 def run(force: bool = False) -> int:
@@ -244,8 +303,10 @@ def run(force: bool = False) -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(front_matter(fields) + md + "\n", encoding="utf-8")
         index[meta["source_file"]] = {
-            "output": out.relative_to(MARKDOWN_DIR).as_posix(), "converter": converter,
-            "words": len(md.split()), "meta_hash": meta_hash,
+            "output": out.relative_to(MARKDOWN_DIR).as_posix(),
+            "converter": converter,
+            "words": len(md.split()),
+            "meta_hash": meta_hash,
             "converted_at": datetime.now().isoformat(timespec="seconds"),
         }
         converted += 1
@@ -258,8 +319,13 @@ def run(force: bool = False) -> int:
             log.info("[hapus] %s", entry["output"])
 
     write_json(INDEX_FILE, index)
-    log.info("\n[selesai] %d dikonversi, %d tidak berubah, %d gagal (%.0f dtk).",
-             converted, unchanged, len(failed), time.time() - started)
+    log.info(
+        "\n[selesai] %d dikonversi, %d tidak berubah, %d gagal (%.0f dtk).",
+        converted,
+        unchanged,
+        len(failed),
+        time.time() - started,
+    )
     for source_file, error in failed:
         log.info("  gagal: %s -> %s", source_file, error)
     return 1 if failed else 0

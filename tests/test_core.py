@@ -10,7 +10,9 @@ def test_safe_name_windows_rules():
 
 
 def test_safe_filename_keeps_extension():
-    name = safe_filename("Materi Kuliah Yang Sangat Panjang Sekali Sampai Melebihi Batas Enam Puluh.PDF")
+    name = safe_filename(
+        "Materi Kuliah Yang Sangat Panjang Sekali Sampai Melebihi Batas Enam Puluh.PDF"
+    )
     assert name.endswith(".pdf")
     assert len(name) <= 60
 

@@ -24,8 +24,13 @@ def _run_step(name: str, *args: str) -> int:
     started = time.time()
     try:
         proc = subprocess.run(
-            [sys.executable, "-m", "edupad", *args], cwd=BASE_DIR, timeout=STEP_TIMEOUT,
-            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            [sys.executable, "-m", "edupad", *args],
+            cwd=BASE_DIR,
+            timeout=STEP_TIMEOUT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),  # Windows Task Scheduler
         )
     except subprocess.TimeoutExpired:
@@ -36,8 +41,13 @@ def _run_step(name: str, *args: str) -> int:
             log.info("    %s", line.strip())
     for line in proc.stderr.strip().splitlines()[-5:]:
         log.info("    %s", line.strip())
-    log.info("[%s] %s selesai dalam %.0f detik (kode %d)",
-             "ok" if proc.returncode == EXIT_OK else "!", name, time.time() - started, proc.returncode)
+    log.info(
+        "[%s] %s selesai dalam %.0f detik (kode %d)",
+        "ok" if proc.returncode == EXIT_OK else "!",
+        name,
+        time.time() - started,
+        proc.returncode,
+    )
     return proc.returncode
 
 

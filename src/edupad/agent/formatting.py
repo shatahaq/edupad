@@ -10,22 +10,37 @@ import re
 import textwrap
 import unicodedata
 
-MAX_SPEECH_CHARS = 450   # ~30 detik bicara
-SCREEN_COLS = 38         # LCD 2,4" 320x240, font 8x16 dengan margin
-SCREEN_TITLE_COLS = 24   # judul memakai font 2x
+MAX_SPEECH_CHARS = 450  # ~30 detik bicara
+SCREEN_COLS = 38  # LCD 2,4" 320x240, font 8x16 dengan margin
+SCREEN_TITLE_COLS = 24  # judul memakai font 2x
 SCREEN_MAX_LINES = 9
 
-_ASCII_MAP = str.maketrans({
-    "—": "-", "–": "-", "•": "-", "·": "-", "…": "...", "→": "->", "←": "<-", "≥": ">=",
-    "≤": "<=", "≠": "!=", "×": "x", "“": '"', "”": '"', "‘": "'", "’": "'",
-})
+_ASCII_MAP = str.maketrans(
+    {
+        "—": "-",
+        "–": "-",
+        "•": "-",
+        "·": "-",
+        "…": "...",
+        "→": "->",
+        "←": "<-",
+        "≥": ">=",
+        "≤": "<=",
+        "≠": "!=",
+        "×": "x",
+        "“": '"',
+        "”": '"',
+        "‘": "'",
+        "’": "'",
+    }
+)
 
 
 def strip_markdown(text: str) -> str:
-    text = re.sub(r"```.*?```", " ", text, flags=re.S)             # blok kode tidak dibacakan
-    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text)          # [teks](url) -> teks
+    text = re.sub(r"```.*?```", " ", text, flags=re.S)  # blok kode tidak dibacakan
+    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text)  # [teks](url) -> teks
     text = re.sub(r"https?://\S+", "", text)
-    text = re.sub(r"^\s*\|?\s*:?-{3,}.*$", "", text, flags=re.M)   # garis pemisah tabel
+    text = re.sub(r"^\s*\|?\s*:?-{3,}.*$", "", text, flags=re.M)  # garis pemisah tabel
     text = text.replace("|", ", ")
     text = re.sub(r"^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+", "", text, flags=re.M)
     text = re.sub(r"(\*\*|\*|`|~~)", "", text)
@@ -47,7 +62,7 @@ def clean_speech(text: str) -> str:
     if len(text) > MAX_SPEECH_CHARS:
         cut = text[:MAX_SPEECH_CHARS]
         end = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "))
-        text = cut[:end + 1] if end > MAX_SPEECH_CHARS // 3 else cut.rsplit(" ", 1)[0] + "."
+        text = cut[: end + 1] if end > MAX_SPEECH_CHARS // 3 else cut.rsplit(" ", 1)[0] + "."
     return text.strip()
 
 
@@ -75,7 +90,7 @@ def fit_screen(title: str, lines: list[str]) -> dict:
         parts = textwrap.wrap(line, SCREEN_COLS - 2) or [""]
         wrapped += [f"- {parts[0]}"] + [f"  {p}" for p in parts[1:]]
     if len(wrapped) > SCREEN_MAX_LINES:
-        wrapped = wrapped[:SCREEN_MAX_LINES - 1] + ["  ..."]
+        wrapped = wrapped[: SCREEN_MAX_LINES - 1] + ["  ..."]
     return {"title": title, "title_size": title_size, "lines": wrapped}
 
 
@@ -87,11 +102,15 @@ def fallback_answer(markdown: str) -> dict:
     parts = re.split(r"(?im)^\s*layar\s*:", markdown, maxsplit=1)
     spoken = re.split(r"(?im)^\s*sumber\s*:", parts[0], maxsplit=1)[0]
     if len(parts) == 1:
-        plain = [ln for ln in (to_display_text(x) for x in strip_markdown(spoken).splitlines()) if ln]
+        plain = [
+            ln for ln in (to_display_text(x) for x in strip_markdown(spoken).splitlines()) if ln
+        ]
         title, lines = (plain[0] if plain else "EduPad"), plain[1:SCREEN_MAX_LINES]
     else:
         screen_text = re.split(r"(?im)^\s*sumber\s*:", parts[1], maxsplit=1)[0]
-        items = re.split(r"\n|\s\|\s|\.\s", screen_text)  # dipecah sebelum strip_markdown mengganti "|"
+        items = re.split(
+            r"\n|\s\|\s|\.\s", screen_text
+        )  # dipecah sebelum strip_markdown mengganti "|"
         lines = [ln for ln in (to_display_text(strip_markdown(x)) for x in items) if ln]
         title = "EduPad"
     return {

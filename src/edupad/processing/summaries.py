@@ -41,16 +41,29 @@ def _hash(text: str, model: str) -> str:
 def summarize_text(course: str, meeting: str, text: str) -> dict:
     settings = get_settings()
     response = requests.post(
-        f"{DEEPSEEK_URL}/chat/completions", timeout=180,
+        f"{DEEPSEEK_URL}/chat/completions",
+        timeout=180,
         headers={"Authorization": f"Bearer {settings.llm_api_key}"},
-        json={"model": settings.llm_model, "response_format": {"type": "json_object"},
-              "messages": [{"role": "user", "content": PROMPT.format(
-                  course=course, meeting=meeting, text=text[:MAX_INPUT_CHARS])}]})
+        json={
+            "model": settings.llm_model,
+            "response_format": {"type": "json_object"},
+            "messages": [
+                {
+                    "role": "user",
+                    "content": PROMPT.format(
+                        course=course, meeting=meeting, text=text[:MAX_INPUT_CHARS]
+                    ),
+                }
+            ],
+        },
+    )
     response.raise_for_status()
     data = json.loads(response.json()["choices"][0]["message"]["content"])
-    return {"ringkasan": str(data.get("ringkasan") or "").strip(),
-            "topik": [str(t) for t in data.get("topik") or []],
-            "ada_contoh_kode": bool(data.get("ada_contoh_kode"))}
+    return {
+        "ringkasan": str(data.get("ringkasan") or "").strip(),
+        "topik": [str(t) for t in data.get("topik") or []],
+        "ada_contoh_kode": bool(data.get("ada_contoh_kode")),
+    }
 
 
 def get_summary(course_id: str, meeting: str) -> dict | None:
@@ -87,5 +100,7 @@ def run(force: bool = False) -> int:
             made += 1
             log.info("  [ringkas] %s p%s", course["matkul"], meeting)
     write_json(SUMMARIES_FILE, new)
-    log.info("[selesai] ringkasan pertemuan: %d dibuat, %d tidak berubah, %d gagal", made, kept, failed)
+    log.info(
+        "[selesai] ringkasan pertemuan: %d dibuat, %d tidak berubah, %d gagal", made, kept, failed
+    )
     return EXIT_ERROR if failed else EXIT_OK

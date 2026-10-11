@@ -14,8 +14,13 @@ from edupad.config import MOODLE_SESSION_FILE, MOODLE_URL, REQUEST_DELAY, REQUES
 from edupad.core.session import cookie_session, persist_cookie_updates
 from edupad.errors import LoginRequired
 
-_LOGIN_ERRORS = {"servicerequireslogin", "requireloginerror", "sessionexpired",
-                 "invalidsesskey", "requirelogin"}
+_LOGIN_ERRORS = {
+    "servicerequireslogin",
+    "requireloginerror",
+    "sessionexpired",
+    "invalidsesskey",
+    "requirelogin",
+}
 
 
 class MoodleError(RuntimeError):
@@ -34,8 +39,9 @@ class MoodleClient:
         return self._sesskey
 
     def fetch_sesskey(self) -> str:
-        r = self.http.get(f"{MOODLE_URL}/my/courses.php", timeout=REQUEST_TIMEOUT,
-                          allow_redirects=False)
+        r = self.http.get(
+            f"{MOODLE_URL}/my/courses.php", timeout=REQUEST_TIMEOUT, allow_redirects=False
+        )
         if r.status_code in (301, 302, 303) or "/login/" in r.url:
             raise LoginRequired(f"diarahkan ke {r.headers.get('location', 'halaman login')}")
         m = re.search(r'"sesskey":"(\w+)"', r.text)
@@ -48,7 +54,8 @@ class MoodleClient:
         r = self.http.post(
             f"{MOODLE_URL}/lib/ajax/service.php?sesskey={self.sesskey}&info={method}",
             json=[{"index": 0, "methodname": method, "args": args or {}}],
-            timeout=REQUEST_TIMEOUT, allow_redirects=False,
+            timeout=REQUEST_TIMEOUT,
+            allow_redirects=False,
         )
         if r.status_code != 200:
             raise LoginRequired(f"HTTP {r.status_code} dari {method}")
@@ -61,7 +68,8 @@ class MoodleClient:
             exc = result.get("exception", {})
             error = exc.get("errorcode", "")
             raise (LoginRequired if error in _LOGIN_ERRORS else MoodleError)(
-                f"{method}: {error} {exc.get('message', '')}".strip())
+                f"{method}: {error} {exc.get('message', '')}".strip()
+            )
         return result.get("data")
 
     def get_page(self, url: str) -> str:
@@ -73,10 +81,14 @@ class MoodleClient:
         return r.text
 
     def enrolled_courses(self) -> list[dict]:
-        data = self.call("core_course_get_enrolled_courses_by_timeline_classification",
-                         {"offset": 0, "limit": 0, "classification": "all", "sort": "fullname"})
-        return [{"id": str(c["id"]), "name": unescape(c["fullname"]).strip(), "url": c["viewurl"]}
-                for c in data["courses"]]
+        data = self.call(
+            "core_course_get_enrolled_courses_by_timeline_classification",
+            {"offset": 0, "limit": 0, "classification": "all", "sort": "fullname"},
+        )
+        return [
+            {"id": str(c["id"]), "name": unescape(c["fullname"]).strip(), "url": c["viewurl"]}
+            for c in data["courses"]
+        ]
 
     def save_cookies(self) -> None:
         persist_cookie_updates(MOODLE_SESSION_FILE, self.http)

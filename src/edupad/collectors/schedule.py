@@ -55,14 +55,19 @@ def login_with_browser() -> None:
         page.goto(f"{SATU_URL}/home", wait_until="domcontentloaded")
         log.info('[..] Login portal SATU di jendela browser (centang "Ingat saya"), maks. 5 menit.')
         try:
-            page.wait_for_url(lambda u: u.startswith(SATU_URL) and "/auth/" not in u,
-                              timeout=LOGIN_TIMEOUT_MS)
+            page.wait_for_url(
+                lambda u: u.startswith(SATU_URL) and "/auth/" not in u, timeout=LOGIN_TIMEOUT_MS
+            )
         except PlaywrightTimeoutError:
             raise LoginRequired("login portal SATU tidak selesai") from None
         page.wait_for_load_state("networkidle")
         # login_at ikut disimpan agar umur sesi terukur walau file disalin ke server
-        save_cookies(SATU_SESSION_FILE, context.cookies(), page.evaluate("navigator.userAgent"),
-                     login_at=now_iso())
+        save_cookies(
+            SATU_SESSION_FILE,
+            context.cookies(),
+            page.evaluate("navigator.userAgent"),
+            login_at=now_iso(),
+        )
         context.close()
     log.info("[ok] Sesi SATU tersimpan di %s", SATU_SESSION_FILE)
 
@@ -85,10 +90,17 @@ def silent_relogin(http: requests.Session) -> dict:
     melewati Keycloak sehingga batas menganggurnya ter-reset, tanpa password.
     """
     csrf = get_json(http, "/app/auth/csrf")["csrfToken"]
-    r = http.post(f"{SATU_URL}/app/auth/signin/keycloak", timeout=REQUEST_TIMEOUT, allow_redirects=False,
-                  data={"csrfToken": csrf, "callbackUrl": f"{SATU_URL}/home", "json": "true"})
-    auth_url = (r.json().get("url") if "json" in r.headers.get("content-type", "")
-                else r.headers.get("location"))
+    r = http.post(
+        f"{SATU_URL}/app/auth/signin/keycloak",
+        timeout=REQUEST_TIMEOUT,
+        allow_redirects=False,
+        data={"csrfToken": csrf, "callbackUrl": f"{SATU_URL}/home", "json": "true"},
+    )
+    auth_url = (
+        r.json().get("url")
+        if "json" in r.headers.get("content-type", "")
+        else r.headers.get("location")
+    )
     if not auth_url or "/protocol/openid-connect/auth" not in auth_url:
         raise ValueError(f"alur signin portal SATU tidak dikenali (HTTP {r.status_code})")
     r = http.get(auth_url, timeout=REQUEST_TIMEOUT, allow_redirects=True)
@@ -99,7 +111,9 @@ def silent_relogin(http: requests.Session) -> dict:
 
 def get_json(http: requests.Session, path: str, token: str | None = None) -> dict:
     headers = {"Authorization": f"Bearer {token}"} if token else {}
-    r = http.get(f"{SATU_URL}{path}", headers=headers, timeout=REQUEST_TIMEOUT, allow_redirects=False)
+    r = http.get(
+        f"{SATU_URL}{path}", headers=headers, timeout=REQUEST_TIMEOUT, allow_redirects=False
+    )
     time.sleep(1)
     if r.status_code in (301, 302, 303, 307, 401, 403):
         raise LoginRequired(f"HTTP {r.status_code} dari {path}")
@@ -146,7 +160,9 @@ def fetch_schedule(http: requests.Session) -> dict:
     token = session.get("accessToken")
 
     schedule = get_json(http, f"/app/proxy/study-card/schedule/nim/{nim}", token)
-    classes = [simplify_class(c) for group in schedule.get("data") or [] for c in group.get("data") or []]
+    classes = [
+        simplify_class(c) for group in schedule.get("data") or [] for c in group.get("data") or []
+    ]
     order = {day: i for i, day in enumerate(DAYS)}
     classes.sort(key=lambda k: (order.get(k["hari"], 99), k["mulai"] or "99"))
 
@@ -172,18 +188,28 @@ def write_summary(result: dict) -> None:
         rows = [k for k in result["kelas"] if k["hari"] == day and k["mulai"]]
         if not rows:
             continue
-        lines += [f"## {day.capitalize()}", "", "| Jam | Mata kuliah | Kelas | Ruang | Dosen |",
-                  "|---|---|---|---|---|"]
-        lines += [f"| {k['mulai']}–{k['selesai']} | {k['matkul']} ({k['kode']}) | {k['kelas']} "
-                  f"| {k['ruang']} | {', '.join(k['dosen'])} |" for k in rows]
+        lines += [
+            f"## {day.capitalize()}",
+            "",
+            "| Jam | Mata kuliah | Kelas | Ruang | Dosen |",
+            "|---|---|---|---|---|",
+        ]
+        lines += [
+            f"| {k['mulai']}–{k['selesai']} | {k['matkul']} ({k['kode']}) | {k['kelas']} "
+            f"| {k['ruang']} | {', '.join(k['dosen'])} |"
+            for k in rows
+        ]
         lines.append("")
     unscheduled = [k for k in result["kelas"] if not k["hari"] or not k["mulai"]]
     if unscheduled:
         lines += ["## Tanpa jadwal tetap", ""]
         lines += [f"- {k['matkul']} ({k['kode']})" for k in unscheduled] + [""]
     lines += ["## Presensi", "", "| Mata kuliah | Hadir | Persen |", "|---|---|---|"]
-    lines += [f"| {p['matkul']} ({p['kelas']}) | {p['hadir']}/{p['pertemuan_tercatat']} "
-              f"| {p['persen_hadir']}% |" for p in result["presensi"]]
+    lines += [
+        f"| {p['matkul']} ({p['kelas']}) | {p['hadir']}/{p['pertemuan_tercatat']} "
+        f"| {p['persen_hadir']}% |"
+        for p in result["presensi"]
+    ]
     write_text_atomic(SUMMARY_FILE, "\n".join(lines) + "\n")
 
 
@@ -207,8 +233,11 @@ def _run(login: bool) -> int:
         result = fetch_schedule(http)
         persist_cookie_updates(SATU_SESSION_FILE, http)
     except LoginRequired as e:
-        log.error("[x] %s. Jadwal terakhir tetap dipakai; login ulang saat KRS berubah: "
-                  "python -m edupad schedule --login", e)
+        log.error(
+            "[x] %s. Jadwal terakhir tetap dipakai; login ulang saat KRS berubah: "
+            "python -m edupad schedule --login",
+            e,
+        )
         report_login_expired(SATU, "pengambil jadwal")
         return EXIT_LOGIN_REQUIRED
     except requests.RequestException as e:
@@ -218,6 +247,10 @@ def _run(login: bool) -> int:
 
     write_json(SCHEDULE_FILE, result)
     write_summary(result)
-    log.info("[selesai] %d kelas, %d data presensi. Sesi SATU berlaku sampai %s",
-             len(result["kelas"]), len(result["presensi"]), result["sesi_berlaku_sampai"])
+    log.info(
+        "[selesai] %d kelas, %d data presensi. Sesi SATU berlaku sampai %s",
+        len(result["kelas"]),
+        len(result["presensi"]),
+        result["sesi_berlaku_sampai"],
+    )
     return EXIT_OK

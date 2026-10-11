@@ -4,8 +4,16 @@ from edupad.core.session import load_cookies, persist_cookie_updates, save_cooki
 
 
 def _cookie(name: str, value: str) -> dict:
-    return {"name": name, "value": value, "domain": "satu.usu.ac.id", "path": "/",
-            "expires": -1, "httpOnly": True, "secure": True, "sameSite": "Lax"}
+    return {
+        "name": name,
+        "value": value,
+        "domain": "satu.usu.ac.id",
+        "path": "/",
+        "expires": -1,
+        "httpOnly": True,
+        "secure": True,
+        "sameSite": "Lax",
+    }
 
 
 def test_persist_cookie_updates_tracks_changed_added_and_removed(tmp_path):

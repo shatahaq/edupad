@@ -66,26 +66,41 @@ def run(force: bool = False) -> int:
     try:
         db = SupabaseClient()
         user = f"eq.{settings.user_id}"
-        existing = {} if force else {
-            row["id"]: row["content_hash"] for row in db.select(TABLE, "id,content_hash", user_id=user)}
+        existing = (
+            {}
+            if force
+            else {
+                row["id"]: row["content_hash"]
+                for row in db.select(TABLE, "id,content_hash", user_id=user)
+            }
+        )
 
         pending = [c for c in chunks if existing.get(c["id"]) != content_hash(c)]
         for start in range(0, len(pending), BATCH_SIZE):
-            batch = pending[start:start + BATCH_SIZE]
+            batch = pending[start : start + BATCH_SIZE]
             vectors = embed_passages([c["teks_embedding"] for c in batch])
-            db.upsert(TABLE, [to_row(c, settings.user_id, v) for c, v in zip(batch, vectors, strict=True)],
-                      on_conflict="user_id,id")
+            db.upsert(
+                TABLE,
+                [to_row(c, settings.user_id, v) for c, v in zip(batch, vectors, strict=True)],
+                on_conflict="user_id,id",
+            )
             log.info("  %d/%d chunk di-embed & diunggah", start + len(batch), len(pending))
 
         current = {c["id"] for c in chunks}
         stale = sorted(set(existing) - current)
         for start in range(0, len(stale), 100):
-            ids = ",".join(stale[start:start + 100])
+            ids = ",".join(stale[start : start + 100])
             db.delete(TABLE, user_id=user, id=f"in.({ids})")
     except (SupabaseError, EmbeddingError) as e:
         log.error("[x] %s", e)
         return EXIT_ERROR
 
-    log.info("[selesai] %d chunk: %d baru/berubah, %d tidak berubah, %d dihapus (model %s)",
-             len(chunks), len(pending), len(chunks) - len(pending), len(stale), EMBEDDING_MODEL)
+    log.info(
+        "[selesai] %d chunk: %d baru/berubah, %d tidak berubah, %d dihapus (model %s)",
+        len(chunks),
+        len(pending),
+        len(chunks) - len(pending),
+        len(stale),
+        EMBEDDING_MODEL,
+    )
     return EXIT_OK

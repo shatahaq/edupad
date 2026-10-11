@@ -197,14 +197,19 @@ def ensure_logged_in(page, interactive: bool) -> None:
     if not is_login_page(page.url):
         return
     if interactive:
-        log.info("[..] Menunggu login SSO USU di jendela browser (maks. %d menit).",
-                 LOGIN_TIMEOUT_MS // 60_000)
+        log.info(
+            "[..] Menunggu login SSO USU di jendela browser (maks. %d menit).",
+            LOGIN_TIMEOUT_MS // 60_000,
+        )
     try:
-        page.wait_for_url(lambda u: not is_login_page(u),
-                          timeout=LOGIN_TIMEOUT_MS if interactive else AUTO_SSO_TIMEOUT_MS)
+        page.wait_for_url(
+            lambda u: not is_login_page(u),
+            timeout=LOGIN_TIMEOUT_MS if interactive else AUTO_SSO_TIMEOUT_MS,
+        )
     except PlaywrightTimeoutError:
-        raise LoginRequired("login tidak selesai" if interactive
-                            else "sesi habis dan SSO tidak login otomatis") from None
+        raise LoginRequired(
+            "login tidak selesai" if interactive else "sesi habis dan SSO tidak login otomatis"
+        ) from None
     page.goto(MY_COURSES_URL, wait_until="domcontentloaded")
     if is_login_page(page.url):
         raise LoginRequired("masih di halaman login")
@@ -232,15 +237,21 @@ def enrolled_courses(page) -> list[dict]:
         sesskey = page.evaluate("M.cfg.sesskey")
         resp = page.request.post(
             f"{MOODLE_URL}/lib/ajax/service.php?sesskey={sesskey}",
-            data=[{"index": 0,
-                   "methodname": "core_course_get_enrolled_courses_by_timeline_classification",
-                   "args": {"offset": 0, "limit": 0, "classification": "all", "sort": "fullname"}}],
+            data=[
+                {
+                    "index": 0,
+                    "methodname": "core_course_get_enrolled_courses_by_timeline_classification",
+                    "args": {"offset": 0, "limit": 0, "classification": "all", "sort": "fullname"},
+                }
+            ],
         )
         result = resp.json()[0]
         if result.get("error"):
             raise RuntimeError(result.get("exception"))
-        return [{"id": str(c["id"]), "name": unescape(c["fullname"]).strip(), "url": c["viewurl"]}
-                for c in result["data"]["courses"]]
+        return [
+            {"id": str(c["id"]), "name": unescape(c["fullname"]).strip(), "url": c["viewurl"]}
+            for c in result["data"]["courses"]
+        ]
     except (PlaywrightError, RuntimeError, KeyError, IndexError, ValueError) as e:
         if is_browser_closed(e):
             raise
@@ -259,25 +270,35 @@ def _enrolled_courses_from_dom(page) -> list[dict]:
         if len(text) > len(names.get(m.group(1), "")):
             names[m.group(1)] = text
         names.setdefault(m.group(1), "")
-    return [{"id": cid, "name": name or f"course_{cid}",
-             "url": f"{MOODLE_URL}/course/view.php?id={cid}"} for cid, name in names.items()]
+    return [
+        {
+            "id": cid,
+            "name": name or f"course_{cid}",
+            "url": f"{MOODLE_URL}/course/view.php?id={cid}",
+        }
+        for cid, name in names.items()
+    ]
 
 
 # ------------------------------ sections -------------------------------------
 def _extract_sections(page, sel: dict) -> list[dict]:
-    return page.evaluate(_EXTRACT_SECTIONS_JS,
-                         [sel["section"], sel["name"], sel["activity"], sel["link"]])
+    return page.evaluate(
+        _EXTRACT_SECTIONS_JS, [sel["section"], sel["name"], sel["activity"], sel["link"]]
+    )
 
 
 def _extract_html_blocks(page) -> dict[str, dict]:
     """nomor section -> {summary: html, labels: [{id, html}]}"""
-    return page.evaluate(_EXTRACT_HTML_JS, [SEL_HTML["section"], SEL_HTML["summary"],
-                                            SEL_HTML["label"], SEL_HTML["label_content"]])
+    return page.evaluate(
+        _EXTRACT_HTML_JS,
+        [SEL_HTML["section"], SEL_HTML["summary"], SEL_HTML["label"], SEL_HTML["label_content"]],
+    )
 
 
 def label_title(html: str) -> str:
-    first = next((ln.strip("#*_ -") for ln in html_to_markdown(html).splitlines()
-                  if ln.strip("#*_ -")), "")
+    first = next(
+        (ln.strip("#*_ -") for ln in html_to_markdown(html).splitlines() if ln.strip("#*_ -")), ""
+    )
     return first[:NAME_MAXLEN] or "label"
 
 
@@ -290,9 +311,14 @@ def course_sections(page, course: dict) -> list[dict]:
 
     if not any(s["items"] for s in raw):
         # format satu-section-per-halaman (Tiles/Grid/OneTopic)
-        section_urls = sorted(set(page.eval_on_selector_all(
-            f"a[href*='course/view.php?id={course['id']}'][href*='section=']",
-            "els => els.map(e => e.href)")))
+        section_urls = sorted(
+            set(
+                page.eval_on_selector_all(
+                    f"a[href*='course/view.php?id={course['id']}'][href*='section=']",
+                    "els => els.map(e => e.href)",
+                )
+            )
+        )
         for url in section_urls:
             goto(page, url, wait_until="networkidle")
             raw.extend(_extract_sections(page, SEL_CONTENT))
@@ -305,9 +331,15 @@ def course_sections(page, course: dict) -> list[dict]:
         index = int(number) if number.isdigit() else idx
         block = html_blocks.get(number, {}) if number not in seen_numbers else {}
         seen_numbers.add(number)
-        items = [{"title": label_title(label["html"]), "type": "label",
-                  "url": f"{course['url']}#module-{label['id']}", "html": label["html"]}
-                 for label in block.get("labels", [])]
+        items = [
+            {
+                "title": label_title(label["html"]),
+                "type": "label",
+                "url": f"{course['url']}#module-{label['id']}",
+                "html": label["html"],
+            }
+            for label in block.get("labels", [])
+        ]
         for it in sec["items"]:
             href, mtype = it["href"], module_type(it["href"])
             if mtype not in MATERIAL_MODULES or href in seen_urls:
@@ -316,11 +348,15 @@ def course_sections(page, course: dict) -> list[dict]:
             items.append({"title": it["title"] or mtype, "url": href, "type": mtype})
         summary = block.get("summary", "")
         if items or summary:
-            sections.append({
-                "index": index, "section": sec["name"] or f"pertemuan_{index:02d}",
-                "items": items, "summary_html": summary,
-                "url": f"{MOODLE_URL}/course/view.php?id={course['id']}&section={number}",
-            })
+            sections.append(
+                {
+                    "index": index,
+                    "section": sec["name"] or f"pertemuan_{index:02d}",
+                    "items": items,
+                    "summary_html": summary,
+                    "url": f"{MOODLE_URL}/course/view.php?id={course['id']}&section={number}",
+                }
+            )
     return sections
 
 
@@ -340,8 +376,9 @@ class Downloader:
     def redirect_target(self, item_url: str) -> str:
         """Baca header Location dari ?redirect=1 tanpa mengikuti atau mengunduh file."""
         sep = "&" if "?" in item_url else "?"
-        resp = self.context.request.get(f"{item_url}{sep}redirect=1", max_redirects=0,
-                                        timeout=DOWNLOAD_TIMEOUT_MS)
+        resp = self.context.request.get(
+            f"{item_url}{sep}redirect=1", max_redirects=0, timeout=DOWNLOAD_TIMEOUT_MS
+        )
         time.sleep(REQUEST_DELAY)
         location = resp.headers.get("location", "")
         return urljoin(MOODLE_URL, location) if location else ""
@@ -353,11 +390,14 @@ class Downloader:
             if is_browser_closed(e):
                 raise
             # resource "force download" memicu unduhan saat dibuka
-            log.warning("      [skip] tidak bisa membuka %s: %s", item_url, e.message.splitlines()[0])
+            log.warning(
+                "      [skip] tidak bisa membuka %s: %s", item_url, e.message.splitlines()[0]
+            )
             return []
         urls = self.page.eval_on_selector_all(
             "a[href*='pluginfile.php'], object[data*='pluginfile.php'], iframe[src*='pluginfile.php']",
-            "els => els.map(e => e.href || e.data || e.src)")
+            "els => els.map(e => e.href || e.data || e.src)",
+        )
         if not urls and "pluginfile.php" in self.page.url:
             urls = [self.page.url]
         return list(dict.fromkeys(urljoin(MOODLE_URL, u) for u in urls if u))
@@ -391,7 +431,9 @@ class Downloader:
             log.warning("      [skip] HTTP %s %s", resp.status, filename)
             return None
         got_html = "text/html" in resp.headers.get("content-type", "")
-        if is_login_page(resp.url) or (got_html and not filename.lower().endswith((".html", ".htm"))):
+        if is_login_page(resp.url) or (
+            got_html and not filename.lower().endswith((".html", ".htm"))
+        ):
             raise LoginRequired(f"unduhan {filename} diarahkan ke halaman login")
 
         body = resp.body()
@@ -399,13 +441,19 @@ class Downloader:
         dest.write_bytes(body)
         self.used_paths.add(dest)
         log.info("      [%s] %s", "update" if previous else "dl", relative(dest))
-        record = {"path": relative(dest), "source_url": url, "size": len(body),
-                  "sha256": sha256_bytes(body), "downloaded_at": now_iso()}
+        record = {
+            "path": relative(dest),
+            "source_url": url,
+            "size": len(body),
+            "sha256": sha256_bytes(body),
+            "downloaded_at": now_iso(),
+        }
         self.known[key] = record
         return record
 
-    def save_html(self, html: str, title: str, source_url: str, dest_dir: Path,
-                  filename: str | None = None) -> dict | None:
+    def save_html(
+        self, html: str, title: str, source_url: str, dest_dir: Path, filename: str | None = None
+    ) -> dict | None:
         """Materi HTML (page, book, label, deskripsi section) disimpan sebagai Markdown."""
         md = html_to_markdown(html)
         if not md:
@@ -424,8 +472,13 @@ class Downloader:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(body)
             log.info("      [html] %s", relative(dest))
-        return {"path": relative(dest), "source_url": source_url, "size": len(body),
-                "sha256": sha256_bytes(body), "downloaded_at": now_iso()}
+        return {
+            "path": relative(dest),
+            "source_url": source_url,
+            "size": len(body),
+            "sha256": sha256_bytes(body),
+            "downloaded_at": now_iso(),
+        }
 
     def html_content(self, item: dict) -> str:
         if item["type"] == "book":
@@ -449,7 +502,12 @@ def linked_files(html: str) -> list[str]:
 
 
 def process_item(dl: Downloader, item: dict, dest_dir: Path) -> dict:
-    record = {"title": item["title"], "type": item["type"], "activity_url": item["url"], "files": []}
+    record = {
+        "title": item["title"],
+        "type": item["type"],
+        "activity_url": item["url"],
+        "files": [],
+    }
     kind = item["type"]
 
     if kind == "url":  # link eksternal: dicatat, tidak dibuka
@@ -498,16 +556,31 @@ def scrape_course(dl: Downloader, course: dict, stats: dict) -> dict | None:
         return None
     dl.new_course()
     course_dir = MATERIALS_DIR / f"{course['id']}_{safe_name(course['name'])}"
-    entry = {"id": course["id"], "course": course["name"], "url": course["url"],
-             "scraped_at": now_iso(), "sections": []}
+    entry = {
+        "id": course["id"],
+        "course": course["name"],
+        "url": course["url"],
+        "scraped_at": now_iso(),
+        "sections": [],
+    }
     for sec in sections:
         log.info("  - %s (%d item)", sec["section"], len(sec["items"]))
         sec_dir = course_dir / f"{sec['index']:02d}_{safe_name(sec['section'])}"
-        sec_entry = {"section": sec["section"], "index": sec["index"], "url": sec["url"],
-                     "summary": None, "items": []}
+        sec_entry = {
+            "section": sec["section"],
+            "index": sec["index"],
+            "url": sec["url"],
+            "summary": None,
+            "items": [],
+        }
         if sec["summary_html"]:
-            sec_entry["summary"] = dl.save_html(sec["summary_html"], sec["section"], sec["url"],
-                                                sec_dir, filename="00_Deskripsi pertemuan")
+            sec_entry["summary"] = dl.save_html(
+                sec["summary_html"],
+                sec["section"],
+                sec["url"],
+                sec_dir,
+                filename="00_Deskripsi pertemuan",
+            )
             stats["files"] += bool(sec_entry["summary"])
             for url in linked_files(sec["summary_html"]):
                 saved = _guard(stats, url, dl.download, url, sec_dir)
@@ -525,8 +598,12 @@ def scrape_course(dl: Downloader, course: dict, stats: dict) -> dict | None:
 
 
 # ------------------------------ entry point ----------------------------------
-def run(course_ids: list[str] | None = None, list_only: bool = False,
-        headless: bool = False, login_only: bool = False) -> int:
+def run(
+    course_ids: list[str] | None = None,
+    list_only: bool = False,
+    headless: bool = False,
+    login_only: bool = False,
+) -> int:
     try:
         lock = acquire_lock(SCRAPER_LOCK_FILE)  # noqa: F841 - dipegang sampai proses selesai
     except AlreadyRunning:
@@ -541,7 +618,8 @@ def run(course_ids: list[str] | None = None, list_only: bool = False,
 
     with sync_playwright() as p:
         context = p.chromium.launch_persistent_context(
-            str(BROWSER_PROFILE_DIR), headless=headless, accept_downloads=True)
+            str(BROWSER_PROFILE_DIR), headless=headless, accept_downloads=True
+        )
         restore_session(context)
         page = context.pages[0] if context.pages else context.new_page()
         try:
@@ -582,8 +660,13 @@ def run(course_ids: list[str] | None = None, list_only: bool = False,
             with contextlib.suppress(PlaywrightError):  # browser mungkin sudah tertutup
                 context.close()
 
-    log.info("\n[selesai] %d aktivitas, %d file tercatat, %d error. Manifest: %s",
-             stats["items"], stats["files"], stats["errors"], MANIFEST_FILE)
+    log.info(
+        "\n[selesai] %d aktivitas, %d file tercatat, %d error. Manifest: %s",
+        stats["items"],
+        stats["files"],
+        stats["errors"],
+        MANIFEST_FILE,
+    )
     if exit_code == EXIT_OK and stats["errors"]:
         return EXIT_ERROR
     return exit_code

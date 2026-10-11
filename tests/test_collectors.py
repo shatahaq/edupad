@@ -11,7 +11,9 @@ def test_file_key_ignores_revision_number():
 
 
 def test_filename_from_url_decodes():
-    url = "https://kelas.usu.ac.id/pluginfile.php/1/mod_resource/content/1/Materi%20Pertemuan%201.pdf"
+    url = (
+        "https://kelas.usu.ac.id/pluginfile.php/1/mod_resource/content/1/Materi%20Pertemuan%201.pdf"
+    )
     assert filename_from_url(url) == "Materi Pertemuan 1.pdf"
 
 
@@ -44,8 +46,11 @@ def test_parse_submitted_assignment():
 
 
 def test_unsubmitted_overdue_assignment_summary():
-    task = {"module": "assign", "deadline_ts": 100,
-            "status": parse_assign(BeautifulSoup(NOT_SUBMITTED, "html.parser"))}
+    task = {
+        "module": "assign",
+        "deadline_ts": 100,
+        "status": parse_assign(BeautifulSoup(NOT_SUBMITTED, "html.parser")),
+    }
     summarize(task, now=200)
     assert task["sudah_dikumpulkan"] is False
     assert task["status_ringkas"] == "BELUM dikumpulkan — LEWAT DEADLINE"

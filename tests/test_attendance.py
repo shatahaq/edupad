@@ -15,10 +15,18 @@ NOW = datetime(2026, 10, 1, 15, 30, tzinfo=WIB)
 
 
 def _meeting(**overrides) -> dict:
-    meeting = {"id": "m1", "meeting_count": 7, "meeting_name": "Pertemuan 7",
-               "meeting_date": "2026-10-01 15:20:00", "meeting_end_time": "2026-10-01 16:30:00",
-               "realized_learning_material": "Sitasi", "active": False, "presence": None,
-               "use_qr": True, "use_direct": True}
+    meeting = {
+        "id": "m1",
+        "meeting_count": 7,
+        "meeting_name": "Pertemuan 7",
+        "meeting_date": "2026-10-01 15:20:00",
+        "meeting_end_time": "2026-10-01 16:30:00",
+        "realized_learning_material": "Sitasi",
+        "active": False,
+        "presence": None,
+        "use_qr": True,
+        "use_direct": True,
+    }
     meeting.update(overrides)
     return meeting
 
@@ -29,7 +37,9 @@ def test_open_window_without_presence_needs_filling():
 
 
 def test_active_flag_opens_presence_outside_window():
-    assert simplify_meeting(_meeting(meeting_date=None, meeting_end_time=None, active=True), NOW)["perlu_diisi"]
+    assert simplify_meeting(_meeting(meeting_date=None, meeting_end_time=None, active=True), NOW)[
+        "perlu_diisi"
+    ]
 
 
 def test_filled_presence_is_ignored():
@@ -93,12 +103,20 @@ def portal(monkeypatch, tmp_path):
         server.sent, server.state = sent, state
         return server
 
-    klass = {"matkul": "SPK", "kode": "TIF 3 001", "kelas": "B", "moodle_course_id": "1",
-             "satu_class_id": "c1"}
+    klass = {
+        "matkul": "SPK",
+        "kode": "TIF 3 001",
+        "kelas": "B",
+        "moodle_course_id": "1",
+        "satu_class_id": "c1",
+    }
     monkeypatch.setattr(attendance, "krs_classes", lambda: [klass])
     monkeypatch.setattr(attendance, "load_cookies", lambda _: {"cookies": [{}]})
-    monkeypatch.setattr(attendance, "satu_session",
-                        lambda _: {"user": {"identity": "241712061"}, "accessToken": "t"})
+    monkeypatch.setattr(
+        attendance,
+        "satu_session",
+        lambda _: {"user": {"identity": "241712061"}, "accessToken": "t"},
+    )
     monkeypatch.setattr(attendance, "persist_cookie_updates", lambda *a: None)
     monkeypatch.setattr(attendance, "report_login_ok", lambda _: None)
     monkeypatch.setattr(attendance, "get_state", lambda _: dict(state))
@@ -132,9 +150,19 @@ def test_monitor_notifies_open_meeting_only_once(portal):
 def test_fill_posts_and_verifies_presence(portal):
     server = portal({})
     assert attendance.run(fill=True) == EXIT_OK
-    assert server.posts == [(f"{SATU_URL}/app/proxy/study-card/presence", {
-        "class_meeting_id": "m1", "class_id": "c1", "latitude": str(USU_LATITUDE),
-        "longitude": str(USU_LONGITUDE), "location": USU_LOCATION, "nim": "241712061"})]
+    assert server.posts == [
+        (
+            f"{SATU_URL}/app/proxy/study-card/presence",
+            {
+                "class_meeting_id": "m1",
+                "class_id": "c1",
+                "latitude": str(USU_LATITUDE),
+                "longitude": str(USU_LONGITUDE),
+                "location": USU_LOCATION,
+                "nim": "241712061",
+            },
+        )
+    ]
     assert len(server.sent) == 1 and server.sent[0].startswith("✅")
     saved = _written(attendance.ATTENDANCE_FILE)["mata_kuliah"][0]["pertemuan"][0]
     assert saved["status"] == "hadir" and not saved["perlu_diisi"]
@@ -150,8 +178,10 @@ def test_fill_accepted_but_not_recorded_is_reported_as_failure(portal):
     assert len(server.posts) == 2 and len(server.sent) == 1
 
 
-@pytest.mark.parametrize("error", [requests.ConnectionError("putus"), ValueError("bukan JSON"),
-                                   LoginRequired("HTTP 401")])
+@pytest.mark.parametrize(
+    "error",
+    [requests.ConnectionError("putus"), ValueError("bukan JSON"), LoginRequired("HTTP 401")],
+)
 def test_fill_error_does_not_crash(portal, error):
     server = portal({}, post_error=error)
     assert attendance.run(fill=True) == EXIT_OK
@@ -173,7 +203,9 @@ def test_dry_run_neither_posts_nor_notifies(portal):
 
 
 def test_closed_meeting_is_left_alone(portal):
-    server = portal({"presence": "hadir"}, {"id": "m2", "meeting_date": None, "meeting_end_time": None})
+    server = portal(
+        {"presence": "hadir"}, {"id": "m2", "meeting_date": None, "meeting_end_time": None}
+    )
     attendance.run(fill=True)
     assert server.posts == [] and server.sent == []
 
@@ -198,8 +230,11 @@ def test_cli_routes_fill_flags(monkeypatch):
     cli.main(["attendance"])
     cli.main(["attendance", "--fill"])
     cli.main(["attendance", "--dry-run"])
-    assert calls == [{"fill": False, "dry_run": False}, {"fill": True, "dry_run": False},
-                     {"fill": True, "dry_run": True}]
+    assert calls == [
+        {"fill": False, "dry_run": False},
+        {"fill": True, "dry_run": False},
+        {"fill": True, "dry_run": True},
+    ]
 
 
 def _failures():

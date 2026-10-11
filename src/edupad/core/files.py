@@ -14,8 +14,14 @@ from edupad.config import WIB
 
 NAME_MAXLEN = 60  # path Windows dibatasi 260 karakter
 
-_WIN_RESERVED = {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)),
-                 *(f"LPT{i}" for i in range(1, 10))}
+_WIN_RESERVED = {
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    *(f"COM{i}" for i in range(1, 10)),
+    *(f"LPT{i}" for i in range(1, 10)),
+}
 
 
 def now_iso() -> str:

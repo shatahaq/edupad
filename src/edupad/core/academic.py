@@ -15,7 +15,9 @@ def meeting_number(section: str, index: int | None) -> int | None:
 
     "Pertemuan 5-Percabangan" -> 5, "03 - Monitoring" -> 3, section 0 ("General") -> None.
     """
-    m = re.search(r"pertemuan\s*(\d+)", section or "", re.I) or re.match(r"\s*(\d+)\b", section or "")
+    m = re.search(r"pertemuan\s*(\d+)", section or "", re.I) or re.match(
+        r"\s*(\d+)\b", section or ""
+    )
     if m:
         return int(m.group(1))
     return index or None

@@ -66,7 +66,10 @@ def _parse_time(value: str | None) -> datetime | None:
 
 
 def simplify_meeting(meeting: dict, now: datetime) -> dict:
-    start, end = _parse_time(meeting.get("meeting_date")), _parse_time(meeting.get("meeting_end_time"))
+    start, end = (
+        _parse_time(meeting.get("meeting_date")),
+        _parse_time(meeting.get("meeting_end_time")),
+    )
     is_open = bool(meeting.get("active")) or bool(start and end and start <= now <= end)
     status = meeting.get("presence")
     return {
@@ -79,7 +82,11 @@ def simplify_meeting(meeting: dict, now: datetime) -> dict:
         "status": status,
         "dibuka": is_open,
         "perlu_diisi": status is None and is_open,
-        "cara": [m for m, flag in (("QR", meeting.get("use_qr")), ("langsung", meeting.get("use_direct"))) if flag],
+        "cara": [
+            m
+            for m, flag in (("QR", meeting.get("use_qr")), ("langsung", meeting.get("use_direct")))
+            if flag
+        ],
     }
 
 
@@ -89,15 +96,25 @@ def fetch_attendance(http: requests.Session, session: dict | None = None) -> lis
     now = datetime.now(WIB)
     courses = []
     for k in krs_classes():
-        data = get_json(http, f"/app/proxy/study-card/presence/{k['satu_class_id']}/{nim}", token)["data"]
-        meetings = [simplify_meeting(m, now)
-                    for group in data.get("presences") or [] for m in group.get("class_meeting") or []]
+        data = get_json(http, f"/app/proxy/study-card/presence/{k['satu_class_id']}/{nim}", token)[
+            "data"
+        ]
+        meetings = [
+            simplify_meeting(m, now)
+            for group in data.get("presences") or []
+            for m in group.get("class_meeting") or []
+        ]
         meetings.sort(key=lambda m: m["pertemuan"] or 0)
-        courses.append({
-            "matkul": k["matkul"], "kode": k["kode"], "kelas": k["kelas"],
-            "moodle_course_id": k["moodle_course_id"], "satu_class_id": k["satu_class_id"],
-            "pertemuan": meetings,
-        })
+        courses.append(
+            {
+                "matkul": k["matkul"],
+                "kode": k["kode"],
+                "kelas": k["kelas"],
+                "moodle_course_id": k["moodle_course_id"],
+                "satu_class_id": k["satu_class_id"],
+                "pertemuan": meetings,
+            }
+        )
     return courses
 
 
@@ -105,51 +122,91 @@ def post_form(http: requests.Session, path: str, token: str | None, fields: dict
     """POST multipart seperti FormData di browser; semua nilai dikirim sebagai string."""
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     files = {k: (None, str(v)) for k, v in fields.items()}
-    r = http.post(f"{SATU_URL}{path}", headers=headers, files=files,
-                  timeout=REQUEST_TIMEOUT, allow_redirects=False)
+    r = http.post(
+        f"{SATU_URL}{path}",
+        headers=headers,
+        files=files,
+        timeout=REQUEST_TIMEOUT,
+        allow_redirects=False,
+    )
     if r.status_code in (301, 302, 303, 307, 401):
         raise LoginRequired(f"HTTP {r.status_code} dari POST {path}")
     # isi respons ikut dicatat: alasan penolakan (mis. lokasi) ada di sana
     if r.status_code >= 400:
-        raise requests.HTTPError(f"HTTP {r.status_code} dari POST {path}: {r.text[:300]}", response=r)
+        raise requests.HTTPError(
+            f"HTTP {r.status_code} dari POST {path}: {r.text[:300]}", response=r
+        )
     try:
         return r.json()
     except ValueError:
-        raise ValueError(f"respons POST {path} bukan JSON (HTTP {r.status_code}): {r.text[:300]}") from None
+        raise ValueError(
+            f"respons POST {path} bukan JSON (HTTP {r.status_code}): {r.text[:300]}"
+        ) from None
 
 
-def fill_one(http: requests.Session, session: dict, class_id: str, meeting_id: str,
-             lat: float = USU_LATITUDE, lon: float = USU_LONGITUDE,
-             location: str = USU_LOCATION) -> dict:
-    return post_form(http, DIRECT_PRESENCE_PATH, session.get("accessToken"), {
-        "class_meeting_id": meeting_id, "class_id": class_id, "latitude": lat,
-        "longitude": lon, "location": location, "nim": session["user"]["identity"],
-    })
+def fill_one(
+    http: requests.Session,
+    session: dict,
+    class_id: str,
+    meeting_id: str,
+    lat: float = USU_LATITUDE,
+    lon: float = USU_LONGITUDE,
+    location: str = USU_LOCATION,
+) -> dict:
+    return post_form(
+        http,
+        DIRECT_PRESENCE_PATH,
+        session.get("accessToken"),
+        {
+            "class_meeting_id": meeting_id,
+            "class_id": class_id,
+            "latitude": lat,
+            "longitude": lon,
+            "location": location,
+            "nim": session["user"]["identity"],
+        },
+    )
 
 
-def fill_attendance(http: requests.Session, session: dict, courses: list[dict],
-                    lat: float = USU_LATITUDE, lon: float = USU_LONGITUDE,
-                    dry_run: bool = False) -> list[dict]:
+def fill_attendance(
+    http: requests.Session,
+    session: dict,
+    courses: list[dict],
+    lat: float = USU_LATITUDE,
+    lon: float = USU_LONGITUDE,
+    dry_run: bool = False,
+) -> list[dict]:
     """Isi presensi yang terbuka dan mendukung cara "langsung"; QR harus dipindai sendiri."""
     results = []
     for course in courses:
         for meeting in course["pertemuan"]:
             if not meeting["perlu_diisi"]:
                 continue
-            result = {"id": meeting["id"], "kode": course["kode"], "matkul": course["matkul"],
-                      "kelas": course["kelas"], "pertemuan": meeting["nama"]}
+            result = {
+                "id": meeting["id"],
+                "kode": course["kode"],
+                "matkul": course["matkul"],
+                "kelas": course["kelas"],
+                "pertemuan": meeting["nama"],
+            }
             results.append(result)
             if "langsung" not in meeting["cara"]:
                 result["status"] = QR_ONLY
                 log.info("[skip] %s %s: hanya QR", course["kode"], meeting["nama"])
             elif dry_run:
                 result["status"] = DRY_RUN
-                log.info("[dry-run] %s %s: akan diisi (%.4f, %.4f)",
-                         course["kode"], meeting["nama"], lat, lon)
+                log.info(
+                    "[dry-run] %s %s: akan diisi (%.4f, %.4f)",
+                    course["kode"],
+                    meeting["nama"],
+                    lat,
+                    lon,
+                )
             else:
                 try:
-                    result["response"] = fill_one(http, session, course["satu_class_id"],
-                                                  meeting["id"], lat, lon)
+                    result["response"] = fill_one(
+                        http, session, course["satu_class_id"], meeting["id"], lat, lon
+                    )
                     result["status"] = FILLED
                 except (requests.RequestException, ValueError, LoginRequired) as e:
                     result.update(status=ERROR, error=str(e))
@@ -164,8 +221,12 @@ def verify_filled(results: list[dict], courses: list[dict]) -> None:
         if r["status"] != FILLED:
             continue
         if status.get(r["id"]) is None:
-            r.update(status=ERROR, error="server menerima permintaan, tapi status presensi masih kosong")
-            log.warning("[!] %s %s: %s (respons: %s)", r["kode"], r["pertemuan"], r["error"], r["response"])
+            r.update(
+                status=ERROR, error="server menerima permintaan, tapi status presensi masih kosong"
+            )
+            log.warning(
+                "[!] %s %s: %s (respons: %s)", r["kode"], r["pertemuan"], r["error"], r["response"]
+            )
         else:
             log.info("[ok] %s %s: presensi terisi (%s)", r["kode"], r["pertemuan"], status[r["id"]])
 
@@ -182,18 +243,24 @@ def log_fill_failures(results: list[dict]) -> None:
             if r["status"] == QR_ONLY:
                 entry["error"] = "hanya bisa lewat QR"
             f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")
-    log.warning("[!] %d presensi gagal diisi otomatis, detail di %s", len(failures), FILL_FAILURE_LOG)
+    log.warning(
+        "[!] %d presensi gagal diisi otomatis, detail di %s", len(failures), FILL_FAILURE_LOG
+    )
 
 
 def _message(course: dict, meeting: dict, error: str | None = None) -> str:
-    end = datetime.fromisoformat(meeting["selesai"]).strftime("%H:%M") if meeting["selesai"] else None
+    end = (
+        datetime.fromisoformat(meeting["selesai"]).strftime("%H:%M") if meeting["selesai"] else None
+    )
     lines = [f"📝 Presensi dibuka: {course['matkul']} ({course['kelas']}) — {meeting['nama']}"]
     if meeting["topik"]:
         lines.append(f"Topik: {meeting['topik']}")
     if end:
         lines.append(f"Isi sebelum {end} WIB.")
     if meeting["cara"]:
-        lines.append(f"Cara: {' / '.join(meeting['cara'])} (menu Presensi Kelas di {SATU_URL.split('//')[1]})")
+        lines.append(
+            f"Cara: {' / '.join(meeting['cara'])} (menu Presensi Kelas di {SATU_URL.split('//')[1]})"
+        )
     if error:
         lines.append(f"⚠️ Gagal diisi otomatis: {error}")
     return "\n".join(lines)
@@ -214,7 +281,11 @@ def send_notifications(courses: list[dict], results: list[dict]) -> None:
     for course in courses:
         for meeting in course["pertemuan"]:
             result = by_id.get(meeting["id"], {})
-            if not meeting["perlu_diisi"] or result.get("status") == FILLED or meeting["id"] in notified:
+            if (
+                not meeting["perlu_diisi"]
+                or result.get("status") == FILLED
+                or meeting["id"] in notified
+            ):
                 continue
             if notify(_message(course, meeting, result.get("error"))):
                 notified.append(meeting["id"])
@@ -267,7 +338,14 @@ def _run(fill: bool, dry_run: bool) -> int:
     open_count = sum(m["perlu_diisi"] for c in courses for m in c["pertemuan"])
     log.info("[ok] %d kelas dicek, %d presensi perlu diisi.", len(courses), open_count)
     if fill:
-        count = {s: sum(r["status"] == s for r in results) for s in (FILLED, ERROR, QR_ONLY, DRY_RUN)}
-        log.info("[fill] %d terisi, %d gagal, %d hanya QR, %d dry-run.",
-                 count[FILLED], count[ERROR], count[QR_ONLY], count[DRY_RUN])
+        count = {
+            s: sum(r["status"] == s for r in results) for s in (FILLED, ERROR, QR_ONLY, DRY_RUN)
+        }
+        log.info(
+            "[fill] %d terisi, %d gagal, %d hanya QR, %d dry-run.",
+            count[FILLED],
+            count[ERROR],
+            count[QR_ONLY],
+            count[DRY_RUN],
+        )
     return EXIT_OK

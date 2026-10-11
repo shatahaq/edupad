@@ -80,8 +80,11 @@ def keep_moodle_alive() -> int:
     client.save_cookies()
     report_login_ok(MOODLE)
     update_state(MOODLE, sesskey=client.sesskey, timeout_seconds=after)
-    log.info("[ok] Moodle: sesi aktif. Sisa sebelum touch: %s, setelah: %s",
-             _format_duration(before), _format_duration(after))
+    log.info(
+        "[ok] Moodle: sesi aktif. Sisa sebelum touch: %s, setelah: %s",
+        _format_duration(before),
+        _format_duration(after),
+    )
     return EXIT_OK
 
 
@@ -120,7 +123,9 @@ def _keep_satu_alive() -> int:
     expired_since = get_state(SATU).get("expired_since")
     login_at = load_cookies(SATU_SESSION_FILE).get("login_at")
     # Sesi yang berakhir tidak dicoba lagi, kecuali ada login baru (mis. disalin dari laptop).
-    if expired_since and not (login_at and datetime.fromisoformat(login_at) > datetime.fromisoformat(expired_since)):
+    if expired_since and not (
+        login_at and datetime.fromisoformat(login_at) > datetime.fromisoformat(expired_since)
+    ):
         log.info("[-] SATU: sesi berakhir sejak %s, menunggu login ulang", expired_since)
         return EXIT_LOGIN_REQUIRED
 
@@ -137,8 +142,11 @@ def _keep_satu_alive() -> int:
 
     persist_cookie_updates(SATU_SESSION_FILE, http)
     report_login_ok(SATU)
-    log.info("[ok] SATU: sesi aktif (umur %s, token berlaku sampai %s)",
-             _session_age(), _token_expiry(session.get("accessToken")) or "?")
+    log.info(
+        "[ok] SATU: sesi aktif (umur %s, token berlaku sampai %s)",
+        _session_age(),
+        _token_expiry(session.get("accessToken")) or "?",
+    )
     return EXIT_OK
 
 

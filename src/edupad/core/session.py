@@ -28,8 +28,9 @@ def load_cookies(path: Path) -> dict:
 def save_cookies(path: Path, cookies: list[dict], user_agent: str | None = None, **extra) -> None:
     """Field tambahan (mis. login_at) dari penyimpanan sebelumnya dipertahankan."""
     data = load_cookies(path)
-    data.update(extra, saved_at=now_iso(), cookies=cookies,
-                user_agent=user_agent or data.get("user_agent"))
+    data.update(
+        extra, saved_at=now_iso(), cookies=cookies, user_agent=user_agent or data.get("user_agent")
+    )
     write_json(path, data, private=True)
 
 
@@ -56,9 +57,14 @@ def persist_cookie_updates(path: Path, http: requests.Session) -> None:
     changed = saved.keys() != jar.keys()
     cookies = []
     for key, c in jar.items():
-        entry = saved.get(key) or {"name": c.name, "domain": c.domain, "path": c.path or "/",
-                                   "httpOnly": c.has_nonstandard_attr("HttpOnly"),
-                                   "secure": c.secure, "sameSite": "Lax"}
+        entry = saved.get(key) or {
+            "name": c.name,
+            "domain": c.domain,
+            "path": c.path or "/",
+            "httpOnly": c.has_nonstandard_attr("HttpOnly"),
+            "secure": c.secure,
+            "sameSite": "Lax",
+        }
         if entry.get("value") != c.value:
             entry["value"] = c.value
             changed = True
@@ -83,9 +89,15 @@ def report_login_expired(service: str, detected_by: str) -> None:
     if get_state(service).get("expired_since"):
         return
     update_state(service, expired_since=now_iso())
-    note = " Jadwal terakhir tetap dipakai; login ulang cukup saat KRS berubah." if service == SATU else ""
-    notify(f"⚠️ Sesi {_SERVICE_LABEL[service]} habis (terdeteksi oleh {detected_by}).{note} "
-           f"Login ulang dengan: {_LOGIN_COMMAND[service]}")
+    note = (
+        " Jadwal terakhir tetap dipakai; login ulang cukup saat KRS berubah."
+        if service == SATU
+        else ""
+    )
+    notify(
+        f"⚠️ Sesi {_SERVICE_LABEL[service]} habis (terdeteksi oleh {detected_by}).{note} "
+        f"Login ulang dengan: {_LOGIN_COMMAND[service]}"
+    )
 
 
 def report_login_ok(service: str) -> None:

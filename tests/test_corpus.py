@@ -9,12 +9,20 @@ from edupad.processing.corpus import (
 
 
 def test_meeting_range_in_content_overrides_section_order():
-    meta = {"section": "Konsep Dasar & Siklus Hidup", "section_index": 1, "source_file": "a/MPIT1.pptx"}
+    meta = {
+        "section": "Konsep Dasar & Siklus Hidup",
+        "section_index": 1,
+        "source_file": "a/MPIT1.pptx",
+    }
     assert detect_meetings(meta, "MANAJEMEN PROYEK TI\nPertemuan 1–2 • Sub-CPMK 1") == [1, 2]
 
 
 def test_meeting_range_from_filename():
-    meta = {"section": "Metode dalam SPK", "section_index": 6, "source_file": "x/6-7 Praktik Metode.pdf"}
+    meta = {
+        "section": "Metode dalam SPK",
+        "section_index": 6,
+        "source_file": "x/6-7 Praktik Metode.pdf",
+    }
     assert detect_meetings(meta, "") == [6, 7]
 
 
@@ -36,8 +44,10 @@ def test_aliases_keep_uppercase_abbreviation():
 
 
 def _slides(n: int) -> str:
-    return "".join(f"<!-- slide {i} -->\nLangkah {i}: isi berbeda\nTIK2111 • Pertemuan 1 • {i}/27\n"
-                   for i in range(1, n + 1))
+    return "".join(
+        f"<!-- slide {i} -->\nLangkah {i}: isi berbeda\nTIK2111 • Pertemuan 1 • {i}/27\n"
+        for i in range(1, n + 1)
+    )
 
 
 def test_footer_with_page_counter_is_removed_but_numbered_content_kept():
@@ -49,16 +59,30 @@ def test_footer_with_page_counter_is_removed_but_numbered_content_kept():
 
 
 def test_standalone_numbers_merge_into_list():
-    assert clean_text("**1**\n\nApa itu proyek\n2\nTriple constraint", set()) == \
-        "1. Apa itu proyek\n2. Triple constraint"
+    assert (
+        clean_text("**1**\n\nApa itu proyek\n2\nTriple constraint", set())
+        == "1. Apa itu proyek\n2. Triple constraint"
+    )
 
 
 def test_chunks_respect_size_and_carry_context():
-    segments = [{"kind": "halaman", "number": i, "ocr": i == 2, "text": "kata " * 200}
-                for i in range(1, 5)]
-    doc = {"course_id": "1", "matkul": "PV", "kode": "TIF", "section": "S", "judul": "J",
-           "jenis": "resource", "pertemuan": [5], "source_file": "f", "source_url": "u",
-           "sha256": "abc", "juga_di": [], "segments": segments}
+    segments = [
+        {"kind": "halaman", "number": i, "ocr": i == 2, "text": "kata " * 200} for i in range(1, 5)
+    ]
+    doc = {
+        "course_id": "1",
+        "matkul": "PV",
+        "kode": "TIF",
+        "section": "S",
+        "judul": "J",
+        "jenis": "resource",
+        "pertemuan": [5],
+        "source_file": "f",
+        "source_url": "u",
+        "sha256": "abc",
+        "juga_di": [],
+        "segments": segments,
+    }
     chunks = make_chunks(doc)
     assert len(chunks) == 4
     assert all(c["kata"] <= 550 for c in chunks)
