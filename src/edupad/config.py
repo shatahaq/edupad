@@ -67,6 +67,10 @@ class Settings:
     tts_model: str
     elevenlabs_api_key: str | None
     elevenlabs_voice_id: str | None
+    stt_provider: str
+    stt_model: str
+    groq_api_key: str | None
+    device_token: str | None
 
 
 def load_env(path: Path = ENV_FILE) -> None:
@@ -103,11 +107,16 @@ def get_settings() -> Settings:
         supabase_key=_env("SUPABASE_SECRET_KEY", "SUPABASE_SERVICE_ROLE_KEY"),
         llm_api_key=_env("API_KEY_AI", "DEEPSEEK_API_KEY"),
         llm_model=_env("EDUPAD_LLM_MODEL") or DEEPSEEK_MODEL,
-        llm_effort=_env("EDUPAD_LLM_EFFORT") or "low",  # low/high/max; low = respons suara lebih cepat
+        llm_effort=_env("EDUPAD_LLM_EFFORT")
+        or "low",  # low/high/max; low = respons suara lebih cepat
         cloudflare_account_id=_env("CLOUDFLARE_ACCOUNT_ID"),
         cloudflare_api_token=_env("CLOUDFLARE_API_TOKEN"),
         tts_provider=(_env("EDUPAD_TTS_PROVIDER") or "elevenlabs").lower(),
         tts_model=_env("EDUPAD_TTS_MODEL") or "eleven_multilingual_v2",
         elevenlabs_api_key=_env("ELEVENLABS_API_KEY", "API_KEY_ElevenLabs"),
         elevenlabs_voice_id=_env("ELEVENLABS_VOICE_ID", "Voice_ID_ElevenLabs"),
+        stt_provider=(_env("EDUPAD_STT_PROVIDER") or "groq").lower(),
+        stt_model=_env("EDUPAD_STT_MODEL") or "whisper-large-v3-turbo",
+        groq_api_key=_env("GROQ_API_KEY", "API_KEY_GROQ"),
+        device_token=_env("EDUPAD_DEVICE_TOKEN"),
     )

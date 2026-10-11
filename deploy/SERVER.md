@@ -34,10 +34,24 @@ chmod 700 user_data && chmod 600 user_data/*.json
 crontab deploy/crontab
 ```
 
+## Server perangkat ESP32
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # isi EDUPAD_DEVICE_TOKEN di .env
+sudo cp deploy/edupad-server.service /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now edupad-server
+curl http://localhost:8000/v1/health                              # harus: {"status": "ok"}
+```
+
+Buka port 8000 (TCP) di firewall/security group VPS. Server menolak berjalan di `0.0.0.0`
+tanpa `EDUPAD_DEVICE_TOKEN`. Koneksi masih HTTP biasa, jadi token terlihat di jaringan; untuk
+pemakaian di luar uji coba, pasang HTTPS lewat reverse proxy (mis. Caddy). Kontrak API untuk
+firmware: [DEVICE_API.md](DEVICE_API.md).
+
 ## Log
 
 `logs/keepalive.log`, `logs/pipeline.log`, `logs/scrape.log`, `logs/assignments.log`,
-`logs/convert.log`, `logs/corpus.log`, `logs/schedule.log`.
+`logs/convert.log`, `logs/corpus.log`, `logs/schedule.log`, `logs/serve.log`.
 
 ## Keamanan
 

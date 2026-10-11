@@ -5,9 +5,11 @@ Jawaban akhir selalu tiga bentuk: `speech` (TTS), `screen` (LCD), `detail` (Mark
 
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime
 
 import requests
@@ -23,6 +25,7 @@ from edupad.agent.tools import (
     resolve_course,
 )
 from edupad.config import DEEPSEEK_URL, LOG_DIR, WIB, get_settings
+from edupad.core import http_pool
 from edupad.core.files import now_iso
 from edupad.core.supabase import SupabaseError
 
@@ -76,12 +79,23 @@ Catatan tentang mahasiswa ini:
 {facts}"""
 
 REMEMBER_TOOL = "remember"
-REMEMBER_SCHEMA = {"type": "function", "function": {
-    "name": REMEMBER_TOOL,
-    "description": "Simpan fakta singkat tentang mahasiswa untuk sesi berikutnya.",
-    "parameters": {"type": "object", "properties": {
-        "fact": {"type": "string", "description": "satu kalimat, mis. 'Masih bingung operator logika'"}},
-        "required": ["fact"]}}}
+REMEMBER_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": REMEMBER_TOOL,
+        "description": "Simpan fakta singkat tentang mahasiswa untuk sesi berikutnya.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "fact": {
+                    "type": "string",
+                    "description": "satu kalimat, mis. 'Masih bingung operator logika'",
+                }
+            },
+            "required": ["fact"],
+        },
+    },
+}
 
 
 class LLMError(RuntimeError):
@@ -91,8 +105,11 @@ class LLMError(RuntimeError):
 def _system_prompt(memory: ConversationMemory | None = None, with_detail: bool = True) -> str:
     now = datetime.now(WIB)
     today = f"{DAYS_ID[now.weekday()]}, {now:%d-%m-%Y}"  # per hari agar prefix prompt ter-cache
-    detail_rule = ("  * detail: jawaban lengkap Markdown + sumber (judul materi, pertemuan, URL)." if with_detail
-                   else "  * Tidak perlu jawaban panjang; layar dan suara sudah cukup.")
+    detail_rule = (
+        "  * detail: jawaban lengkap Markdown + sumber (judul materi, pertemuan, URL)."
+        if with_detail
+        else "  * Tidak perlu jawaban panjang; layar dan suara sudah cukup."
+    )
     prompt = SYSTEM_PROMPT.format(today=today, courses=course_overview(), detail_rule=detail_rule)
     if memory:
         prompt += MEMORY_PROMPT.format(facts="\n".join(f"- {f}" for f in memory.facts()) or "-")
@@ -103,14 +120,22 @@ def _chat(messages: list[dict], tools: list[dict] | None = None, json_mode: bool
     settings = get_settings()
     if not settings.llm_api_key:
         raise LLMError("API_KEY_AI belum diisi di .env")
-    payload = {"model": settings.llm_model, "messages": messages, "reasoning_effort": settings.llm_effort}
+    payload = {
+        "model": settings.llm_model,
+        "messages": messages,
+        "reasoning_effort": settings.llm_effort,
+    }
     if tools:
         payload.update(tools=tools, tool_choice="auto")
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
     try:
-        response = requests.post(f"{DEEPSEEK_URL}/chat/completions", json=payload, timeout=LLM_TIMEOUT,
-                                 headers={"Authorization": f"Bearer {settings.llm_api_key}"})
+        response = http_pool.post(
+            f"{DEEPSEEK_URL}/chat/completions",
+            json=payload,
+            timeout=LLM_TIMEOUT,
+            headers={"Authorization": f"Bearer {settings.llm_api_key}"},
+        )
     except requests.RequestException as e:
         raise LLMError(f"DeepSeek tidak bisa dihubungi: {e}") from e
     if not response.ok:
@@ -140,8 +165,12 @@ def dedupe(name: str, result: dict, seen: set) -> dict:
         return result
     rows = []
     for row in result.get("hasil", []):
-        if row["id"] in seen or any(("meeting", row["matkul"], m) in seen for m in row["pertemuan"]):
-            rows.append({k: row[k] for k in ("id", "matkul", "pertemuan", "judul")} | {"isi": SEEN_NOTE})
+        if row["id"] in seen or any(
+            ("meeting", row["matkul"], m) in seen for m in row["pertemuan"]
+        ):
+            rows.append(
+                {k: row[k] for k in ("id", "matkul", "pertemuan", "judul")} | {"isi": SEEN_NOTE}
+            )
         else:
             seen.add(row["id"])
             rows.append(row)
@@ -155,8 +184,14 @@ def _sources(result: dict) -> list[dict]:
     for row in rows:
         course = resolve_course(row["matkul"])
         meetings = row["pertemuan"] if isinstance(row["pertemuan"], list) else [row["pertemuan"]]
-        sources.append({"course_id": course["course_id"] if course else None, "matkul": row["matkul"],
-                        "pertemuan": meetings, "judul": row.get("judul") or row.get("judul_section")})
+        sources.append(
+            {
+                "course_id": course["course_id"] if course else None,
+                "matkul": row["matkul"],
+                "pertemuan": meetings,
+                "judul": row.get("judul") or row.get("judul_section"),
+            }
+        )
     return sources
 
 
@@ -170,7 +205,9 @@ class Usage:
         self.calls += 1
         hit = usage.get("prompt_cache_hit_tokens", 0)
         self.cache_hit += hit
-        self.cache_miss += usage.get("prompt_cache_miss_tokens", usage.get("prompt_tokens", 0) - hit)
+        self.cache_miss += usage.get(
+            "prompt_cache_miss_tokens", usage.get("prompt_tokens", 0) - hit
+        )
         self.output += usage.get("completion_tokens", 0)
         self.reasoning += (usage.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)
 
@@ -180,13 +217,22 @@ class Usage:
 
     @property
     def cost_usd(self) -> float:
-        return (self.cache_hit * PRICE_PER_MTOK["cache_hit"] + self.cache_miss * PRICE_PER_MTOK["cache_miss"]
-                + self.output * PRICE_PER_MTOK["output"]) / 1e6
+        return (
+            self.cache_hit * PRICE_PER_MTOK["cache_hit"]
+            + self.cache_miss * PRICE_PER_MTOK["cache_miss"]
+            + self.output * PRICE_PER_MTOK["output"]
+        ) / 1e6
 
     def as_dict(self) -> dict:
-        return {"calls": self.calls, "total": self.total, "cache_hit": self.cache_hit,
-                "cache_miss": self.cache_miss, "output": self.output, "reasoning": self.reasoning,
-                "cost_usd": round(self.cost_usd, 6)}
+        return {
+            "calls": self.calls,
+            "total": self.total,
+            "cache_hit": self.cache_hit,
+            "cache_miss": self.cache_miss,
+            "output": self.output,
+            "reasoning": self.reasoning,
+            "cost_usd": round(self.cost_usd, 6),
+        }
 
 
 def _remember(memory: ConversationMemory, raw_args: str) -> dict:
@@ -204,9 +250,18 @@ def _save_turn(memory: ConversationMemory, question: str, result: dict) -> None:
         log.warning("[!] giliran tidak tersimpan ke memory: %s", e)
 
 
+def _run_now(job: Callable[[], None]) -> None:
+    job()
+
+
 def _log_usage(question: str, result: dict) -> None:
-    entry = {"waktu": now_iso(), "pertanyaan": question, "tools": [t["tool"] for t in result["tools"]],
-             "detik": result["seconds"], **result["usage"]}
+    entry = {
+        "waktu": now_iso(),
+        "pertanyaan": question,
+        "tools": [t["tool"] for t in result["tools"]],
+        "detik": result["seconds"],
+        **result["usage"],
+    }
     try:
         USAGE_LOG.parent.mkdir(parents=True, exist_ok=True)
         with USAGE_LOG.open("a", encoding="utf-8") as f:
@@ -242,20 +297,30 @@ def open_memory(user_id: str | None = None, new_session: bool = False) -> Conver
         return None
 
 
-def ask(question: str, history: list[dict] | None = None,
-        memory: ConversationMemory | None = None, with_detail: bool = False) -> dict:
+def ask(
+    question: str,
+    history: list[dict] | None = None,
+    memory: ConversationMemory | None = None,
+    with_detail: bool = False,
+    defer_save: Callable[[Callable[[], None]], object] | None = None,
+) -> dict:
     """Jawab satu pertanyaan.
 
     Konteks percakapan diambil dari `memory` (Supabase, bertahan antar proses) atau dari
     `history` (pesan dari pemanggilan sebelumnya). `history` baru ikut dikembalikan.
     Default mode perangkat (suara + LCD); `with_detail=True` menambah jawaban Markdown lengkap.
+    `defer_save` (mis. executor.submit) menerima penyimpanan giliran ke memory agar jawaban
+    tidak menunggu Supabase; tanpa itu giliran disimpan sebelum ask() kembali.
     """
     if memory:
         history = memory.history()
     history = list(history or [])
     schemas = [*SCHEMAS, answer_schema(with_detail), *([REMEMBER_SCHEMA] if memory else [])]
-    messages = [{"role": "system", "content": _system_prompt(memory, with_detail)}, *history,
-                {"role": "user", "content": question}]
+    messages = [
+        {"role": "system", "content": _system_prompt(memory, with_detail)},
+        *history,
+        {"role": "user", "content": question},
+    ]
     trace, sources, usage, seen, nudged = [], [], Usage(), set(), False
     started = time.time()
 
@@ -268,20 +333,37 @@ def ask(question: str, history: list[dict] | None = None,
         final_call = next((c for c in calls if c["function"]["name"] == ANSWER_TOOL), None)
         if not final_call and not calls and not nudged:
             nudged = True  # model menjawab dengan teks biasa; minta lewat `answer` agar suara & layar terpisah
-            messages += [{"role": "assistant", "content": message.get("content") or ""},
-                         {"role": "user", "content": "Sampaikan jawaban itu dengan memanggil tool answer."}]
+            messages += [
+                {"role": "assistant", "content": message.get("content") or ""},
+                {"role": "user", "content": "Sampaikan jawaban itu dengan memanggil tool answer."},
+            ]
             continue
         if final_call or not calls:
-            answer = (_final(final_call["function"]["arguments"]) if final_call
-                      else fallback_answer(message.get("content") or ""))
-            history += turn_messages(question, answer["speech"], answer["screen"]["lines"], sources,
-                                     call_id=f"riwayat_{len(history)}")
-            result = {**answer, "tools": trace, "sources": sources, "usage": usage.as_dict(),
-                      "tokens": usage.total, "cached_tokens": usage.cache_hit,
-                      "seconds": round(time.time() - started, 1), "history": history}
+            answer = (
+                _final(final_call["function"]["arguments"])
+                if final_call
+                else fallback_answer(message.get("content") or "")
+            )
+            history += turn_messages(
+                question,
+                answer["speech"],
+                answer["screen"]["lines"],
+                sources,
+                call_id=f"riwayat_{len(history)}",
+            )
+            result = {
+                **answer,
+                "tools": trace,
+                "sources": sources,
+                "usage": usage.as_dict(),
+                "tokens": usage.total,
+                "cached_tokens": usage.cache_hit,
+                "seconds": round(time.time() - started, 1),
+                "history": history,
+            }
             _log_usage(question, result)
             if memory:
-                _save_turn(memory, question, result)
+                (defer_save or _run_now)(functools.partial(_save_turn, memory, question, result))
             return result
 
         messages.append(message)
@@ -294,7 +376,14 @@ def ask(question: str, history: list[dict] | None = None,
                 result = dedupe(name, _run_tool(name, args), seen)
             sources += _sources(result)
             output = json.dumps(result, ensure_ascii=False)[:MAX_TOOL_RESULT_CHARS]
-            trace.append({"tool": name, "args": args, "ms": int((time.time() - tool_started) * 1000),
-                          "error": output.startswith('{"error"'), "output": output})
+            trace.append(
+                {
+                    "tool": name,
+                    "args": args,
+                    "ms": int((time.time() - tool_started) * 1000),
+                    "error": output.startswith('{"error"'),
+                    "output": output,
+                }
+            )
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": output})
     raise LLMError(f"melebihi {MAX_TOOL_ROUNDS} putaran tool tanpa jawaban akhir")

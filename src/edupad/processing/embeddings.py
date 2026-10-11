@@ -11,6 +11,7 @@ import time
 import requests
 
 from edupad.config import get_settings
+from edupad.core import http_pool
 
 EMBEDDING_MODEL = "@cf/baai/bge-m3"
 RERANK_MODEL = "@cf/baai/bge-reranker-base"
@@ -31,8 +32,12 @@ def _run_model(model: str, payload: dict, retries: int = MAX_RETRIES) -> dict:
     url = f"https://api.cloudflare.com/client/v4/accounts/{settings.cloudflare_account_id}/ai/run/{model}"
     for attempt in range(1, retries + 1):
         try:
-            response = requests.post(url, json=payload, timeout=TIMEOUT,
-                                     headers={"Authorization": f"Bearer {settings.cloudflare_api_token}"})
+            response = http_pool.post(
+                url,
+                json=payload,
+                timeout=TIMEOUT,
+                headers={"Authorization": f"Bearer {settings.cloudflare_api_token}"},
+            )
         except requests.RequestException as e:
             error = str(e)
         else:
@@ -42,7 +47,7 @@ def _run_model(model: str, payload: dict, retries: int = MAX_RETRIES) -> dict:
             if response.status_code < 500 and response.status_code != 429:
                 break  # token salah / kuota habis: mengulang tidak akan membantu
         if attempt < retries:
-            time.sleep(2 ** attempt)
+            time.sleep(2**attempt)
     raise EmbeddingError(f"Cloudflare Workers AI: {error}")
 
 
@@ -52,7 +57,9 @@ def _embed(texts: list[str]) -> list[list[float]]:
 
 def rerank(query: str, texts: list[str]) -> list[float]:
     """Skor relevansi per teks (urutan sama dengan input). Satu kali coba: dipakai saat menjawab."""
-    result = _run_model(RERANK_MODEL, {"query": query, "contexts": [{"text": t} for t in texts]}, retries=1)
+    result = _run_model(
+        RERANK_MODEL, {"query": query, "contexts": [{"text": t} for t in texts]}, retries=1
+    )
     scores = [0.0] * len(texts)
     for item in result["response"]:
         scores[item["id"]] = item["score"]
@@ -62,7 +69,7 @@ def rerank(query: str, texts: list[str]) -> list[float]:
 def embed_passages(texts: list[str]) -> list[list[float]]:
     vectors = []
     for start in range(0, len(texts), BATCH_SIZE):
-        vectors += _embed(texts[start:start + BATCH_SIZE])
+        vectors += _embed(texts[start : start + BATCH_SIZE])
     return vectors
 
 

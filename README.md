@@ -39,11 +39,12 @@ pertanyaan ──► ask/chat ──► DeepSeek + tools (search_materials, get_
 src/edupad/
 ├── config.py          path, URL, pengaturan .env
 ├── cli.py             pintu masuk: python -m edupad <perintah>
-├── core/              sesi, klien Moodle, file, logging, notifikasi
+├── core/              sesi, klien Moodle & Supabase, koneksi HTTP bersama, file, logging, notifikasi
 ├── collectors/        materials (Playwright), assignments, schedule
 ├── processing/        convert (PDF/PPTX/DOCX -> Markdown), corpus, summaries, embeddings, index
 ├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate
-├── voice/             tts (ElevenLabs, PCM 16 kHz untuk ESP32)
+├── voice/             stt (Groq Whisper), tts (ElevenLabs); PCM 16 kHz untuk ESP32
+├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md)
 └── jobs/              keepalive, pipeline
 tests/                 unit test (pytest)
 evals/                 set uji AI agent & hasil evaluasi
@@ -75,6 +76,9 @@ cp .env.example .env           # isi token Telegram (opsional)
 | `python -m edupad summarize [--force]` | Ringkasan per pertemuan (DeepSeek) |
 | `python -m edupad index [--force]` | Embed chunk & sinkronkan ke Supabase |
 | `python -m edupad ask "..." [--detail] [--trace] [--new] [--no-memory] [--speak]` | Tanya AI agent; percakapan diingat per sesi; `--speak` menyuarakan jawaban |
+| `python -m edupad ask --audio rekaman.wav [opsi yang sama]` | Tanya lewat rekaman suara (STT -> agent); dengan `--speak` alurnya suara-ke-suara |
+| `python -m edupad transcribe rekaman.wav` | Ubah rekaman jadi teks saja (uji STT) |
+| `python -m edupad serve [--host 0.0.0.0] [--port 8000]` | Server HTTP untuk perangkat ESP32: rekaman -> STT -> agent -> layar + audio ([API](deploy/DEVICE_API.md)) |
 | `python -m edupad chat [--detail] [--trace] [--new] [--speak]` | Percakapan berlanjut |
 | `python -m edupad memory [--clear]` | Lihat / hapus memory AI agent |
 | `python -m edupad eval --label X [--repeat N] [--detail] [--no-memory]` | Ukur token, biaya & kualitas agent pada set uji (default: konfigurasi produksi) |
@@ -83,11 +87,21 @@ cp .env.example .env           # isi token Telegram (opsional)
 
 Kode keluar: `0` sukses, `1` error, `2` sesi habis (perlu login manual).
 
-## Suara (TTS)
+## Suara (STT & TTS)
+
+`voice/stt.py`: `transcribe_pcm(pcm)` mengubah rekaman mikrofon ESP32-S3 (PCM 16-bit mono
+16 kHz) menjadi teks; `transcribe(bytes, nama_file)` untuk file wav/mp3/m4a/ogg/flac/webm.
+Penyedia: Groq, model `whisper-large-v3-turbo`, bahasa Indonesia, dengan nama & singkatan
+mata kuliah dari `catalog.json` sebagai prompt ejaan. Rekaman tanpa ucapan (hening/derau,
+< -35 dBFS) tidak dikirim, karena Whisper mengubahnya menjadi "Terima kasih.". Uji:
+~0,5–1 detik per pertanyaan. Coba dengan `python -m edupad transcribe rekaman.wav`.
 
 `voice/tts.py`: `stream(teks)` menghasilkan potongan PCM 16-bit mono 16 kHz (format ESP32-S3)
 begitu tersedia; `synthesize()` mengembalikan audio utuh. Penyedia: ElevenLabs, suara buatan
-sendiri "EduPad" (Voice Design), model `eleven_multilingual_v2`. Uji: audio pertama ~1–2 detik.
+sendiri "EduPad" (Voice Design), model `eleven_multilingual_v2`. Jawaban panjang dipecah: kalimat
+pertama & sisanya disintesis bersamaan dengan konteks `previous_text`/`next_text` (tidak ditagih,
+intonasi tetap menyambung), maks. 2 permintaan paralel (batas akun gratis). Uji: audio pertama
+~0,95 detik (sebelumnya 2,2–2,5 detik untuk jawaban ~330 karakter).
 Akun gratis: 10.000 karakter/bulan (~30 jawaban) dan hanya suara bawaan / buatan sendiri.
 
 ## Sesi login
@@ -124,15 +138,22 @@ Bila sesi habis, notifikasi Telegram dikirim sekali.
 - **Tidak menyimpan password.** Yang disimpan hanya cookie sesi di `user_data/`.
 - **Konversi lokal.** Konversi & OCR berjalan di mesin sendiri. Teks materi dikirim ke
   Cloudflare Workers AI (embedding, reranker) dan DeepSeek (ringkasan, jawaban) untuk AI agent.
+  Rekaman pertanyaan dikirim ke Groq (STT) dan teks jawaban suara ke ElevenLabs (TTS); rekaman
+  hening disaring di server dan tidak dikirim.
 - **Sopan ke server.** Jeda 2,5 detik antar request; unduhan inkremental.
 
 ## Pengujian
 
 ```bash
-python -m pytest
-python -m ruff check src tests
+python -m pytest                       # unit test, tanpa jaringan & tanpa memakai kuota API
+python -m ruff check src tests         # lint
+python -m ruff format src tests        # format (lebar baris 100, lihat pyproject.toml)
 ```
+
+Test memakai tiruan untuk semua layanan luar (DeepSeek, Groq, ElevenLabs, Supabase); tiruan
+bersama ada di `tests/fakes.py`. Jalankan ketiga perintah di atas sebelum commit.
 
 ## Deploy
 
-Lihat [deploy/SERVER.md](deploy/SERVER.md).
+Lihat [deploy/SERVER.md](deploy/SERVER.md); kontrak API perangkat ESP32 di
+[deploy/DEVICE_API.md](deploy/DEVICE_API.md).
