@@ -37,6 +37,10 @@ def session(name: str = "default", headers: dict | None = None) -> requests.Sess
         return http
 
 
+def get(url: str, **kwargs) -> requests.Response:
+    return session().get(url, **kwargs)
+
+
 def post(url: str, **kwargs) -> requests.Response:
     return session().post(url, **kwargs)
 

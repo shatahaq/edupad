@@ -3,14 +3,15 @@
 #          sudo systemctl daemon-reload && sudo systemctl enable --now edupad-server
 # Log:     journalctl -u edupad-server -f   (juga logs/serve.log)
 [Unit]
-Description=EduPad server untuk perangkat ESP32
+Description=EduPad server (API perangkat ESP32 + web login Google)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 User=ubuntu
 WorkingDirectory=/home/ubuntu/Tugas_Akhir
-ExecStart=/home/ubuntu/Tugas_Akhir/.venv/bin/python -m edupad serve --host 0.0.0.0 --port 8000
+# Hanya lokal: dari internet lewat Caddy (deploy/Caddyfile) di https://shata.id
+ExecStart=/home/ubuntu/Tugas_Akhir/.venv/bin/python -m edupad serve --host 127.0.0.1 --port 8000
 Restart=on-failure
 RestartSec=5
 

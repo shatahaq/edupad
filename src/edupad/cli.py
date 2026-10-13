@@ -34,6 +34,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     att.add_argument("--dry-run", action="store_true", help="simulasi tanpa benar-benar mengisi")
 
+    classroom = sub.add_parser(
+        "classroom", help="ambil kelas, tugas, materi & pengumuman Google Classroom"
+    )
+    classroom.add_argument(
+        "--email", help="hanya akun Google ini (default: semua yang login di web)"
+    )
+
     convert = sub.add_parser("convert", help="konversi materi ke Markdown")
     convert.add_argument("--force", action="store_true", help="konversi ulang semua file")
 
@@ -278,6 +285,10 @@ def main(argv: list[str] | None = None) -> int:
         from edupad.collectors import attendance
 
         return attendance.run(fill=args.fill or args.dry_run, dry_run=args.dry_run)
+    if args.command == "classroom":
+        from edupad.collectors import classroom
+
+        return classroom.run(email=args.email)
     if args.command == "convert":
         from edupad.processing import convert
 

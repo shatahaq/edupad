@@ -1,6 +1,6 @@
 # Jadwal Kuliah
 
-Diperbarui: 2026-09-30T22:30+07:00 (WIB)
+Diperbarui: 2026-10-12T20:01+07:00 (WIB)
 
 ## Senin
 
@@ -51,18 +51,18 @@ Diperbarui: 2026-09-30T22:30+07:00 (WIB)
 | Mata kuliah | Hadir | Persen |
 |---|---|---|
 | Praktek Kerja Lapangan (5/B) | 0/0 | 0% |
-| Praktikum Sistem Pendukung Keputusan (5/B) | 4/7 | 57% |
-| Rekayasa Perangkat Lunak (5/B) | 5/16 | 31% |
-| Sistem Pendukung Keputusan (5/B) | 5/16 | 31% |
-| Sistem Informasi Geografis (5/B) | 4/16 | 25% |
-| Praktikum Teknik Penulisan Karya Ilmiah (5/B) | 6/7 | 86% |
-| Teknik Penulisan Karya Ilmiah (5/B) | 5/16 | 31% |
-| Praktikum E-Application (5/B1) | 5/5 | 100% |
-| Praktikum Pemrograman Visual (5/B1) | 2/2 | 100% |
-| E-Application (5/B) | 6/16 | 38% |
-| Praktikum Manajemen Proyek IT (5/B) | 5/6 | 83% |
+| Praktikum Sistem Pendukung Keputusan (5/B) | 5/8 | 63% |
+| Rekayasa Perangkat Lunak (5/B) | 6/16 | 38% |
+| Sistem Pendukung Keputusan (5/B) | 7/16 | 44% |
+| Sistem Informasi Geografis (5/B) | 5/16 | 31% |
+| Praktikum Teknik Penulisan Karya Ilmiah (5/B) | 7/7 | 100% |
+| Teknik Penulisan Karya Ilmiah (5/B) | 6/16 | 38% |
+| Praktikum E-Application (5/B1) | 8/8 | 100% |
+| Praktikum Pemrograman Visual (5/B1) | 7/7 | 100% |
+| E-Application (5/B) | 7/16 | 44% |
+| Praktikum Manajemen Proyek IT (5/B) | 5/7 | 71% |
 | Manajemen Proyek IT (5/B) | 6/16 | 38% |
-| Pemrograman Visual (5/B) | 4/16 | 25% |
+| Pemrograman Visual (5/B) | 5/16 | 31% |
 | Praktikum Manajemen Sistem Basis Data (5/B) | 7/7 | 100% |
 | Manajemen Sistem Basis Data (5/B) | 6/16 | 38% |
-| Praktikum Sistem Informasi Geografis (5/B1) | 3/3 | 100% |
+| Praktikum Sistem Informasi Geografis (5/B1) | 7/7 | 100% |

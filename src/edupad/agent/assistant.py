@@ -18,11 +18,11 @@ from edupad.agent.formatting import clean_speech, fallback_answer, fit_screen
 from edupad.agent.memory import ConversationMemory, turn_messages
 from edupad.agent.tools import (
     ANSWER_TOOL,
-    SCHEMAS,
     TOOLS,
     answer_schema,
     course_overview,
     resolve_course,
+    tool_schemas,
 )
 from edupad.config import DEEPSEEK_URL, LOG_DIR, WIB, get_settings
 from edupad.core import http_pool
@@ -315,7 +315,7 @@ def ask(
     if memory:
         history = memory.history()
     history = list(history or [])
-    schemas = [*SCHEMAS, answer_schema(with_detail), *([REMEMBER_SCHEMA] if memory else [])]
+    schemas = [*tool_schemas(), answer_schema(with_detail), *([REMEMBER_SCHEMA] if memory else [])]
     messages = [
         {"role": "system", "content": _system_prompt(memory, with_detail)},
         *history,

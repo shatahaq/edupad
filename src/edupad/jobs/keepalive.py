@@ -1,7 +1,9 @@
 """Menjaga sesi login tetap aktif (dijalankan tiap ~20 menit).
 
 - kelas.usu.ac.id: sesi Moodle kedaluwarsa bila menganggur > 8 jam;
-  core_session_touch (dipakai halaman Moodle sendiri) memperpanjangnya.
+  core_session_touch (dipakai halaman Moodle sendiri) memperpanjangnya. Bila sesi
+  tetap terputus (mis. diakhiri server), login ulang otomatis lewat token SSO USU,
+  paling sering sekali per SSO_RELOGIN_INTERVAL agar tidak memutus sesi di perangkat lain.
 - Portal SATU: Keycloak (id.usu.ac.id) memutus sesi yang menganggur ~30 menit,
   sedangkan cookie SSO-nya berlaku ~14 hari. Tiap run melakukan login ulang
   senyap lewat cookie SSO agar batas menganggur ter-reset. Umur sesi dicatat
@@ -13,7 +15,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 
@@ -35,6 +37,8 @@ from edupad.errors import EXIT_ERROR, EXIT_LOGIN_REQUIRED, EXIT_OK, LoginRequire
 
 log = logging.getLogger(__name__)
 
+SSO_RELOGIN_INTERVAL = timedelta(hours=2)
+
 
 def _format_duration(seconds: float | None) -> str:
     if seconds is None:
@@ -51,6 +55,23 @@ def _time_remaining(client: MoodleClient) -> int | None:
         return None  # server lama tidak menyediakan fungsi ini
 
 
+def _try_sso_relogin(client: MoodleClient) -> bool:
+    last = get_state(MOODLE).get("last_sso_relogin")
+    if last and datetime.now(WIB) - datetime.fromisoformat(last) < SSO_RELOGIN_INTERVAL:
+        log.info(
+            "[-] Moodle: login ulang SSO terakhir %s, menunggu jeda %s", last, SSO_RELOGIN_INTERVAL
+        )
+        return False
+    update_state(MOODLE, last_sso_relogin=datetime.now(WIB).isoformat(timespec="seconds"))
+    try:
+        client.sso_relogin()
+    except (LoginRequired, requests.RequestException) as e:
+        log.error("[x] Moodle: login ulang lewat SSO gagal: %s", e)
+        return False
+    log.info("[ok] Moodle: sesi diperbarui lewat token SSO USU (tanpa password)")
+    return True
+
+
 def keep_moodle_alive() -> int:
     if not load_cookies(MOODLE_SESSION_FILE).get("cookies"):
         log.error("[x] Moodle: belum ada sesi. Jalankan: python -m edupad login")
@@ -62,7 +83,11 @@ def keep_moodle_alive() -> int:
         try:
             before = _time_remaining(client)
         except LoginRequired:
-            client.fetch_sesskey()  # sesskey cache basi setelah login ulang
+            try:
+                client.fetch_sesskey()  # sesskey cache basi setelah login ulang
+            except LoginRequired:
+                if not _try_sso_relogin(client):
+                    raise
             before = _time_remaining(client)
         client.call("core_session_touch")
         after = _time_remaining(client)
@@ -80,10 +105,12 @@ def keep_moodle_alive() -> int:
     client.save_cookies()
     report_login_ok(MOODLE)
     update_state(MOODLE, sesskey=client.sesskey, timeout_seconds=after)
+    sso = client.sso_token_expiry()
     log.info(
-        "[ok] Moodle: sesi aktif. Sisa sebelum touch: %s, setelah: %s",
+        "[ok] Moodle: sesi aktif. Sisa sebelum touch: %s, setelah: %s. Token SSO berlaku sampai %s",
         _format_duration(before),
         _format_duration(after),
+        datetime.fromtimestamp(sso, WIB).strftime("%d-%m %H:%M WIB") if sso else "-",
     )
     return EXIT_OK
 

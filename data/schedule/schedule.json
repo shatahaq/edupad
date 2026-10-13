@@ -1,6 +1,6 @@
 {
-  "diperbarui": "2026-10-01T05:30+07:00",
-  "sesi_berlaku_sampai": "2026-10-30T22:30:02.761Z",
+  "diperbarui": "2026-10-12T20:01+07:00",
+  "sesi_berlaku_sampai": "2026-11-11T13:01:54.450Z",
   "nim": "241712061",
   "kelas": [
     {
@@ -305,9 +305,9 @@
       "matkul": "Praktikum Sistem Pendukung Keputusan",
       "kelas": "5/B",
       "satu_class_id": "6a730a9790eef154a2895dba",
-      "pertemuan_tercatat": 7,
-      "hadir": 4,
-      "persen_hadir": 57
+      "pertemuan_tercatat": 8,
+      "hadir": 5,
+      "persen_hadir": 63
     },
     {
       "kode": "TIF 3 032",
@@ -315,8 +315,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a7307d590eef154a2895d9f",
       "pertemuan_tercatat": 16,
-      "hadir": 5,
-      "persen_hadir": 31
+      "hadir": 6,
+      "persen_hadir": 38
     },
     {
       "kode": "TIF 3 029",
@@ -324,8 +324,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a7306584db23b08dfb2fac0",
       "pertemuan_tercatat": 16,
-      "hadir": 5,
-      "persen_hadir": 31
+      "hadir": 7,
+      "persen_hadir": 44
     },
     {
       "kode": "TIF 3 036",
@@ -333,8 +333,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a7302dc88db9429977d1ffb",
       "pertemuan_tercatat": 16,
-      "hadir": 4,
-      "persen_hadir": 25
+      "hadir": 5,
+      "persen_hadir": 31
     },
     {
       "kode": "TIF 3 033 P",
@@ -342,8 +342,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a7301ce4db23b08dfb2faa2",
       "pertemuan_tercatat": 7,
-      "hadir": 6,
-      "persen_hadir": 86
+      "hadir": 7,
+      "persen_hadir": 100
     },
     {
       "kode": "TIF 3 033",
@@ -351,16 +351,16 @@
       "kelas": "5/B",
       "satu_class_id": "6a73013bbb1a652924911798",
       "pertemuan_tercatat": 16,
-      "hadir": 5,
-      "persen_hadir": 31
+      "hadir": 6,
+      "persen_hadir": 38
     },
     {
       "kode": "TIF 3 037 P",
       "matkul": "Praktikum E-Application",
       "kelas": "5/B1",
       "satu_class_id": "6a72f588c4281e495e9a09b3",
-      "pertemuan_tercatat": 5,
-      "hadir": 5,
+      "pertemuan_tercatat": 8,
+      "hadir": 8,
       "persen_hadir": 100
     },
     {
@@ -368,8 +368,8 @@
       "matkul": "Praktikum Pemrograman Visual",
       "kelas": "5/B1",
       "satu_class_id": "6a72ece46b0bef43f685a699",
-      "pertemuan_tercatat": 2,
-      "hadir": 2,
+      "pertemuan_tercatat": 7,
+      "hadir": 7,
       "persen_hadir": 100
     },
     {
@@ -378,17 +378,17 @@
       "kelas": "5/B",
       "satu_class_id": "6a72e1cc5197802e45fd40c6",
       "pertemuan_tercatat": 16,
-      "hadir": 6,
-      "persen_hadir": 38
+      "hadir": 7,
+      "persen_hadir": 44
     },
     {
       "kode": "TIF 3 035 P",
       "matkul": "Praktikum Manajemen Proyek IT",
       "kelas": "5/B",
       "satu_class_id": "6a72daf890eef154a2895bf3",
-      "pertemuan_tercatat": 6,
+      "pertemuan_tercatat": 7,
       "hadir": 5,
-      "persen_hadir": 83
+      "persen_hadir": 71
     },
     {
       "kode": "TIF 3 035",
@@ -405,8 +405,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a72c00088db9429977d1dce",
       "pertemuan_tercatat": 16,
-      "hadir": 4,
-      "persen_hadir": 25
+      "hadir": 5,
+      "persen_hadir": 31
     },
     {
       "kode": "TIF 3 030 P",
@@ -431,8 +431,8 @@
       "matkul": "Praktikum Sistem Informasi Geografis",
       "kelas": "5/B1",
       "satu_class_id": "6a729de14db23b08dfb2f73a",
-      "pertemuan_tercatat": 3,
-      "hadir": 3,
+      "pertemuan_tercatat": 7,
+      "hadir": 7,
       "persen_hadir": 100
     }
   ]

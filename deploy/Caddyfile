@@ -1,0 +1,10 @@
+# Reverse proxy HTTPS untuk EduPad di belakang Cloudflare (proxy aktif, SSL/TLS "Full (strict)").
+# Sertifikat: Cloudflare -> SSL/TLS -> Origin Server -> Create Certificate (berlaku 15 tahun).
+# Pasang: sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+shata.id, www.shata.id {
+	tls /etc/caddy/certs/shata.id.pem /etc/caddy/certs/shata.id.key
+	reverse_proxy 127.0.0.1:8000 {
+		# Audio jawaban (/v1/audio) dialirkan per potongan: teruskan segera, jangan ditahan.
+		flush_interval -1
+	}
+}

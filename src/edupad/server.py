@@ -10,11 +10,15 @@ Satu pertanyaan = dua permintaan:
    jadi perangkat cukup menampilkan `screen`, lalu memutar `audio_url` bila tidak null.
 2. GET <audio_url>
    Suara jawaban, PCM 16-bit mono 16 kHz (format sama dengan rekaman), dialirkan begitu
-   ElevenLabs mengirimnya sehingga perangkat bisa langsung memutar. Putar ulang diambil
-   dari cache tanpa memakai kuota TTS. `?format=wav` untuk didengar di laptop.
+   ElevenLabs mengirimnya sehingga perangkat bisa langsung memutar. Hanya suara jawaban
+   terakhir yang disimpan (jawaban baru menimpanya); putar ulang lewat URL yang sama atau
+   GET /v1/audio/latest diambil dari simpanan tanpa memakai kuota TTS. `?format=wav` untuk
+   didengar di laptop.
 
 Semua permintaan selain GET /v1/health wajib membawa header
 `Authorization: Bearer <EDUPAD_DEVICE_TOKEN>`.
+
+Path di luar /v1/ dilayani web EduPad (login Google, /api, halaman React): lihat webapp.py.
 """
 
 from __future__ import annotations
@@ -33,16 +37,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
 from edupad.agent.formatting import fit_screen
-from edupad.config import DEEPSEEK_URL, get_settings
+from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
 from edupad.voice import stt, tts
+from edupad.webapp import WebApp
 
 log = logging.getLogger(__name__)
 
 MAX_BODY_BYTES = 5 * 1024 * 1024  # rekaman 120 detik = 3,8 MB
 READ_TIMEOUT = 30  # detik tanpa data dari perangkat sebelum koneksi diputus
-AUDIO_TTL = 10 * 60
-MAX_AUDIO_ENTRIES = 50
 AUDIO_FORMAT = f"pcm_s16le;rate={tts.SAMPLE_RATE};channels=1"
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 WAV_TYPES = {"audio/wav", "audio/x-wav", "audio/wave"}
@@ -113,44 +116,51 @@ def _logged(job: Callable[[], None]) -> None:
 
 
 class AudioStore:
-    """Teks jawaban yang menunggu disuarakan, plus PCM yang sudah jadi untuk putar ulang."""
+    """Suara jawaban terakhir: teksnya, lalu PCM-nya setelah pertama kali disuarakan.
 
-    def __init__(self, ttl: float = AUDIO_TTL, max_entries: int = MAX_AUDIO_ENTRIES):
-        self.ttl, self.max_entries = ttl, max_entries
-        self._items: dict[str, dict] = {}
+    Jawaban baru menimpa yang lama. Putar ulang memakai PCM yang tersimpan sehingga kuota TTS
+    hanya terpakai sekali per jawaban. `lock` membuat dua permintaan untuk jawaban yang belum
+    disuarakan tidak memanggil ElevenLabs dua kali: yang kedua menunggu lalu memakai PCM-nya.
+    """
+
+    LATEST = "latest"
+
+    def __init__(self):
+        self._latest: dict | None = None
         self._lock = threading.Lock()
 
     def add(self, text: str) -> str:
         audio_id = secrets.token_urlsafe(9)
         with self._lock:
-            self._expire()
-            self._items[audio_id] = {"text": text, "pcm": None, "created": time.monotonic()}
-            while len(self._items) > self.max_entries:
-                self._items.pop(next(iter(self._items)))
+            self._latest = {"id": audio_id, "text": text, "pcm": None, "lock": threading.Lock()}
         return audio_id
 
     def get(self, audio_id: str) -> dict | None:
         with self._lock:
-            self._expire()
-            return self._items.get(audio_id)
+            item = self._latest
+        if item and audio_id in (item["id"], self.LATEST):
+            return item
+        return None
 
     def set_pcm(self, audio_id: str, pcm: bytes) -> None:
         with self._lock:
-            if audio_id in self._items:
-                self._items[audio_id]["pcm"] = pcm
-
-    def _expire(self) -> None:
-        cutoff = time.monotonic() - self.ttl
-        for audio_id in [k for k, v in self._items.items() if v["created"] < cutoff]:
-            del self._items[audio_id]
+            if self._latest and self._latest["id"] == audio_id:
+                self._latest["pcm"] = pcm
 
 
 class EduPadServer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, address: tuple[str, int], token: str | None, agent: Agent | None = None):
+    def __init__(
+        self,
+        address: tuple[str, int],
+        token: str | None,
+        agent: Agent | None = None,
+        web: WebApp | None = None,
+    ):
         super().__init__(address, Handler)
         self.token, self.agent, self.audio = token, agent or Agent(), AudioStore()
+        self.web = web or WebApp()
 
     def server_close(self) -> None:
         super().server_close()
@@ -163,6 +173,7 @@ class Handler(BaseHTTPRequestHandler):
     timeout = READ_TIMEOUT
     server: EduPadServer
     _streaming = False  # header audio sudah terkirim; error tidak boleh lagi ditulis sebagai JSON
+    _head = False  # permintaan HEAD: header dikirim, badan dibuang
 
     def do_GET(self) -> None:
         self._handle(self._get)
@@ -170,8 +181,38 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         self._handle(self._post)
 
+    def do_HEAD(self) -> None:
+        """HEAD (pemantau uptime, pratinjau tautan) hanya untuk halaman/file statis dan
+        /v1/health. Rute login dan audio menolak HEAD: menjalankannya akan menghabiskan
+        state login sekali pakai atau kuota TTS."""
+        path = urlsplit(self.path).path
+        allowed = path == "/v1/health" or not path.startswith(("/v1/", "/api/", "/auth/"))
+        wfile = self.wfile
+        self._head = True
+        try:
+            if allowed:
+                self._handle(self._get)
+            else:
+                self.send_response(405)
+                self.send_header(
+                    "Allow", "GET" if path.startswith(("/v1/", "/api/")) else "GET, POST"
+                )
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+        finally:
+            self._head = False
+            self.wfile = wfile  # koneksi keep-alive dipakai lagi untuk permintaan berikutnya
+
+    def end_headers(self) -> None:
+        super().end_headers()
+        if self._head:
+            self.wfile = _DiscardBody()
+
     def log_message(self, format: str, *args) -> None:
-        log.info("%s %s", self.address_string(), format % args)
+        message = format % args
+        if "/auth/google/callback?" in message:  # jangan simpan kode otorisasi Google di log
+            message = message.replace(self.path, urlsplit(self.path).path)
+        log.info("%s %s", self.address_string(), message)
 
     def _handle(self, route: Callable[[str, dict], None]) -> None:
         url = urlsplit(self.path)
@@ -200,6 +241,9 @@ class Handler(BaseHTTPRequestHandler):
                 )
 
     def _get(self, path: str, query: dict) -> None:
+        if not path.startswith("/v1/"):
+            self.server.web.handle(self, "GET", path, query)
+            return
         if path == "/v1/health":
             self._json(200, {"status": "ok"})
             return
@@ -210,6 +254,9 @@ class Handler(BaseHTTPRequestHandler):
         raise RequestError(404, f"tidak ada {path}")
 
     def _post(self, path: str, query: dict) -> None:
+        if not path.startswith("/v1/"):
+            self.server.web.handle(self, "POST", path, query)
+            return
         self._authorize()
         if path != "/v1/ask":
             raise RequestError(404, f"tidak ada {path}")
@@ -322,25 +369,26 @@ class Handler(BaseHTTPRequestHandler):
     def _audio(self, audio_id: str, wav: bool) -> None:
         item = self.server.audio.get(audio_id)
         if item is None:
-            raise RequestError(404, "audio tidak ada atau sudah kedaluwarsa")
-        if item["pcm"] is not None:
-            self._send_audio(item["pcm"], wav)
-            return
-        chunks = tts.stream(item["text"])
-        try:
-            first = next(chunks, b"")  # error kuota/kunci muncul di sini, sebelum header terkirim
-            if wav:
-                pcm = first + b"".join(chunks)
-                self.server.audio.set_pcm(audio_id, pcm)
-                self._send_audio(pcm, wav=True)
-            else:
-                self._stream_audio(audio_id, first, chunks)
-        except tts.TTSError as e:
-            raise RequestError(502, f"TTS: {e}") from e
-        finally:
-            getattr(
-                chunks, "close", lambda: None
-            )()  # tutup koneksi ElevenLabs bila berhenti di tengah
+            raise RequestError(404, "audio tidak ada atau sudah diganti jawaban baru")
+        with item["lock"]:
+            if item["pcm"] is not None:
+                self._send_audio(item["pcm"], wav)
+                return
+            chunks = tts.stream(item["text"])
+            try:
+                first = next(chunks, b"")  # error kuota/kunci muncul di sini, sebelum header terkirim
+                if wav:
+                    pcm = first + b"".join(chunks)
+                    self.server.audio.set_pcm(item["id"], pcm)
+                    self._send_audio(pcm, wav=True)
+                else:
+                    self._stream_audio(item["id"], first, chunks)
+            except tts.TTSError as e:
+                raise RequestError(502, f"TTS: {e}") from e
+            finally:
+                getattr(
+                    chunks, "close", lambda: None
+                )()  # tutup koneksi ElevenLabs bila berhenti di tengah
 
     def _stream_audio(self, audio_id: str, first: bytes, chunks) -> None:
         self.send_response(200)
@@ -350,22 +398,33 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self._streaming = True
-        sent, carry = [], b""
+        sent, carry, device_gone = [], b"", False
         try:
             for chunk in itertools.chain([first], chunks):
                 data = carry + chunk
                 cut = len(data) - len(data) % tts.SAMPLE_WIDTH  # jangan memotong satu sampel
                 data, carry = data[:cut], data[cut:]
-                if data:
+                if not data:
+                    continue
+                sent.append(data)
+                if device_gone:
+                    continue
+                try:
                     self.wfile.write(b"%X\r\n%s\r\n" % (len(data), data))
-                    sent.append(data)
+                except (BrokenPipeError, ConnectionResetError, TimeoutError) as e:
+                    # Pemutaran dihentikan di perangkat: sisa audio tetap diambil (kuota sudah
+                    # terpakai untuk seluruh teks) supaya putar ulang tidak memanggil TTS lagi.
+                    log.info("[device] pemutaran dihentikan (%s), audio tetap disimpan", e)
+                    device_gone = True
+                    self.close_connection = True
         except tts.TTSError as e:
             # Header 200 sudah terkirim: putus tanpa chunk penutup agar perangkat tahu audio tidak utuh.
             log.warning("[!] TTS terputus di tengah audio: %s", e)
             self.close_connection = True
             return
-        self.wfile.write(b"0\r\n\r\n")
         self.server.audio.set_pcm(audio_id, b"".join(sent))
+        if not device_gone:
+            self.wfile.write(b"0\r\n\r\n")
 
     def _send_audio(self, pcm: bytes, wav: bool) -> None:
         data = tts.to_wav(pcm) if wav else pcm
@@ -390,12 +449,28 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
+class _DiscardBody:
+    """Pengganti wfile setelah header HEAD terkirim: badan respons tidak ditulis."""
+
+    def write(self, data: bytes) -> int:
+        return len(data)
+
+    def flush(self) -> None:
+        pass
+
+
+def publicly_reachable(host: str, settings: Settings) -> bool:
+    """Bisa dicapai dari internet: mendengarkan di jaringan, atau di belakang reverse proxy
+    publik (EDUPAD_PUBLIC_URL bukan localhost) walau server sendiri hanya di 127.0.0.1."""
+    return host not in LOCAL_HOSTS or urlsplit(settings.public_url).hostname not in LOCAL_HOSTS
+
+
 def run(host: str, port: int) -> int:
     settings = get_settings()
-    if not settings.device_token and host not in LOCAL_HOSTS:
+    if not settings.device_token and publicly_reachable(host, settings):
         log.error(
             "[x] EDUPAD_DEVICE_TOKEN belum diisi di .env; wajib bila server bisa diakses "
-            'dari jaringan. Buat dengan: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+            'dari internet. Buat dengan: python -c "import secrets; print(secrets.token_urlsafe(32))"'
         )
         return 1
     for name, value in (
@@ -412,6 +487,14 @@ def run(host: str, port: int) -> int:
         server.server_address[1],
         "aktif" if settings.device_token else "TIDAK aktif, hanya lokal",
     )
+    if settings.google_client_id and settings.google_client_secret:
+        log.info(
+            "[ok] login Google aktif; redirect URI: %s/auth/google/callback", settings.public_url
+        )
+    else:
+        log.warning("[!] GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET belum diisi: login web nonaktif")
+    if not (WEB_DIST_DIR / "index.html").is_file():
+        log.warning("[!] halaman web belum di-build (cd web && npm install && npm run build)")
     signal.signal(signal.SIGTERM, _stop)  # systemctl stop: simpan giliran yang tertunda dulu
     try:
         server.serve_forever()

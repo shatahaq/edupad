@@ -21,6 +21,7 @@ _LOGIN_ERRORS = {
     "invalidsesskey",
     "requirelogin",
 }
+SSO_TOKEN_COOKIE = "ssotok"  # token sso.usu.ac.id di domain .usu.ac.id
 
 
 class MoodleError(RuntimeError):
@@ -49,6 +50,38 @@ class MoodleClient:
             raise LoginRequired("sesskey tidak ditemukan (kemungkinan halaman login)")
         self._sesskey = m.group(1)
         return self._sesskey
+
+    def sso_relogin(self) -> None:
+        """Buat sesi Moodle baru dari token SSO USU yang masih berlaku, tanpa password.
+
+        kelas.usu.ac.id/auth/jwtsso membaca cookie ssotok lalu langsung membuat
+        MoodleSession baru; bila token habis, diarahkan ke form login sso.usu.ac.id.
+        """
+        if not self.sso_token_expiry():
+            raise LoginRequired("token SSO USU tidak ada atau sudah habis")
+        self.http.cookies.clear("kelas.usu.ac.id", "/", "MoodleSession")
+        r = self.http.get(f"{MOODLE_URL}/auth/jwtsso/login.php", timeout=REQUEST_TIMEOUT)
+        if not r.url.startswith(MOODLE_URL) or "/login/" in r.url:
+            raise LoginRequired("token SSO USU ditolak (diarahkan ke form login)")
+        self._sesskey = None
+        self.fetch_sesskey()
+
+    def sso_token_expiry(self) -> float | None:
+        """Waktu kedaluwarsa token SSO (epoch), None bila tidak ada atau sudah lewat.
+
+        Dibaca dari file sesi: cookie_session memuat cookie tanpa atribut expires.
+        """
+        from edupad.core.session import load_cookies
+
+        expiry = max(
+            (
+                c.get("expires") or 0
+                for c in load_cookies(MOODLE_SESSION_FILE).get("cookies", [])
+                if c["name"] == SSO_TOKEN_COOKIE
+            ),
+            default=0,
+        )
+        return expiry if expiry > time.time() else None
 
     def call(self, method: str, args: dict | None = None):
         r = self.http.post(

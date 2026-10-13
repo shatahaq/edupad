@@ -257,13 +257,52 @@ def test_tts_error_before_and_during_audio(server, monkeypatch):
     )  # audio rusak tidak di-cache
 
 
-def test_audio_store_expires_and_caps_entries(monkeypatch):
-    store = srv.AudioStore(ttl=60, max_entries=2)
-    first, second, third = store.add("a"), store.add("b"), store.add("c")
-    assert store.get(first) is None and store.get(second)["text"] == "b"
-    clock = srv.time.monotonic() + 61
-    monkeypatch.setattr(srv.time, "monotonic", lambda: clock)
-    assert store.get(third) is None
+def test_new_answer_replaces_audio_and_latest_replays_without_tts(server, fake_tts):
+    assert request(server, "GET", "/v1/audio/latest")[0].status == 404
+    first = ask_json(server, "PV")[1]["audio_url"]
+    second = ask_json(server, "MSBD")[1]["audio_url"]
+    assert request(server, "GET", first)[0].status == 404  # suara lama ditimpa
+    _, data = request(server, "GET", "/v1/audio/latest")
+    _, again = request(server, "GET", second)
+    assert data == again == b"\x01\x02\x03\x04"
+    assert fake_tts == ["Jawaban: MSBD"]  # putar ulang tidak memanggil TTS lagi
+
+
+def test_audio_is_kept_when_device_stops_playback(server, monkeypatch):
+    calls, sent_first = [], threading.Event()
+
+    def stream(text):
+        calls.append(text)
+        yield b"\x01\x00" * 4
+        sent_first.wait(5)
+        for _ in range(200):  # cukup besar agar penulisan ke soket yang ditutup gagal
+            yield b"\x02\x00" * 4096
+
+    monkeypatch.setattr(srv.tts, "stream", stream)
+    audio_url = ask_json(server, "PV")[1]["audio_url"]
+    conn = connect(server)
+    conn.request("GET", audio_url, headers={"Authorization": f"Bearer {TOKEN}"})
+    conn.getresponse().read(8)
+    conn.close()  # perangkat menghentikan pemutaran
+    sent_first.set()
+    item = server.audio.get("latest")
+    for _ in range(100):
+        if item["pcm"] is not None:
+            break
+        threading.Event().wait(0.05)
+    assert len(item["pcm"]) == 8 + 200 * 8192
+    _, data = request(server, "GET", "/v1/audio/latest")
+    assert data == item["pcm"] and calls == ["Jawaban: PV"]
+
+
+def test_run_refuses_public_proxy_without_token(monkeypatch):
+    settings = replace(get_settings(), device_token=None, public_url="https://shata.id")
+    monkeypatch.setattr(srv, "get_settings", lambda: settings)
+    assert srv.run("127.0.0.1", 0) == 1  # di belakang Caddy/Cloudflare tetap wajib token
+    assert srv.publicly_reachable("127.0.0.1", settings)
+    assert not srv.publicly_reachable(
+        "127.0.0.1", replace(settings, public_url="http://localhost:5173")
+    )
 
 
 def test_run_refuses_network_access_without_token(monkeypatch):

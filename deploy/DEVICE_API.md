@@ -1,6 +1,8 @@
 # API perangkat ESP32
 
-Server: `python -m edupad serve --host 0.0.0.0 --port 8000` (kode di `src/edupad/server.py`).
+Alamat: `https://shata.id` (Cloudflare → Caddy → `python -m edupad serve` di `127.0.0.1:8000`;
+kode di `src/edupad/server.py`). ESP32 memakai HTTPS: `esp_http_client` dengan
+`crt_bundle_attach = esp_crt_bundle_attach`.
 Semua permintaan selain `/v1/health` wajib membawa header:
 
 ```
@@ -75,9 +77,13 @@ Field `error` berisi penyebab teknis untuk log serial, bukan untuk LCD.
   Server hanya mengirim sampel utuh, tetapi `esp_http_client_read` bisa mengembalikan jumlah
   byte ganjil: simpan sisa 1 byte untuk dibaca berikutnya sebelum menulis ke I2S.
 - Bila koneksi putus sebelum chunk penutup, audio tidak utuh (TTS gagal di tengah).
-- Audio disimpan 10 menit: GET ulang (tombol "ulangi") langsung dari cache, tanpa kuota TTS.
+- Hanya suara **jawaban terakhir** yang disimpan (di memori server); jawaban baru menimpanya
+  dan id lamanya menjadi 404. Putar ulang (`GET` URL yang sama, atau `GET /v1/audio/latest`
+  bila perangkat tidak lagi tahu URL-nya, mis. setelah restart) diambil dari simpanan tanpa
+  kuota TTS. Bila perangkat memutus koneksi di tengah pemutaran, server tetap menyelesaikan
+  dan menyimpan audionya.
 - `?format=wav` mengembalikan WAV utuh, untuk didengar di laptop.
-- 404 bila id tidak dikenal/kedaluwarsa; 502 bila TTS gagal sebelum audio pertama.
+- 404 bila id tidak dikenal / sudah diganti jawaban baru (atau `latest` sebelum ada jawaban); 502 bila TTS gagal sebelum audio pertama.
 
 ## GET /v1/health
 
@@ -88,8 +94,8 @@ Field `error` berisi penyebab teknis untuk log serial, bukan untuk LCD.
 ```bash
 TOKEN=...   # isi EDUPAD_DEVICE_TOKEN
 curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d '{"text": "tugas apa saja minggu ini?"}' http://SERVER:8000/v1/ask
+     -d '{"text": "tugas apa saja minggu ini?"}' https://shata.id/v1/ask
 curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: audio/wav" \
-     --data-binary @rekaman.wav http://SERVER:8000/v1/ask
-curl -s -H "Authorization: Bearer $TOKEN" -o jawaban.wav "http://SERVER:8000/v1/audio/<id>?format=wav"
+     --data-binary @rekaman.wav https://shata.id/v1/ask
+curl -s -H "Authorization: Bearer $TOKEN" -o jawaban.wav "https://shata.id/v1/audio/<id>?format=wav"
 ```

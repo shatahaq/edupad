@@ -1,10 +1,11 @@
 # EduPad Data
 
-Pengumpul dan pengolah data perkuliahan USU untuk AI agent **EduPad**
+Pengumpul dan pengolah data perkuliahan untuk AI agent **EduPad**
 (asisten belajar berbasis suara di ESP32-S3).
 
-Sistem ini mengambil materi, tugas, dan jadwal kuliah secara otomatis, lalu
-menyusunnya menjadi data yang siap dibaca AI agent.
+Sistem ini mengambil materi, tugas, dan jadwal kuliah secara otomatis dari e-learning USU
+(kelas.usu.ac.id, portal SATU) dan dari Google Classroom (untuk umum, login lewat web
+EduPad), lalu menyusunnya menjadi data yang siap dibaca AI agent.
 
 ## Alur data
 
@@ -13,6 +14,7 @@ kelas.usu.ac.id ──► scrape ───────► data/materials/   (fil
                 └─► assignments ──► data/assignments/ (tugas, deadline, status)
 satu.usu.ac.id  ──► schedule ─────► data/schedule/    (jadwal kuliah, presensi, KRS)
                 └─► attendance ───► data/schedule/attendance.json + notifikasi presensi dibuka
+Google Classroom ─► classroom ────► data/classroom/   (kelas, tugas + status, materi, pengumuman)
 
 data/materials ──► convert   ──► data/markdown/  (Markdown per file + metadata)
                ──► corpus    ──► data/corpus/    (siap dipakai AI agent)
@@ -44,8 +46,11 @@ src/edupad/
 ├── processing/        convert (PDF/PPTX/DOCX -> Markdown), corpus, summaries, embeddings, index
 ├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate
 ├── voice/             stt (Groq Whisper), tts (ElevenLabs); PCM 16 kHz untuk ESP32
-├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md)
+├── google/            oauth (login Google + PKCE), accounts (refresh token & sesi web)
+├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md) + web
+├── webapp.py          web: login Google, /api, halaman React hasil build
 └── jobs/              keepalive, pipeline
+web/                   halaman web React + Tailwind (halaman depan & dashboard)
 tests/                 unit test (pytest)
 evals/                 set uji AI agent & hasil evaluasi
 deploy/                crontab, panduan server, jadwal Windows
@@ -71,6 +76,7 @@ cp .env.example .env           # isi token Telegram (opsional)
 | `python -m edupad assignments [--course ID ...]` | Tugas & kuis: deadline, status, soal |
 | `python -m edupad schedule [--login]` | Jadwal kuliah & presensi dari portal SATU |
 | `python -m edupad attendance [--fill] [--dry-run]` | Cek presensi yang dibuka, notifikasi Telegram; `--fill` mengisi presensi mandiri |
+| `python -m edupad classroom [--email EMAIL]` | Kelas, tugas + status, materi & pengumuman Google Classroom akun yang login di web |
 | `python -m edupad convert [--force]` | Konversi materi ke Markdown |
 | `python -m edupad corpus` | Bersihkan & potong materi untuk AI agent |
 | `python -m edupad summarize [--force]` | Ringkasan per pertemuan (DeepSeek) |
@@ -78,7 +84,7 @@ cp .env.example .env           # isi token Telegram (opsional)
 | `python -m edupad ask "..." [--detail] [--trace] [--new] [--no-memory] [--speak]` | Tanya AI agent; percakapan diingat per sesi; `--speak` menyuarakan jawaban |
 | `python -m edupad ask --audio rekaman.wav [opsi yang sama]` | Tanya lewat rekaman suara (STT -> agent); dengan `--speak` alurnya suara-ke-suara |
 | `python -m edupad transcribe rekaman.wav` | Ubah rekaman jadi teks saja (uji STT) |
-| `python -m edupad serve [--host 0.0.0.0] [--port 8000]` | Server HTTP untuk perangkat ESP32: rekaman -> STT -> agent -> layar + audio ([API](deploy/DEVICE_API.md)) |
+| `python -m edupad serve [--host 0.0.0.0] [--port 8000]` | Server HTTP: perangkat ESP32 (rekaman -> STT -> agent -> layar + audio, [API](deploy/DEVICE_API.md)) dan web EduPad (login Google) |
 | `python -m edupad chat [--detail] [--trace] [--new] [--speak]` | Percakapan berlanjut |
 | `python -m edupad memory [--clear]` | Lihat / hapus memory AI agent |
 | `python -m edupad eval --label X [--repeat N] [--detail] [--no-memory]` | Ukur token, biaya & kualitas agent pada set uji (default: konfigurasi produksi) |
@@ -142,16 +148,44 @@ Bila sesi habis, notifikasi Telegram dikirim sekali.
   hening disaring di server dan tidak dikirim.
 - **Sopan ke server.** Jeda 2,5 detik antar request; unduhan inkremental.
 
+## Web & Google Classroom
+
+Halaman depan (`/`) hanya berisi EduPad dan tombol **Masuk dengan Google**. Login berhasil
+langsung ke `/dashboard`. Login memakai OAuth authorization code + PKCE di server
+(`google/oauth.py`), dengan izin baca-saja Classroom dan `access_type=offline`. Refresh token
+disimpan di `user_data/google/` (0600) sehingga `python -m edupad classroom` (cron tiap 2 jam,
+dan sekali tepat setelah login) bisa mengambil data tanpa pengguna hadir.
+
+Data Classroom masuk ke agent dengan bentuk yang sama seperti e-learning USU:
+
+- **Tugas & deadline** ikut di `list_assignments` (bertanda `"sumber": "Google Classroom"`),
+  lengkap dengan status pengumpulan ("BELUM dikumpulkan — LEWAT DEADLINE", nilai, dst.).
+- **Materi & pengumuman** lewat tool `get_classroom_materials` (filter kelas, kata kunci,
+  pertemuan), dan kelasnya tercantum di system prompt. Tool ini hanya ditawarkan ke LLM bila
+  pengguna punya data Classroom, jadi pengguna USU saja tidak membayar token tambahan.
+- Agent di perangkat/CLI membaca Classroom milik email di `EDUPAD_OWNER_EMAILS`; akun Google
+  lain mendapat ruang data sendiri (`user_id` = `google-<id>`).
+
+Pengembangan (dua terminal):
+
+```bash
+python -m edupad serve                       # backend + login Google di :8000
+cd web && npm install && npm run dev         # halaman di http://localhost:5173
+```
+
+Pengaturan Google Cloud Console, domain HTTPS, dan deploy: [deploy/SERVER.md](deploy/SERVER.md).
+
 ## Pengujian
 
 ```bash
 python -m pytest                       # unit test, tanpa jaringan & tanpa memakai kuota API
 python -m ruff check src tests         # lint
 python -m ruff format src tests        # format (lebar baris 100, lihat pyproject.toml)
+cd web && npm run build                # cek tipe TypeScript + build halaman web
 ```
 
-Test memakai tiruan untuk semua layanan luar (DeepSeek, Groq, ElevenLabs, Supabase); tiruan
-bersama ada di `tests/fakes.py`. Jalankan ketiga perintah di atas sebelum commit.
+Test memakai tiruan untuk semua layanan luar (DeepSeek, Groq, ElevenLabs, Supabase, Google);
+tiruan bersama ada di `tests/fakes.py`. Jalankan perintah di atas sebelum commit.
 
 ## Deploy
 

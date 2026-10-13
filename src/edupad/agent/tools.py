@@ -1,4 +1,5 @@
-"""Tools yang bisa dipanggil LLM: pencarian vektor, materi per pertemuan, tugas."""
+"""Tools yang bisa dipanggil LLM: pencarian vektor, materi per pertemuan, tugas, presensi,
+dan Google Classroom (bila pengguna menautkan akun Google di web EduPad)."""
 
 from __future__ import annotations
 
@@ -9,7 +10,14 @@ import time
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
-from edupad.config import ASSIGNMENTS_DIR, CORPUS_DIR, SCHEDULE_DIR, WIB, get_settings
+from edupad.config import (
+    ASSIGNMENTS_DIR,
+    CLASSROOM_DIR,
+    CORPUS_DIR,
+    SCHEDULE_DIR,
+    WIB,
+    get_settings,
+)
 from edupad.core.files import read_json
 from edupad.core.supabase import SupabaseClient
 from edupad.processing.embeddings import EmbeddingError, embed_query, rerank
@@ -23,6 +31,15 @@ ATTENDANCE_FILE = SCHEDULE_DIR / "attendance.json"
 STALE_AFTER = timedelta(hours=3)  # cron presensi berjalan tiap 2 menit di jam kuliah
 MAX_MEETING_CHARS = 40_000
 SNIPPET_CHARS = 1_800
+CLASSROOM_SNIPPET_CHARS = 500
+MAX_CLASSROOM_RESULTS = 20
+# Kelas Classroom sering tidak diarsipkan guru, jadi tugas bertahun-tahun ikut "aktif".
+# Agent hanya menerima yang relevan agar hasil tool tetap kecil (hemat token):
+CLASSROOM_OVERDUE_WINDOW = timedelta(days=30)  # lewat deadline paling lama ini
+CLASSROOM_UNDATED_WINDOW = timedelta(days=60)  # tanpa deadline, dibuat paling lama ini
+CLASSROOM_ACTIVE_WINDOW = timedelta(days=180)  # kelas yang dicantumkan di system prompt
+MAX_CLASSROOM_TASKS = 25
+CLASSROOM_TASK_CHARS = 300
 CANDIDATES = 20
 RERANK_CHARS = 1_500
 # Fusi peringkat hybrid (vektor+kata kunci) dan reranker; diuji pada evals/agent_cases.json:
@@ -56,6 +73,17 @@ STOPWORDS = {
 
 def _catalog() -> list[dict]:
     return read_json(CATALOG_FILE).get("mata_kuliah", [])
+
+
+def _classroom() -> list[dict]:
+    """Data Google Classroom milik pengguna agent: satu entri per akun Google yang ditautkan
+    ke user_id ini (hasil `python -m edupad classroom`)."""
+    user_id = get_settings().user_id
+    return [
+        data
+        for data in (read_json(path) for path in sorted(CLASSROOM_DIR.glob("*.json")))
+        if data.get("user_id") == user_id
+    ]
 
 
 def resolve_course(name: str | None) -> dict | None:
@@ -95,7 +123,35 @@ def course_overview() -> str:
             f"dosen {', '.join(c['dosen']) or '-'}; jadwal {c['jadwal'] or '-'}; "
             f"materi pertemuan: {meetings}"
         )
+    classes, old = _active_classroom_classes(datetime.now(WIB))
+    for k in classes:
+        section = f" ({k['bagian']})" if k.get("bagian") else ""
+        lines.append(f"- {k['nama']}{section} (Google Classroom)")
+    if classes or old:
+        note = f"; {old} kelas lama tidak dicantumkan" if old else ""
+        lines.append(
+            "Kelas Google Classroom: tugas lewat list_assignments, materi & pengumuman lewat "
+            f"get_classroom_materials{note}."
+        )
     return "\n".join(lines)
+
+
+def _active_classroom_classes(now: datetime) -> tuple[list[dict], int]:
+    """Kelas Classroom dengan aktivitas (tugas/materi) dalam CLASSROOM_ACTIVE_WINDOW, dan
+    jumlah kelas lama lainnya."""
+    classes, old = [], 0
+    for data in _classroom():
+        latest: dict[str, str] = {}
+        for item in data.get("tugas", []) + data.get("materi", []):
+            stamp = item.get("diperbarui") or item.get("dibuat") or ""
+            latest[item["course_id"]] = max(latest.get(item["course_id"], ""), stamp)
+        cutoff = (now - CLASSROOM_ACTIVE_WINDOW).isoformat()
+        for k in data.get("kelas", []):
+            if latest.get(k["course_id"], "") >= cutoff:
+                classes.append(k)
+            else:
+                old += 1
+    return classes, old
 
 
 # ------------------------------- tools ---------------------------------------
@@ -191,23 +247,125 @@ def get_meeting(course: str, meeting: int, full: bool = False) -> dict:
     }
 
 
+def _task_view(t: dict) -> dict:
+    return {
+        "matkul": t["matkul"],
+        "jenis": t["jenis"],
+        "judul": t["judul"],
+        "pertemuan": t["pertemuan"],
+        "deadline": t["deadline"],
+        "status": t["status_ringkas"],
+        "url": t["url"],
+        "soal": (t.get("deskripsi") or "")[:600],
+    }
+
+
 def list_assignments(only_pending: bool = False) -> dict:
     data = read_json(ASSIGNMENTS_FILE)
     tasks = [t for t in data.get("tugas", []) if not (only_pending and t["sudah_dikumpulkan"])]
-    return {
-        "diperbarui": data.get("diperbarui"),
-        "tugas": [
+    result = {"diperbarui": data.get("diperbarui"), "tugas": [_task_view(t) for t in tasks]}
+    classroom = _classroom()
+    if classroom:
+        candidates = [
+            t
+            for d in classroom
+            for t in d.get("tugas", [])
+            if not (only_pending and t["sudah_dikumpulkan"])
+        ]
+        now = datetime.now(WIB)
+        relevant = [t for t in candidates if _relevant_classroom_task(t, now)]
+        relevant.sort(key=lambda t: _classroom_task_order(t, now.timestamp()))
+        shown = relevant[:MAX_CLASSROOM_TASKS]
+        result["tugas"] += [
             {
-                "matkul": t["matkul"],
-                "jenis": t["jenis"],
-                "judul": t["judul"],
-                "pertemuan": t["pertemuan"],
-                "deadline": t["deadline"],
-                "status": t["status_ringkas"],
-                "url": t["url"],
-                "soal": (t.get("deskripsi") or "")[:600],
+                **_task_view(t),
+                "soal": (t.get("deskripsi") or "")[:CLASSROOM_TASK_CHARS],
+                "sumber": "Google Classroom",
             }
-            for t in tasks
+            for t in shown
+        ]
+        result["classroom_diperbarui"] = max(d.get("diperbarui") or "" for d in classroom) or None
+        hidden = len(candidates) - len(shown)
+        if hidden:
+            result["classroom_tidak_ditampilkan"] = (
+                f"{hidden} tugas Classroom lama (deadline lewat lebih dari 30 hari, atau tanpa "
+                "deadline dan dibuat lebih dari 60 hari lalu) tidak ditampilkan"
+            )
+    return result
+
+
+def _classroom_task_order(task: dict, now_ts: float) -> tuple[int, float]:
+    """Deadline mendatang (terdekat dulu), lalu yang baru lewat (terbaru dulu), lalu tanpa deadline."""
+    due = task.get("deadline_ts")
+    if not due:
+        return (2, 0)
+    return (0, due) if due >= now_ts else (1, -due)
+
+
+def _relevant_classroom_task(task: dict, now: datetime) -> bool:
+    if task.get("deadline"):
+        return datetime.fromisoformat(task["deadline"]) >= now - CLASSROOM_OVERDUE_WINDOW
+    created = task.get("dibuat")
+    return bool(created) and datetime.fromisoformat(created) >= now - CLASSROOM_UNDATED_WINDOW
+
+
+def get_classroom_materials(
+    course: str | None = None, query: str | None = None, meeting: int | None = None, limit: int = 8
+) -> dict:
+    """Materi & pengumuman Google Classroom, terbaru dulu; `query` mengurutkan menurut kata kunci."""
+    classroom = _classroom()
+    if not classroom:
+        return {"error": "belum ada data Google Classroom (login di web EduPad, lalu sinkronkan)"}
+    courses = [k for d in classroom for k in d.get("kelas", [])]
+    items = [m for d in classroom for m in d.get("materi", [])]
+    if course:
+        wanted = re.sub(r"\s+", " ", course.lower()).strip()
+        ids = {
+            k["course_id"]
+            for k in courses
+            if wanted == k["course_id"] or any(wanted in alias for alias in k.get("alias", []))
+        }
+        if not ids:
+            return {
+                "error": f"kelas Classroom '{course}' tidak ditemukan",
+                "pilihan": [k["nama"] for k in courses],
+            }
+        items = [m for m in items if m["course_id"] in ids]
+    if meeting is not None:
+        items = [m for m in items if m.get("pertemuan") == meeting]
+    items.sort(key=lambda m: m.get("dibuat") or "", reverse=True)
+    if query:
+        words = [
+            w for w in re.findall(r"[a-z0-9]+", query.lower()) if w not in STOPWORDS and len(w) > 1
+        ]
+
+        def score(m: dict) -> int:
+            text = " ".join(
+                [m["judul"], m.get("deskripsi") or "", m.get("topik") or ""]
+                + [a.get("judul") or "" for a in m.get("lampiran", [])]
+            ).lower()
+            return sum(w in text for w in words)
+
+        scored = [(score(m), m) for m in items]
+        items = [m for s, m in sorted(scored, key=lambda x: -x[0]) if s > 0] if words else items
+    return {
+        "jumlah": len(items),
+        "hasil": [
+            {
+                "matkul": m["matkul"],
+                "jenis": m["jenis"],
+                "judul": m["judul"],
+                "topik": m.get("topik"),
+                "pertemuan": m.get("pertemuan"),
+                "tanggal": m.get("dibuat"),
+                "isi": (m.get("deskripsi") or "")[:CLASSROOM_SNIPPET_CHARS],
+                "lampiran": [
+                    {"jenis": a["jenis"], "judul": a.get("judul"), "url": a.get("url")}
+                    for a in m.get("lampiran", [])
+                ],
+                "url": m.get("url"),
+            }
+            for m in items[: max(1, min(limit, MAX_CLASSROOM_RESULTS))]
         ],
     }
 
@@ -288,6 +446,7 @@ TOOLS: dict[str, Callable[..., dict]] = {
     "get_meeting": get_meeting,
     "list_assignments": list_assignments,
     "get_attendance": get_attendance,
+    "get_classroom_materials": get_classroom_materials,
 }
 
 # Tool penutup: memaksa jawaban akhir terstruktur untuk suara, LCD, dan detail.
@@ -391,6 +550,31 @@ SCHEMAS = [
         },
     },
 ]
+
+CLASSROOM_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "get_classroom_materials",
+        "description": "Materi dan pengumuman dari Google Classroom (judul, isi, lampiran, tautan), "
+        "terbaru dulu. Tugas & deadline Classroom ada di list_assignments.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "course": {"type": "string", "description": "nama kelas Classroom (opsional)"},
+                "query": {"type": "string", "description": "kata kunci topik (opsional)"},
+                "meeting": {"type": "integer", "description": "nomor pertemuan (opsional)"},
+                "limit": {"type": "integer", "description": "jumlah hasil, default 8"},
+            },
+        },
+    },
+}
+
+
+def tool_schemas() -> list[dict]:
+    """Schema tool untuk LLM. Tool Classroom hanya ditawarkan bila pengguna punya datanya,
+    agar prompt pengguna tanpa Classroom tidak bertambah panjang."""
+    return [*SCHEMAS, CLASSROOM_SCHEMA] if _classroom() else list(SCHEMAS)
+
 
 _ANSWER_SCHEMA = {
     "type": "function",

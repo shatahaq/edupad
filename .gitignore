@@ -16,3 +16,10 @@ user_data/
 
 # Log hasil program berjalan
 logs/
+
+# Web (React): dependensi & hasil build dibuat ulang dengan `npm install && npm run build`
+web/node_modules/
+web/dist/
+
+# Data Google Classroom per akun Google: data pribadi pengguna, tidak di-commit
+data/classroom/

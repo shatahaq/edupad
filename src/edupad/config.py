@@ -16,7 +16,9 @@ CORPUS_DIR = DATA_DIR / "corpus"
 ASSIGNMENTS_DIR = DATA_DIR / "assignments"
 SCHEDULE_DIR = DATA_DIR / "schedule"
 VOICE_DIR = DATA_DIR / "voice"
+CLASSROOM_DIR = DATA_DIR / "classroom"  # per akun Google; data pribadi, tidak di-commit
 LOG_DIR = BASE_DIR / "logs"
+WEB_DIST_DIR = BASE_DIR / "web" / "dist"  # hasil `npm run build` di web/
 
 # Rahasia: cookie sesi & profil browser. Jangan dibagikan.
 STATE_DIR = BASE_DIR / "user_data"
@@ -29,6 +31,12 @@ SCRAPER_LOCK_FILE = STATE_DIR / "scraper.lock"
 # Token portal SATU dirotasi saat diperbarui; dua proses yang memperbarui bersamaan
 # membuat salah satunya gagal (RefreshAccessTokenError), jadi aksesnya bergiliran.
 SATU_LOCK_FILE = STATE_DIR / "satu_session.lock"
+# Akun Google (refresh token) & sesi login web. Server dan cron sinkronisasi Classroom
+# sama-sama memperbarui akun, jadi penulisannya bergiliran lewat kunci.
+GOOGLE_DIR = STATE_DIR / "google"
+GOOGLE_ACCOUNTS_FILE = GOOGLE_DIR / "accounts.json"
+GOOGLE_SESSIONS_FILE = GOOGLE_DIR / "sessions.json"
+GOOGLE_LOCK_FILE = GOOGLE_DIR / "accounts.lock"
 ENV_FILE = BASE_DIR / ".env"
 
 MOODLE_URL = "https://kelas.usu.ac.id"
@@ -71,6 +79,10 @@ class Settings:
     stt_model: str
     groq_api_key: str | None
     device_token: str | None
+    google_client_id: str | None
+    google_client_secret: str | None
+    public_url: str
+    owner_emails: frozenset[str]
 
 
 def load_env(path: Path = ENV_FILE) -> None:
@@ -97,6 +109,7 @@ def get_settings() -> Settings:
     load_env()
     ignored = _env("EDUPAD_IGNORED_COURSES", "TUGAS_ABAIKAN_COURSE") or ""
     student_class = _env("EDUPAD_CLASS", "KELAS_SAYA")
+    owners = _env("EDUPAD_OWNER_EMAILS") or ""
     return Settings(
         telegram_bot_token=_env("TELEGRAM_BOT_TOKEN"),
         telegram_chat_id=_env("TELEGRAM_CHAT_ID"),
@@ -119,4 +132,9 @@ def get_settings() -> Settings:
         stt_model=_env("EDUPAD_STT_MODEL") or "whisper-large-v3-turbo",
         groq_api_key=_env("GROQ_API_KEY", "API_KEY_GROQ"),
         device_token=_env("EDUPAD_DEVICE_TOKEN"),
+        google_client_id=_env("GOOGLE_CLIENT_ID"),
+        google_client_secret=_env("GOOGLE_CLIENT_SECRET"),
+        # Alamat web yang dibuka di browser; redirect URI OAuth = <public_url>/auth/google/callback.
+        public_url=(_env("EDUPAD_PUBLIC_URL") or "http://localhost:5173").rstrip("/"),
+        owner_emails=frozenset(e.strip().lower() for e in owners.split(",") if e.strip()),
     )
