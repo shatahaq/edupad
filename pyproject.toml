@@ -22,6 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
+office = ["fastapi==0.143.0", "uvicorn==0.54.0"]
 
 [project.scripts]
 edupad = "edupad.cli:main"

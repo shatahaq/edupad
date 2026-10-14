@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from collections.abc import Callable
 
 from edupad.config import get_settings
 from edupad.core.supabase import SupabaseClient, SupabaseError
@@ -57,7 +58,7 @@ def load_chunks() -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
-def run(force: bool = False) -> int:
+def run(force: bool = False, on_progress: Callable[[int, int], None] | None = None) -> int:
     settings = get_settings()
     chunks = load_chunks()
     if not chunks:
@@ -84,6 +85,8 @@ def run(force: bool = False) -> int:
                 [to_row(c, settings.user_id, v) for c, v in zip(batch, vectors, strict=True)],
                 on_conflict="user_id,id",
             )
+            if on_progress:
+                on_progress(start + len(batch), len(pending))
             log.info("  %d/%d chunk di-embed & diunggah", start + len(batch), len(pending))
 
         current = {c["id"] for c in chunks}

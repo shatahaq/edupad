@@ -9,6 +9,7 @@ import functools
 import json
 import logging
 import time
+import uuid
 from collections.abc import Callable
 from datetime import datetime
 
@@ -28,10 +29,11 @@ from edupad.config import DEEPSEEK_URL, LOG_DIR, WIB, get_settings
 from edupad.core import http_pool
 from edupad.core.files import now_iso
 from edupad.core.supabase import SupabaseError
+from edupad.office.events import emit_status
+from edupad.office.models import AgentState
 
 log = logging.getLogger(__name__)
 
-MAX_TOOL_ROUNDS = 5
 LLM_TIMEOUT = 120
 MAX_TOOL_RESULT_CHARS = 45_000
 DAYS_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
@@ -124,6 +126,7 @@ def _chat(messages: list[dict], tools: list[dict] | None = None, json_mode: bool
         "model": settings.llm_model,
         "messages": messages,
         "reasoning_effort": settings.llm_effort,
+        "max_tokens": settings.llm_max_output_tokens,
     }
     if tools:
         payload.update(tools=tools, tool_choice="auto")
@@ -312,6 +315,16 @@ def ask(
     `defer_save` (mis. executor.submit) menerima penyimpanan giliran ke memory agar jawaban
     tidak menunggu Supabase; tanpa itu giliran disimpan sebelum ask() kembali.
     """
+    office_run_id = f"ask-{uuid.uuid4().hex[:12]}"
+    emit_status(
+        "tutor",
+        AgentState.RUNNING,
+        room="tutor-room",
+        job_type="ask",
+        message="Memahami pertanyaan mahasiswa",
+        progress=5,
+        run_id=office_run_id,
+    )
     if memory:
         history = memory.history()
     history = list(history or [])
@@ -323,9 +336,22 @@ def ask(
     ]
     trace, sources, usage, seen, nudged = [], [], Usage(), set(), False
     started = time.time()
+    max_tool_rounds = get_settings().llm_max_tool_rounds
 
-    for _ in range(MAX_TOOL_ROUNDS + 1):
-        reply = _chat(messages, schemas)
+    for _ in range(max_tool_rounds + 1):
+        try:
+            reply = _chat(messages, schemas)
+        except Exception:
+            emit_status(
+                "tutor",
+                AgentState.FAILED,
+                room="tutor-room",
+                job_type="ask",
+                message="Permintaan tutor gagal diproses",
+                progress=100,
+                run_id=office_run_id,
+            )
+            raise
         usage.add(reply.get("usage", {}))
         message = reply["choices"][0]["message"]
         calls = message.get("tool_calls") or []
@@ -364,11 +390,37 @@ def ask(
             _log_usage(question, result)
             if memory:
                 (defer_save or _run_now)(functools.partial(_save_turn, memory, question, result))
+            emit_status(
+                "tutor",
+                AgentState.SUCCEEDED,
+                room="tutor-room",
+                job_type="ask",
+                message="Jawaban siap ditampilkan",
+                progress=100,
+                run_id=office_run_id,
+                metadata={"seconds": result["seconds"], "tools": [t["tool"] for t in trace]},
+            )
             return result
 
         messages.append(message)
         for call in calls:
             name, args = call["function"]["name"], call["function"]["arguments"]
+            tool_agent, tool_room = {
+                "search_materials": ("keeper", "knowledge-server"),
+                "get_meeting": ("researcher", "research-lab"),
+                "list_assignments": ("planner", "planning-hub"),
+                "get_attendance": ("planner", "planning-hub"),
+                "remember": ("tutor", "tutor-room"),
+            }.get(name, ("tutor", "tutor-room"))
+            emit_status(
+                tool_agent,
+                AgentState.RUNNING,
+                room=tool_room,
+                job_type=name,
+                message=f"Menjalankan {name.replace('_', ' ')}",
+                progress=min(25 + len(trace) * 15, 85),
+                run_id=office_run_id,
+            )
             tool_started = time.time()
             if name == REMEMBER_TOOL and memory:
                 result = _remember(memory, args)
@@ -386,4 +438,13 @@ def ask(
                 }
             )
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": output})
-    raise LLMError(f"melebihi {MAX_TOOL_ROUNDS} putaran tool tanpa jawaban akhir")
+    emit_status(
+        "tutor",
+        AgentState.FAILED,
+        room="tutor-room",
+        job_type="ask",
+        message="Agent melewati batas putaran tool",
+        progress=100,
+        run_id=office_run_id,
+    )
+    raise LLMError(f"melebihi {max_tool_rounds} putaran tool tanpa jawaban akhir")
