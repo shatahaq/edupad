@@ -17,18 +17,19 @@
 
 namespace {
 
-constexpr uint16_t RED = 0xF8A2;
-constexpr uint16_t YELLOW = 0xFEA0;
-
 bool newSession = false;  // ?new=1 pada pertanyaan berikutnya
-uint32_t lastStatusMs = 0;
+uint32_t lastWifiCheckMs = 0;
 String lastAnswer;  // JSON jawaban terakhir, untuk ditampilkan lagi saat putar ulang
 
 // Hasil satu kali tombol ditekan.
 struct Press {
-  bool tap = false;  // tekan singkat (bukan rekaman)
-  String audioPath;  // suara yang perlu diputar, kosong bila tidak ada
+  bool tap = false;    // tekan singkat (bukan rekaman)
+  bool shown = false;  // layar rekam sempat tampil (tombol ditahan > 250 ms)
+  String audioPath;    // suara yang perlu diputar, kosong bila tidak ada
 };
+
+uint32_t lastActivityMs = 0;  // akhir interaksi terakhir; tertidur setelah SLEEP_AFTER_MS
+bool asleep = false;
 
 bool buttonDown() { return digitalRead(PIN_BUTTON) == LOW; }
 
@@ -37,27 +38,22 @@ void waitRelease() {
   delay(30);  // pantulan tombol
 }
 
-void updateStatus(bool force = false) {
-  if (!force && millis() - lastStatusMs < 3000) return;
-  lastStatusMs = millis();
-  char text[40];
-  if (WiFi.status() == WL_CONNECTED) {
-    snprintf(text, sizeof text, "%sWiFi %d dBm", newSession ? "Sesi baru | " : "", WiFi.RSSI());
-  } else {
-    snprintf(text, sizeof text, "Offline");
-  }
-  display::setStatus(text);
+// Beri tahu layar bila Wi-Fi terputus (layar siap menampilkan peringatan).
+void checkWifi(bool force = false) {
+  if (!force && millis() - lastWifiCheckMs < 1000) return;
+  lastWifiCheckMs = millis();
+  display::setOnline(WiFi.status() == WL_CONNECTED);
 }
 
 // Tampilkan jawaban /v1/ask; mengembalikan audio_url (kosong bila tidak ada suara).
 String showResponse(const api::Response &res) {
   if (res.status == 0) {
     Serial.printf("[ask] gagal: %s\n", res.error.c_str());
-    display::message("Gagal terhubung", res.error.c_str(), "Tahan BOOT untuk mencoba lagi", RED);
+    display::message("Gagal terhubung", res.error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
     return "";
   }
   if (res.status == 401) {  // layar dari server hanya "sedang ada gangguan"
-    display::message("Token perangkat salah", "Samakan EDUPAD_DEVICE_TOKEN di", "secrets.h dan .env server", RED);
+    display::message("Token perangkat salah", "Samakan EDUPAD_DEVICE_TOKEN di secrets.h", "dan .env server", display::Tone::Error);
     return "";
   }
   JsonDocument doc;
@@ -65,7 +61,7 @@ String showResponse(const api::Response &res) {
   if (err || !doc["screen"].is<JsonObjectConst>()) {
     Serial.printf("[ask] HTTP %d, JSON tidak valid (%s): %.200s\n", res.status, err.c_str(),
                   res.body.c_str());
-    display::message("Jawaban tidak valid", "Lihat Serial monitor", nullptr, RED);
+    display::message("Jawaban tidak valid", "Lihat Serial Monitor", nullptr, display::Tone::Error);
     return "";
   }
   const char *status = doc["status"] | "";
@@ -73,7 +69,7 @@ String showResponse(const api::Response &res) {
                 doc["timing"]["stt"] | 0.0f, doc["timing"]["agent"] | 0.0f,
                 doc["question"] | "");
   if (doc["error"].is<const char *>()) Serial.printf("[ask] error: %s\n", doc["error"].as<const char *>());
-  display::answer(doc["screen"], doc["question"] | "");
+  display::answer(doc["screen"], doc["question"] | "", status);
   if (strcmp(status, "ok") != 0) return "";
   newSession = false;
   lastAnswer = res.body;
@@ -82,10 +78,11 @@ String showResponse(const api::Response &res) {
 
 // Putar suara; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
 bool play(const String &path, bool replay) {
-  display::setStatus("Memutar suara...");
+  display::speaking(true);
   api::AudioResult r = api::streamAudio(path.c_str(), [](const uint8_t *pcm, size_t size) {
     if (buttonDown()) return false;
     speaker::write(pcm, size);
+    display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
     return true;
   });
   if (r.stopped) {
@@ -93,16 +90,14 @@ bool play(const String &path, bool replay) {
   } else {
     speaker::finish();
   }
+  display::speaking(false);
   Serial.printf("[audio] %s HTTP %d, %u byte%s %s\n", path.c_str(), r.status, (unsigned)r.bytes,
                 r.stopped ? " (dihentikan)" : "", r.error.c_str());
   if (replay && r.status == 404) {
-    display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan BOOT lalu bicara", YELLOW);
+    display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan tombol lalu bicara", display::Tone::Warn);
   } else if (!r.stopped && !r.complete) {
-    display::setStatus("Suara gagal diputar");
-    lastStatusMs = millis();  // biarkan pesan terlihat beberapa detik
-    return false;
+    display::toast("Suara gagal diputar");
   }
-  updateStatus(true);
   return r.stopped;
 }
 
@@ -147,10 +142,11 @@ Press ask() {
   Press press;
   if (!opened) {
     press.tap = true;
+    press.shown = shown;
     if (shown && !lastAnswer.isEmpty()) {
       // layar rekam sempat muncul: kembalikan jawaban terakhir
       JsonDocument doc;
-      if (!deserializeJson(doc, lastAnswer)) display::answer(doc["screen"], doc["question"] | "");
+      if (!deserializeJson(doc, lastAnswer)) display::answer(doc["screen"], doc["question"] | "", "ok");
     } else if (shown) {
       display::idle(newSession);
     }
@@ -160,12 +156,11 @@ Press ask() {
     api::Response res = api::askSalvage();
     if (res.status != 0) {
       showResponse(res);
-      updateStatus(true);
       waitRelease();
       return press;
     }
     Serial.printf("[ask] gagal: %s\n", error.c_str());
-    display::message("Gagal mengirim", error.c_str(), "Tahan BOOT untuk mencoba lagi", RED);
+    display::message("Gagal mengirim", error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
     waitRelease();
     return press;
   }
@@ -183,9 +178,85 @@ Press ask() {
   display::processing(0);
   api::Response res = api::askFinish(display::processing);
   press.audioPath = showResponse(res);
-  updateStatus(true);
   waitRelease();  // bila rekaman berhenti karena MAX_RECORD_MS
   return press;
+}
+
+// Perkenalan diri setelah menyala: kalimat + gerakan dari /v1/intro, suaranya disimpan server
+// (tidak memakai kuota TTS). Tombol menghentikannya; bila terus ditahan, langsung merekam.
+void introduce() {
+  api::Response res = api::get("/v1/intro", 30000);  // pertama kali server membuat suaranya dulu
+  JsonDocument doc;
+  if (res.status != 200 || deserializeJson(doc, res.body)) {
+    Serial.printf("[intro] dilewati: HTTP %d %s\n", res.status, res.error.c_str());
+    return;
+  }
+  display::intro(doc["segments"], doc["duration"] | 0.0f);
+  if (!play(doc["audio_url"] | "/v1/intro/audio", false)) delay(800);  // biarkan confetti selesai
+}
+
+// ---- Kabar dari server (/v1/updates): kuliah berikutnya + pemberitahuan presensi/deadline
+
+uint32_t lastUpdatesMs = 0;
+String shownAlerts[16];  // id pemberitahuan yang sudah tampil, supaya tidak diulang
+uint8_t shownNext = 0;
+
+bool alertShown(const char *id) {
+  for (const String &s : shownAlerts)
+    if (s == id) return true;
+  return false;
+}
+
+// Satu pemberitahuan sampai waktunya habis atau tombol ditekan. true bila tombol masih ditahan
+// (pengguna langsung ingin bertanya); tekan singkat hanya menutup.
+bool showAlert(JsonObjectConst alert) {
+  const char *kind = alert["kind"] | "";
+  bool attendance = !strcmp(kind, "attendance");
+  display::alert(alert);
+  if (attendance) speaker::chime();
+  uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
+                      : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS
+                                                  : ALERT_ATTENDED_MS;
+  for (uint32_t start = millis(); millis() - start < duration; delay(20)) {
+    if (!buttonDown()) continue;
+    for (uint32_t pressed = millis(); buttonDown() && millis() - pressed < SHORT_PRESS_MS;) delay(10);
+    if (buttonDown()) return true;
+    delay(30);  // pantulan tombol
+    return false;
+  }
+  return false;
+}
+
+void checkUpdates(bool force = false) {
+  if (!force && millis() - lastUpdatesMs < UPDATES_EVERY_MS) return;
+  lastUpdatesMs = millis();
+  if (WiFi.status() != WL_CONNECTED) return;
+  api::Response res = api::get("/v1/updates", 10000);
+  JsonDocument doc;
+  if (res.status != 200 || deserializeJson(doc, res.body)) {
+    Serial.printf("[updates] gagal: HTTP %d %s\n", res.status, res.error.c_str());
+    return;
+  }
+  display::clock(doc["now_ts"] | 0);
+  display::schedule(doc["next_class"].as<JsonObjectConst>(), doc["stale"].as<JsonArrayConst>());
+
+  // Saat tidur hanya presensi yang dibuka yang membangunkan; pemberitahuan lain menunggu
+  // sampai bangun (tidak ditandai tampil, jadi muncul pada pengecekan berikutnya).
+  bool shown = false, held = false;
+  for (JsonObjectConst alert : doc["alerts"].as<JsonArrayConst>()) {
+    const char *id = alert["id"] | "";
+    if (!*id || alertShown(id)) continue;
+    if (asleep && strcmp(alert["kind"] | "", "attendance") != 0) continue;
+    asleep = false;
+    shownAlerts[shownNext++ % 16] = id;
+    shown = true;
+    Serial.printf("[updates] pemberitahuan %s\n", id);
+    if ((held = showAlert(alert))) break;
+  }
+  if (shown) {
+    if (!held) display::idle(newSession);
+    lastActivityMs = millis();
+  }
 }
 
 // Setelah satu tekan singkat: tunggu tekan kedua sebentar.
@@ -204,7 +275,7 @@ bool secondTap() {
 Press replay() {
   if (!lastAnswer.isEmpty()) {
     JsonDocument doc;
-    if (!deserializeJson(doc, lastAnswer)) display::answer(doc["screen"], doc["question"] | "");
+    if (!deserializeJson(doc, lastAnswer)) display::answer(doc["screen"], doc["question"] | "", "ok");
   }
   Press press;
   press.audioPath = "/v1/audio/latest";
@@ -220,49 +291,76 @@ void setup() {
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   display::begin();
 
-  display::message("EduPad", "Menyalakan mikrofon...");
+  display::bootStep("Menyalakan mikrofon", 0.15f);
   if (!mic::begin()) {
     Serial.println("[mic] I2S gagal dimulai");
-    display::message("Mikrofon gagal", "Periksa kabel INMP441", nullptr, RED);
+    display::message("Mikrofon gagal", "Periksa kabel INMP441", nullptr, display::Tone::Error);
     while (true) delay(1000);
   }
   if (!speaker::begin()) {
     Serial.println("[speaker] I2S gagal dimulai");
-    display::message("Speaker gagal", "Periksa kabel MAX98357A", nullptr, RED);
+    display::message("Speaker gagal", "Periksa kabel MAX98357A", nullptr, display::Tone::Error);
     while (true) delay(1000);
   }
 
+  Serial.printf("[mem] heap bebas %u, blok terbesar %u, PSRAM %u\n", (unsigned)ESP.getFreeHeap(),
+                (unsigned)ESP.getMaxAllocHeap(), (unsigned)ESP.getPsramSize());
   api::begin();
-  bool online = wifisetup::connect(
-      [](const char *ssid) { display::message("EduPad", "Menyambung Wi-Fi", ssid); });
+  bool online = wifisetup::connect([](const char *ssid) {
+    char text[48];
+    snprintf(text, sizeof text, "Menyambung ke %s", ssid);
+    display::bootStep(text, 0.45f);
+  });
   if (!online) wifisetup::runPortal();  // restart setelah Wi-Fi dipilih
-  updateStatus(true);
+  checkWifi(true);
   Serial.printf("[wifi] %s, IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
 
-  display::message("EduPad", "Menghubungi server", EDUPAD_HOST);
+  display::bootStep("Menghubungi server", 0.8f);
   api::Response res = api::health();
   if (res.status == 200) {
+    display::bootDone();
+    if (INTRO_ON_BOOT) introduce();
     display::idle(false);
+    checkUpdates(true);
   } else {
     Serial.printf("[api] health: HTTP %d %s\n", res.status, res.error.c_str());
     display::message("Server tidak terjangkau", res.status ? "Jawaban server tidak normal" : res.error.c_str(),
-                     "Tetap bisa dicoba: tahan BOOT", YELLOW);
+                     "Tetap bisa dicoba: tahan tombol", display::Tone::Warn);
   }
+  lastActivityMs = millis();
 }
 
 void loop() {
-  updateStatus();
+  checkWifi();
+  checkUpdates();
   delay(10);
+  if (!asleep && millis() - lastActivityMs > SLEEP_AFTER_MS) {
+    asleep = true;
+    display::sleep();
+  }
   if (!buttonDown()) return;
   delay(20);  // pantulan tombol
   if (!buttonDown()) return;
 
+  // Saat tidur, tombol membangunkan dulu. Bila terus ditahan, rekaman tetap langsung mulai
+  // (animasi bangun berlanjut di layar mendengarkan); tekan singkat hanya membangunkan.
+  bool woke = asleep;
+  if (asleep) {
+    asleep = false;
+    display::wake();
+    lastUpdatesMs = 0;  // pemberitahuan yang tertunda selama tidur dicek setelah ini
+  }
   Press press = ask();
+  if (press.tap && woke) {
+    if (press.shown) display::idle(newSession);  // kembali ke layar siap, animasi bangun berlanjut
+    lastActivityMs = millis();
+    return;
+  }
   if (press.tap) {
     if (secondTap()) {
       newSession = true;
       display::idle(true);
-      updateStatus(true);
+      lastActivityMs = millis();
       return;
     }
     press = replay();
@@ -273,6 +371,7 @@ void loop() {
     press = ask();  // tekan singkat di sini hanya menghentikan suara
     replaying = false;
   }
+  lastActivityMs = millis();
 }
 
 }  // namespace app

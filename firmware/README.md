@@ -69,10 +69,13 @@ Semua pin bisa diubah di [edupad/config.h](edupad/config.h).
    di server). File ini tidak ikut git; di salinan baru, buat dari `edupad/secrets.example.h`.
 4. Buka `edupad/edupad.ino`. Menu Tools:
    - Board: **ESP32S3 Dev Module**
+   - PSRAM: **OPI PSRAM** (N16R8). Tanpa PSRAM, RAM bisa tidak cukup untuk koneksi HTTPS
+     ("tidak bisa terhubung" padahal Wi-Fi dan server normal)
    - USB CDC On Boot: **Disabled** bila dicolok ke port **COM/UART**, **Enabled** bila ke port
      **USB** (kalau salah, Serial Monitor kosong)
-   - Partition Scheme: default cukup (sketch ~1 MB); bila muncul "Sketch too big", pilih
-     **Huge APP (3MB No OTA/1MB SPIFFS)**
+   - Flash Size: **16MB (128Mb)** (N16R8; bawaannya 4MB)
+   - Partition Scheme: **16M Flash (3MB APP/9.9MB FATFS)**. Sketch ~1,2 MB dengan animasi
+     layar, sudah melewati batas partisi bawaan (1,25 MB) bila aset bertambah
 5. Linux: supaya port bisa dipakai tanpa sudo (sekali saja, lalu logout/login):
    `sudo usermod -aG dialout $USER`
 6. Upload, lalu buka Serial Monitor di 115200 baud.

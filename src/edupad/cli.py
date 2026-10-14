@@ -72,6 +72,11 @@ def _parser() -> argparse.ArgumentParser:
     stt = sub.add_parser("transcribe", help="ubah rekaman pertanyaan jadi teks (STT)")
     stt.add_argument("audio", help="file audio: wav, mp3, m4a, ogg, flac, webm")
 
+    intro = sub.add_parser(
+        "intro", help="buat/simpan suara perkenalan perangkat (data/voice/intro/intro.wav)"
+    )
+    intro.add_argument("--force", action="store_true", help="buat ulang walau naskah tidak berubah")
+
     serve = sub.add_parser("serve", help="server HTTP untuk perangkat ESP32 (STT -> agent -> TTS)")
     serve.add_argument("--host", default="127.0.0.1", help="0.0.0.0 agar bisa diakses perangkat")
     serve.add_argument("--port", type=int, default=8000)
@@ -183,6 +188,23 @@ def _listen(path: str) -> str | None:
         return None
     print(f"[STT] {time.time() - started:.2f} s -> {text or '(tidak ada ucapan)'}")
     return text
+
+
+def _intro(force: bool) -> int:
+    """Buat suara perkenalan (sekali; dipakai ulang server) dan simpan WAV untuk didengar."""
+    from edupad.voice import intro, tts
+
+    try:
+        meta, pcm = intro.load(regenerate=force)
+    except tts.TTSError as e:
+        print(f"[!] {e}")
+        return 1
+    path = intro.INTRO_DIR / "intro.wav"
+    path.write_bytes(tts.to_wav(pcm))
+    for seg in meta["segments"]:
+        print(f"{seg['start']:6.2f}s  {seg['gesture']:<7} {seg['text']}")
+    print(f"[ok] {meta['duration']:.1f} detik -> {path}")
+    return 0
 
 
 def _transcribe(path: str) -> int:
@@ -318,6 +340,8 @@ def main(argv: list[str] | None = None) -> int:
         return _chat(args.trace, args.detail, args.new, args.speak)
     if args.command == "transcribe":
         return _transcribe(args.audio)
+    if args.command == "intro":
+        return _intro(args.force)
     if args.command == "serve":
         from edupad import server
 

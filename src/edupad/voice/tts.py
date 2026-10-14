@@ -181,6 +181,15 @@ def _play(*downloads: _Download) -> Iterator[bytes]:
             download.cancel()
 
 
+def _provider() -> Callable[..., Iterator[bytes]]:
+    name = get_settings().tts_provider
+    if name not in PROVIDERS:
+        raise TTSError(
+            f"EDUPAD_TTS_PROVIDER '{name}' tidak dikenal; pilihan: {', '.join(PROVIDERS)}"
+        )
+    return PROVIDERS[name]
+
+
 def stream(text: str) -> Iterator[bytes]:
     """Potongan PCM 16 kHz mono 16-bit, berurutan."""
     text = " ".join(text.split())
@@ -188,19 +197,27 @@ def stream(text: str) -> Iterator[bytes]:
         return iter(())
     if len(text) > MAX_TEXT_CHARS:
         raise TTSError(f"teks {len(text)} karakter melebihi batas {MAX_TEXT_CHARS}")
-    provider = get_settings().tts_provider
-    if provider not in PROVIDERS:
-        raise TTSError(
-            f"EDUPAD_TTS_PROVIDER '{provider}' tidak dikenal; pilihan: {', '.join(PROVIDERS)}"
-        )
+    provider = _provider()
     parts = split_first(text)
     if len(parts) == 1:
-        return _play(_Download(PROVIDERS[provider], text))
+        return _play(_Download(provider, text))
     first, rest = parts
-    head = _Download(PROVIDERS[provider], first, next_text=rest)
-    return _play(
-        head, _Download(PROVIDERS[provider], rest, retry_after=head.done, previous_text=first)
-    )
+    head = _Download(provider, first, next_text=rest)
+    return _play(head, _Download(provider, rest, retry_after=head.done, previous_text=first))
+
+
+def synthesize_part(
+    text: str, previous_text: str | None = None, next_text: str | None = None
+) -> bytes:
+    """Satu bagian dari naskah yang lebih panjang. Teks sebelum/sesudahnya hanya konteks
+    intonasi (tidak ikut disuarakan dan tidak ditagih)."""
+    text = " ".join(text.split())
+    if not text:
+        return b""
+    if len(text) > MAX_TEXT_CHARS:
+        raise TTSError(f"teks {len(text)} karakter melebihi batas {MAX_TEXT_CHARS}")
+    with _SLOTS:
+        return b"".join(_provider()(text, previous_text=previous_text, next_text=next_text))
 
 
 def synthesize(text: str) -> bytes:

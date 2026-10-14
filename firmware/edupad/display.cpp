@@ -3,6 +3,7 @@
 #include <LovyanGFX.hpp>
 
 #include "config.h"
+#include "scene.h"
 
 namespace {
 
@@ -54,88 +55,130 @@ class LGFX : public lgfx::LGFX_Device {
 };
 
 LGFX tft;
+LGFX_Sprite canvas(&tft);  // seluruh layar di PSRAM; tiap frame hanya area yang berubah dikirim
 
-constexpr int W = 480;
-constexpr int H = 320;
-constexpr int BAR_H = 28;
-constexpr int MARGIN = 12;
+// Data layar yang dibagi dengan task gambar; semua akses lewat `lock`.
+SemaphoreHandle_t lock = nullptr;
+scene::Ui shared;
+uint32_t generation = 0;  // naik bila layar harus digambar penuh (ganti layar, toast, dsb.)
+uint32_t sceneStartMs = 0;
+float rawLevel = -90;  // mikrofon
+float rawVoice = -90;  // suara yang diputar
+uint32_t lastLoudMs = 0;
+float bootTarget = 0.05f;
+uint32_t bootDoneAt = 0;  // millis() saat siap, 0 = belum
+uint32_t toastAt = 0;     // millis() saat toast muncul, 0 = tidak ada
+uint32_t wakeAt = 0;      // millis() saat dibangunkan dari tidur, 0 = tidak
+uint32_t clockTs = 0, clockMs = 0;  // jam dari server: detik epoch pada millis() clockMs
+bool running = false;
 
-constexpr uint16_t BG = 0x0000;
-constexpr uint16_t BAR = 0x18E3;
-constexpr uint16_t TEXT = 0xFFFF;
-constexpr uint16_t MUTED = 0xAD55;
-constexpr uint16_t ACCENT = 0x5E7F;
-constexpr uint16_t RED = 0xF8A2;
-constexpr uint16_t GREEN = 0x2F65;
-constexpr uint16_t YELLOW = 0xFEA0;
-
-// Meter level mikrofon: -60..0 dBFS, garis kuning = ambang "ada suara" server (-35 dBFS).
-constexpr int METER_X = 40, METER_Y = 200, METER_W = 400, METER_H = 24;
-constexpr float METER_MIN_DB = -60.0f;
-constexpr float SPEECH_DBFS = -35.0f;
-
-enum class View { None, Message, Recording, Processing, Answer };
-View view = View::None;
-char status[40] = "";
-uint32_t lastSeconds = UINT32_MAX;
-
-void drawBar() {
-  tft.fillRect(0, 0, W, BAR_H, BAR);
-  tft.setFont(&fonts::Font2);
-  tft.setTextColor(TEXT, BAR);
-  tft.setTextDatum(middle_left);
-  tft.drawString("EduPad", MARGIN, BAR_H / 2);
-  tft.setTextColor(MUTED, BAR);
-  tft.setTextDatum(middle_right);
-  tft.drawString(status, W - MARGIN, BAR_H / 2);
+template <typename F>
+void update(F change) {
+  if (!running) return;
+  xSemaphoreTake(lock, portMAX_DELAY);
+  change();
+  xSemaphoreGive(lock);
 }
 
-void clearBody() { tft.fillRect(0, BAR_H, W, H - BAR_H, BG); }
-
-// Potong `text` dengan "..." supaya muat `maxWidth` piksel dengan font aktif.
-String fitWidth(const char *text, int maxWidth) {
-  String s = text;
-  if (tft.textWidth(s.c_str()) <= maxWidth) return s;
-  while (s.length() && tft.textWidth((s + "...").c_str()) > maxWidth) s.remove(s.length() - 1);
-  return s + "...";
+// Ganti layar (di dalam update): animasinya mulai dari awal dan digambar penuh.
+void show(scene::Kind kind) {
+  shared.kind = kind;
+  sceneStartMs = millis();
+  generation++;
 }
 
-void centered(const char *text, int y, const lgfx::IFont *font, uint16_t color) {
-  if (!text) return;
-  tft.setFont(font);
-  tft.setTextColor(color, BG);
-  tft.setTextDatum(top_center);
-  tft.drawString(fitWidth(text, W - 2 * MARGIN).c_str(), W / 2, y);
+void copy(char *dst, size_t size, const char *src) { strlcpy(dst, src ? src : "", size); }
+
+void pushArea(const scene::Rect &r) {
+  tft.setClipRect(r.x, r.y, r.w, r.h);
+  canvas.pushSprite(0, 0);
+  tft.clearClipRect();
 }
 
-void leftLine(const char *text, int y, const lgfx::IFont *font, uint16_t color) {
-  tft.setFont(font);
-  tft.setTextColor(color, BG);
-  tft.setTextDatum(top_left);
-  tft.drawString(fitWidth(text, W - 2 * MARGIN).c_str(), MARGIN, y);
+// Kecerahan lampu layar: redup saat tidur (hemat baterai), terang di layar lain.
+constexpr int BRIGHT_FULL = 255, BRIGHT_SLEEP = 40;
+
+void uiTask(void *) {
+  static scene::Ui ui;
+  uint32_t seen = 0, last = millis();
+  float progress = 0, level = -90, voiced = -90, bright = BRIGHT_FULL;
+  int shownBright = BRIGHT_FULL;
+  for (;;) {
+    uint32_t now = millis();
+    float dt = (now - last) / 1000.0f;
+    last = now;
+
+    xSemaphoreTake(lock, portMAX_DELAY);
+    if (toastAt && now - toastAt > (uint32_t)(scene::TOAST_SECONDS * 1000)) {
+      shared.toast[0] = 0;
+      toastAt = 0;
+      generation++;  // gambar ulang bagian yang tertutup toast
+    }
+    ui = shared;
+    bool full = generation != seen;
+    seen = generation;
+    uint32_t start = sceneStartMs, loud = lastLoudMs, doneAt = bootDoneAt, shownAt = toastAt, woke = wakeAt;
+    uint32_t baseTs = clockTs, baseMs = clockMs;
+    float raw = rawLevel, target = bootTarget, spoken = rawVoice;
+    xSemaphoreGive(lock);
+
+    ui.t = (now - start) / 1000.0f;
+    progress += (target - progress) * (1 - expf(-dt * 5));
+    ui.progress = progress;
+    ui.done = doneAt ? (now - doneAt) / 1000.0f : -1;
+    level += (raw - level) * (1 - expf(-dt * (raw > level ? 30 : 6)));  // naik cepat, turun pelan
+    ui.level = level;
+    voiced += (spoken - voiced) * (1 - expf(-dt * (spoken > voiced ? 40 : 12)));
+    ui.voice = voiced;
+    ui.quiet = (now - loud) / 1000.0f;
+    ui.toastT = shownAt ? (now - shownAt) / 1000.0f : -1;
+    ui.wake = woke ? (now - woke) / 1000.0f : -1;
+    ui.nowTs = baseTs ? baseTs + (now - baseMs) / 1000 : 0;
+
+    // tidur: setelah tertidur lampu meredup pelan dan gambar cukup 15 fps; bangun: terang cepat
+    bool dozing = ui.kind == scene::Kind::Sleep && ui.t > scene::SLEEP_SETTLE_SECONDS;
+    float wanted = dozing ? BRIGHT_SLEEP : BRIGHT_FULL;
+    bright = wanted < bright ? fmaxf(wanted, bright - 120 * dt) : fminf(wanted, bright + 1500 * dt);
+    if ((int)bright != shownBright) {
+      shownBright = (int)bright;
+      tft.setBrightness(shownBright);
+    }
+
+    scene::render(canvas, ui, full, pushArea);
+    uint32_t frameMs = dozing ? 66 : 33, spent = millis() - now;
+    vTaskDelay(pdMS_TO_TICKS(spent < frameMs ? frameMs - spent : 1));
+  }
 }
 
-int meterX(float db) {
-  db = constrain(db, METER_MIN_DB, 0.0f);
-  return (int)((db - METER_MIN_DB) / -METER_MIN_DB * (METER_W - 2));
+scene::Gesture gestureNamed(const char *name) {
+  static const struct {
+    const char *name;
+    scene::Gesture gesture;
+  } names[] = {{"wave", scene::Gesture::Wave},   {"happy", scene::Gesture::Happy},
+               {"book", scene::Gesture::Book},   {"tasks", scene::Gesture::Tasks},
+               {"button", scene::Gesture::Button}, {"cheer", scene::Gesture::Cheer}};
+  for (const auto &n : names)
+    if (strcmp(name, n.name) == 0) return n.gesture;
+  return scene::Gesture::Talk;
 }
 
-// Angka detik di bawah judul; digambar ulang hanya saat berubah.
-void drawSeconds(uint32_t elapsedMs, int y) {
-  uint32_t seconds = elapsedMs / 1000;
-  if (seconds == lastSeconds) return;
-  lastSeconds = seconds;
-  char text[16];
-  snprintf(text, sizeof text, "%lu s", (unsigned long)seconds);
-  tft.fillRect(0, y, W, 26, BG);
-  centered(text, y, &fonts::Font4, MUTED);
-}
-
-void beginView(View next) {
-  if (view == View::None) drawBar();
-  clearBody();
-  view = next;
-  lastSeconds = UINT32_MAX;
+// Satu butir jawaban server untuk layar pesan: buang "- " dan gabungkan baris lanjutan.
+uint8_t noticeLines(JsonArrayConst lines, char (*out)[48], uint8_t max) {
+  uint8_t n = 0;
+  for (JsonVariantConst v : lines) {
+    const char *l = v | "";
+    bool more = l[0] == ' ' && l[1] == ' ';
+    while (*l == ' ') l++;
+    if (l[0] == '-' && l[1] == ' ') l += 2;
+    if (!*l) continue;
+    if (more && n > 0) {
+      size_t len = strlen(out[n - 1]);
+      snprintf(out[n - 1] + len, 48 - len, " %s", l);
+    } else if (n < max) {
+      strlcpy(out[n++], l, 48);
+    }
+  }
+  return n;
 }
 
 }  // namespace
@@ -145,109 +188,239 @@ namespace display {
 void begin() {
   tft.init();
   tft.setRotation(1);  // landscape, konektor di kiri; 3 untuk sebaliknya
-  tft.setTextWrap(false);
   tft.setBrightness(255);
-  tft.fillScreen(BG);
-  drawBar();
+  tft.fillScreen(TFT_BLACK);
+  canvas.setColorDepth(16);
+  canvas.setPsram(true);
+  if (!canvas.createSprite(scene::W, scene::H)) {
+    Serial.println("[lcd] kanvas 300 KB gagal dibuat: aktifkan PSRAM (Tools -> PSRAM -> OPI PSRAM)");
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextDatum(middle_center);
+    tft.setFont(&fonts::FreeSansBold12pt7b);
+    tft.drawString("Aktifkan PSRAM (OPI PSRAM)", scene::W / 2, scene::H / 2);
+    return;
+  }
+  scene::begin(true);
+  lock = xSemaphoreCreateMutex();
+  copy(shared.status, sizeof shared.status, "Menyiapkan...");
+  shared.kind = scene::Kind::Boot;
+  sceneStartMs = millis();
+  generation = 1;
+  running = true;
+  // core 0 (Wi-Fi juga di sana, dengan prioritas lebih tinggi); loop() tetap bebas di core 1
+  xTaskCreatePinnedToCore(uiTask, "ui", 12288, nullptr, 1, nullptr, 0);
 }
 
-void setStatus(const char *text) {
-  if (strncmp(status, text, sizeof status) == 0) return;
-  strlcpy(status, text, sizeof status);
-  drawBar();
+void bootStep(const char *text, float progress) {
+  update([&] {
+    copy(shared.status, sizeof shared.status, text);
+    bootTarget = progress;
+  });
 }
 
-void message(const char *title, const char *line1, const char *line2, uint16_t color) {
-  beginView(View::Message);
-  centered(title, 110, &fonts::FreeSansBold18pt7b, color);
-  centered(line1, 170, &fonts::FreeSans12pt7b, MUTED);
-  centered(line2, 205, &fonts::FreeSans12pt7b, MUTED);
+void bootDone() {
+  if (!running) return;
+  update([&] {
+    copy(shared.status, sizeof shared.status, "Siap!");
+    bootTarget = 1;
+    bootDoneAt = millis();
+  });
+  delay(1200);  // burung hantu melompat senang
 }
 
 void idle(bool newSession) {
-  message("Siap", "Tahan tombol BOOT lalu bicara",
-          newSession ? "Percakapan baru dimulai" : "Tekan 1x: ulangi | 2x: sesi baru", ACCENT);
+  update([&] {
+    show(scene::Kind::Home);
+    shared.newSession = newSession;
+  });
 }
 
-void portal(const char *apSsid, const char *apPassword, const char *ip, const char *failed) {
-  beginView(View::Message);
-  centered("Atur Wi-Fi", 40, &fonts::FreeSansBold18pt7b, YELLOW);
-  if (failed && *failed) {
-    String text = String("Gagal tersambung ke ") + failed;
-    centered(text.c_str(), 86, &fonts::FreeSans9pt7b, MUTED);
-  }
-  String hotspot = String("    ") + apSsid + ", sandi " + apPassword;
-  String url = String("    atau buka http://") + ip;
-  leftLine("1. Sambungkan HP ke Wi-Fi:", 120, &fonts::FreeSans12pt7b, TEXT);
-  leftLine(hotspot.c_str(), 150, &fonts::FreeSansBold12pt7b, ACCENT);
-  leftLine("2. Halaman akan terbuka otomatis,", 190, &fonts::FreeSans12pt7b, TEXT);
-  leftLine(url.c_str(), 220, &fonts::FreeSansBold12pt7b, ACCENT);
-  centered("Tekan BOOT untuk mencoba lagi", 276, &fonts::FreeSans9pt7b, MUTED);
+void sleep() {
+  update([&] {
+    show(scene::Kind::Sleep);
+    wakeAt = 0;
+  });
+}
+
+void wake() {
+  update([&] {
+    // Dibangunkan saat masih menguap (belum di kamar tidur): lewati bagian kaget di ranjang.
+    bool inBed = shared.kind == scene::Kind::Sleep && millis() - sceneStartMs >= scene::SLEEP_ROOM_AT * 1000;
+    show(scene::Kind::Home);
+    wakeAt = millis() - (inBed ? 0 : (uint32_t)(scene::WAKE_ROOM_SECONDS * 1000));
+  });
+}
+
+void setOnline(bool online) {
+  update([&] {
+    if (shared.online == online) return;
+    shared.online = online;
+    if (shared.kind == scene::Kind::Home) generation++;
+  });
 }
 
 void recording(uint32_t elapsedMs, float levelDbfs) {
-  if (view != View::Recording) {
-    beginView(View::Recording);
-    tft.fillCircle(W / 2 - 118, 92, 9, RED);
-    tft.setFont(&fonts::FreeSansBold18pt7b);
-    tft.setTextColor(TEXT, BG);
-    tft.setTextDatum(middle_left);
-    tft.drawString("Mendengarkan", W / 2 - 98, 92);
-    centered("Lepas tombol untuk mengirim", 250, &fonts::FreeSans12pt7b, MUTED);
-    tft.drawRect(METER_X, METER_Y, METER_W, METER_H, MUTED);
-  }
-  drawSeconds(elapsedMs, 130);
-
-  int fill = meterX(levelDbfs);
-  int mark = meterX(SPEECH_DBFS);
-  tft.fillRect(METER_X + 1, METER_Y + 1, fill, METER_H - 2, levelDbfs >= SPEECH_DBFS ? GREEN : ACCENT);
-  tft.fillRect(METER_X + 1 + fill, METER_Y + 1, METER_W - 2 - fill, METER_H - 2, BG);
-  tft.drawFastVLine(METER_X + 1 + mark, METER_Y - 4, METER_H + 8, YELLOW);
+  update([&] {
+    uint32_t now = millis();
+    if (shared.kind != scene::Kind::Listen) {
+      show(scene::Kind::Listen);
+      lastLoudMs = now;
+    }
+    shared.elapsedMs = elapsedMs;
+    rawLevel = levelDbfs;
+    if (levelDbfs >= scene::SPEECH_DBFS) lastLoudMs = now;
+  });
 }
 
 void processing(uint32_t elapsedMs) {
-  if (view != View::Processing) {
-    beginView(View::Processing);
-    centered("Memproses...", 92, &fonts::FreeSansBold18pt7b, ACCENT);
-    centered("Mengenali suara dan mencari jawaban", 190, &fonts::FreeSans12pt7b, MUTED);
-  }
-  drawSeconds(elapsedMs, 135);
+  update([&] {
+    if (shared.kind != scene::Kind::Think) show(scene::Kind::Think);
+    shared.elapsedMs = elapsedMs;
+  });
 }
 
-void answer(JsonObjectConst screen, const char *question) {
-  beginView(View::Answer);
+void answer(JsonObjectConst screen, const char *question, const char *status) {
+  update([&] {
+    shared.speaking = false;
+    if (strcmp(status, "no_speech") == 0) {
+      show(scene::Kind::Notice);
+      shared.tone = scene::Tone::Warn;
+      copy(shared.title, sizeof shared.title, "Suara tidak terdengar");
+      copy(shared.lines[0], sizeof shared.lines[0], "Coba bicara lebih dekat, ya.");
+      copy(shared.lines[1], sizeof shared.lines[1], "Tahan tombol lalu bicara lagi");
+      shared.lineCount = 2;
+      return;
+    }
+    if (strcmp(status, "ok") != 0) {  // galat dari server: judul dan keterangannya apa adanya
+      show(scene::Kind::Notice);
+      shared.tone = scene::Tone::Error;
+      copy(shared.title, sizeof shared.title, screen["title"] | "Ada gangguan");
+      shared.lineCount = noticeLines(screen["lines"].as<JsonArrayConst>(), shared.lines, 3);
+      return;
+    }
+    show(scene::Kind::Answer);
+    copy(shared.title, sizeof shared.title, screen["title"] | "EduPad");
+    copy(shared.subtitle, sizeof shared.subtitle, question);
+    uint8_t n = 0;
+    for (JsonVariantConst line : screen["lines"].as<JsonArrayConst>()) {
+      if (n == scene::MAX_LINES) break;
+      copy(shared.lines[n++], sizeof shared.lines[0], line | "");
+    }
+    shared.lineCount = n;
+  });
+}
 
-  // Server membungkus baris untuk font lebar tetap (38 kolom, judul besar 24 kolom).
-  const char *title = screen["title"] | "EduPad";
-  bool large = strcmp(screen["title_size"] | "normal", "large") == 0;
-  const lgfx::IFont *titleFonts[] = {&fonts::FreeSansBold18pt7b, &fonts::FreeSansBold12pt7b,
-                                     &fonts::FreeSansBold9pt7b};
-  int pick = large ? 0 : 1;
-  tft.setFont(titleFonts[pick]);
-  while (pick < 2 && tft.textWidth(title) > W - 2 * MARGIN) tft.setFont(titleFonts[++pick]);
-  tft.setTextColor(ACCENT, BG);
-  tft.setTextDatum(middle_left);
-  tft.drawString(fitWidth(title, W - 2 * MARGIN).c_str(), MARGIN, 56);
-  tft.drawFastHLine(MARGIN, 80, W - 2 * MARGIN, BAR);
+void speaking(bool on) {
+  update([&] {
+    shared.speaking = on;
+    if (!on) rawVoice = -90;
+  });
+}
 
-  tft.setFont(&fonts::FreeMonoBold9pt7b);  // 11 px per huruf: 38 kolom = 418 px
-  tft.setTextColor(TEXT, BG);
-  tft.setTextDatum(top_left);
-  int y = 88;
-  for (JsonVariantConst line : screen["lines"].as<JsonArrayConst>()) {
-    if (y > 270) break;
-    tft.drawString(line | "", MARGIN + 8, y);
-    y += 22;
-  }
+void voice(float levelDbfs, uint32_t positionMs) {
+  update([&] {
+    rawVoice = levelDbfs;
+    shared.position = positionMs / 1000.0f;
+  });
+}
 
-  if (question && *question) {
-    tft.fillRect(0, H - 26, W, 26, BAR);
-    tft.setFont(&fonts::Font2);
-    tft.setTextColor(MUTED, BAR);
-    tft.setTextDatum(middle_left);
-    String text = String("Kamu: ") + question;
-    tft.drawString(fitWidth(text.c_str(), W - 2 * MARGIN).c_str(), MARGIN, H - 13);
-  }
+void intro(JsonArrayConst segments, float duration) {
+  update([&] {
+    show(scene::Kind::Intro);
+    uint8_t n = 0;
+    for (JsonObjectConst seg : segments) {
+      if (n == scene::MAX_SEGMENTS) break;
+      shared.segStart[n] = seg["start"] | 0.0f;
+      shared.segGesture[n] = gestureNamed(seg["gesture"] | "");
+      copy(shared.segText[n], sizeof shared.segText[0], seg["text"] | "");
+      n++;
+    }
+    shared.segCount = n;
+    shared.duration = duration;
+    shared.position = -1;
+    rawVoice = -90;
+  });
+}
+
+void message(const char *title, const char *line1, const char *line2, Tone tone) {
+  update([&] {
+    show(scene::Kind::Notice);
+    shared.tone = tone == Tone::Error ? scene::Tone::Error : tone == Tone::Warn ? scene::Tone::Warn : scene::Tone::Info;
+    copy(shared.title, sizeof shared.title, title);
+    uint8_t n = 0;
+    if (line1 && *line1) copy(shared.lines[n++], sizeof shared.lines[0], line1);
+    if (line2 && *line2) copy(shared.lines[n++], sizeof shared.lines[0], line2);
+    shared.lineCount = n;
+  });
+}
+
+void portal(const char *apSsid, const char *apPassword, const char *ip, const char *failed) {
+  update([&] {
+    show(scene::Kind::Portal);
+    copy(shared.ssid, sizeof shared.ssid, apSsid);
+    copy(shared.password, sizeof shared.password, apPassword);
+    copy(shared.ip, sizeof shared.ip, ip);
+    copy(shared.subtitle, sizeof shared.subtitle, failed);
+  });
+}
+
+void clock(uint32_t nowTs) {
+  update([&] {
+    clockTs = nowTs;
+    clockMs = millis();
+  });
+}
+
+void schedule(JsonObjectConst next, JsonArrayConst stale) {
+  update([&] {
+    scene::Ui before = shared;
+    shared.hasNext = !next.isNull();
+    if (shared.hasNext) {
+      copy(shared.nextName, sizeof shared.nextName, next["name"] | "");
+      copy(shared.nextTime, sizeof shared.nextTime, next["time"] | "");
+      copy(shared.nextDay, sizeof shared.nextDay, next["day"] | "");
+      copy(shared.nextRoom, sizeof shared.nextRoom, next["room"] | "");
+      shared.nextStart = next["start_ts"] | 0;
+      shared.nextEnd = next["end_ts"] | 0;
+    }
+    // sesi habis di server: datanya tidak diperbarui sampai login ulang
+    shared.warning[0] = 0;
+    for (const char *source : stale) {
+      if (!strcmp(source, "SATU")) {
+        copy(shared.warning, sizeof shared.warning, "Sesi SATU habis: presensi tidak terpantau");
+        break;
+      }
+      copy(shared.warning, sizeof shared.warning, "Sesi kelas.usu habis: tugas tidak diperbarui");
+    }
+    bool changed = before.hasNext != shared.hasNext || strcmp(before.nextName, shared.nextName) ||
+                   strcmp(before.nextTime, shared.nextTime) || strcmp(before.nextDay, shared.nextDay) ||
+                   strcmp(before.nextRoom, shared.nextRoom) || strcmp(before.warning, shared.warning);
+    if (changed && shared.kind == scene::Kind::Home) generation++;
+  });
+}
+
+void alert(JsonObjectConst a) {
+  update([&] {
+    show(scene::Kind::Alert);
+    const char *kind = a["kind"] | "";
+    shared.alert = !strcmp(kind, "attendance") ? scene::Alert::Attendance
+                   : !strcmp(kind, "attended") ? scene::Alert::Attended
+                                               : scene::Alert::Deadline;
+    copy(shared.alertCourse, sizeof shared.alertCourse, a["course"] | "");
+    copy(shared.alertDetail, sizeof shared.alertDetail, a["detail"] | "");
+    copy(shared.alertWhen, sizeof shared.alertWhen, a["when"] | "");
+    shared.alertQr = strcmp(a["method"] | "qr", "direct") != 0;
+    shared.alertFrom = a["from_ts"] | 0;
+    shared.alertTo = a["to_ts"] | 0;
+  });
+}
+
+void toast(const char *text) {
+  update([&] {
+    copy(shared.toast, sizeof shared.toast, text);
+    toastAt = millis();
+    generation++;
+  });
 }
 
 }  // namespace display

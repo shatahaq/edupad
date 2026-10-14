@@ -15,6 +15,12 @@ Satu pertanyaan = dua permintaan:
    GET /v1/audio/latest diambil dari simpanan tanpa memakai kuota TTS. `?format=wav` untuk
    didengar di laptop.
 
+Perkenalan diri saat perangkat menyala: GET /v1/intro (kalimat, gerakan, waktu mulai) lalu
+GET /v1/intro/audio. Suaranya dibuat sekali lalu disimpan (voice/intro.py).
+
+GET /v1/updates (dicek perangkat berkala): kuliah berikutnya dan pemberitahuan presensi /
+deadline untuk layar (agent/updates.py).
+
 Semua permintaan selain GET /v1/health wajib membawa header
 `Authorization: Bearer <EDUPAD_DEVICE_TOKEN>`.
 
@@ -36,10 +42,11 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
+from edupad.agent import updates
 from edupad.agent.formatting import fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
-from edupad.voice import stt, tts
+from edupad.voice import intro, stt, tts
 from edupad.webapp import WebApp
 
 log = logging.getLogger(__name__)
@@ -251,7 +258,22 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/v1/audio/"):
             self._audio(path.removeprefix("/v1/audio/"), wav=query.get("format") == ["wav"])
             return
+        if path == "/v1/intro":
+            self._json(200, self._intro()[0])
+            return
+        if path == "/v1/updates":
+            self._json(200, updates.updates())
+            return
+        if path == intro.AUDIO_URL:
+            self._send_audio(self._intro()[1], wav=query.get("format") == ["wav"])
+            return
         raise RequestError(404, f"tidak ada {path}")
+
+    def _intro(self) -> tuple[dict, bytes]:
+        try:
+            return intro.load()
+        except tts.TTSError as e:
+            raise RequestError(502, f"TTS: {e}") from e
 
     def _post(self, path: str, query: dict) -> None:
         if not path.startswith("/v1/"):

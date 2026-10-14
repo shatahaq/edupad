@@ -49,3 +49,17 @@
 #define SPEAKER_VOLUME 0.7f  // 0.0-1.0; di atas 1.0 suara pecah
 // Audio ditampung dulu sebelum mulai diputar supaya tidak tersendat saat jaringan lambat.
 #define SPEAKER_PREBUFFER_MS 300
+
+// Perkenalan diri (suara + animasi) setiap kali menyala; 0 untuk langsung ke layar siap.
+// Suaranya dibuat sekali dan disimpan server (GET /v1/intro), jadi tidak memakai kuota TTS.
+#define INTRO_ON_BOOT 1
+
+// Tertidur (layar redup) bila tidak ada pertanyaan selama ini; tekan tombol untuk membangunkan.
+#define SLEEP_AFTER_MS (2 * 60 * 1000UL)
+
+// Kabar dari server (GET /v1/updates): kuliah berikutnya + pemberitahuan presensi/deadline.
+#define UPDATES_EVERY_MS (2 * 60 * 1000UL)
+// Lama pemberitahuan tampil bila tombol tidak ditekan.
+#define ALERT_ATTENDANCE_MS 25000
+#define ALERT_DEADLINE_MS 15000
+#define ALERT_ATTENDED_MS 8000

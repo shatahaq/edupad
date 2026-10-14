@@ -35,16 +35,27 @@ String hostHeader() {
   return defaultPort ? String(EDUPAD_HOST) : String(EDUPAD_HOST) + ":" + EDUPAD_PORT;
 }
 
+// `error` berisi penyebab singkat untuk layar (DNS / koneksi / TLS); rinciannya di Serial.
 bool connectServer(String &error) {
   conn.stop();
+  IPAddress ip;
+  if (!WiFi.hostByName(EDUPAD_HOST, ip)) {
+    error = String("DNS gagal: ") + EDUPAD_HOST;
+    Serial.printf("[api] DNS %s gagal (DNS Wi-Fi: %s)\n", EDUPAD_HOST, WiFi.dnsIP().toString().c_str());
+    return false;
+  }
   if (conn.connect(EDUPAD_HOST, EDUPAD_PORT)) return true;
-  error = String("tidak bisa terhubung ke ") + EDUPAD_HOST;
+  error = String("gagal ke ") + ip.toString() + ":" + EDUPAD_PORT;
 #if EDUPAD_TLS
   char reason[100];
-  if (conn.lastError(reason, sizeof reason) != 0) {
-    Serial.printf("[api] TLS: %s\n", reason);
+  int code = conn.lastError(reason, sizeof reason);
+  if (code != 0) {
+    Serial.printf("[api] TLS -0x%04X: %s\n", -code, reason);
+    error = String("TLS -0x") + String(-code, HEX) + " " + reason;
   }
 #endif
+  Serial.printf("[api] %s | heap bebas %u, blok terbesar %u, PSRAM bebas %u\n", error.c_str(),
+                (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap(), (unsigned)ESP.getFreePsram());
   return false;
 }
 
@@ -236,6 +247,17 @@ Response health() {
   }
   conn.stop();
   return res;
+}
+
+Response get(const char *path, uint32_t timeoutMs) {
+  Response res;
+  if (!connectServer(res.error)) return res;
+  if (!sendHead("GET", path, "", true)) {
+    res.error = "gagal mengirim permintaan";
+    conn.stop();
+    return res;
+  }
+  return readResponse(timeoutMs, nullptr);
 }
 
 bool askOpen(bool newSession, String &error) {

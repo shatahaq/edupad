@@ -14,6 +14,8 @@ struct Response {
 
 void begin();
 Response health();
+// GET JSON dengan koneksi dibiarkan terbuka (audio berikutnya tanpa jabat tangan TLS lagi).
+Response get(const char *path, uint32_t timeoutMs);
 
 // POST /v1/ask dikirim sambil merekam: askOpen -> askWrite berulang -> askFinish.
 bool askOpen(bool newSession, String &error);

@@ -13,5 +13,11 @@ void write(const uint8_t *pcm, size_t size);
 void finish();
 // Hentikan suara seketika dan buang sisa.
 void stop();
+// Bunyi "ding-dong" singkat (~0,9 s) untuk pemberitahuan; dibuat di perangkat, tanpa server.
+void chime();
+// Keras suara (dBFS) yang sedang keluar, untuk gerak paruh burung hantu.
+float level();
+// Lama audio yang sudah terdengar sejak write() pertama (ms), untuk menyelaraskan layar.
+uint32_t positionMs();
 
 }  // namespace speaker

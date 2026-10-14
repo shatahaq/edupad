@@ -85,6 +85,63 @@ Field `error` berisi penyebab teknis untuk log serial, bukan untuk LCD.
 - `?format=wav` mengembalikan WAV utuh, untuk didengar di laptop.
 - 404 bila id tidak dikenal / sudah diganti jawaban baru (atau `latest` sebelum ada jawaban); 502 bila TTS gagal sebelum audio pertama.
 
+## GET /v1/intro dan /v1/intro/audio
+
+Perkenalan diri yang diputar perangkat setiap menyala (setelah `/v1/health`).
+
+```json
+{
+  "duration": 12.4,
+  "audio_url": "/v1/intro/audio",
+  "segments": [
+    {"start": 0.0, "gesture": "wave", "text": "Halo! Aku EduPad."},
+    {"start": 1.6, "gesture": "happy", "text": "Teman belajarmu."}
+  ]
+}
+```
+
+- `segments`: tiap kalimat dengan waktu mulainya (detik dari awal audio) dan gerakan burung
+  hantu di layar (`wave`, `happy`, `book`, `tasks`, `button`, `cheer`; lainnya = bicara saja).
+  Naskahnya ada di `src/edupad/voice/intro.py`.
+- `/v1/intro/audio`: PCM seperti `/v1/audio`, utuh dengan `Content-Length`; `?format=wav`
+  untuk didengar di laptop.
+- Suara dibuat **sekali** lewat TTS lalu disimpan di `data/voice/intro/`; permintaan
+  berikutnya tidak memakai kuota. Dibuat ulang otomatis hanya bila naskah atau suara berubah.
+  Permintaan pertama menunggu TTS (beberapa detik); buat lebih dulu dengan
+  `python -m edupad intro` (juga menyimpan `intro.wav` untuk didengar).
+- 502 bila TTS gagal saat membuat suara (perangkat melewati perkenalan).
+
+## GET /v1/updates
+
+Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca data hasil cron.
+
+```json
+{
+  "now_ts": 1792040400,
+  "next_class": {"name": "Prak EA", "course": "Praktikum E-Application", "room": "Laboratorium Komputer",
+                 "room_code": "I09.3.3.2", "day": "Besok", "time": "08:00",
+                 "start_ts": 1792026000, "end_ts": 1792032000, "ongoing": false},
+  "alerts": [
+    {"id": "att:6a96...", "kind": "attendance", "course": "Statistika", "detail": "Ruang 3.2",
+     "when": "Tutup 09:20", "method": "qr", "from_ts": 1792039800, "to_ts": 1792041600}
+  ],
+  "stale": ["SATU"]
+}
+```
+
+- `now_ts`: jam server (detik epoch) untuk hitung mundur di perangkat, tanpa NTP.
+- `next_class`: kelas yang sedang berlangsung atau mulai paling dekat (jadwal KRS mingguan); `null`
+  bila tidak ada. `name` nama singkat dari alias katalog ("Prak MSBD").
+- `alerts` (paling banyak 5, terpenting dulu), `id` stabil supaya tiap pemberitahuan tampil sekali:
+  - `attendance`: presensi sedang dibuka dan belum diisi (`method` `qr` / `direct`); hanya bila
+    data presensi berumur < 15 menit.
+  - `deadline`: tugas belum dikumpulkan (kelas.usu dan Classroom) dengan deadline < 48 jam; `id`
+    berganti tiap hari dan saat tinggal < 3 jam, jadi diingatkan lagi.
+  - `attended`: presensi pertemuan yang sedang berlangsung sudah tercatat "hadir" (mis. diisi
+    otomatis oleh cron `attendance --fill`).
+- `stale`: sumber yang sesinya habis (`SATU`, `kelas.usu`); perangkat menampilkan peringatan.
+- Semua teks ASCII (font LCD). Isinya disusun di `src/edupad/agent/updates.py`.
+
 ## GET /v1/health
 
 `{"status": "ok"}` tanpa token; untuk cek koneksi saat perangkat menyala.

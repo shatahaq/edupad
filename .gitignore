@@ -23,3 +23,10 @@ web/dist/
 
 # Data Google Classroom per akun Google: data pribadi pengguna, tidak di-commit
 data/classroom/
+
+# Pratinjau layar firmware
+firmware/preview/build/
+firmware/preview/out/
+
+# Suara perkenalan perangkat, dibuat server lewat TTS (python -m edupad intro)
+data/voice/intro/

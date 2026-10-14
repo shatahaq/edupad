@@ -206,7 +206,6 @@ void runPortal() {
 
   Serial.printf("[wifi] gagal: %s; hotspot %s di http://%s\n", failed.c_str(), SETUP_AP_SSID,
                 ip.toString().c_str());
-  display::setStatus("Pengaturan Wi-Fi");
   display::portal(SETUP_AP_SSID, SETUP_AP_PASSWORD, ip.toString().c_str(), failed.c_str());
 
   for (;;) {
@@ -215,7 +214,7 @@ void runPortal() {
     if (digitalRead(PIN_BUTTON) == LOW) {
       delay(50);
       if (digitalRead(PIN_BUTTON) == LOW) {
-        display::message("EduPad", "Mencoba Wi-Fi lagi...");
+        display::message("Mencoba Wi-Fi lagi...");
         delay(300);
         ESP.restart();
       }

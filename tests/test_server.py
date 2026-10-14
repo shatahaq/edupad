@@ -295,6 +295,30 @@ def test_audio_is_kept_when_device_stops_playback(server, monkeypatch):
     assert data == item["pcm"] and calls == ["Jawaban: PV"]
 
 
+def test_intro_info_and_audio_come_from_saved_intro(server, monkeypatch):
+    meta = {"duration": 1.0, "audio_url": "/v1/intro/audio", "segments": [{"start": 0}]}
+    monkeypatch.setattr(srv.intro, "load", lambda: (meta, b"\x01\x00" * 10))
+    response, data = request(server, "GET", "/v1/intro")
+    assert response.status == 200 and json.loads(data) == meta
+    response, data = request(server, "GET", "/v1/intro/audio")
+    assert data == b"\x01\x00" * 10 and response.getheader("Content-Length") == "20"
+    assert request(server, "GET", "/v1/intro", token=None)[0].status == 401
+
+    def quota():
+        raise srv.tts.TTSError("kuota habis")
+
+    monkeypatch.setattr(srv.intro, "load", quota)
+    assert request(server, "GET", "/v1/intro")[0].status == 502
+
+
+def test_updates_for_device_screen(server, monkeypatch):
+    body = {"now_ts": 1, "next_class": None, "alerts": [], "stale": ["SATU"]}
+    monkeypatch.setattr(srv.updates, "updates", lambda: body)
+    response, data = request(server, "GET", "/v1/updates")
+    assert response.status == 200 and json.loads(data) == body
+    assert request(server, "GET", "/v1/updates", token=None)[0].status == 401
+
+
 def test_run_refuses_public_proxy_without_token(monkeypatch):
     settings = replace(get_settings(), device_token=None, public_url="https://shata.id")
     monkeypatch.setattr(srv, "get_settings", lambda: settings)

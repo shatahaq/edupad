@@ -1,6 +1,7 @@
 #include "mic.h"
 
 #include <driver/i2s.h>
+#include <esp_heap_caps.h>
 #include <freertos/stream_buffer.h>
 #include <math.h>
 
@@ -54,7 +55,13 @@ void task(void *) {
 namespace mic {
 
 bool begin() {
-  buffer = xStreamBufferCreate(AUDIO_BUFFER_BYTES, 1);
+  // Penampung 96 KB di PSRAM bila ada (N16R8: Tools -> PSRAM -> OPI PSRAM), supaya RAM internal
+  // tetap cukup untuk koneksi TLS. Tanpa PSRAM, dipakai RAM internal.
+  static StaticStreamBuffer_t control;
+  uint8_t *storage = (uint8_t *)heap_caps_malloc(AUDIO_BUFFER_BYTES + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (!storage) storage = (uint8_t *)malloc(AUDIO_BUFFER_BYTES + 1);
+  if (!storage) return false;
+  buffer = xStreamBufferCreateStatic(AUDIO_BUFFER_BYTES, 1, storage, &control);
   if (!buffer) return false;
 
   i2s_config_t cfg = {};
