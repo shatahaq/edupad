@@ -18,66 +18,28 @@ Untuk vertical slice indexing, jalankan juga `python -m edupad office-worker` da
 Task `index` akan di-claim worker, menjalankan fungsi indexing EduPad yang asli, lalu mengirim
 status PIXEL dan workstation `knowledge-index-01` ke Phaser.
 
-Visual kantor memakai shell ruangan yang tenang dan atlas furnitur transparan pada
-`public/assets/office/`, bukan satu gambar penuh. Phaser menempatkan meja, server, tanaman, dan
-objek lain sebagai sprite terpisah serta mengurutkannya berdasarkan koordinat Y. Karena agent
-berada pada lapisan kedalaman yang sama, mereka terlihat berjalan di depan atau di belakang
-furnitur sesuai posisinya. Prompt aset didokumentasikan di `ASSET_PROMPTS.md`.
+Kantor owl terbaru memakai peta struktural `edupad-office-empty-v2.png`; meja, rak server,
+tanaman, dan sofa adalah 16 sprite transparan terpisah di `public/assets/office/furniture-muted/`.
+Masing-masing dipasang dengan rasio asli agar tidak gepeng. Area di luar peta mengikuti lantai
+kotak-kotak abu-abu kantor. Aset kantor lama tetap disimpan.
 
-Dinding depan dan pembatas memakai aset transparan terpisah yang dipecah menjadi beberapa
-occlusion band. Setiap band memiliki depth sesuai koordinat Y, sehingga agent di balik dinding
-tertutup oleh fasad, agent di koridor tampil di depannya, dan pintu tetap menjadi celah yang
-dapat dilewati.
+Tujuh owl menggunakan spritesheet per karakter. Saat tanpa tugas, mereka bergantian membaca,
+beristirahat, dan berjalan melewati koridor lalu kembali ke tempat kerja. Gerak memakai A* di
+`src/game/owlLayout.ts`, dengan batas badan, furnitur, tembok, dan celah pintu. Furnitur dapat
+diletakkan di area lantai; bila titik klik mengenai rintangan, editor memilih posisi aman
+terdekat. Jalur ke seluruh meja kerja tetap divalidasi agar owl tidak terkurung. Fasad tembok
+menutupi owl yang sedang berjalan di belakangnya.
 
-Furniture menggunakan interaction-edge depth sehingga karakter selalu terlihat di depannya;
-hanya fasad dinding yang dapat menutup bagian karakter. Perjalanan antar-ruangan memakai
-waypoint interior-pintu-koridor-pintu dari `src/game/navigation.ts`, bukan garis lurus, agar
-agent mengikuti tapak koridor dan tidak memotong dinding secara diagonal.
+Klik ikon kursi di panel luar kantor untuk membuka Studio furnitur. Pilih objek, klik lantai kosong,
+atau seret objek yang ada. Katalog dapat diciutkan dan dibuka lagi. Objek terpilih bisa dihapus;
+klik `Selesai` untuk kembali menjelajah. Susunan disimpan otomatis di `localStorage` browser
+(`edupad-owl-furniture-v2`), bukan di Office API atau Supabase. Klik objek di luar mode edit
+untuk melihat gambar serta keterangannya. Gerak dan tabrakan diuji dengan
+`node scripts/test-owl-navigation.mjs`.
 
-Ukuran furniture dihitung dengan satu faktor skala uniform berdasarkan bounding box asli,
-sehingga barang yang diperkecil tidak pernah gepeng. Enam patrol loop idle membawa setiap agent
-keluar melalui pintu dan kembali ke ruang asal. Patrol tervalidasi memiliki jarak aman 18 px dari
-bounding box furniture melalui `npm run validate:office`. Validator yang sama memeriksa benturan
-antar-furniture, batas aman setiap ruangan, dan enam jalur pintu agar dekorasi baru tidak menutup
-akses agent.
-
-Saat backend menyatakan agent `idle`, agent memilih titik aman di ruangan asal dan berjalan
-santai setelah jeda acak. Idle roaming ini hanya state visual: event backend baru selalu
-membatalkannya. State `running` tetap menentukan perjalanan ke workstation dan animasi kerja.
-
-Animasi kerja dipilih berdasarkan peran: Coordinator, Researcher/PIXEL, dan Analyst duduk
-mengetik; Planner memeriksa dokumen; Tutor berdiri menjelaskan; Keeper menangani panel server.
-Semua animasi ini hanya aktif ketika backend mengirim state `running`.
-
-Gelembung percakapan di atas setiap agent menjelaskan aktivitasnya. Saat ada pekerjaan,
-teksnya berasal dari task/status backend; saat idle, teks mengikuti aktivitas visual seperti
-membaca materi, mengecek konsol, atau berkeliling kantor. Warna bingkai tetap mengikuti state
-backend, sehingga state visual berjalan tidak mengubah atau memalsukan hasil pekerjaan.
-
-Saat tidak ada pekerjaan, seluruh enam agent bergantian antara patrol luar dan aktivitas idle
-sesuai peran: NOVA memeriksa konsol, PIXEL/TEMPO membaca dokumen, SORA berlatih menjelaskan,
-METRIC memeriksa dashboard, dan NEXUS merawat panel server. Seluruh aktivitas idle langsung
-dibatalkan ketika event backend baru diterima. Dalam mode preview keenam agent berada dalam
-state `idle` agar siklus patrol dapat diperiksa. PIXEL bermarkas di Research Lab dan hanya
-berpindah ke Knowledge Server ketika event backend indexing menetapkan workstation
-`knowledge-index-01`.
-
-Nama ruangan tersembunyi saat peta tidak disentuh dan muncul ketika pointer berada di dalam
-area ruangan. Klik atau tap agent untuk membuka kartu identitas berisi visual bot, nama, peran,
-deskripsi tanggung jawab, ruangan, status backend, dan aktivitas terakhir.
-
-Phaser memotong atlas furnitur v2 menjadi frame 384x384 dan tiga sheet PIXEL menjadi grid 4x4
-saat runtime. Atlas furnitur v2 memiliki gutter transparan tervalidasi agar meja, monitor,
-tanaman, dan kursi tidak terpotong atau bocor ke frame sebelah. Peta lama
-`edupad-office-map-v1.png` tetap disimpan sebagai referensi/fallback aset dan tidak ditimpa.
-Bank server pada frame furnitur dipotong lagi menjadi empat kolom rak individual saat runtime,
-lalu disusun rapat tanpa memperbesar atau mengubah rasio pixel art aslinya.
-
-Tombol `Atur furnitur` mengaktifkan editor posisi khusus sprite furnitur. Furnitur dapat diseret
-dengan snap 4 px dan koordinatnya disimpan di `localStorage` browser; bot, dinding, pintu, dan
-ruangan tidak ikut dapat dipindahkan. `Reset posisi` menghapus susunan lokal dan mengembalikan
-seluruh furnitur ke layout bawaan. Fitur ini tidak menulis ke Office API atau Supabase.
-
-Keenam agent menggunakan rig spritesheet yang sama dengan tint identitas masing-masing. State
-`succeeded` dan `failed` tetap ditampilkan di workstation sebelum agent kembali idle pada event
-berikutnya.
+State pekerjaan tetap berasal dari backend. Event baru menghentikan kegiatan santai dan
+mengantar owl ke workstation. PIXEL menuju Knowledge Server saat indexing, bekerja selama
+proses berjalan, menampilkan tanda gagal singkat saat ada masalah, lalu kembali ke pola santai
+jika tidak ada tugas baru. Animasi santai dan error hanya tampilan visual, bukan status palsu
+di backend. Nama ruangan muncul saat diarahkan pointer dan detail agent/ruangan terbuka saat
+diklik.

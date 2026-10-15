@@ -54,9 +54,12 @@ data/  logs/  user_data/   dibuat saat berjalan (tidak dibagikan)
 
 ## EduPad AI Office
 
-Dashboard web berada di `frontend/` dan memakai React, TypeScript, Vite, Tailwind CSS,
-serta Phaser 3 untuk kantor virtual 2D. Office API adalah adapter terpisah di
-`src/edupad/office/`; API perangkat ESP32 `/v1/*` tidak berubah.
+Dashboard utama berada di `dashboard/` dan memakai React, TypeScript, Vite, Recharts,
+serta Phaser 3. Halaman pertama adalah kantor virtual 2D; halaman presensi, tugas,
+jadwal, percakapan, riwayat belajar, dan monitoring memakai gaya dashboard yang sama.
+Implementasi Office lama di `frontend/` tetap dipertahankan sebagai sumber komponen game
+dan preview mandiri. Office API adalah adapter terpisah di `src/edupad/office/`; API
+perangkat ESP32 `/v1/*` tidak berubah.
 
 ```bash
 pip install -e ".[dev,office]"
@@ -65,13 +68,16 @@ python -m edupad office-api --host 127.0.0.1 --port 8001
 # terminal worker (mengeksekusi task Office yang diizinkan)
 python -m edupad office-worker
 
-# terminal lain
-cd frontend
+# terminal lain (dashboard terpadu)
+cd dashboard
 npm install
 npm run dev
 ```
 
-Frontend memakai `/api/office/snapshot` dan `/api/office/events` (SSE). Bila migration
+Dashboard memakai `/api/office/snapshot`, `/api/office/events` (SSE), dan endpoint baca-saja
+`/v1/dashboard/*`. Data dashboard berasal dari file `data/`, log lokal, serta tabel Supabase
+yang sudah dipakai EduPad; mode dummy hanya aktif jika `VITE_DATA_SOURCE=mock` ditetapkan
+secara eksplisit. Bila migration
 `supabase/migrations/20261013_edu_pad_office.sql` belum diterapkan, penyimpanan tugas dan event
 otomatis memakai `data/office/` secara lokal. Migration hanya file sumber dan tidak dijalankan
 otomatis. Setelah migration diterapkan, set `EDUPAD_OFFICE_STORAGE=supabase` untuk mengaktifkan

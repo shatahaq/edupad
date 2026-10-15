@@ -15,6 +15,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from edupad.office.chat_history import list_recent_iot_chats
+from edupad.office.dashboard_data import PANELS, panel
 from edupad.office.events import build_snapshot
 from edupad.office.repository import get_repository
 
@@ -40,7 +41,10 @@ class TaskUpdate(BaseModel):
 
 
 def _origins() -> list[str]:
-    raw = os.environ.get("EDUPAD_OFFICE_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+    raw = os.environ.get(
+        "EDUPAD_OFFICE_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174",
+    )
     return [value.strip() for value in raw.split(",") if value.strip()]
 
 
@@ -74,6 +78,13 @@ def create_app() -> FastAPI:
         except Exception as exc:  # dashboard tetap hidup saat Supabase belum siap
             log.warning("Riwayat chat IoT tidak tersedia: %s", type(exc).__name__)
             return {"source": "unavailable", "items": []}
+
+    @app.get("/v1/dashboard/{panel_name}")
+    def dashboard_panel(panel_name: str) -> dict:
+        """Data dashboard baca-saja dari sumber EduPad yang sudah tersedia."""
+        if panel_name not in PANELS:
+            raise HTTPException(status_code=404, detail="Panel dashboard tidak ditemukan")
+        return panel(panel_name)
 
     @app.post("/api/office/tasks", status_code=201)
     def create_task(task: TaskCreate) -> dict:

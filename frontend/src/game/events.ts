@@ -1,4 +1,5 @@
 import type { OfficeAgent } from '../types'
+import type { FurnitureItem } from './owlLayout'
 
 export const AGENTS_UPDATED = 'agents:updated'
 export const AGENT_SELECTED = 'agent:selected'
@@ -8,10 +9,24 @@ export const FURNITURE_ADD_REQUESTED = 'furniture:add'
 export const FURNITURE_DELETE_REQUESTED = 'furniture:delete'
 export const FURNITURE_SELECTED = 'furniture:selected'
 export const ROOM_SELECTED = 'room:selected'
+export const CAMERA_ZOOM_REQUESTED = 'camera:zoom-requested'
+export const CAMERA_RESET_REQUESTED = 'camera:reset-requested'
+export const CAMERA_VIEW_UPDATED = 'camera:view-updated'
+export const FURNITURE_LAYOUT_UPDATED = 'furniture:layout-updated'
+export const FURNITURE_FEEDBACK = 'furniture:feedback'
+export const OFFICE_INPUT_BLOCKED = 'office:input-blocked'
+
+export type CameraView = {
+  zoom: number
+  canZoomIn: boolean
+  canZoomOut: boolean
+}
 
 class OfficeGameEvents extends EventTarget {
   private agents: OfficeAgent[] = []
   private furnitureEditMode = false
+  private layout: FurnitureItem[] = []
+  private cameraView: CameraView = { zoom: 1, canZoomIn: true, canZoomOut: false }
 
   updateAgents(agents: OfficeAgent[]) {
     this.agents = agents
@@ -53,8 +68,40 @@ class OfficeGameEvents extends EventTarget {
     this.dispatchEvent(new CustomEvent<string | null>(FURNITURE_SELECTED, { detail: id }))
   }
 
+  updateFurnitureLayout(layout: FurnitureItem[]) {
+    this.layout = layout
+    this.dispatchEvent(new CustomEvent(FURNITURE_LAYOUT_UPDATED, { detail: layout }))
+  }
+
+  currentFurnitureLayout() { return this.layout }
+
+  furnitureFeedback(message: string) {
+    this.dispatchEvent(new CustomEvent(FURNITURE_FEEDBACK, { detail: message }))
+  }
+
+  blockOfficeInput(blocked: boolean) {
+    this.dispatchEvent(new CustomEvent(OFFICE_INPUT_BLOCKED, { detail: blocked }))
+  }
+
   selectRoom(roomId: string) {
     this.dispatchEvent(new CustomEvent<string>(ROOM_SELECTED, { detail: roomId }))
+  }
+
+  changeCameraZoom(delta: number) {
+    this.dispatchEvent(new CustomEvent<number>(CAMERA_ZOOM_REQUESTED, { detail: delta }))
+  }
+
+  resetCamera() {
+    this.dispatchEvent(new Event(CAMERA_RESET_REQUESTED))
+  }
+
+  updateCameraView(view: CameraView) {
+    this.cameraView = view
+    this.dispatchEvent(new CustomEvent<CameraView>(CAMERA_VIEW_UPDATED, { detail: view }))
+  }
+
+  currentCameraView() {
+    return this.cameraView
   }
 }
 

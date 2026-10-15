@@ -6,9 +6,9 @@ export function ResourcesPanel() {
     <Panel panel="resources" title="Server" subtitle="Sumber daya VPS">
       {(d) => {
         const rows = [
-          { label: "CPU", value: d.cpu_pct, hint: pct(d.cpu_pct) },
-          { label: "Memori", value: d.memory_pct, hint: `${num(d.memory_used_mb)} / ${num(d.memory_total_mb)} MB · ${pct(d.memory_pct)}` },
-          { label: "Disk", value: d.disk_pct, hint: pct(d.disk_pct) },
+          { label: "CPU", value: d.cpu_pct, hint: d.cpu_pct == null ? "—" : pct(d.cpu_pct) },
+          { label: "Memori", value: d.memory_pct, hint: d.memory_pct == null || d.memory_used_mb == null || d.memory_total_mb == null ? "—" : `${num(d.memory_used_mb)} / ${num(d.memory_total_mb)} MB · ${pct(d.memory_pct)}` },
+          { label: "Disk", value: d.disk_pct, hint: d.disk_pct == null ? "—" : pct(d.disk_pct) },
         ];
         return (
           <>
@@ -19,7 +19,7 @@ export function ResourcesPanel() {
                     <span>{r.label}</span>
                     <span className="mono">{r.hint}</span>
                   </div>
-                  <Meter value={r.value} label={r.label} />
+                  <Meter value={r.value ?? 0} label={r.label} />
                 </div>
               ))}
             </div>

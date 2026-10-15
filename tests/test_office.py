@@ -89,6 +89,11 @@ def test_snapshot_uses_latest_real_agent_event(monkeypatch, tmp_path):
     assert keeper["progress"] == 64
     assert keeper["task"] == "Menyusun knowledge base"
 
+    finance = next(agent for agent in snapshot["agents"] if agent["id"] == "finance")
+    assert finance["name"] == "KOIN"
+    assert finance["room"] == "finance-office"
+    assert finance["state"] == "idle"
+
 
 def test_worker_completes_index_task_and_emits_real_progress(tmp_path):
     repo = FileOfficeRepository(tmp_path / "office.json")

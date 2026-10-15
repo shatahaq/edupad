@@ -2,8 +2,8 @@ import { Dot, Meter, Panel } from "../components/Panel";
 import type { ServiceState } from "../api/types";
 import { num, secs } from "../lib/format";
 
-const TONE: Record<ServiceState, "good" | "warn" | "bad"> = { ok: "good", slow: "warn", down: "bad" };
-const LABEL: Record<ServiceState, string> = { ok: "Normal", slow: "Lambat", down: "Gangguan" };
+const TONE: Record<ServiceState, "good" | "warn" | "bad" | "off"> = { ok: "good", slow: "warn", down: "bad", unknown: "off" };
+const LABEL: Record<ServiceState, string> = { ok: "Normal", slow: "Lambat", down: "Belum siap", unknown: "Belum diperiksa" };
 
 export function ServicesPanel() {
   return (

@@ -36,6 +36,7 @@ AGENTS = (
     AgentDefinition("tutor", "SORA", "Tutor belajar", "tutor-room", "#facc15"),
     AgentDefinition("planner", "TEMPO", "Pengatur jadwal belajar", "planning-hub", "#a78bfa"),
     AgentDefinition("analyst", "METRIC", "Pemantau progres belajar", "analytics-room", "#34d399"),
+    AgentDefinition("finance", "KOIN", "Pengelola keuangan mahasiswa", "finance-office", "#34a86f"),
     AgentDefinition("keeper", "NEXUS", "Penjaga data pengetahuan", "knowledge-server", "#fb7185"),
 )
 

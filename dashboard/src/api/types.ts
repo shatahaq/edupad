@@ -44,18 +44,18 @@ export interface AgentData {
   window_hours: number;
   answers: number;
   /** Rata-rata per tahap; dari `timing` /v1/ask dan TTS. */
-  stage_avg_s: { stt: number; agent: number; tts_first_audio: number };
+  stage_avg_s: { stt: number | null; agent: number | null; tts_first_audio: number | null };
   tokens_avg: number;
   llm_calls_avg: number;
   /** Persen jawaban yang memakai minimal satu sumber materi. */
-  with_source_pct: number;
+  with_source_pct: number | null;
   /** Dari `python -m edupad eval` terakhir (bukan real-time). */
   eval: { label: string; score: number; max_score: number; hallucinations: number; cases: number } | null;
   tools: { tool: string; count: number }[];
   top_courses: { course: string; questions: number }[];
 }
 
-export type ServiceState = "ok" | "slow" | "down";
+export type ServiceState = "ok" | "slow" | "down" | "unknown";
 
 export interface ServiceStatus {
   id: string;
@@ -73,11 +73,11 @@ export interface ServicesData {
 }
 
 export interface ResourcesData {
-  cpu_pct: number;
-  memory_pct: number;
-  disk_pct: number;
-  memory_used_mb: number;
-  memory_total_mb: number;
+  cpu_pct: number | null;
+  memory_pct: number | null;
+  disk_pct: number | null;
+  memory_used_mb: number | null;
+  memory_total_mb: number | null;
   active_sessions: number;
   uptime_s: number;
 }
@@ -102,7 +102,7 @@ export interface ErrorsData {
 export interface CostData {
   month: string;
   total_usd: number;
-  budget_month_usd: number;
+  budget_month_usd: number | null;
   forecast_usd: number;
   by_service: { service: string; usd: number }[];
   /** Biaya per hari bulan ini, urut tanggal naik. */

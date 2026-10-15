@@ -437,6 +437,20 @@ def ask(
                     "output": output,
                 }
             )
+            tool_failed = output.startswith('{"error"')
+            emit_status(
+                tool_agent,
+                AgentState.FAILED if tool_failed else AgentState.SUCCEEDED,
+                room=tool_room,
+                job_type=name,
+                message=(
+                    f"{name.replace('_', ' ').capitalize()} perlu diperiksa"
+                    if tool_failed
+                    else f"{name.replace('_', ' ').capitalize()} selesai"
+                ),
+                progress=100,
+                run_id=office_run_id,
+            )
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": output})
     emit_status(
         "tutor",

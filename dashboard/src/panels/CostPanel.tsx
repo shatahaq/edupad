@@ -11,8 +11,8 @@ export function CostPanel() {
   return (
     <Panel panel="cost" title="Biaya API" subtitle="Bulan berjalan">
       {(d) => {
-        const forecastPct = (d.forecast_usd / d.budget_month_usd) * 100;
-        const usedPct = (d.total_usd / d.budget_month_usd) * 100;
+        const forecastPct = d.budget_month_usd ? (d.forecast_usd / d.budget_month_usd) * 100 : null;
+        const usedPct = d.budget_month_usd ? (d.total_usd / d.budget_month_usd) * 100 : null;
         return (
           <>
             <div className="stats">
@@ -20,12 +20,12 @@ export function CostPanel() {
               <Stat
                 label="Perkiraan akhir bulan"
                 value={usd(d.forecast_usd)}
-                hint={forecastPct > 100 ? "melebihi anggaran" : forecastPct > 80 ? "mendekati anggaran" : "dalam anggaran"}
-                tone={forecastPct > 100 ? "bad" : forecastPct > 80 ? "warn" : "good"}
+                hint={forecastPct == null ? "anggaran belum diatur" : forecastPct > 100 ? "melebihi anggaran" : forecastPct > 80 ? "mendekati anggaran" : "dalam anggaran"}
+                tone={forecastPct == null ? undefined : forecastPct > 100 ? "bad" : forecastPct > 80 ? "warn" : "good"}
               />
             </div>
 
-            <div className="block">
+            {d.budget_month_usd != null && usedPct != null ? <div className="block">
               <div className="meter-head">
                 <span>Anggaran</span>
                 <span className="mono">
@@ -33,7 +33,7 @@ export function CostPanel() {
                 </span>
               </div>
               <Meter value={d.total_usd} max={d.budget_month_usd} label="Anggaran terpakai" />
-            </div>
+            </div> : <p className="footnote">Atur <code>EDUPAD_MONTHLY_BUDGET_USD</code> di server untuk menampilkan batas anggaran.</p>}
 
             <div className="chart" style={{ height: 112 }}>
               <ResponsiveContainer>

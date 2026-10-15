@@ -1,39 +1,44 @@
 # EduPad Dashboard
 
-Dashboard mahasiswa untuk EduPad: hal yang biasa ditanyakan ke perangkat (presensi yang sedang
+Dashboard terpadu EduPad: kantor virtual AI, hal yang biasa ditanyakan ke perangkat (presensi yang sedang
 dibuka, tugas & deadline, jadwal), riwayat percakapan dengan AI agent, dan riwayat belajar.
 Monitoring perangkat ESP32, server, dan AI agent ada di tab terpisah (Sistem → Monitoring).
 React + TypeScript + Recharts (Vite).
 
 | Halaman | Route | Isi |
 |---|---|---|
-| Beranda | `#/` | Presensi dibuka sekarang, jadwal hari ini, tugas mendekati deadline, percakapan terakhir |
+| AI Office | `#/` | Kantor Phaser dengan tujuh owl, detail pekerja/ruangan/furnitur, editor furnitur lokal, dan status backend |
+| Beranda | `#/beranda` | Presensi dibuka sekarang, jadwal hari ini, tugas mendekati deadline, percakapan terakhir |
 | Presensi | `#/presensi` | Hari ini + 7 hari ke depan (jendela buka/tutup, cara), rekap kehadiran per matkul |
 | Tugas | `#/tugas` | Filter belum dikumpulkan / lewat deadline / selesai; cuplikan soal + tautan Moodle |
 | Jadwal | `#/jadwal` | Jadwal mingguan, hari ini disorot |
+| Keuangan | `#/keuangan` | Pengelolaan catatan keuangan mahasiswa |
 | Riwayat percakapan | `#/percakapan` | Sesi & transkrip: pertanyaan, jawaban suara, layar LCD, sumber materi |
 | Riwayat belajar | `#/belajar` | Aktivitas harian, mata kuliah & materi yang dibahas, fakta yang diingat agent |
 | Monitoring | `#/monitoring[/<panel>]` | 9 panel kesehatan sistem; `/<panel>` scroll ke kartunya (mis. `#/monitoring/devices`) |
 
-Dashboard hanya membaca: tidak ada aksi kirim tugas atau isi presensi.
+Office dan Keuangan memiliki aksi khusus. Data tugas Office tetap melalui Office API; susunan
+furnitur hanya tersimpan di browser, tidak mengubah database atau backend.
 
 ```bash
 cd dashboard
 npm install
-npm run dev          # http://localhost:5173, data dummy
+npm run dev          # http://127.0.0.1:5173, data backend asli
 npm run build        # hasil di dist/ (file statis)
 ```
 
-## Sumber data: dummy vs live
+## Sumber data: live vs preview dummy
 
 Semua angka lewat satu pintu, [`src/api/client.ts`](src/api/client.ts):
 
 ```
 komponen panel ──► usePanel("api") ──► fetchPanel("api")
-                                          ├─ mock: src/api/mock/   (VITE_DATA_SOURCE=mock, default)
-                                          └─ live: GET {VITE_API_URL}/v1/dashboard/api
+                                          ├─ live: GET {VITE_API_URL}/v1/dashboard/api (default)
+                                          └─ mock: src/api/mock/ (hanya VITE_DATA_SOURCE=mock)
 ```
 
+- Mode default adalah **live** melalui Office API port 8001. Data dummy hanya aktif jika
+  `VITE_DATA_SOURCE=mock` dipilih secara eksplisit.
 - **Data dummy hanya ada di `src/api/mock/`.** Komponen tidak pernah mengimpornya, dan build
   live (`npm run build:live`) tidak membawanya sama sekali (dimuat lewat import dinamis).
 - Sidebar menampilkan label **Data dummy** selama mode mock, supaya tidak tertukar dengan angka asli.
@@ -46,11 +51,10 @@ komponen panel ──► usePanel("api") ──► fetchPanel("api")
 
 ## Menyambungkan ke server
 
-1. Di `src/edupad/server.py`, tambahkan endpoint GET untuk tiap panel di `ENDPOINTS`
-   (`client.ts`) yang mengembalikan JSON sesuai tipenya di `types.ts`. Bisa satu per satu: panel
-   yang endpoint-nya belum ada cukup menampilkan error, yang lain tetap jalan.
-2. Salin `.env.example` ke `.env.live.local`, isi `VITE_API_URL` dan `VITE_API_TOKEN`.
-3. `npm run dev:live` untuk uji, `npm run build:live` untuk deploy.
+1. Jalankan `python -m edupad office-api --host 127.0.0.1 --port 8001`.
+2. Jalankan `npm run dev`. Proxy Vite meneruskan `/api` dan `/v1/dashboard` ke Office API.
+3. Untuk deployment beda origin, isi `VITE_API_URL` dengan URL backend. Jangan menaruh
+   service-role Supabase atau secret API lain di variabel `VITE_*`.
 
 Server perlu mengizinkan CORS dari asal dashboard, atau sajikan `dist/` dari domain yang sama.
 

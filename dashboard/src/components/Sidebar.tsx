@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { DATA_SOURCE, REFRESH_SECONDS } from "../api/client";
 import { usePanel } from "../api/usePanel";
 import { NAV, type NavId } from "../lib/nav";
+import { initials, loadPreferences, PREFERENCES_UPDATED, type DashboardPreferences } from "../lib/preferences";
 import { Icon } from "./Icon";
 
 interface Props {
@@ -36,6 +38,13 @@ function useBadges(): Partial<Record<NavId, Badge>> {
 
 export function Sidebar({ active, open, onNavigate, onClose }: Props) {
   const badges = useBadges();
+  const [preferences, setPreferences] = useState<DashboardPreferences>(() => loadPreferences());
+
+  useEffect(() => {
+    const update = (event: Event) => setPreferences((event as CustomEvent<DashboardPreferences>).detail);
+    window.addEventListener(PREFERENCES_UPDATED, update);
+    return () => window.removeEventListener(PREFERENCES_UPDATED, update);
+  }, []);
 
   return (
     <>
@@ -93,12 +102,12 @@ export function Sidebar({ active, open, onNavigate, onClose }: Props) {
 
           <div className="profile card">
             <span className="avatar" aria-hidden>
-              MH
+              {initials(preferences.studentName)}
               <i className="online" />
             </span>
             <div className="profile-text">
-              <strong>Mahasiswa</strong>
-              <span>EduPad terhubung</span>
+              <strong>{preferences.studentName}</strong>
+              <span>{preferences.studentId || "EduPad terhubung"}</span>
             </div>
           </div>
         </div>

@@ -71,6 +71,17 @@ export const demoAgents: OfficeAgent[] = [
     progress: 0,
     updated_at: now,
   },
+  {
+    id: 'finance',
+    name: 'KOIN',
+    role: 'Pengelola keuangan mahasiswa',
+    room: 'finance-office',
+    color: '#34a86f',
+    state: 'idle',
+    task: 'Siap membantu mengatur anggaran',
+    progress: 0,
+    updated_at: now,
+  },
 ]
 
 export const demoTasks: OfficeTask[] = [

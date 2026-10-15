@@ -3,7 +3,7 @@
  *
  * VITE_DATA_SOURCE=mock -> data dummy (src/api/mock/), dimuat dengan import dinamis sehingga
  *                          tidak ikut ter-bundle di build live.
- * VITE_DATA_SOURCE=live -> GET {VITE_API_URL}{ENDPOINTS[panel]} dengan token Bearer.
+ * VITE_DATA_SOURCE=live -> GET {VITE_API_URL}{ENDPOINTS[panel]}.
  *
  * Menyambungkan ke server = implementasikan endpoint di ENDPOINTS dengan bentuk JSON sesuai
  * types.ts. Tidak ada komponen yang perlu diubah.
@@ -28,12 +28,11 @@ export const ENDPOINTS: Record<PanelKey, string> = {
 };
 
 export const DATA_SOURCE: "mock" | "live" =
-  import.meta.env.VITE_DATA_SOURCE === "live" ? "live" : "mock";
+  import.meta.env.VITE_DATA_SOURCE === "mock" ? "mock" : "live";
 
 export const REFRESH_SECONDS = Number(import.meta.env.VITE_REFRESH_SECONDS) || 30;
 
-const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
-const API_TOKEN = import.meta.env.VITE_API_TOKEN ?? "";
+export const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(
@@ -47,7 +46,6 @@ export class ApiError extends Error {
 async function fetchLive<K extends PanelKey>(panel: K, signal?: AbortSignal): Promise<DashboardData[K]> {
   const res = await fetch(API_URL + ENDPOINTS[panel], {
     signal,
-    headers: API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : undefined,
   });
   if (!res.ok) throw new ApiError(`HTTP ${res.status} dari ${ENDPOINTS[panel]}`, res.status);
   return (await res.json()) as DashboardData[K];

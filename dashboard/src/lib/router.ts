@@ -1,7 +1,19 @@
 import { useSyncExternalStore } from "react";
 
 /** Halaman dashboard; dipetakan ke hash `#/<page>[/<bagian>]` agar link bisa dibagikan dan tombol back jalan. */
-export const PAGES = ["beranda", "presensi", "tugas", "jadwal", "percakapan", "belajar", "monitoring"] as const;
+export const PAGES = [
+  "office",
+  "beranda",
+  "presensi",
+  "tugas",
+  "jadwal",
+  "keuangan",
+  "percakapan",
+  "belajar",
+  "monitoring",
+  "pengaturan",
+  "bantuan",
+] as const;
 export type Page = (typeof PAGES)[number];
 
 export interface Route {
@@ -14,7 +26,7 @@ let current = parse();
 
 function parse(): Route {
   const [page, section] = window.location.hash.replace(/^#\/?/, "").split("/");
-  return (PAGES as readonly string[]).includes(page) ? { page: page as Page, section: section || null } : { page: "beranda", section: null };
+  return (PAGES as readonly string[]).includes(page) ? { page: page as Page, section: section || null } : { page: "office", section: null };
 }
 
 function subscribe(listener: () => void) {
@@ -31,7 +43,7 @@ export function useRoute(): Route {
 }
 
 export function go(page: Page, section?: string) {
-  const hash = page === "beranda" && !section ? "#/" : `#/${page}${section ? `/${section}` : ""}`;
+  const hash = page === "office" && !section ? "#/" : `#/${page}${section ? `/${section}` : ""}`;
   if (window.location.hash === hash) {
     // Hash sama (mis. klik bagian yang sama lagi): tetap beri tahu pendengar.
     window.dispatchEvent(new HashChangeEvent("hashchange"));
