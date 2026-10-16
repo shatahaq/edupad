@@ -46,6 +46,7 @@ def summarize_text(course: str, meeting: str, text: str) -> dict:
         headers={"Authorization": f"Bearer {settings.llm_api_key}"},
         json={
             "model": settings.llm_model,
+            "max_tokens": settings.summary_max_output_tokens,
             "response_format": {"type": "json_object"},
             "messages": [
                 {

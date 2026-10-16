@@ -81,6 +81,14 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("--host", default="127.0.0.1", help="0.0.0.0 agar bisa diakses perangkat")
     serve.add_argument("--port", type=int, default=8000)
 
+    office = sub.add_parser("office-api", help="API dashboard EduPad AI Office")
+    office.add_argument("--host", default="127.0.0.1")
+    office.add_argument("--port", type=int, default=8001)
+
+    worker = sub.add_parser("office-worker", help="worker task EduPad AI Office")
+    worker.add_argument("--once", action="store_true", help="proses paling banyak satu task")
+    worker.add_argument("--poll", type=float, default=1.0, help="jeda polling dalam detik")
+
     mem = sub.add_parser("memory", help="lihat atau hapus memory AI agent")
     mem.add_argument(
         "--clear", action="store_true", help="hapus semua percakapan & fakta tersimpan"
@@ -346,6 +354,14 @@ def main(argv: list[str] | None = None) -> int:
         from edupad import server
 
         return server.run(args.host, args.port)
+    if args.command == "office-api":
+        from edupad.office.api import run
+
+        return run(args.host, args.port)
+    if args.command == "office-worker":
+        from edupad.office.worker import run
+
+        return run(once=args.once, poll_interval=args.poll)
     if args.command == "memory":
         return _memory(args.clear)
     if args.command == "eval":
