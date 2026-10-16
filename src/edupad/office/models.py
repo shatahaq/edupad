@@ -68,7 +68,7 @@ def default_agent_rows() -> list[dict[str, Any]]:
         {
             **asdict(agent),
             "state": AgentState.IDLE.value,
-            "task": "Siap membantu",
+            "task": "Menunggu tugas",
             "progress": 0,
             "activity": "idle",
             "station_id": None,

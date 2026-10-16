@@ -78,7 +78,7 @@ export const demoAgents: OfficeAgent[] = [
     room: 'finance-office',
     color: '#34a86f',
     state: 'idle',
-    task: 'Siap membantu mengatur anggaran',
+    task: 'Menunggu tugas keuangan',
     progress: 0,
     updated_at: now,
   },

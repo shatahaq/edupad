@@ -78,7 +78,7 @@ const AGENT_ORDER = ["coordinator", "researcher", "tutor", "planner", "analyst",
 
 const STATE_LABELS: Record<AgentState, string> = {
   offline: "Tidak terhubung",
-  idle: "Siap membantu",
+  idle: "Siaga",
   queued: "Menunggu giliran",
   running: "Sedang bekerja",
   waiting: "Menunggu data",
@@ -221,7 +221,7 @@ export function OfficePage() {
           <button
             type="button"
             key={agent.id}
-            className={`office-agent-tab state-${agent.state}`}
+            className="office-agent-tab"
             style={{ "--agent-color": agent.color } as CSSProperties}
             onClick={() => openAgentDetail(agent.id)}
             aria-label={`Buka detail ${agent.name}`}
@@ -234,10 +234,6 @@ export function OfficePage() {
             <span className="office-agent-tab-copy">
               <strong>{agent.name}</strong>
               <small>{agent.role}</small>
-            </span>
-            <span className="office-agent-tab-state">
-              <i aria-hidden />
-              {STATE_LABELS[agent.state]}
             </span>
           </button>
         ))}

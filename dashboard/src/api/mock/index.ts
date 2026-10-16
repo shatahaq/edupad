@@ -163,12 +163,12 @@ const DATA = {
     new_materials_24h: 3,
     pending_index: 12,
     per_course: [
-      { course: "MSBD", chunks: 512, meetings: 4 },
-      { course: "PV", chunks: 438, meetings: 5 },
-      { course: "Prak. PV", chunks: 361, meetings: 6 },
-      { course: "MPIT", chunks: 287, meetings: 3 },
-      { course: "E-App", chunks: 176, meetings: 3 },
-      { course: "Prak. MSBD", chunks: 100, meetings: 1 },
+      { course: "Manajemen Sistem Basis Data", chunks: 512, meetings: 4 },
+      { course: "Pemrograman Visual", chunks: 438, meetings: 5 },
+      { course: "Praktikum Pemrograman Visual", chunks: 361, meetings: 6 },
+      { course: "Manajemen Proyek IT", chunks: 287, meetings: 3 },
+      { course: "E-Application", chunks: 176, meetings: 3 },
+      { course: "Praktikum Sistem Pendukung Keputusan", chunks: 100, meetings: 1 },
     ],
   },
   errors: {

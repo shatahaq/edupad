@@ -26,7 +26,7 @@ const OfficeGame = lazy(() =>
 
 const stateLabels: Record<AgentState, string> = {
   offline: 'Offline',
-  idle: 'Siap membantu',
+  idle: 'Siaga',
   queued: 'Menunggu giliran',
   running: 'Sedang mengerjakan',
   waiting: 'Menunggu data',

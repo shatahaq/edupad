@@ -6,6 +6,7 @@ import { go, useRoute, type Page } from "./lib/router";
 import { applyPreferences, loadPreferences } from "./lib/preferences";
 import { AttendancePage } from "./pages/AttendancePage";
 import { ConversationsPage } from "./pages/ConversationsPage";
+import { EquityPage } from "./pages/EquityPage";
 import { FinancePage } from "./pages/FinancePage";
 import { HelpPage } from "./pages/HelpPage";
 import { HomePage } from "./pages/HomePage";
@@ -60,6 +61,7 @@ export function App() {
           {page === "keuangan" && <FinancePage />}
           {page === "percakapan" && <ConversationsPage />}
           {page === "belajar" && <LearningPage />}
+          {page === "equity" && <EquityPage />}
           {page === "monitoring" && <MonitoringPage section={section} />}
           {page === "pengaturan" && <SettingsPage />}
           {page === "bantuan" && <HelpPage />}
