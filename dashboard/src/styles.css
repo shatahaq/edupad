@@ -4806,3 +4806,79 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
   .equity-topic-list li { grid-template-columns: 24px minmax(0, 1fr); }
   .equity-signal { grid-column: 2; grid-row: 2; min-width: 0; justify-items: start; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Integrasi EduPad: login, keuangan suara, Tutor, Equity Radar       */
+/* ------------------------------------------------------------------ */
+.consent-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px var(--page-x) 0;
+  padding: 10px 14px;
+  border: 1px solid #f1d29b;
+  border-radius: var(--radius);
+  background: var(--warn-bg);
+  color: var(--warn);
+  font-size: 0.8125rem;
+}
+
+.avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.profile-text { flex: 1 1 auto; }
+.profile-text span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-logout { flex: 0 0 auto; }
+
+.finance-voice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  color: var(--text-2);
+}
+.finance-voice > svg { flex: 0 0 auto; margin-top: 2px; color: var(--accent); }
+.finance-voice > div { flex: 1 1 auto; min-width: 0; }
+.finance-voice strong { color: var(--text); font-size: 0.8125rem; }
+.finance-voice p { margin-top: 3px; font-size: 0.75rem; line-height: 1.55; }
+.finance-voice q { color: var(--text); font-style: italic; }
+.finance-voice.warn { border-color: #f1d29b; background: var(--warn-bg); }
+.finance-voice.warn > svg { color: var(--warn); }
+.voice-chip { height: 18px; margin-left: 6px; padding: 0 6px; color: var(--accent); font-size: 0.625rem; vertical-align: 1px; }
+
+.equity-privacy .voice-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.voice-examples .pill { height: auto; padding: 3px 8px; font-size: 0.6875rem; white-space: normal; }
+
+.tutor-side { display: grid; gap: var(--gap); min-width: 0; }
+
+.mastery-list { display: grid; gap: 12px; padding: 0; list-style: none; }
+.mastery-list li { display: grid; gap: 6px; padding-bottom: 12px; border-bottom: 1px solid var(--border-soft); }
+.mastery-list li:last-child { padding-bottom: 0; border-bottom: 0; }
+.mastery-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.mastery-head > span:first-child { display: grid; min-width: 0; gap: 2px; }
+.mastery-head strong { font-size: 0.75rem; }
+.mastery-head small, .mastery-list > li > small { color: var(--text-3); font-size: 0.6562rem; }
+.mastery-list .meter-fill { background: var(--accent); }
+.mastery-list .meter-fill.good { background: var(--good); }
+.mastery-list .meter-fill.warn { background: var(--warn); }
+
+.quiz-history { display: grid; gap: 10px; padding: 0; list-style: none; }
+.quiz-history li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-soft); }
+.quiz-history li:last-child { border-bottom: 0; }
+.quiz-history li > .pill { flex: 0 0 auto; min-width: 84px; justify-content: center; }
+.quiz-history li > div { display: grid; min-width: 0; gap: 3px; font-size: 0.75rem; line-height: 1.5; }
+.quiz-history small { font-size: 0.6562rem; }
+
+.warning-list { display: grid; gap: 10px; padding: 0; list-style: none; }
+.warning-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.7188rem; line-height: 1.5; }
+.warning-list li > .pill { flex: 0 0 auto; }
+
+.access-list li { align-items: flex-start; }
+.access-list small { white-space: normal; }
+.access-actions { display: grid; justify-items: end; gap: 4px; flex: 0 0 auto; }
+.equity-action-grid .text-button { justify-self: start; margin-top: 4px; padding: 0; }
+
+@media (max-width: 640px) {
+  .consent-banner { flex-direction: column; align-items: flex-start; margin: 12px 16px 0; }
+  .finance-voice { flex-wrap: wrap; }
+  .quiz-history li { flex-direction: column; gap: 6px; }
+}

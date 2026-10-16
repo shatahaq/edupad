@@ -17,8 +17,10 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from edupad.config import BASE_DIR
 from edupad.office.auth import Viewer, require_owner
 from edupad.office.chat_history import list_recent_iot_chats
 from edupad.office.dashboard_data import PANELS, panel
@@ -27,6 +29,9 @@ from edupad.office.models import AgentState
 from edupad.office.repository import get_repository
 
 log = logging.getLogger(__name__)
+
+# Hasil `npm run build` di dashboard/ (base /dashboard/); data tetap lewat endpoint berizin.
+DASHBOARD_DIST = BASE_DIR / "dashboard" / "dist"
 
 Owner = Annotated[Viewer, Depends(require_owner)]
 
@@ -66,6 +71,17 @@ class FinanceImport(BaseModel):
 
     transactions: list[TransactionIn] = Field(default_factory=list, max_length=2000)
     budgets: dict[str, int] = Field(default_factory=dict)
+
+
+class DashboardFiles(StaticFiles):
+    """index.html selalu dicek ulang agar deploy baru langsung terpakai; aset ber-hash tetap
+    boleh di-cache browser."""
+
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = super().file_response(full_path, stat_result, scope, status_code)
+        if str(full_path).endswith(".html"):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
 
 
 def _origins() -> list[str]:
@@ -230,6 +246,10 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(api)
+    if DASHBOARD_DIST.is_dir():
+        app.mount(
+            "/dashboard", DashboardFiles(directory=DASHBOARD_DIST, html=True), name="dashboard"
+        )
     return app
 
 

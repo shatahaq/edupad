@@ -1,3 +1,5 @@
+import { assetUrl } from './assetUrl'
+
 // Shared by Phaser, the editor, detail dialogs and the route validation tests.
 export type Point = { x: number; y: number }
 export type Rect = Point & { width: number; height: number }
@@ -59,7 +61,7 @@ export const FURNITURE: FurnitureKind[] = [
   { frame: 15, name: 'Meja baca', description: 'Meja rendah untuk membaca santai saat tidak ada tugas.', width: 96, ratio: 147/247, category: 'Istirahat' },
 ]
 export type FurnitureItem = { id: string; frame: number; x: number; y: number; owner?: string }
-export const furnitureUrl = (frame: number) => `/assets/office/furniture-muted/${frame}.png`
+export const furnitureUrl = (frame: number) => assetUrl(`assets/office/furniture-muted/${frame}.png`)
 export const DEFAULT_LAYOUT: FurnitureItem[] = [
   { id: 'nova-desk', frame: 0, x: 280, y: 238, owner: 'coordinator' },
   { id: 'pixel-desk', frame: 1, x: 726, y: 238, owner: 'researcher' },

@@ -3,6 +3,7 @@ import type { OfficeAgent } from '../types'
 import { AGENTS_UPDATED, CAMERA_RESET_REQUESTED, CAMERA_ZOOM_REQUESTED, OFFICE_INPUT_BLOCKED, officeGameEvents } from './events'
 import { OwlFurniture } from './OwlFurniture'
 import { FURNITURE, INDEX_STATION, OfficeNavigator, ROOMS, WORLD, furnitureUrl, workPoint, type Point } from './owlLayout'
+import { assetUrl } from './assetUrl'
 
 export const OFFICE_WORLD_WIDTH = WORLD.width
 export const OFFICE_WORLD_HEIGHT = WORLD.height
@@ -31,8 +32,8 @@ export class OfficeScene extends Phaser.Scene {
 
   constructor(){super('office-owls')}
   preload(){
-    this.load.image(MAP_KEY,'/assets/office/edupad-office-empty-v2.png')
-    for(const name of Object.values(OWLS))this.load.spritesheet(`owl-${name}`,`/assets/agents/owls/${name}-owl-sheet-v1.png`,{frameWidth:320,frameHeight:320,endFrame:15})
+    this.load.image(MAP_KEY,assetUrl('assets/office/edupad-office-empty-v2.png'))
+    for(const name of Object.values(OWLS))this.load.spritesheet(`owl-${name}`,assetUrl(`assets/agents/owls/${name}-owl-sheet-v1.png`),{frameWidth:320,frameHeight:320,endFrame:15})
     for(const spec of FURNITURE)this.load.image(`furniture-${spec.frame}`,furnitureUrl(spec.frame))
   }
   create(){

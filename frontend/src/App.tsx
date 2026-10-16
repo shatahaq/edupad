@@ -12,6 +12,7 @@ import {
 
 import { useOfficeData } from './hooks/useOfficeData'
 import type {
+import { assetUrl } from './game/assetUrl'
   AgentState,
   IoTChatTurn,
   NewTask,
@@ -174,7 +175,7 @@ function AgentTopCard({ agent, onClick }: { agent: OfficeAgent; onClick: () => v
 }
 
 function AnimatedAgent({ agent }: { agent: OfficeAgent }) {
-  return <div className="agent-portrait-stage" style={{ boxShadow: `inset 0 0 90px ${agent.color}24` }}><div className="agent-portrait-grid" /><div className="agent-portrait-glow" style={{ backgroundColor: agent.color }} /><div className={`agent-idle-frame agent-tint-${agent.id}`}><img src="/assets/agents/pixel/pixel-actions-v1.png" alt="" draggable={false} className="agent-idle-strip" /></div><div className="agent-portrait-platform" style={{ borderColor: `${agent.color}80` }} /><span className="agent-portrait-label" style={{ color: agent.color }}>ANIMASI SAAT SIAP</span></div>
+  return <div className="agent-portrait-stage" style={{ boxShadow: `inset 0 0 90px ${agent.color}24` }}><div className="agent-portrait-grid" /><div className="agent-portrait-glow" style={{ backgroundColor: agent.color }} /><div className={`agent-idle-frame agent-tint-${agent.id}`}><img src={assetUrl("assets/agents/pixel/pixel-actions-v1.png")} alt="" draggable={false} className="agent-idle-strip" /></div><div className="agent-portrait-platform" style={{ borderColor: `${agent.color}80` }} /><span className="agent-portrait-label" style={{ color: agent.color }}>ANIMASI SAAT SIAP</span></div>
 }
 
 function StatTile({ label, value, accent }: { label: string; value: string; accent: string }) {

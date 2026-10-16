@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { GoogleIcon } from "../components/GoogleIcon";
 import { Wordmark } from "../components/Wordmark";
 import { LOGIN_URL, fetchMe, loginErrorMessage } from "../lib/api";
-import { navigate } from "../lib/router";
 
 export default function Landing() {
   // Pesan dari `/?error=<kode>` (login gagal) dibaca sekali, lalu dihapus dari URL.
@@ -17,7 +16,7 @@ export default function Landing() {
     // Sudah login (cookie sesi masih berlaku): langsung ke dashboard.
     const controller = new AbortController();
     fetchMe(controller.signal)
-      .then(() => navigate("/dashboard", { replace: true }))
+      .then(() => window.location.replace("/dashboard/")) // dashboard EduPad (dashboard/)
       .catch(() => {}); // belum login / server mati: tetap di halaman ini
     return () => controller.abort();
   }, []);

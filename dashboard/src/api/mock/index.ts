@@ -7,6 +7,7 @@
  * Angka acak memakai seed tetap sehingga tampilan sama setiap dimuat.
  */
 import type { DashboardData, PanelKey } from "../types";
+import { equity, finance, tutor } from "./learning";
 import { assignments, attendance, conversations, learning, schedule } from "./student";
 
 function rng(seed: number) {
@@ -209,6 +210,9 @@ const DATA = {
   schedule,
   conversations,
   learning,
+  tutor,
+  equity,
+  finance,
 } satisfies DashboardData;
 
 export async function mockPanel<K extends PanelKey>(panel: K): Promise<DashboardData[K]> {

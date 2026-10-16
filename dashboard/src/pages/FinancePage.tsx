@@ -1,11 +1,13 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { apiSend } from "../api/client";
+import type { FinanceRow } from "../api/types";
+import { usePanel } from "../api/usePanel";
 import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
 import {
+  clearLegacyFinance,
   loadFinanceBudgets,
   loadFinanceTransactions,
-  saveFinanceBudgets,
-  saveFinanceTransactions,
   type FinanceBudgets,
   type FinanceKind,
   type FinanceTransaction,
@@ -13,6 +15,20 @@ import {
 
 const EXPENSE_CATEGORIES = ["Makan", "Transportasi", "Tempat tinggal", "Kuliah", "Internet", "Kesehatan", "Hiburan", "Lainnya"];
 const INCOME_CATEGORIES = ["Kiriman keluarga", "Beasiswa", "Kerja sampingan", "Pengembalian", "Lainnya"];
+
+/** Baris Supabase -> bentuk yang dipakai tampilan. */
+function toView(row: FinanceRow): FinanceTransaction {
+  return {
+    id: row.id,
+    kind: row.kind,
+    amount: Number(row.amount),
+    category: row.category,
+    date: String(row.occurred_on).slice(0, 10),
+    note: row.note,
+    createdAt: row.created_at,
+    source: row.source,
+  };
+}
 const TABS = [
   ["summary", "Ringkasan"],
   ["transactions", "Transaksi"],
@@ -64,10 +80,16 @@ function Metric({ label, value, hint, tone }: { label: string; value: string; hi
 }
 
 export function FinancePage() {
+  const panel = usePanel("finance");
+  const available = panel.data?.available ?? false;
+  const transactions = useMemo(() => (panel.data?.transactions ?? []).map(toView), [panel.data]);
+  const savedBudgets: FinanceBudgets = panel.data?.budgets ?? {};
+  const [budgets, setBudgets] = useState<FinanceBudgets>({});
+  const [busy, setBusy] = useState(false);
+  const [legacy, setLegacy] = useState(() => ({ rows: loadFinanceTransactions(), budgets: loadFinanceBudgets() }));
+  const legacyCount = legacy.rows.length + Object.values(legacy.budgets).filter((value) => value > 0).length;
   const [tab, setTab] = useState<FinanceTab>("summary");
   const [month, setMonth] = useState(localDate().slice(0, 7));
-  const [transactions, setTransactions] = useState<FinanceTransaction[]>(loadFinanceTransactions);
-  const [budgets, setBudgets] = useState<FinanceBudgets>(loadFinanceBudgets);
   const [composer, setComposer] = useState(false);
   const [kind, setKind] = useState<FinanceKind>("expense");
   const [amount, setAmount] = useState("");
@@ -76,8 +98,45 @@ export function FinancePage() {
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => saveFinanceTransactions(transactions), [transactions]);
-  useEffect(() => saveFinanceBudgets(budgets), [budgets]);
+  // Draf anggaran mengikuti server; perubahan disimpan saat kolom ditinggalkan.
+  useEffect(() => setBudgets(panel.data?.budgets ?? {}), [panel.data]);
+
+  const saveBudget = async (name: string) => {
+    const value = budgets[name] ?? 0;
+    if (value === (savedBudgets[name] ?? 0)) return;
+    try {
+      await apiSend("PUT", `/api/office/finance/budgets/${encodeURIComponent(name)}`, { amount: value });
+      panel.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Anggaran gagal disimpan.");
+    }
+  };
+
+  const removeTransaction = async (id: string) => {
+    try {
+      await apiSend("DELETE", `/api/office/finance/transactions/${encodeURIComponent(id)}`);
+      panel.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Transaksi gagal dihapus.");
+    }
+  };
+
+  const importLegacy = async () => {
+    setBusy(true);
+    try {
+      await apiSend("POST", "/api/office/finance/import", {
+        transactions: legacy.rows.map((row) => ({ kind: row.kind, amount: row.amount, category: row.category, note: row.note, date: row.date })),
+        budgets: Object.fromEntries(Object.entries(legacy.budgets).filter(([, value]) => value > 0)),
+      });
+      clearLegacyFinance();
+      setLegacy({ rows: [], budgets: {} });
+      panel.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Data lama gagal dipindahkan.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const monthRows = useMemo(
     () => transactions.filter((row) => row.date.startsWith(month)).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)),
@@ -97,7 +156,7 @@ export function FinancePage() {
   })).filter((row) => row.amount || row.budget);
   const maxCategory = Math.max(1, ...spendingByCategory.map((row) => Math.max(row.amount, row.budget)));
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const numericAmount = Number(amount.replace(/[^0-9]/g, ""));
     if (!numericAmount || numericAmount < 1) {
@@ -108,16 +167,16 @@ export function FinancePage() {
       setError("Pilih tanggal transaksi.");
       return;
     }
-    const transaction: FinanceTransaction = {
-      id: crypto.randomUUID(),
-      kind,
-      amount: numericAmount,
-      category,
-      date,
-      note: note.trim(),
-      createdAt: new Date().toISOString(),
-    };
-    setTransactions((current) => [transaction, ...current]);
+    setBusy(true);
+    try {
+      await apiSend("POST", "/api/office/finance/transactions", { kind, amount: numericAmount, category, date, note: note.trim() });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Transaksi gagal disimpan.");
+      return;
+    } finally {
+      setBusy(false);
+    }
+    panel.reload();
     setAmount("");
     setNote("");
     setError("");
@@ -134,14 +193,45 @@ export function FinancePage() {
     <div className="finance-page">
       <PageHeader
         title="Keuangan mahasiswa"
-        subtitle="Catat uang masuk, pengeluaran, dan anggaran tanpa memakai API AI"
+        subtitle="Catat di sini atau cukup bicara ke EduPad; keduanya tersimpan di tempat yang sama"
         live={false}
         actions={
-          <button className="btn btn-dark" onClick={() => setComposer((open) => !open)}>
+          <button className="btn btn-dark" disabled={!available} onClick={() => setComposer((open) => !open)}>
             <span aria-hidden>+</span>{composer ? "Tutup formulir" : "Catat transaksi"}
           </button>
         }
       />
+
+      {panel.data && !available && (
+        <div className="panel-error" role="alert">Keuangan belum aktif di server: {panel.data.reason}</div>
+      )}
+      {panel.error && <div className="panel-error" role="alert">Data keuangan belum bisa dimuat: {panel.error}</div>}
+      {error && !composer && <div className="panel-error" role="alert">{error}</div>}
+
+      <section className="finance-voice card" aria-label="Catat lewat suara">
+        <Icon name="mic" size={18} />
+        <div>
+          <strong>Catat lewat suara di perangkat EduPad</strong>
+          <p>
+            Tekan tombol lalu ucapkan, misalnya <q>tadi beli makan siang dua puluh lima ribu</q>,{" "}
+            <q>dapat kiriman dari ibu satu juta</q>, <q>sisa anggaran makanku berapa?</q>, atau{" "}
+            <q>atur anggaran transportasi tiga ratus ribu</q>. Salah catat? Ucapkan <q>hapus yang tadi</q>.
+          </p>
+        </div>
+      </section>
+
+      {available && legacyCount > 0 && (
+        <section className="finance-voice card warn" aria-label="Pindahkan data lama">
+          <Icon name="database" size={18} />
+          <div>
+            <strong>{legacy.rows.length} transaksi lama masih tersimpan di browser ini</strong>
+            <p>Pindahkan sekali ke server agar terlihat dari perangkat lain dan bisa dibaca AI EduPad.</p>
+          </div>
+          <button className="btn btn-dark" disabled={busy} onClick={importLegacy}>
+            {busy ? "Memindahkan…" : "Pindahkan ke server"}
+          </button>
+        </section>
+      )}
 
       <section className="finance-toolbar card" aria-label="Periode dan bagian keuangan">
         <div className="finance-tabs" role="tablist" aria-label="Bagian keuangan">
@@ -152,7 +242,7 @@ export function FinancePage() {
 
       {composer && (
         <section className="finance-composer card">
-          <div className="finance-section-head"><div><span className="eyebrow">TRANSAKSI BARU</span><h2>Catat perubahan uang</h2><p>Isi berdasarkan transaksi sebenarnya. Data disimpan di browser ini.</p></div></div>
+          <div className="finance-section-head"><div><span className="eyebrow">TRANSAKSI BARU</span><h2>Catat perubahan uang</h2><p>Isi berdasarkan transaksi sebenarnya. Data disimpan di server EduPad dan langsung terbaca AI di perangkat.</p></div></div>
           <form onSubmit={submit}>
             <div className="finance-kind" role="group" aria-label="Jenis transaksi">
               <button type="button" className={kind === "expense" ? "active expense" : ""} onClick={() => changeKind("expense")}>Pengeluaran</button>
@@ -162,7 +252,7 @@ export function FinancePage() {
             <label><span>Kategori</span><select value={category} onChange={(event) => setCategory(event.target.value)}>{(kind === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map((item) => <option key={item}>{item}</option>)}</select></label>
             <label><span>Tanggal</span><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label>
             <label className="finance-note"><span>Catatan <small>(opsional)</small></span><input placeholder="Contoh: makan siang di kampus" value={note} onChange={(event) => setNote(event.target.value)} maxLength={100} /></label>
-            <div className="finance-form-actions">{error && <span className="finance-error">{error}</span>}<button type="button" className="btn" onClick={() => setComposer(false)}>Batal</button><button className="btn btn-dark" type="submit">Simpan transaksi</button></div>
+            <div className="finance-form-actions">{error && <span className="finance-error">{error}</span>}<button type="button" className="btn" onClick={() => setComposer(false)}>Batal</button><button className="btn btn-dark" type="submit" disabled={busy}>{busy ? "Menyimpan…" : "Simpan transaksi"}</button></div>
           </form>
         </section>
       )}
@@ -182,17 +272,17 @@ export function FinancePage() {
           </section>
           <section className="card finance-panel">
             <div className="finance-section-head"><div><span className="eyebrow">TERBARU</span><h2>Transaksi terakhir</h2></div><button className="text-button" onClick={() => setTab("transactions")}>Lihat semua</button></div>
-            <TransactionList rows={monthRows.slice(0, 6)} onDelete={(id) => setTransactions((rows) => rows.filter((row) => row.id !== id))} />
+            <TransactionList rows={monthRows.slice(0, 6)} onDelete={removeTransaction} />
           </section>
         </div>
       )}
 
-      {tab === "transactions" && <section className="card finance-panel"><div className="finance-section-head"><div><span className="eyebrow">{monthRows.length} CATATAN</span><h2>Daftar transaksi</h2><p>{formatMonth(month)}</p></div></div><TransactionList rows={monthRows} onDelete={(id) => setTransactions((rows) => rows.filter((row) => row.id !== id))} /></section>}
+      {tab === "transactions" && <section className="card finance-panel"><div className="finance-section-head"><div><span className="eyebrow">{monthRows.length} CATATAN</span><h2>Daftar transaksi</h2><p>{formatMonth(month)}</p></div></div><TransactionList rows={monthRows} onDelete={removeTransaction} /></section>}
 
       {tab === "budgets" && (
         <section className="card finance-panel">
-          <div className="finance-section-head"><div><span className="eyebrow">ANGGARAN BULANAN</span><h2>Tetapkan batas pengeluaran</h2><p>Nilai tersimpan otomatis dan dipakai untuk membandingkan transaksi setiap bulan.</p></div><strong className="finance-budget-total">{money.format(budgetTotal)}</strong></div>
-          <div className="budget-grid">{EXPENSE_CATEGORIES.map((name) => <label key={name}><span>{name}</span><div className="money-input"><b>Rp</b><input inputMode="numeric" value={budgets[name] || ""} placeholder="0" onChange={(event) => setBudgets((current) => ({ ...current, [name]: Math.max(0, Number(event.target.value.replace(/[^0-9]/g, "")) || 0) }))} /></div></label>)}</div>
+          <div className="finance-section-head"><div><span className="eyebrow">ANGGARAN BULANAN</span><h2>Tetapkan batas pengeluaran</h2><p>Tersimpan saat kolom ditinggalkan; bisa juga diatur lewat suara. AI memakai angka ini untuk menjawab sisa anggaran.</p></div><strong className="finance-budget-total">{money.format(budgetTotal)}</strong></div>
+          <div className="budget-grid">{EXPENSE_CATEGORIES.map((name) => <label key={name}><span>{name}</span><div className="money-input"><b>Rp</b><input inputMode="numeric" disabled={!available} value={budgets[name] || ""} placeholder="0" onBlur={() => saveBudget(name)} onChange={(event) => setBudgets((current) => ({ ...current, [name]: Math.max(0, Number(event.target.value.replace(/[^0-9]/g, "")) || 0) }))} /></div></label>)}</div>
           <div className="finance-callout"><Icon name="help" /><span>Mulailah dari kebutuhan utama seperti makan, transportasi, tempat tinggal, dan biaya kuliah. Anggaran bukan target untuk dihabiskan.</span></div>
         </section>
       )}
@@ -211,5 +301,5 @@ export function FinancePage() {
 
 function TransactionList({ rows, onDelete }: { rows: FinanceTransaction[]; onDelete: (id: string) => void }) {
   if (!rows.length) return <div className="finance-empty"><Icon name="clipboard" size={28} /><strong>Belum ada transaksi</strong><span>Data hanya muncul setelah Anda mencatat transaksi sebenarnya.</span></div>;
-  return <div className="transaction-list">{rows.map((row) => <article key={row.id}><span className={`transaction-icon ${row.kind}`} aria-hidden>{row.kind === "income" ? "+" : "−"}</span><div><strong>{row.note || row.category}</strong><span>{row.category} · {dateLabel.format(new Date(`${row.date}T12:00:00`))}</span></div><b className={row.kind}>{row.kind === "income" ? "+" : "−"}{money.format(row.amount)}</b><button type="button" onClick={() => onDelete(row.id)} aria-label={`Hapus ${row.note || row.category}`} title="Hapus transaksi">×</button></article>)}</div>;
+  return <div className="transaction-list">{rows.map((row) => <article key={row.id}><span className={`transaction-icon ${row.kind}`} aria-hidden>{row.kind === "income" ? "+" : "−"}</span><div><strong>{row.note || row.category}{row.source === "suara" && <span className="pill chip voice-chip" title="Dicatat AI EduPad dari ucapan di perangkat">Suara</span>}</strong><span>{row.category} · {dateLabel.format(new Date(`${row.date}T12:00:00`))}</span></div><b className={row.kind}>{row.kind === "income" ? "+" : "−"}{money.format(row.amount)}</b><button type="button" onClick={() => onDelete(row.id)} aria-label={`Hapus ${row.note || row.category}`} title="Hapus transaksi">×</button></article>)}</div>;
 }

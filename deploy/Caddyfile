@@ -3,8 +3,23 @@
 # Pasang: sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
 shata.id, www.shata.id {
 	tls /etc/caddy/certs/shata.id.pem /etc/caddy/certs/shata.id.key
-	reverse_proxy 127.0.0.1:8000 {
-		# Audio jawaban (/v1/audio) dialirkan per potongan: teruskan segera, jangan ditahan.
-		flush_interval -1
+
+	# Dashboard EduPad (AI Office, keuangan, Tutor, Equity Radar): edupad-office.service.
+	# Login tetap lewat web EduPad di bawah; Office API membaca sesi yang sama.
+	redir /dashboard /dashboard/ 308
+	@office path /dashboard/* /api/office/* /v1/dashboard/*
+	handle @office {
+		reverse_proxy 127.0.0.1:8001 {
+			# Status owl dialirkan lewat SSE (/api/office/events): teruskan segera.
+			flush_interval -1
+		}
+	}
+
+	# Web EduPad (landing + login Google) & API perangkat ESP32: edupad-server.service.
+	handle {
+		reverse_proxy 127.0.0.1:8000 {
+			# Audio jawaban (/v1/audio) dialirkan per potongan: teruskan segera, jangan ditahan.
+			flush_interval -1
+		}
 	}
 }

@@ -24,7 +24,7 @@ export function SettingsPage() {
   };
 
   const clearFinance = () => {
-    if (!window.confirm("Hapus seluruh transaksi dan anggaran keuangan yang tersimpan di browser ini?")) return;
+    if (!window.confirm("Hapus salinan lama keuangan di browser ini? Data di server EduPad tidak ikut terhapus.")) return;
     localStorage.removeItem(FINANCE_TRANSACTIONS_KEY);
     localStorage.removeItem(FINANCE_BUDGETS_KEY);
     setFinanceStorage({ transactionCount: 0, hasData: false });
@@ -61,8 +61,8 @@ export function SettingsPage() {
         </section>
 
         <section className="card settings-panel">
-          <div className="settings-panel-head"><span className="settings-icon danger"><Icon name="alert" /></span><div><h2>Data di perangkat</h2><p>Data keuangan belum dikirim ke Supabase.</p></div></div>
-          <div className="settings-data-row"><div><strong>{financeStorage.transactionCount} transaksi keuangan</strong><span>{financeStorage.hasData ? "Transaksi atau anggaran tersimpan pada browser ini." : "Belum ada transaksi atau anggaran tersimpan."}</span></div><button type="button" className="btn settings-danger" disabled={!financeStorage.hasData} onClick={clearFinance}>Hapus data keuangan</button></div>
+          <div className="settings-panel-head"><span className="settings-icon danger"><Icon name="alert" /></span><div><h2>Salinan lama di browser</h2><p>Keuangan kini tersimpan di server EduPad (Supabase) dan sinkron dengan perangkat. Salinan lama hanya tersisa bila belum dipindahkan dari halaman Keuangan.</p></div></div>
+          <div className="settings-data-row"><div><strong>{financeStorage.transactionCount} transaksi di browser ini</strong><span>{financeStorage.hasData ? "Pindahkan dari halaman Keuangan sebelum menghapus." : "Tidak ada salinan lama."}</span></div><button type="button" className="btn settings-danger" disabled={!financeStorage.hasData} onClick={clearFinance}>Hapus salinan lama</button></div>
         </section>
 
         <div className="settings-savebar"><span className={saved ? "visible" : ""}><i />Pengaturan berhasil disimpan</span><button type="submit" className="btn btn-dark">Simpan pengaturan</button></div>

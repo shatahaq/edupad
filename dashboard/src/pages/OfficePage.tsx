@@ -6,6 +6,7 @@ import { useOfficeData } from "../../../frontend/src/hooks/useOfficeData";
 import type { AgentState, OfficeAgent, OfficeTask } from "../../../frontend/src/types";
 import { FURNITURE_EDIT_MODE_UPDATED, FURNITURE_LAYOUT_UPDATED, FURNITURE_SELECTED, officeGameEvents } from "../../../frontend/src/game/events";
 import { FURNITURE, HOME_ROOM, furnitureUrl, roomAt, type FurnitureItem } from "../../../frontend/src/game/owlLayout";
+import { assetUrl } from "../../../frontend/src/game/assetUrl";
 
 type DetailTab = "summary" | "tasks";
 
@@ -65,13 +66,13 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 };
 
 const OWL_SHEETS: Record<string, string> = {
-  coordinator: "/assets/agents/owls/nova-owl-sheet-v1.png",
-  researcher: "/assets/agents/owls/pixel-owl-sheet-v1.png",
-  tutor: "/assets/agents/owls/sora-owl-sheet-v1.png",
-  planner: "/assets/agents/owls/tempo-owl-sheet-v1.png",
-  analyst: "/assets/agents/owls/metric-owl-sheet-v1.png",
-  finance: "/assets/agents/owls/koin-owl-sheet-v1.png",
-  keeper: "/assets/agents/owls/nexus-owl-sheet-v1.png",
+  coordinator: assetUrl("assets/agents/owls/nova-owl-sheet-v1.png"),
+  researcher: assetUrl("assets/agents/owls/pixel-owl-sheet-v1.png"),
+  tutor: assetUrl("assets/agents/owls/sora-owl-sheet-v1.png"),
+  planner: assetUrl("assets/agents/owls/tempo-owl-sheet-v1.png"),
+  analyst: assetUrl("assets/agents/owls/metric-owl-sheet-v1.png"),
+  finance: assetUrl("assets/agents/owls/koin-owl-sheet-v1.png"),
+  keeper: assetUrl("assets/agents/owls/nexus-owl-sheet-v1.png"),
 };
 
 const AGENT_ORDER = ["coordinator", "researcher", "tutor", "planner", "analyst", "finance", "keeper"];

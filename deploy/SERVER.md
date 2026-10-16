@@ -126,6 +126,32 @@ curl -I https://shata.id/                    # harus: HTTP/2 200
 juga dijalankan otomatis tepat setelah pengguna login. Manual:
 `.venv/bin/python -m edupad classroom [--email EMAIL]`.
 
+### 5. Dashboard EduPad (AI Office, Keuangan, Tutor, Equity Radar)
+
+Dashboard (`dashboard/`, buatan tim) disajikan Office API di `https://shata.id/dashboard/`.
+Setelah login Google di halaman depan, pengguna langsung dibawa ke sana. Hanya email di
+`EDUPAD_OWNER_EMAILS` yang bisa membuka datanya.
+
+Tabel Supabase keuangan & tutor: `supabase/migrations/20261017_finance_tutor.sql`
+(sekali, lewat SQL Editor Supabase).
+
+```bash
+# laptop: build (dashboard memakai kode game di frontend/, jadi keduanya di-install)
+(cd frontend && npm ci) && (cd dashboard && npm ci && npm run build)
+rsync -az --delete dashboard/dist/ ubuntu@SERVER:Tugas_Akhir/dashboard/dist/
+
+# server
+.venv/bin/pip install -e ".[office]"
+sudo cp deploy/edupad-office.service /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now edupad-office
+sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+curl -I https://shata.id/dashboard/            # harus: HTTP/2 200
+curl https://shata.id/v1/dashboard/schedule    # harus: 401 (perlu login)
+```
+
+Opsional di `.env`: `EDUPAD_SEMESTER_MEETINGS=16`, `EDUPAD_MIN_ATTENDANCE=0.75` (batas
+kehadiran untuk peringatan dini). `EDUPAD_OFFICE_AUTH=off` hanya untuk pengembangan lokal.
+
 ## Log
 
 `logs/keepalive.log`, `logs/pipeline.log`, `logs/scrape.log`, `logs/assignments.log`,

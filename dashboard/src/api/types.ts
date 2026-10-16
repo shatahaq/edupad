@@ -20,6 +20,9 @@ export interface Device {
   rssi_dbm: number | null;
   /** Rata-rata waktu permintaan /v1/ask terakhir, detik. */
   avg_latency_s: number | null;
+  uptime_s?: number | null;
+  heap_free?: number | null;
+  firmware?: string | null;
 }
 
 export interface DevicesData {
@@ -170,6 +173,7 @@ export interface Task {
   url: string;
   /** Cuplikan soal (maks ~600 karakter, seperti list_assignments). */
   soal: string;
+  sumber?: "kelas.usu" | "Google Classroom";
 }
 
 export interface AssignmentsData {
@@ -245,6 +249,127 @@ export interface LearningData {
   facts: string[];
 }
 
+export type FinanceSource = "suara" | "dashboard" | "impor";
+
+/** Satu transaksi di Supabase (finance_transactions); source suara = dicatat AI dari perangkat. */
+export interface FinanceRow {
+  id: string;
+  kind: "income" | "expense";
+  amount: number;
+  category: string;
+  note: string;
+  occurred_on: string;
+  source: FinanceSource;
+  created_at: string;
+}
+
+export interface FinanceData {
+  /** false = tabel Supabase belum siap; `reason` menjelaskan. */
+  available: boolean;
+  reason?: string;
+  transactions: FinanceRow[];
+  budgets: Record<string, number>;
+  expense_categories: string[];
+  income_categories: string[];
+}
+
+export interface MasteryTopic {
+  matkul: string;
+  course_id: string | null;
+  pertemuan: number | null;
+  judul: string;
+  /** 0-100. */
+  penguasaan: number;
+  kuis: number;
+  skor_terakhir: number;
+  terakhir: string | null;
+  ulang_pada: string | null;
+  jatuh_tempo: boolean;
+}
+
+export interface QuizCheck {
+  matkul: string;
+  pertemuan: number | null;
+  soal: string;
+  jawaban: string;
+  penilaian: "benar" | "sebagian" | "salah";
+  umpan_balik: string;
+  waktu: string;
+}
+
+export interface MasteryOverview {
+  available: boolean;
+  reason?: string;
+  topics: MasteryTopic[];
+  courses: { matkul: string; penguasaan: number; topik: number }[];
+  dikuasai?: number;
+  lemah?: number;
+  jatuh_tempo?: number;
+  rata_rata?: number | null;
+  soal_30_hari?: number;
+  soal_7_hari?: number;
+  skor_7_hari?: number | null;
+  miskonsepsi?: { teks: string; jumlah: number }[];
+}
+
+export interface TutorData extends MasteryOverview {
+  checks: QuizCheck[];
+}
+
+export interface AccessCourse {
+  matkul: string;
+  course_id: string;
+  jenis: string | null;
+  pertemuan_berlangsung: number;
+  pertemuan_bermateri: number;
+  materi_classroom: number;
+  tanpa_materi: { pertemuan: number; topik: string | null }[];
+  ocr: number[];
+  bisa_didengar: number;
+  status: "lengkap" | "ada_kekosongan" | "belum_ada_materi";
+}
+
+export interface AttendanceRisk {
+  matkul: string;
+  course_id: string | null;
+  berlangsung: number;
+  hadir: number;
+  tidak_hadir: number;
+  persen: number | null;
+  pertemuan_semester: number;
+  jatah_tidak_hadir: number;
+  sisa_jatah: number;
+  status: "aman" | "waspada" | "melewati";
+  diperbarui: string | null;
+}
+
+export interface EarlyWarning {
+  jenis: "kehadiran" | "tugas_terlewat" | "anggaran";
+  tingkat: "tinggi" | "sedang";
+  matkul: string | null;
+  pesan: string;
+  kunci: string;
+}
+
+export interface EquityData {
+  access: {
+    mata_kuliah: AccessCourse[];
+    jumlah_mata_kuliah: number;
+    tanpa_materi_sama_sekali: number;
+    pertemuan_berlangsung: number;
+    pertemuan_tanpa_materi: number;
+    cakupan_persen: number | null;
+    pertemuan_bermateri: number;
+    pertemuan_ocr: number;
+    bisa_didengar: number;
+  };
+  attendance: AttendanceRisk[];
+  warnings: EarlyWarning[];
+  mastery: MasteryOverview;
+  voice: { questions_30d: number; listenable_meetings: number; meetings_with_material: number };
+  rules: { semester_meetings: number; min_attendance: number };
+}
+
 /** Semua panel, dipakai client & mock agar nama endpoint selalu cocok. */
 export interface DashboardData {
   devices: DevicesData;
@@ -261,6 +386,9 @@ export interface DashboardData {
   schedule: ScheduleData;
   conversations: ConversationsData;
   learning: LearningData;
+  tutor: TutorData;
+  equity: EquityData;
+  finance: FinanceData;
 }
 
 export type PanelKey = keyof DashboardData;

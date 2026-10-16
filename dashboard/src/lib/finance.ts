@@ -11,6 +11,8 @@ export interface FinanceTransaction {
   date: string;
   note: string;
   createdAt: string;
+  /** suara = dicatat AI dari perangkat EduPad. */
+  source?: "suara" | "dashboard" | "impor";
 }
 
 export type FinanceBudgets = Record<string, number>;
@@ -32,10 +34,15 @@ export function loadFinanceBudgets() {
   return read<FinanceBudgets>(FINANCE_BUDGETS_KEY, {});
 }
 
-export function saveFinanceTransactions(transactions: FinanceTransaction[]) {
-  localStorage.setItem(FINANCE_TRANSACTIONS_KEY, JSON.stringify(transactions));
-}
-
-export function saveFinanceBudgets(budgets: FinanceBudgets) {
-  localStorage.setItem(FINANCE_BUDGETS_KEY, JSON.stringify(budgets));
+/**
+ * Data keuangan versi lama tersimpan di localStorage browser. Sekarang sumbernya Supabase
+ * (Office API); fungsi baca di atas hanya dipakai untuk memindahkan data lama sekali.
+ */
+export function clearLegacyFinance() {
+  try {
+    localStorage.removeItem(FINANCE_TRANSACTIONS_KEY);
+    localStorage.removeItem(FINANCE_BUDGETS_KEY);
+  } catch {
+    // storage diblokir: tidak ada yang perlu dihapus
+  }
 }

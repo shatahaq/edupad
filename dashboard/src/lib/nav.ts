@@ -27,6 +27,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
       { id: "keuangan", label: "Keuangan", icon: "wallet" },
       { id: "percakapan", label: "Riwayat percakapan", icon: "message" },
       { id: "belajar", label: "Riwayat belajar", icon: "book" },
+      { id: "tutor", label: "Tutor Belajar", icon: "sparkle" },
       { id: "equity", label: "Equity Radar", icon: "activity" },
     ],
   },

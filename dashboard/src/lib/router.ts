@@ -10,6 +10,7 @@ export const PAGES = [
   "keuangan",
   "percakapan",
   "belajar",
+  "tutor",
   "equity",
   "monitoring",
   "pengaturan",

@@ -1,0 +1,206 @@
+import type { MasteryTopic, QuizCheck } from "../api/types";
+import { usePanel } from "../api/usePanel";
+import { Icon } from "../components/Icon";
+import { PageHeader } from "../components/PageHeader";
+import { ago, dayLabel, num } from "../lib/format";
+
+const VOICE_EXAMPLES = [
+  "Uji aku Basis Data pertemuan dua",
+  "Kuis dong tentang normalisasi, tiga soal",
+  "Aku belum paham rekursi",
+  "Hari ini aku sebaiknya belajar apa?",
+  "Berhenti kuisnya",
+];
+
+const VERDICT: Record<QuizCheck["penilaian"], { label: string; tone: string }> = {
+  benar: { label: "Benar", tone: "good" },
+  sebagian: { label: "Sebagian", tone: "warn" },
+  salah: { label: "Belum tepat", tone: "bad" },
+};
+
+function level(value: number) {
+  if (value >= 80) return { label: "Dikuasai", tone: "good" };
+  if (value >= 60) return { label: "Berkembang", tone: "" };
+  return { label: "Perlu diperkuat", tone: "warn" };
+}
+
+function topicName(topic: MasteryTopic) {
+  return `${topic.matkul}${topic.pertemuan != null ? ` · pertemuan ${topic.pertemuan}` : ""}`;
+}
+
+export function TutorPage() {
+  const tutor = usePanel("tutor");
+  const data = tutor.data;
+  const topics = data?.topics ?? [];
+  const checks = data?.checks ?? [];
+  const due = topics.filter((topic) => topic.jatuh_tempo);
+
+  return (
+    <div className="equity-page tutor-page">
+      <PageHeader title="Tutor Belajar" subtitle="SORA menguji pemahaman lewat kuis lisan dari materi kuliah asli, lalu menjadwalkan pengulangan" />
+
+      {tutor.error && <div className="panel-error" role="alert">Data tutor belum bisa dimuat: {tutor.error}</div>}
+      {data && !data.available && <div className="panel-error" role="alert">Tutor belum aktif di server: {data.reason}</div>}
+
+      <section className="card equity-privacy" aria-label="Cara memakai Tutor di perangkat">
+        <Icon name="mic" size={18} />
+        <div>
+          <strong>Belajar cukup dengan bicara ke EduPad</strong>
+          <p>
+            Soal dibuat dari materi pertemuan yang benar-benar diunggah dosen, dinilai AI dari jawaban lisanmu, lalu topik yang
+            belum dikuasai dijadwalkan diulang (1, 3, 7, 14, 30 hari). Soal tugas dijawab bertahap: konsep dan petunjuk dulu,
+            penjelasan lengkap saat kamu minta.
+          </p>
+          <div className="voice-examples">
+            {VOICE_EXAMPLES.map((text) => (
+              <span key={text} className="pill chip">
+                “{text}”
+              </span>
+            ))}
+          </div>
+        </div>
+        <span className="equity-sdgs">SDG 4.1 · 4.4</span>
+      </section>
+
+      <section className="equity-kpis" aria-busy={tutor.loading}>
+        <Metric label="Rata-rata penguasaan" value={data?.rata_rata != null ? `${data.rata_rata}%` : "—"} note={topics.length ? `${topics.length} topik sudah diuji` : "mulai kuis pertama lewat suara"} />
+        <Metric label="Topik dikuasai" value={data ? `${data.dikuasai ?? 0}/${topics.length}` : "—"} note="penguasaan ≥ 80%" />
+        <Metric label="Perlu diulang" value={data ? num(due.length) : "—"} note={due.length ? "sudah jatuh tempo hari ini" : "belum ada yang jatuh tempo"} />
+        <Metric label="Soal 7 hari" value={data ? num(data.soal_7_hari ?? 0) : "—"} note={data?.skor_7_hari != null ? `skor rata-rata ${data.skor_7_hari}%` : "belum ada jawaban minggu ini"} />
+      </section>
+
+      <div className="equity-grid">
+        <section className="card equity-card">
+          <header>
+            <div>
+              <h2>Peta penguasaan topik</h2>
+              <p>Dari kuis lisan; urut dari yang paling perlu diperkuat</p>
+            </div>
+          </header>
+          {topics.length ? (
+            <ul className="mastery-list">
+              {topics.map((topic) => {
+                const lv = level(topic.penguasaan);
+                return (
+                  <li key={`${topic.course_id ?? topic.matkul}-${topic.pertemuan}`}>
+                    <div className="mastery-head">
+                      <span>
+                        <strong>{topic.judul || topicName(topic)}</strong>
+                        <small>
+                          {topicName(topic)} · {topic.kuis}× kuis · terakhir {topic.terakhir ? ago(topic.terakhir) : "—"}
+                        </small>
+                      </span>
+                      <span className={`pill ${lv.tone}`}>{lv.label}</span>
+                    </div>
+                    <div className="meter" aria-label={`Penguasaan ${topic.penguasaan}%`}>
+                      <div className={`meter-fill ${lv.tone}`} style={{ width: `${Math.max(4, topic.penguasaan)}%` }} />
+                    </div>
+                    <small className={topic.jatuh_tempo ? "warn-text" : "muted"}>
+                      {topic.penguasaan}% ·{" "}
+                      {topic.jatuh_tempo ? "waktunya mengulang: ucapkan “uji aku lagi”" : topic.ulang_pada ? `diulang ${dayLabel(topic.ulang_pada)}` : "—"}
+                    </small>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="empty">Belum ada topik yang diuji. Tekan tombol di EduPad dan ucapkan “uji aku [mata kuliah] pertemuan [nomor]”.</p>
+          )}
+        </section>
+
+        <div className="tutor-side">
+          <section className="card equity-card">
+            <header>
+              <div>
+                <h2>Per mata kuliah</h2>
+                <p>Rata-rata penguasaan topik yang sudah diuji</p>
+              </div>
+            </header>
+            {data?.courses.length ? (
+              <ul className="equity-coverage-list">
+                {data.courses.map((course) => (
+                  <li key={course.matkul}>
+                    <span>
+                      <strong>{course.matkul}</strong>
+                      <small>{course.topik} topik</small>
+                    </span>
+                    <b className={course.penguasaan >= 80 ? "good-text" : course.penguasaan < 60 ? "warn-text" : undefined}>{course.penguasaan}%</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="empty">Belum ada data.</p>
+            )}
+          </section>
+
+          <section className="card equity-card">
+            <header>
+              <div>
+                <h2>Salah paham yang muncul</h2>
+                <p>Dicatat AI saat menilai jawaban (30 hari)</p>
+              </div>
+            </header>
+            {data?.miskonsepsi?.length ? (
+              <ul className="equity-coverage-list">
+                {data.miskonsepsi.map((item) => (
+                  <li key={item.teks}>
+                    <span>
+                      <strong>{item.teks}</strong>
+                    </span>
+                    <b>{item.jumlah}×</b>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="empty">Belum ada salah paham yang tercatat.</p>
+            )}
+          </section>
+        </div>
+      </div>
+
+      <section className="card equity-card">
+        <header>
+          <div>
+            <h2>Riwayat jawaban kuis</h2>
+            <p>Jawaban lisan terakhir beserta umpan balik SORA</p>
+          </div>
+        </header>
+        {checks.length ? (
+          <ol className="quiz-history">
+            {checks.map((check, index) => {
+              const verdict = VERDICT[check.penilaian];
+              return (
+                <li key={`${check.waktu}-${index}`}>
+                  <span className={`pill ${verdict.tone}`}>{verdict.label}</span>
+                  <div>
+                    <strong>{check.soal}</strong>
+                    <p>
+                      <b>Jawabanmu:</b> {check.jawaban || "—"}
+                    </p>
+                    {check.umpan_balik && <p className="muted">{check.umpan_balik}</p>}
+                    <small className="muted">
+                      {check.matkul}
+                      {check.pertemuan != null ? ` · pertemuan ${check.pertemuan}` : ""} · {ago(check.waktu)}
+                    </small>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <p className="empty">Riwayat kuis akan muncul setelah kuis lisan pertama.</p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function Metric({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <article className="card equity-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{note}</small>
+    </article>
+  );
+}

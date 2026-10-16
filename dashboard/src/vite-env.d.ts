@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_DATA_SOURCE?: "mock" | "live";
   readonly VITE_API_URL?: string;
   readonly VITE_REFRESH_SECONDS?: string;
+  readonly VITE_LANDING_URL?: string;
 }
 
 interface ImportMeta {

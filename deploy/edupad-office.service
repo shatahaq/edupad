@@ -1,0 +1,20 @@
+# Dashboard EduPad: Office API + file dashboard/dist (https://shata.id/dashboard/).
+# Pasang:  .venv/bin/pip install -e ".[office]"
+#          sudo cp deploy/edupad-office.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now edupad-office
+# Log:     journalctl -u edupad-office -f
+[Unit]
+Description=EduPad dashboard (Office API)
+After=network-online.target edupad-server.service
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Tugas_Akhir
+# Hanya lokal: dari internet lewat Caddy (deploy/Caddyfile)
+ExecStart=/home/ubuntu/Tugas_Akhir/.venv/bin/python -m edupad office-api --host 127.0.0.1 --port 8001
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

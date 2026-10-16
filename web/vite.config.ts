@@ -10,7 +10,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true, // redirect URI Google didaftarkan untuk port ini
-    proxy: { "/api": backend, "/auth": backend },
+    // /dashboard: dashboard EduPad (`cd dashboard && npm run dev`, port 5174)
+    proxy: { "/api": backend, "/auth": backend, "/dashboard": "http://localhost:5174" },
   },
   build: {
     outDir: "dist",

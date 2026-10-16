@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { DATA_SOURCE, REFRESH_SECONDS } from "../api/client";
 import { usePanel } from "../api/usePanel";
 import { NAV, type NavId } from "../lib/nav";
-import { initials, loadPreferences, PREFERENCES_UPDATED, type DashboardPreferences } from "../lib/preferences";
+import { DEFAULT_PREFERENCES, initials, loadPreferences, PREFERENCES_UPDATED, type DashboardPreferences } from "../lib/preferences";
+import { logout, useViewer } from "../lib/session";
 import { Icon } from "./Icon";
 
 interface Props {
@@ -38,6 +39,7 @@ function useBadges(): Partial<Record<NavId, Badge>> {
 
 export function Sidebar({ active, open, onNavigate, onClose }: Props) {
   const badges = useBadges();
+  const viewer = useViewer();
   const [preferences, setPreferences] = useState<DashboardPreferences>(() => loadPreferences());
 
   useEffect(() => {
@@ -45,6 +47,9 @@ export function Sidebar({ active, open, onNavigate, onClose }: Props) {
     window.addEventListener(PREFERENCES_UPDATED, update);
     return () => window.removeEventListener(PREFERENCES_UPDATED, update);
   }, []);
+
+  const custom = preferences.studentName !== DEFAULT_PREFERENCES.studentName;
+  const displayName = (custom ? preferences.studentName : viewer?.name) || preferences.studentName;
 
   return (
     <>
@@ -102,13 +107,18 @@ export function Sidebar({ active, open, onNavigate, onClose }: Props) {
 
           <div className="profile card">
             <span className="avatar" aria-hidden>
-              {initials(preferences.studentName)}
+              {viewer?.picture ? <img src={viewer.picture} alt="" referrerPolicy="no-referrer" /> : initials(displayName)}
               <i className="online" />
             </span>
             <div className="profile-text">
-              <strong>{preferences.studentName}</strong>
-              <span>{preferences.studentId || "EduPad terhubung"}</span>
+              <strong>{displayName}</strong>
+              <span>{preferences.studentId || viewer?.email || "EduPad terhubung"}</span>
             </div>
+            {viewer && (
+              <button className="icon-btn profile-logout" onClick={logout} aria-label="Keluar" title="Keluar">
+                <Icon name="external" size={13} />
+              </button>
+            )}
           </div>
         </div>
       </aside>

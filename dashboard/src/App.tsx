@@ -4,6 +4,7 @@ import { Topbar } from "./components/Topbar";
 import { NAV_ITEMS, pageLabel, type NavId } from "./lib/nav";
 import { go, useRoute, type Page } from "./lib/router";
 import { applyPreferences, loadPreferences } from "./lib/preferences";
+import { CONSENT_URL, useViewer } from "./lib/session";
 import { AttendancePage } from "./pages/AttendancePage";
 import { ConversationsPage } from "./pages/ConversationsPage";
 import { EquityPage } from "./pages/EquityPage";
@@ -16,10 +17,13 @@ import { OfficePage } from "./pages/OfficePage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TasksPage } from "./pages/TasksPage";
+import { TutorPage } from "./pages/TutorPage";
 
 export function App() {
   const { page, section } = useRoute();
   const [drawer, setDrawer] = useState(false);
+  const viewer = useViewer();
+  const needsClassroom = viewer && (!viewer.classroom.granted || viewer.classroom.reauth_required);
 
   useEffect(() => {
     applyPreferences(loadPreferences());
@@ -52,6 +56,19 @@ export function App() {
       <div className="main">
         <Topbar page={pageLabel(page)} onMenu={() => setDrawer(true)} />
 
+        {needsClassroom && (
+          <div className="consent-banner" role="status">
+            <span>
+              {viewer.classroom.reauth_required
+                ? "Izin Google Classroom perlu diperbarui agar tugas & materi Classroom tetap terbaca EduPad."
+                : "Izin Google Classroom belum diberikan, jadi tugas & materi Classroom belum bisa dibaca EduPad."}
+            </span>
+            <a className="btn" href={CONSENT_URL}>
+              Beri izin Classroom
+            </a>
+          </div>
+        )}
+
         <main className={`content ${page === "office" ? "content-office" : ""}`}>
           {page === "office" && <OfficePage />}
           {page === "beranda" && <HomePage />}
@@ -61,6 +78,7 @@ export function App() {
           {page === "keuangan" && <FinancePage />}
           {page === "percakapan" && <ConversationsPage />}
           {page === "belajar" && <LearningPage />}
+          {page === "tutor" && <TutorPage />}
           {page === "equity" && <EquityPage />}
           {page === "monitoring" && <MonitoringPage section={section} />}
           {page === "pengaturan" && <SettingsPage />}
