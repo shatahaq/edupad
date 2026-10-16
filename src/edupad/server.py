@@ -42,6 +42,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
+from edupad import device_status
 from edupad.agent import updates
 from edupad.agent.formatting import fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
@@ -292,11 +293,11 @@ class Handler(BaseHTTPRequestHandler):
         self._ask(self._read_body(), prepared)
 
     def _authorize(self) -> None:
-        if self.server.token is None:
-            return
-        given = self.headers.get("Authorization", "").encode()
-        if not hmac.compare_digest(given, f"Bearer {self.server.token}".encode()):
-            raise RequestError(401, "token perangkat salah atau tidak ada")
+        if self.server.token is not None:
+            given = self.headers.get("Authorization", "").encode()
+            if not hmac.compare_digest(given, f"Bearer {self.server.token}".encode()):
+                raise RequestError(401, "token perangkat salah atau tidak ada")
+        device_status.record(self.headers, urlsplit(self.path).path)  # untuk dashboard
 
     def _read_body(self) -> bytes:
         if "chunked" in self.headers.get("Transfer-Encoding", "").lower():
@@ -379,6 +380,7 @@ class Handler(BaseHTTPRequestHandler):
         except LLMError as e:
             raise RequestError(502, f"agent: {e}") from e
         timing["agent"] = round(time.time() - started, 2)
+        device_status.record(self.headers, "/v1/ask", latency_s=sum(timing.values()))
         audio_id = self.server.audio.add(result["speech"]) if result["speech"] else None
         log.info("[device] %r -> %r %s", question, result["speech"][:80], timing)
         self._json(

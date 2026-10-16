@@ -107,9 +107,51 @@ def assignments() -> dict:
                 "nilai": status.get("nilai"),
                 "url": str(row.get("url") or ""),
                 "soal": " ".join(description.split())[:600],
+                "sumber": "kelas.usu",
             }
         )
-    return {"updated_at": raw.get("diperbarui"), "tasks": items, "source": "local"}
+    classroom = _classroom_tasks()
+    items += classroom
+    return {
+        "updated_at": raw.get("diperbarui"),
+        "tasks": items,
+        "source": "local+classroom" if classroom else "local",
+    }
+
+
+def _classroom_tasks() -> list[dict]:
+    """Tugas Google Classroom akun pemilik, disaring seperti yang diterima AI agent."""
+    from edupad.agent.tools import _classroom, _relevant_classroom_task
+
+    now = datetime.now(WIB)
+    rows = []
+    for data in _classroom():
+        for task in data.get("tugas", []):
+            if not _relevant_classroom_task(task, now):
+                continue
+            status = task.get("status") or {}
+            grade = status.get("nilai")
+            rows.append(
+                {
+                    "id": str(task.get("id") or task.get("url") or task.get("judul")),
+                    "course": str(task.get("matkul") or ""),
+                    "kode": "Classroom",
+                    "jenis": "tugas",
+                    "judul": str(task.get("judul") or "Tanpa judul"),
+                    "pertemuan": task.get("pertemuan"),
+                    "dibuka": task.get("dibuat"),
+                    "deadline": task.get("deadline"),
+                    "submitted": bool(task.get("sudah_dikumpulkan")),
+                    "late_submission": bool(status.get("terlambat")),
+                    "overdue": bool(task.get("lewat_deadline")),
+                    "graded": grade is not None,
+                    "nilai": None if grade is None else str(grade),
+                    "url": str(task.get("url") or ""),
+                    "soal": " ".join(str(task.get("deskripsi") or "").split())[:600],
+                    "sumber": "Google Classroom",
+                }
+            )
+    return rows
 
 
 def schedule() -> dict:
@@ -333,18 +375,28 @@ def knowledge() -> dict:
         course = str(row.get("matkul") or "Tanpa nama")
         current = per_course.setdefault(course, {"course": course, "chunks": 0, "meetings": set()})
         current["chunks"] += 1
-        current["meetings"].update(value for value in row.get("pertemuan") or [] if isinstance(value, int))
+        current["meetings"].update(
+            value for value in row.get("pertemuan") or [] if isinstance(value, int)
+        )
     worker_log = LOG_DIR / "office-worker.log"
     latest_ok: str | None = None
     try:
-        matches = re.findall(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d).*\[selesai]", worker_log.read_text(encoding="utf-8"), re.M)
+        matches = re.findall(
+            r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d).*\[selesai]",
+            worker_log.read_text(encoding="utf-8"),
+            re.M,
+        )
         if matches:
             latest_ok = datetime.fromisoformat(matches[-1]).replace(tzinfo=WIB).isoformat()
     except OSError:
         pass
     chunks_path = CORPUS_DIR / "chunks.jsonl"
     pending = 0
-    if rows and (not latest_ok or chunks_path.stat().st_mtime > (_dt(latest_ok) or datetime.min.replace(tzinfo=WIB)).timestamp()):
+    if rows and (
+        not latest_ok
+        or chunks_path.stat().st_mtime
+        > (_dt(latest_ok) or datetime.min.replace(tzinfo=WIB)).timestamp()
+    ):
         pending = len(rows)
     return {
         "chunks_total": len(rows),
@@ -356,7 +408,11 @@ def knowledge() -> dict:
         ),
         "pending_index": pending,
         "per_course": [
-            {"course": value["course"], "chunks": value["chunks"], "meetings": len(value["meetings"])}
+            {
+                "course": value["course"],
+                "chunks": value["chunks"],
+                "meetings": len(value["meetings"]),
+            }
             for value in sorted(per_course.values(), key=lambda item: item["chunks"], reverse=True)
         ],
         "source": "local",
@@ -368,28 +424,98 @@ def _usage_rows(hours: int | None = None) -> list[dict]:
     if hours is None:
         return rows
     cutoff = datetime.now(WIB) - timedelta(hours=hours)
-    return [row for row in rows if (_dt(row.get("waktu")) or datetime.min.replace(tzinfo=WIB)) >= cutoff]
+    return [
+        row for row in rows if (_dt(row.get("waktu")) or datetime.min.replace(tzinfo=WIB)) >= cutoff
+    ]
+
+
+ACCESS_LINE = re.compile(
+    r'^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\S* INFO \S+ "(GET|POST) (/v1/\S*) HTTP/[\d.]+" (\d{3})'
+)
+DEVICE_LINE = re.compile(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\S* INFO \[device\] (.*)$")
+TIMING = re.compile(r"'(stt|agent)': ([\d.]+)")
+SERVE_TAIL_BYTES = 3_000_000
+
+
+def _tail_lines(path: Path, max_bytes: int = SERVE_TAIL_BYTES) -> list[str]:
+    """Baris terakhir log (log server tidak dirotasi, jadi hanya bagian akhirnya dibaca)."""
+    try:
+        with path.open("rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(max(0, size - max_bytes))
+            data = f.read()
+    except OSError:
+        return []
+    lines = data.decode("utf-8", errors="replace").splitlines()
+    return lines[1:] if size > max_bytes else lines
+
+
+def device_requests(hours: int = 24) -> list[dict]:
+    """Permintaan /v1/ask perangkat dari logs/serve.log: status, latensi stt+agent."""
+    cutoff = datetime.now(WIB) - timedelta(hours=hours)
+    asks: list[dict] = []
+    pending: dict | None = None
+    for line in _tail_lines(LOG_DIR / "serve.log"):
+        device = DEVICE_LINE.match(line)
+        if device:
+            text = device.group(2)
+            if text.startswith("tidak ada ucapan"):
+                pending = {"no_speech": True, "latency_s": None}
+            else:
+                timing = dict(TIMING.findall(text))
+                latency = sum(float(v) for v in timing.values()) if timing else None
+                pending = {"no_speech": False, "latency_s": latency}
+            continue
+        access = ACCESS_LINE.match(line)
+        if not access or access.group(2) != "POST" or not access.group(3).startswith("/v1/ask"):
+            continue
+        at = datetime.fromisoformat(access.group(1)).replace(tzinfo=WIB)
+        code = int(access.group(4))
+        info, pending = pending or {}, None
+        if at < cutoff:
+            continue
+        if code >= 500:
+            status = "server_error"
+        elif code >= 400:
+            status = "client_error"
+        elif info.get("no_speech"):
+            status = "no_speech"
+        else:
+            status = "ok"
+        asks.append({"at": at, "status": status, "latency_s": info.get("latency_s")})
+    return asks
 
 
 def api_health() -> dict:
     now = datetime.now(WIB)
-    rows = _usage_rows(24)
+    asks = device_requests(24)
     buckets = []
     for offset in range(23, -1, -1):
         hour = (now - timedelta(hours=offset)).replace(minute=0, second=0, microsecond=0)
-        bucket = [row for row in rows if (_dt(row.get("waktu")) or now).replace(minute=0, second=0, microsecond=0) == hour]
-        buckets.append({"time": hour.isoformat(), "requests": len(bucket), "errors": 0, "latency_avg_s": _mean([float(row.get("detik") or 0) for row in bucket])})
-    latency = sorted(float(row.get("detik") or 0) for row in rows)
+        rows = [a for a in asks if a["at"].replace(minute=0, second=0, microsecond=0) == hour]
+        buckets.append(
+            {
+                "time": hour.isoformat(),
+                "requests": len(rows),
+                "errors": sum(a["status"] in {"client_error", "server_error"} for a in rows),
+                "latency_avg_s": _mean([a["latency_s"] for a in rows if a["latency_s"]]),
+            }
+        )
+    latency = sorted(a["latency_s"] for a in asks if a["latency_s"])
     p95 = latency[min(len(latency) - 1, math.ceil(len(latency) * 0.95) - 1)] if latency else 0
+    status = Counter(a["status"] for a in asks)
     return {
         "window_hours": 24,
-        "requests": len(rows),
-        "by_status": {"ok": len(rows), "no_speech": 0, "client_error": 0, "server_error": 0},
+        "requests": len(asks),
+        "by_status": {
+            key: status.get(key, 0) for key in ("ok", "no_speech", "client_error", "server_error")
+        },
         "latency_avg_s": _mean(latency),
         "latency_p95_s": round(p95, 3),
         "latency_goal_s": 6,
         "series": buckets,
-        "source": "logs/agent_usage.jsonl",
+        "source": "logs/serve.log",
     }
 
 
@@ -405,7 +531,11 @@ def agent() -> dict:
     )
     sourced = sum(bool(row.get("sources")) for row in turns)
     eval_data = None
-    results = sorted((BASE_DIR / "evals" / "results").glob("*.json"), key=lambda path: path.stat().st_mtime, reverse=True)
+    results = sorted(
+        (BASE_DIR / "evals" / "results").glob("*.json"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
     if results:
         raw = _json(results[0], {})
         summary = raw.get("ringkasan") or {}
@@ -420,13 +550,19 @@ def agent() -> dict:
     return {
         "window_hours": 24,
         "answers": len(rows),
-        "stage_avg_s": {"stt": None, "agent": _mean([float(row.get("detik") or 0) for row in rows]), "tts_first_audio": None},
+        "stage_avg_s": {
+            "stt": None,
+            "agent": _mean([float(row.get("detik") or 0) for row in rows]),
+            "tts_first_audio": None,
+        },
         "tokens_avg": round(_mean([float(row.get("total") or 0) for row in rows])),
         "llm_calls_avg": _mean([float(row.get("calls") or 0) for row in rows]),
         "with_source_pct": round(sourced / len(turns) * 100, 1) if turns else None,
         "eval": eval_data,
         "tools": [{"tool": name, "count": count} for name, count in tool_counts.most_common()],
-        "top_courses": [{"course": name, "questions": count} for name, count in course_counts.most_common(8)],
+        "top_courses": [
+            {"course": name, "questions": count} for name, count in course_counts.most_common(8)
+        ],
         "source": "local+supabase",
     }
 
@@ -435,7 +571,12 @@ def services() -> dict:
     settings = get_settings()
     configured = [
         ("deepseek", "DeepSeek", "Model jawaban dan ringkasan", bool(settings.llm_api_key)),
-        ("cloudflare", "Cloudflare Workers AI", "Embedding dan reranking", bool(settings.cloudflare_account_id and settings.cloudflare_api_token)),
+        (
+            "cloudflare",
+            "Cloudflare Workers AI",
+            "Embedding dan reranking",
+            bool(settings.cloudflare_account_id and settings.cloudflare_api_token),
+        ),
         ("groq", "Groq Whisper", "Pengenalan suara", bool(settings.groq_api_key)),
         ("elevenlabs", "ElevenLabs", "Suara jawaban", bool(settings.elevenlabs_api_key)),
         ("supabase", "Supabase", "Memory dan indeks materi", bool(settings.supabase_key)),
@@ -503,17 +644,39 @@ def errors() -> dict:
                 kind = match.group(2).split(":", 1)[0][:100]
                 events.append((at, kind))
     counter = Counter(kind for _, kind in events)
-    hours = [(now - timedelta(hours=value)).replace(minute=0, second=0, microsecond=0) for value in range(23, -1, -1)]
+    hours = [
+        (now - timedelta(hours=value)).replace(minute=0, second=0, microsecond=0)
+        for value in range(23, -1, -1)
+    ]
     return {
-        "by_hour": [{"time": hour.isoformat(), "count": sum(at.replace(minute=0, second=0, microsecond=0) == hour for at, _ in events)} for hour in hours],
-        "top": [{"kind": kind, "count": count, "last_at": max(at for at, value in events if value == kind).isoformat()} for kind, count in counter.most_common(8)],
+        "by_hour": [
+            {
+                "time": hour.isoformat(),
+                "count": sum(
+                    at.replace(minute=0, second=0, microsecond=0) == hour for at, _ in events
+                ),
+            }
+            for hour in hours
+        ],
+        "top": [
+            {
+                "kind": kind,
+                "count": count,
+                "last_at": max(at for at, value in events if value == kind).isoformat(),
+            }
+            for kind, count in counter.most_common(8)
+        ],
         "source": "local-logs",
     }
 
 
 def cost() -> dict:
     now = datetime.now(WIB)
-    rows = [row for row in _usage_rows() if (_dt(row.get("waktu")) or now).astimezone(WIB).strftime("%Y-%m") == now.strftime("%Y-%m")]
+    rows = [
+        row
+        for row in _usage_rows()
+        if (_dt(row.get("waktu")) or now).astimezone(WIB).strftime("%Y-%m") == now.strftime("%Y-%m")
+    ]
     daily = Counter()
     for row in rows:
         at = (_dt(row.get("waktu")) or now).astimezone(WIB)
@@ -552,14 +715,106 @@ def activity() -> dict:
             questions[question] += 1
     return {
         "matrix": matrix,
-        "top_questions": [{"text": text, "count": count} for text, count in questions.most_common(8)],
+        "top_questions": [
+            {"text": text, "count": count} for text, count in questions.most_common(8)
+        ],
         "source": "supabase" if turns else "unavailable",
     }
 
 
+DEVICE_ONLINE = timedelta(minutes=5)  # perangkat menanyakan /v1/updates tiap 2 menit
+
+
 def devices() -> dict:
-    # Firmware saat ini belum mengirim device_id/RSSI/baterai ke backend.
-    return {"devices": [], "source": "unavailable"}
+    from edupad import device_status
+
+    now = datetime.now(WIB)
+    rows = []
+    for row in device_status.devices():
+        seen = _dt(row.get("last_seen"))
+        latency = [float(v) for v in row.get("latency_s") or []]
+        rows.append(
+            {
+                "id": row.get("id") or "edupad",
+                "name": "EduPad " + str(row.get("id") or "")[-5:].replace(":", ""),
+                "online": bool(seen and now - seen <= DEVICE_ONLINE),
+                "last_seen": row.get("last_seen"),
+                "battery_pct": None,  # perangkat memakai daya USB, tanpa baterai terukur
+                "rssi_dbm": row.get("rssi_dbm"),
+                "avg_latency_s": _mean(latency) if latency else None,
+                "uptime_s": row.get("uptime_s"),
+                "heap_free": row.get("heap_free"),
+                "firmware": row.get("firmware"),
+            }
+        )
+    return {"devices": rows, "source": "data/device/status.json" if rows else "unavailable"}
+
+
+def tutor_panel() -> dict:
+    from edupad.agent.radar import mastery_overview
+
+    return {**mastery_overview(), "source": "supabase"}
+
+
+def equity() -> dict:
+    """Learning Equity Radar pribadi: pemahaman, akses materi, peringatan dini, akses suara."""
+    from edupad.agent.radar import access_audit, attendance_risk, early_warnings, mastery_overview
+
+    now = datetime.now(WIB)
+    audit = access_audit(now)
+    mastery = mastery_overview(now)
+    asks = device_requests(24 * 30)
+    answered = [a for a in asks if a["status"] == "ok"]
+    return {
+        "access": audit,
+        "attendance": attendance_risk(now),
+        "warnings": early_warnings(now),
+        "mastery": {k: v for k, v in mastery.items() if k not in {"checks"}},
+        "voice": {
+            "questions_30d": len(answered),
+            "listenable_meetings": audit["bisa_didengar"],
+            "meetings_with_material": audit["pertemuan_bermateri"],
+        },
+        "rules": dict(
+            zip(("semester_meetings", "min_attendance"), _attendance_rules(), strict=True)
+        ),
+        "source": "local+supabase",
+    }
+
+
+def _attendance_rules() -> tuple[int, float]:
+    from edupad.agent.radar import attendance_rules
+
+    return attendance_rules()
+
+
+def finance_panel() -> dict:
+    from edupad.agent.finance import (
+        EXPENSE_CATEGORIES,
+        INCOME_CATEGORIES,
+        FinanceStore,
+        FinanceUnavailable,
+    )
+
+    base = {"expense_categories": EXPENSE_CATEGORIES, "income_categories": INCOME_CATEGORIES}
+    try:
+        store = FinanceStore()
+        return {
+            **base,
+            "available": True,
+            "transactions": store.transactions(),
+            "budgets": store.budgets(),
+            "source": "supabase",
+        }
+    except FinanceUnavailable as e:
+        return {
+            **base,
+            "available": False,
+            "reason": str(e),
+            "transactions": [],
+            "budgets": {},
+            "source": "unavailable",
+        }
 
 
 PANELS = {
@@ -577,6 +832,9 @@ PANELS = {
     "schedule": schedule,
     "conversations": conversations,
     "learning": learning,
+    "tutor": tutor_panel,
+    "equity": equity,
+    "finance": finance_panel,
 }
 
 

@@ -1,5 +1,6 @@
 import pytest
 
+from edupad import device_status
 from edupad.agent import radar, tutor
 from edupad.office import events, repository
 
@@ -12,6 +13,8 @@ def _office_state_in_tmp(tmp_path, monkeypatch):
     repo.remote = None
     repo.mode = "local"
     monkeypatch.setattr(repository, "_repository", repo)
+    monkeypatch.setattr(device_status, "STATUS_FILE", tmp_path / "device" / "status.json")
+    monkeypatch.setattr(device_status, "_state", {})
     yield
     events.flush()
 

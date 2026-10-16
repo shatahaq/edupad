@@ -1,4 +1,9 @@
-"""FastAPI adapter untuk dashboard EduPad AI Office."""
+"""FastAPI adapter untuk dashboard EduPad AI Office.
+
+Semua endpoint (kecuali /api/office/health) memerlukan sesi login Google pemilik dari web
+EduPad (lihat office/auth.py). Di produksi Caddy meneruskan /api/office/* dan
+/v1/dashboard/* ke proses ini, sehingga dashboard, login, dan API satu origin.
+"""
 
 from __future__ import annotations
 
@@ -7,19 +12,23 @@ import json
 import logging
 import os
 from collections.abc import AsyncIterator
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from edupad.office.auth import Viewer, require_owner
 from edupad.office.chat_history import list_recent_iot_chats
 from edupad.office.dashboard_data import PANELS, panel
-from edupad.office.events import build_snapshot
+from edupad.office.events import build_snapshot, emit_status
+from edupad.office.models import AgentState
 from edupad.office.repository import get_repository
 
 log = logging.getLogger(__name__)
+
+Owner = Annotated[Viewer, Depends(require_owner)]
 
 
 class TaskCreate(BaseModel):
@@ -40,21 +49,71 @@ class TaskUpdate(BaseModel):
     due_at: str | None = None
 
 
+class TransactionIn(BaseModel):
+    kind: Literal["income", "expense"]
+    amount: int = Field(gt=0, le=1_000_000_000)
+    category: str = Field(min_length=1, max_length=40)
+    note: str = Field(default="", max_length=200)
+    date: str | None = Field(default=None, max_length=10)
+
+
+class BudgetIn(BaseModel):
+    amount: int = Field(ge=0, le=1_000_000_000)
+
+
+class FinanceImport(BaseModel):
+    """Pindahan sekali dari localStorage dashboard lama ke Supabase."""
+
+    transactions: list[TransactionIn] = Field(default_factory=list, max_length=2000)
+    budgets: dict[str, int] = Field(default_factory=dict)
+
+
 def _origins() -> list[str]:
     raw = os.environ.get(
         "EDUPAD_OFFICE_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174",
+        "http://localhost:5174,http://127.0.0.1:5174",
     )
     return [value.strip() for value in raw.split(",") if value.strip()]
 
 
+def _finance_store(viewer: Viewer):
+    from edupad.agent.finance import FinanceStore, FinanceUnavailable
+
+    try:
+        return FinanceStore(viewer.user_id)
+    except FinanceUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
+
+
+def _finance_call(fn, *args, **kwargs):
+    from edupad.agent.finance import FinanceInputError, FinanceUnavailable
+
+    try:
+        return fn(*args, **kwargs)
+    except FinanceInputError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    except FinanceUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
+
+
+def _finance_event(message: str) -> None:
+    emit_status(
+        "finance",
+        AgentState.SUCCEEDED,
+        room="finance-office",
+        job_type="finance",
+        message=message,
+        progress=100,
+    )
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title="EduPad AI Office API", version="0.1.0")
+    app = FastAPI(title="EduPad AI Office API", version="0.2.0")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_origins(),
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PATCH"],
+        allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE"],
         allow_headers=["Content-Type", "Last-Event-ID"],
     )
 
@@ -62,15 +121,17 @@ def create_app() -> FastAPI:
     def health() -> dict:
         return {"status": "ok", "service": "edupad-office"}
 
-    @app.get("/api/office/snapshot")
+    api = APIRouter(dependencies=[Depends(require_owner)])
+
+    @api.get("/api/office/snapshot")
     def snapshot() -> dict:
         return build_snapshot()
 
-    @app.get("/api/office/tasks")
+    @api.get("/api/office/tasks")
     def list_tasks() -> list[dict]:
         return get_repository().list_tasks()
 
-    @app.get("/api/office/chat-history")
+    @api.get("/api/office/chat-history")
     def chat_history(limit: int = Query(default=12, ge=1, le=50)) -> dict:
         """Riwayat jawaban agent dari perangkat IoT, tanpa payload internal LLM."""
         try:
@@ -79,14 +140,14 @@ def create_app() -> FastAPI:
             log.warning("Riwayat chat IoT tidak tersedia: %s", type(exc).__name__)
             return {"source": "unavailable", "items": []}
 
-    @app.get("/v1/dashboard/{panel_name}")
+    @api.get("/v1/dashboard/{panel_name}")
     def dashboard_panel(panel_name: str) -> dict:
         """Data dashboard baca-saja dari sumber EduPad yang sudah tersedia."""
         if panel_name not in PANELS:
             raise HTTPException(status_code=404, detail="Panel dashboard tidak ditemukan")
         return panel(panel_name)
 
-    @app.post("/api/office/tasks", status_code=201)
+    @api.post("/api/office/tasks", status_code=201)
     def create_task(task: TaskCreate) -> dict:
         repository = get_repository()
         values = task.model_dump()
@@ -99,7 +160,7 @@ def create_app() -> FastAPI:
             values["assigned_agent"] = "researcher"
         return repository.create_task(values)
 
-    @app.patch("/api/office/tasks/{task_id}")
+    @api.patch("/api/office/tasks/{task_id}")
     def update_task(task_id: str, update: TaskUpdate) -> dict:
         values = update.model_dump(exclude_none=True)
         row = get_repository().update_task(task_id, values)
@@ -107,7 +168,44 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=404, detail="Tugas tidak ditemukan")
         return row
 
-    @app.get("/api/office/events")
+    # ------------------------------ keuangan ------------------------------
+    @api.post("/api/office/finance/transactions", status_code=201)
+    def add_transaction(body: TransactionIn, viewer: Owner) -> dict:
+        store = _finance_store(viewer)
+        row = _finance_call(
+            store.add, body.kind, body.amount, body.category, body.note, body.date, "dashboard"
+        )
+        _finance_event("Transaksi baru dari dashboard dicatat")
+        return row
+
+    @api.delete("/api/office/finance/transactions/{transaction_id}", status_code=204)
+    def delete_transaction(transaction_id: str, viewer: Owner) -> None:
+        store = _finance_store(viewer)
+        _finance_call(store.delete, transaction_id)
+
+    @api.put("/api/office/finance/budgets/{category}")
+    def put_budget(category: str, body: BudgetIn, viewer: Owner) -> dict:
+        store = _finance_store(viewer)
+        row = _finance_call(store.set_budget, category, body.amount)
+        _finance_event(f"Anggaran {row['category']} diperbarui")
+        return row
+
+    @api.post("/api/office/finance/import")
+    def import_finance(body: FinanceImport, viewer: Owner) -> dict:
+        store = _finance_store(viewer)
+        added = 0
+        for item in body.transactions:
+            _finance_call(
+                store.add, item.kind, item.amount, item.category, item.note, item.date, "impor"
+            )
+            added += 1
+        for category, amount in body.budgets.items():
+            _finance_call(store.set_budget, category, amount)
+        if added or body.budgets:
+            _finance_event(f"{added} transaksi lama dipindahkan dari browser")
+        return {"transactions": added, "budgets": len(body.budgets)}
+
+    @api.get("/api/office/events")
     async def events(
         last_event_id: str | None = Header(default=None, alias="Last-Event-ID"),
         after: str | None = Query(default=None),
@@ -131,6 +229,7 @@ def create_app() -> FastAPI:
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
 
+    app.include_router(api)
     return app
 
 
