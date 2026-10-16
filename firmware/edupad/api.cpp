@@ -76,6 +76,12 @@ bool sendHead(const char *method, const String &path, const char *extraHeaders, 
   head += "Host: " + hostHeader() + "\r\n";
   head += "Authorization: Bearer " EDUPAD_DEVICE_TOKEN "\r\n";
   head += "User-Agent: EduPad-ESP32/1.0\r\n";
+  // Status perangkat untuk dashboard (Monitoring -> Perangkat).
+  head += "X-Device-Id: " + WiFi.macAddress() + "\r\n";
+  head += "X-Device-RSSI: " + String(WiFi.RSSI()) + "\r\n";
+  head += "X-Device-Uptime: " + String(millis() / 1000) + "\r\n";
+  head += "X-Device-Heap: " + String(ESP.getFreeHeap()) + "\r\n";
+  head += "X-Firmware: " FIRMWARE_VERSION "\r\n";
   head += keepAlive ? "Connection: keep-alive\r\n" : "Connection: close\r\n";
   head += extraHeaders;
   head += "\r\n";

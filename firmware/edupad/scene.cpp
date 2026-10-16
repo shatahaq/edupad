@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -1240,7 +1241,12 @@ void alertOwl(lgfx::LovyanGFX &g, const Ui &ui) {
       frame = OWL_HAPPY;
       lift = (int)(fabsf(sinf(t * 4.5f)) * 12);
       break;
-    default: {  // deadline: cemas, keringat menetes
+    case Alert::Review:  // menyemangati: melambai pelan
+      frame = (int)(t / 0.35f) % 2 ? OWL_WAVE_2 : OWL_WAVE_1;
+      lift = (int)(fabsf(sinf(t * 3)) * 4);
+      sparkle(g, cx + 66, 84, 2 + (int)(fmodf(t * 3, 2)), GOLD);
+      break;
+    default: {  // deadline & peringatan: cemas, keringat menetes
       frame = alive(t, OWL_WORRIED, false);
       float k = fmodf(t, 1.4f) / 1.4f;
       glyph(g, DROP, 6, cx + 54, 64 + (int)(k * 26), 3, SKY);
@@ -1347,6 +1353,100 @@ const char *deadlineTitle(const Ui &ui) {
   if (!strncmp(ui.alertWhen, "Hari ini", 8)) return "Deadline hari ini!";
   if (!strncmp(ui.alertWhen, "Besok", 5)) return "Deadline besok!";
   return "Deadline mendekat";
+}
+
+// -- peringatan dini: segitiga "!" berdenyut (kehadiran mendekati batas, anggaran menipis)
+
+const char *const WARN_SIGN[] = {".....yy.....", "....yyyy....", "....yyyy....", "...yyyyyy...",
+                                 "...yykkyy...", "..yyykkyyy..", "..yyykkyyy..", ".yyyykkyyyy.",
+                                 ".yyyyyyyyyy.", "yyyyykkyyyyy", "yyyyyyyyyyyy"};
+
+void warningIcon(lgfx::LovyanGFX &g, const Ui &ui) {
+  float t = ui.t;
+  uint16_t fill = ui.alertHigh ? CORAL : GOLD;
+  int x = 18, y = 18, cx = 54, cy = 51;
+  for (int k = 0; k < 2; k++) {  // denyut cincin di belakang tanda
+    float age = fmodf(t + k * 0.7f, 1.4f) / 1.4f;
+    cellRing(g, cx, cy, 6 + age * 7, mix(bgAt(cy), fill, (1 - age) * 0.5f), 4);
+  }
+  int bump = fmodf(t, 1.4f) < 0.12f ? -3 : 0;
+  art(g, WARN_SIGN, 11, x, y + bump, 6, [fill](char c) -> int32_t {
+    switch (c) {
+      case 'y': return fill;
+      case 'k': return INK;
+    }
+    return -1;
+  });
+}
+
+void warningCard(lgfx::LovyanGFX &g, const Ui &ui) {
+  const Rect &r = ALERT_CARD;
+  panel(g, r, PANEL, PANEL_EDGE);
+  int x = r.x + 16, w = r.w - 32;
+  std::string lines[2];
+  useFont(g, textFont);
+  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : "Perlu perhatian", w, lines, 2);
+  for (int i = 0; i < n && i < 2; i++) say(g, lines[i].c_str(), x, r.y + 22 + i * 26, WHITE);
+  useFont(g, smallFont);
+  say(g, "Detail ada di dashboard", x, r.y + 88, MUTED);
+}
+
+// -- waktunya mengulang: buku terbuka berkilau + meter penguasaan topik
+
+const char *const BOOK[] = {".pppp..pppp.", "pwwwwppwwwwp", "pwkkwppwkkwp", "pwwwwppwwwwp", "pwkkkppkkkwp",
+                            "pwwwwppwwwwp", "pwkkwppwkkwp", "pwwwwppwwwwp", "pppppppppppp"};
+
+void bookIcon(lgfx::LovyanGFX &g, float t) {
+  int lift = (int)(fabsf(sinf(t * 2.5f)) * 5);
+  art(g, BOOK, 9, 18, 26 - lift, 6, [](char c) -> int32_t {
+    switch (c) {
+      case 'p': return TEAL;
+      case 'w': return PAPER;
+      case 'k': return INKLINE;
+    }
+    return -1;
+  });
+  sparkle(g, 14, 18, 1 + (int)fmodf(t * 3, 3), GOLD);
+  sparkle(g, 96, 30, 1 + (int)fmodf(t * 3 + 1, 3), MINT);
+  sparkle(g, 92, 86, 1 + (int)fmodf(t * 3 + 2, 2), GOLD);
+}
+
+// "Penguasaan 40%" -> 40; -1 bila tidak ada angka.
+int percentIn(const char *text) {
+  for (const char *p = text; *p; p++)
+    if (*p >= '0' && *p <= '9') return atoi(p);
+  return -1;
+}
+
+void reviewCard(lgfx::LovyanGFX &g, const Ui &ui) {
+  const Rect &r = ALERT_CARD;
+  panel(g, r, PANEL, PANEL_EDGE);
+  int x = r.x + 16, w = r.w - 32;
+  std::string lines[2];
+  useFont(g, textFont);
+  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : "Topik kuis", w, lines, 2);
+  for (int i = 0; i < n && i < 2; i++) say(g, lines[i].c_str(), x, r.y + 22 + i * 26, WHITE);
+  int pct = percentIn(ui.alertWhen);
+  useFont(g, smallFont);
+  say(g, ui.alertWhen, x, r.y + 82, pct >= 0 && pct < 60 ? GOLD : MINT);
+  if (pct >= 0) {  // meter kotak-kotak
+    constexpr int SEGS = 20;
+    int bx = x + 150, by = r.y + 76, on = (pct * SEGS + 99) / 100;
+    g.fillRect(bx, by, SEGS * 4, 10, TRACK);
+    if (on > 0) g.fillRect(bx, by, on * 4, 10, pct < 60 ? GOLD : MINT);
+  }
+}
+
+// Baris bawah untuk peringatan/pengulangan: ajakan bicara (tanpa hitung mundur).
+void hintFoot(lgfx::LovyanGFX &g, const Ui &ui) {
+  const Rect &r = ALERT_FOOT;
+  bool review = ui.alert == Alert::Review;
+  useFont(g, headFont);
+  say(g, review ? "Tahan tombol: \"uji aku lagi\"" : "Tahan tombol lalu tanya EduPad", r.x + 6, r.y + 15,
+      review ? MINT : TEAL);
+  useFont(g, smallFont);
+  say(g, review ? "SORA menyiapkan kuis lisan dari materi asli" : "\"apa yang perlu aku perhatikan?\"", r.x + 6,
+      r.y + 42, MUTED);
 }
 
 // ---------------------------------------------------------------- notifikasi kecil
@@ -1521,6 +1621,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
 
     case Kind::Alert: {
       bool attend = ui.alert == Alert::Attendance, done = ui.alert == Alert::Attended;
+      bool warn = ui.alert == Alert::Warning, review = ui.alert == Alert::Review;
       if (full) {
         useFont(canvas, headFont);
         if (done) {
@@ -1532,14 +1633,24 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
           useFont(canvas, smallFont);
           say(canvas, fitWidth(canvas, sub, 250).c_str(), 352, 232, MUTED, middle_center);
         } else {
-          say(canvas, attend ? "PRESENSI DIBUKA!" : deadlineTitle(ui), ALERT_TEXT_X, 36, attend ? GOLD : CORAL);
+          const char *title = attend ? "PRESENSI DIBUKA!"
+                              : warn   ? "PERINGATAN DINI"
+                              : review ? "WAKTUNYA MENGULANG"
+                                       : deadlineTitle(ui);
+          uint16_t titleColor = attend ? GOLD : warn ? (ui.alertHigh ? CORAL : GOLD) : review ? MINT : CORAL;
+          say(canvas, title, ALERT_TEXT_X, 36, titleColor);
           say(canvas, fitWidth(canvas, ui.alertCourse, ALERT_OWL.x - ALERT_TEXT_X).c_str(), ALERT_TEXT_X, 70,
               attend ? WHITE : GOLD);
           if (attend) {
             attendanceCard(canvas, ui);
+          } else if (warn) {
+            warningCard(canvas, ui);
+          } else if (review) {
+            reviewCard(canvas, ui);
           } else {
             deadlineCard(canvas, ui);
           }
+          if (warn || review) hintFoot(canvas, ui);
         }
         useFont(canvas, smallFont);
         say(canvas, "Tekan tombol untuk menutup", W / 2, ALERT_HINT_Y, MUTED, middle_center);
@@ -1558,10 +1669,15 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
       area(ALERT_ICON, [&] {
         if (attend) {
           bellIcon(canvas, ui.t);
+        } else if (warn) {
+          warningIcon(canvas, ui);
+        } else if (review) {
+          bookIcon(canvas, ui.t);
         } else {
           calendarIcon(canvas, ui);
         }
       });
+      if (warn || review) break;  // tanpa hitung mundur; petunjuk bawah digambar sekali
       // sisa waktu: digambar ulang tiap detik (dan saat berkedip)
       int32_t left = secondsLeft(ui);
       int key = (left == INT32_MIN ? 0 : left) * 2 + (fmodf(ui.t, 0.8f) < 0.4f);

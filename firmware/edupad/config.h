@@ -67,3 +67,8 @@
 #define ALERT_ATTENDANCE_MS 25000
 #define ALERT_DEADLINE_MS 15000
 #define ALERT_ATTENDED_MS 8000
+#define ALERT_WARNING_MS 15000  // peringatan dini (kehadiran, anggaran)
+#define ALERT_REVIEW_MS 12000   // waktunya mengulang topik dari kuis Tutor
+
+// Dikirim di header X-Firmware; server baru mengirim kartu warning/review hanya ke versi ini.
+#define FIRMWARE_VERSION "1.1"

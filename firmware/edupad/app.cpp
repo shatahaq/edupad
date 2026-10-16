@@ -233,6 +233,8 @@ bool showAlert(JsonObjectConst alert) {
   if (attendance) speaker::chime();
   uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
                       : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS
+                      : !strcmp(kind, "warning")  ? ALERT_WARNING_MS
+                      : !strcmp(kind, "review")   ? ALERT_REVIEW_MS
                                                   : ALERT_ATTENDED_MS;
   for (uint32_t start = millis(); millis() - start < duration; delay(20)) {
     if (!buttonDown()) continue;

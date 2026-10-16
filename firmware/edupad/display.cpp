@@ -405,7 +405,10 @@ void alert(JsonObjectConst a) {
     const char *kind = a["kind"] | "";
     shared.alert = !strcmp(kind, "attendance") ? scene::Alert::Attendance
                    : !strcmp(kind, "attended") ? scene::Alert::Attended
+                   : !strcmp(kind, "warning")  ? scene::Alert::Warning
+                   : !strcmp(kind, "review")   ? scene::Alert::Review
                                                : scene::Alert::Deadline;
+    shared.alertHigh = !strcmp(a["level"] | "", "high");
     copy(shared.alertCourse, sizeof shared.alertCourse, a["course"] | "");
     copy(shared.alertDetail, sizeof shared.alertDetail, a["detail"] | "");
     copy(shared.alertWhen, sizeof shared.alertWhen, a["when"] | "");

@@ -28,7 +28,8 @@ enum class Kind : uint8_t {
   Alert,   // pemberitahuan dari server: presensi dibuka / tercatat, deadline dekat
 };
 
-enum class Alert : uint8_t { Attendance, Attended, Deadline };
+// Warning = peringatan dini (kehadiran/anggaran), Review = waktunya mengulang topik (Tutor).
+enum class Alert : uint8_t { Attendance, Attended, Deadline, Warning, Review };
 
 enum class Tone : uint8_t { Info, Warn, Error };
 
@@ -69,6 +70,7 @@ struct Ui {
   char alertDetail[64] = "";  // ruang (presensi) atau judul tugas (deadline)
   char alertWhen[32] = "";    // "Tutup 10:40" / "Besok 23:59" / "Pertemuan 5"
   bool alertQr = true;        // presensi: lewat QR di kelas (false = isi di portal SATU)
+  bool alertHigh = false;     // peringatan prioritas tinggi (mis. batas kehadiran terlewati)
   uint32_t alertFrom = 0, alertTo = 0;  // jendela presensi / deadline (detik epoch)
 
   // Listen / Think

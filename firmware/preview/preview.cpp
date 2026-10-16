@@ -207,6 +207,23 @@ int main(int argc, char **argv) {
   record("alert_deadline", 4.0f, ui, [](scene::Ui &u, float t) { u.nowTs = NOW + (uint32_t)t; });
 
   ui = scene::Ui();
+  ui.kind = scene::Kind::Alert;
+  ui.alert = scene::Alert::Warning;
+  ui.alertHigh = true;
+  copy(ui.alertCourse, sizeof ui.alertCourse, "Prak PV");
+  copy(ui.alertDetail, sizeof ui.alertDetail, "Batas kehadiran terlewati");
+  copy(ui.alertWhen, sizeof ui.alertWhen, "Peringatan");
+  record("alert_peringatan", 3.0f, ui, [](scene::Ui &u, float t) { u.nowTs = NOW + (uint32_t)t; });
+
+  ui = scene::Ui();
+  ui.kind = scene::Kind::Alert;
+  ui.alert = scene::Alert::Review;
+  copy(ui.alertCourse, sizeof ui.alertCourse, "MSBD P2");
+  copy(ui.alertDetail, sizeof ui.alertDetail, "Database Engine dan Struktur Indeks");
+  copy(ui.alertWhen, sizeof ui.alertWhen, "Penguasaan 40%");
+  record("alert_ulang", 3.0f, ui, [](scene::Ui &u, float t) { u.nowTs = NOW + (uint32_t)t; });
+
+  ui = scene::Ui();
   ui.kind = scene::Kind::Portal;
   copy(ui.ssid, sizeof ui.ssid, "EduPad-Setup");
   copy(ui.password, sizeof ui.password, "edupad123");
