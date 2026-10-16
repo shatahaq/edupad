@@ -421,7 +421,7 @@ constexpr uint16_t WALL_TOP = rgb(0x141B3E), WALL_BOTTOM = rgb(0x0D1230);
 constexpr uint16_t FLOOR = rgb(0x0A0D26), FLOOR_EDGE = rgb(0x1C2352);
 constexpr uint16_t SHELF = rgb(0x222A5A), SHELF_DARK = rgb(0x161C44);
 constexpr uint16_t POT = rgb(0x2E3462), LEAF = rgb(0x1B4750), LEAF_LIGHT = rgb(0x23606A);
-constexpr uint16_t MOON_DIM = rgb(0xE6C46A), Z_BLUE = rgb(0x6F9BFF), SLEEP_TEXT = rgb(0x9AA3D6);
+constexpr uint16_t MOON_DIM = rgb(0xE6C46A), Z_BLUE = rgb(0x6F9BFF);
 
 // Tiga huruf Z bergantian naik dari kepala, membesar, lalu memudar di dinding gelap.
 void zzz(lgfx::LovyanGFX &g, float t) {
@@ -1511,8 +1511,6 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
       if (!roomShown) {  // pindah ke kamar: seluruh layar digambar sekali
         canvas.clearClipRect();
         bedroom(canvas, ui.t);
-        useFont(canvas, textFont);
-        say(canvas, "Sampai jumpa lagi!", W / 2, 294, SLEEP_TEXT, middle_center);
         roomShown = true;
         if (!full) push({0, 0, W, H});
         break;

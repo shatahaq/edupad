@@ -56,6 +56,10 @@
 
 // Tertidur (layar redup) bila tidak ada pertanyaan selama ini; tekan tombol untuk membangunkan.
 #define SLEEP_AFTER_MS (2 * 60 * 1000UL)
+// Saat tidur: Wi-Fi hemat daya (tetap tersambung, pemberitahuan presensi tetap jalan) dan
+// prosesor 80 MHz; dikembalikan penuh sebelum bangun/bertanya. 0 = matikan bila ada masalah.
+#define SLEEP_POWER_SAVE 1
+#define SLEEP_POWER_SAVE_AFTER_MS 5000  // setelah animasi masuk tidur selesai
 
 // Kabar dari server (GET /v1/updates): kuliah berikutnya + pemberitahuan presensi/deadline.
 #define UPDATES_EVERY_MS (2 * 60 * 1000UL)

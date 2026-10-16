@@ -30,6 +30,23 @@ struct Press {
 
 uint32_t lastActivityMs = 0;  // akhir interaksi terakhir; tertidur setelah SLEEP_AFTER_MS
 bool asleep = false;
+uint32_t asleepSinceMs = 0;
+bool powerSaving = false;
+
+// Hemat daya saat tidur: Wi-Fi modem sleep (tetap tersambung) dan prosesor 80 MHz. Selalu
+// dimatikan dulu sebelum EduPad melakukan hal lain (bangun, bertanya, pemberitahuan).
+void powerSave(bool on) {
+  if (!SLEEP_POWER_SAVE || on == powerSaving) return;
+  powerSaving = on;
+  if (on) {
+    WiFi.setSleep(true);
+    setCpuFrequencyMhz(80);
+  } else {
+    setCpuFrequencyMhz(240);
+    WiFi.setSleep(false);
+  }
+  Serial.printf("[power] hemat daya %s\n", on ? "aktif" : "mati");
+}
 
 bool buttonDown() { return digitalRead(PIN_BUTTON) == LOW; }
 
@@ -248,6 +265,7 @@ void checkUpdates(bool force = false) {
     if (!*id || alertShown(id)) continue;
     if (asleep && strcmp(alert["kind"] | "", "attendance") != 0) continue;
     asleep = false;
+    powerSave(false);
     shownAlerts[shownNext++ % 16] = id;
     shown = true;
     Serial.printf("[updates] pemberitahuan %s\n", id);
@@ -336,8 +354,10 @@ void loop() {
   delay(10);
   if (!asleep && millis() - lastActivityMs > SLEEP_AFTER_MS) {
     asleep = true;
+    asleepSinceMs = millis();
     display::sleep();
   }
+  if (asleep && millis() - asleepSinceMs > SLEEP_POWER_SAVE_AFTER_MS) powerSave(true);
   if (!buttonDown()) return;
   delay(20);  // pantulan tombol
   if (!buttonDown()) return;
@@ -347,6 +367,7 @@ void loop() {
   bool woke = asleep;
   if (asleep) {
     asleep = false;
+    powerSave(false);
     display::wake();
     lastUpdatesMs = 0;  // pemberitahuan yang tertunda selama tidur dicek setelah ini
   }
