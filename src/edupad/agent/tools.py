@@ -1,5 +1,7 @@
 """Tools yang bisa dipanggil LLM: pencarian vektor, materi per pertemuan, tugas, presensi,
-dan Google Classroom (bila pengguna menautkan akun Google di web EduPad)."""
+dan Google Classroom (bila pengguna menautkan akun Google di web EduPad).
+Fungsi tool keuangan (agent/finance.py) dan tutor (agent/tutor.py) ikut di TOOLS; schemanya
+ditambahkan di assistant.ask()."""
 
 from __future__ import annotations
 
@@ -10,6 +12,7 @@ import time
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
+from edupad.agent import finance, tutor
 from edupad.config import (
     ASSIGNMENTS_DIR,
     CLASSROOM_DIR,
@@ -447,6 +450,8 @@ TOOLS: dict[str, Callable[..., dict]] = {
     "list_assignments": list_assignments,
     "get_attendance": get_attendance,
     "get_classroom_materials": get_classroom_materials,
+    **finance.TOOLS,
+    **tutor.TOOLS,
 }
 
 # Tool penutup: memaksa jawaban akhir terstruktur untuk suara, LCD, dan detail.

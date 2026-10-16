@@ -103,16 +103,21 @@ class Agent:
 
 
 def _load_memory(new_session: bool):
+    from edupad.agent import tutor
     from edupad.agent.assistant import open_memory
 
     try:
         memory = open_memory(new_session=new_session)
         if memory:
             memory.prefetch()
-        return memory
     except Exception as e:  # noqa: BLE001 - tanpa memory, agent tetap bisa menjawab
         log.warning("[!] memory tidak bisa dimuat, menjawab tanpa memory: %s", e)
         return None
+    try:
+        tutor.prefetch(getattr(memory, "user_id", None))  # kuis aktif, dipakai ask()
+    except Exception as e:  # noqa: BLE001 - tanpa status kuis, agent tetap bisa menjawab
+        log.warning("[!] status kuis tidak bisa dimuat: %s", e)
+    return memory
 
 
 def _logged(job: Callable[[], None]) -> None:

@@ -41,6 +41,26 @@ AGENTS = (
 )
 
 
+# Owl & ruangan yang bekerja saat AI agent memanggil tool (dipakai ask() untuk event Office).
+TOOL_AGENTS: dict[str, tuple[str, str]] = {
+    "search_materials": ("keeper", "knowledge-server"),
+    "get_meeting": ("researcher", "research-lab"),
+    "get_classroom_materials": ("researcher", "research-lab"),
+    "list_assignments": ("planner", "planning-hub"),
+    "get_attendance": ("planner", "planning-hub"),
+    "study_plan": ("planner", "planning-hub"),
+    "remember": ("tutor", "tutor-room"),
+    "start_quiz": ("tutor", "tutor-room"),
+    "answer_quiz": ("tutor", "tutor-room"),
+    "stop_quiz": ("tutor", "tutor-room"),
+    "learning_progress": ("analyst", "analytics-room"),
+    "record_transaction": ("finance", "finance-office"),
+    "finance_summary": ("finance", "finance-office"),
+    "undo_last_transaction": ("finance", "finance-office"),
+    "set_budget": ("finance", "finance-office"),
+}
+
+
 def now_iso() -> str:
     return datetime.now(WIB).isoformat()
 

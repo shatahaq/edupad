@@ -7,10 +7,17 @@ create table if not exists public.office_tasks (
     title text not null check (char_length(title) between 1 and 160),
     description text not null default '',
     status text not null default 'queued'
-        check (status in ('queued', 'in_progress', 'completed', 'cancelled')),
+        check (status in ('queued', 'in_progress', 'completed', 'failed', 'cancelled')),
     priority text not null default 'medium'
         check (priority in ('low', 'medium', 'high')),
     assigned_agent text not null default 'coordinator',
+    job_type text not null default 'manual' check (job_type in ('manual', 'index')),
+    claimed_by text,
+    claimed_at timestamptz,
+    started_at timestamptz,
+    finished_at timestamptz,
+    error text,
+    result jsonb,
     due_at timestamptz,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()

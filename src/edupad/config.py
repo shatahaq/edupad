@@ -69,9 +69,9 @@ class Settings:
     llm_api_key: str | None
     llm_model: str
     llm_effort: str
-    llm_max_output_tokens: int
+    llm_max_output_tokens: int | None
     llm_max_tool_rounds: int
-    summary_max_output_tokens: int
+    summary_max_output_tokens: int | None
     cloudflare_account_id: str | None
     cloudflare_api_token: str | None
     tts_provider: str
@@ -108,8 +108,9 @@ def _env(*names: str) -> str | None:
     return None
 
 
-def _env_int(name: str, default: int, minimum: int, maximum: int) -> int:
-    """Baca integer terbatas agar salah konfigurasi tidak menghabiskan kuota API."""
+def _env_int(name: str, default: int | None, minimum: int, maximum: int) -> int | None:
+    """Baca integer terbatas agar salah konfigurasi tidak menghabiskan kuota API.
+    default None = tidak dibatasi (perilaku awal) selama variabelnya tidak diisi."""
     raw = _env(name)
     if raw is None:
         return default
@@ -136,11 +137,9 @@ def get_settings() -> Settings:
         llm_model=_env("EDUPAD_LLM_MODEL") or DEEPSEEK_MODEL,
         llm_effort=_env("EDUPAD_LLM_EFFORT")
         or "low",  # low/high/max; low = respons suara lebih cepat
-        llm_max_output_tokens=_env_int("EDUPAD_LLM_MAX_OUTPUT_TOKENS", 900, 128, 4096),
-        llm_max_tool_rounds=_env_int("EDUPAD_LLM_MAX_TOOL_ROUNDS", 4, 1, 6),
-        summary_max_output_tokens=_env_int(
-            "EDUPAD_SUMMARY_MAX_OUTPUT_TOKENS", 500, 128, 2048
-        ),
+        llm_max_output_tokens=_env_int("EDUPAD_LLM_MAX_OUTPUT_TOKENS", None, 128, 8192),
+        llm_max_tool_rounds=_env_int("EDUPAD_LLM_MAX_TOOL_ROUNDS", 5, 1, 8),
+        summary_max_output_tokens=_env_int("EDUPAD_SUMMARY_MAX_OUTPUT_TOKENS", None, 128, 4096),
         cloudflare_account_id=_env("CLOUDFLARE_ACCOUNT_ID"),
         cloudflare_api_token=_env("CLOUDFLARE_API_TOKEN"),
         tts_provider=(_env("EDUPAD_TTS_PROVIDER") or "elevenlabs").lower(),

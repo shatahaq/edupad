@@ -172,10 +172,15 @@ def stale_sources() -> list[str]:
 def updates(now: datetime | None = None) -> dict:
     now = now or datetime.now(WIB)
     alerts = attendance_alerts(now)
+    from edupad.agent.radar import device_alerts
+
+    extra = device_alerts(now)  # peringatan dini & pengingat mengulang (Tutor/Equity Radar)
     alerts = (
         [a for a in alerts if a["kind"] == "attendance"]
         + deadline_alerts(now)
+        + [a for a in extra if a["kind"] == "warning"]
         + [a for a in alerts if a["kind"] == "attended"]
+        + [a for a in extra if a["kind"] == "review"]
     )
     return {
         "now_ts": int(now.timestamp()),

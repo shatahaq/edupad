@@ -15,6 +15,7 @@ from datetime import datetime
 
 import requests
 
+from edupad.agent import finance, tutor
 from edupad.agent.formatting import clean_speech, fallback_answer, fit_screen
 from edupad.agent.memory import ConversationMemory, turn_messages
 from edupad.agent.tools import (
@@ -30,7 +31,7 @@ from edupad.core import http_pool
 from edupad.core.files import now_iso
 from edupad.core.supabase import SupabaseError
 from edupad.office.events import emit_status
-from edupad.office.models import AgentState
+from edupad.office.models import TOOL_AGENTS, AgentState
 
 log = logging.getLogger(__name__)
 
@@ -113,6 +114,7 @@ def _system_prompt(memory: ConversationMemory | None = None, with_detail: bool =
         else "  * Tidak perlu jawaban panjang; layar dan suara sudah cukup."
     )
     prompt = SYSTEM_PROMPT.format(today=today, courses=course_overview(), detail_rule=detail_rule)
+    prompt += tutor.TUTOR_RULES
     if memory:
         prompt += MEMORY_PROMPT.format(facts="\n".join(f"- {f}" for f in memory.facts()) or "-")
     return prompt
@@ -126,8 +128,9 @@ def _chat(messages: list[dict], tools: list[dict] | None = None, json_mode: bool
         "model": settings.llm_model,
         "messages": messages,
         "reasoning_effort": settings.llm_effort,
-        "max_tokens": settings.llm_max_output_tokens,
     }
+    if settings.llm_max_output_tokens:
+        payload["max_tokens"] = settings.llm_max_output_tokens
     if tools:
         payload.update(tools=tools, tool_choice="auto")
     if json_mode:
@@ -328,10 +331,19 @@ def ask(
     if memory:
         history = memory.history()
     history = list(history or [])
-    schemas = [*tool_schemas(), answer_schema(with_detail), *([REMEMBER_SCHEMA] if memory else [])]
+    schemas = [
+        *tool_schemas(),
+        *tutor.SCHEMAS,
+        *finance.SCHEMAS,
+        answer_schema(with_detail),
+        *([REMEMBER_SCHEMA] if memory else []),
+    ]
+    quiz_note = tutor.context_note(getattr(memory, "user_id", None))
     messages = [
         {"role": "system", "content": _system_prompt(memory, with_detail)},
         *history,
+        # Kuis yang sedang berjalan: setelah riwayat agar awalan prompt tetap ter-cache.
+        *([{"role": "system", "content": quiz_note}] if quiz_note else []),
         {"role": "user", "content": question},
     ]
     trace, sources, usage, seen, nudged = [], [], Usage(), set(), False
@@ -405,13 +417,7 @@ def ask(
         messages.append(message)
         for call in calls:
             name, args = call["function"]["name"], call["function"]["arguments"]
-            tool_agent, tool_room = {
-                "search_materials": ("keeper", "knowledge-server"),
-                "get_meeting": ("researcher", "research-lab"),
-                "list_assignments": ("planner", "planning-hub"),
-                "get_attendance": ("planner", "planning-hub"),
-                "remember": ("tutor", "tutor-room"),
-            }.get(name, ("tutor", "tutor-room"))
+            tool_agent, tool_room = TOOL_AGENTS.get(name, ("tutor", "tutor-room"))
             emit_status(
                 tool_agent,
                 AgentState.RUNNING,

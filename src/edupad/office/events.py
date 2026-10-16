@@ -2,13 +2,65 @@
 
 from __future__ import annotations
 
+import atexit
 import logging
+import queue
+import threading
 from typing import Any
 
 from edupad.office.models import AGENTS, AgentState, OfficeEvent, default_agent_rows
 from edupad.office.repository import get_repository
 
 log = logging.getLogger(__name__)
+
+# Status dikirim dari antrean latar belakang: jawaban perangkat (/v1/ask) dan pipeline tidak
+# menunggu penulisan file/Supabase. Satu thread menjaga urutan event per proses.
+_QUEUE: queue.Queue[OfficeEvent | None] = queue.Queue(maxsize=1000)
+_writer: threading.Thread | None = None
+_writer_lock = threading.Lock()
+FLUSH_TIMEOUT = 3.0
+
+
+def _store(event: OfficeEvent) -> dict | None:
+    try:
+        return get_repository().add_event(event)
+    except Exception as exc:  # noqa: BLE001 - telemetry tidak boleh menggagalkan pekerjaan utama
+        log.warning("[office] status tidak tersimpan: %s", exc)
+        return None
+
+
+def _drain() -> None:
+    while True:
+        event = _QUEUE.get()
+        try:
+            if event is not None:
+                _store(event)
+        finally:
+            _QUEUE.task_done()
+
+
+def _enqueue(event: OfficeEvent) -> None:
+    global _writer
+    with _writer_lock:
+        if _writer is None or not _writer.is_alive():
+            _writer = threading.Thread(target=_drain, name="office-events", daemon=True)
+            _writer.start()
+    try:
+        _QUEUE.put_nowait(event)
+    except queue.Full:
+        log.warning("[office] antrean status penuh; event %s dilewati", event.job_type)
+
+
+def flush(timeout: float = FLUSH_TIMEOUT) -> None:
+    """Tunggu antrean kosong (dipanggil saat proses selesai agar event terakhir tersimpan)."""
+    if _writer is None:
+        return
+    done = threading.Event()
+    threading.Thread(target=lambda: (_QUEUE.join(), done.set()), daemon=True).start()
+    done.wait(timeout)
+
+
+atexit.register(flush)
 
 
 def emit_status(
@@ -23,8 +75,12 @@ def emit_status(
     activity: str | None = None,
     station_id: str | None = None,
     metadata: dict[str, Any] | None = None,
+    wait: bool = False,
 ) -> dict | None:
-    """Publikasikan status. Semua kegagalan ditelan agar fungsi EduPad lama tetap aman."""
+    """Publikasikan status. Semua kegagalan ditelan agar fungsi EduPad lama tetap aman.
+
+    Default tidak menunggu penyimpanan (kembali None); `wait=True` menyimpan langsung dan
+    mengembalikan baris event."""
     definition = next((agent for agent in AGENTS if agent.id == agent_id), AGENTS[0])
     try:
         event_metadata = dict(metadata or {})
@@ -42,10 +98,13 @@ def emit_status(
             run_id=run_id,
             metadata=event_metadata,
         )
-        return get_repository().add_event(event)
     except Exception as exc:  # noqa: BLE001 - telemetry tidak boleh menggagalkan pekerjaan utama
-        log.warning("[office] status tidak tersimpan: %s", exc)
+        log.warning("[office] status tidak valid: %s", exc)
         return None
+    if wait:
+        return _store(event)
+    _enqueue(event)
+    return None
 
 
 def build_snapshot() -> dict[str, Any]:
