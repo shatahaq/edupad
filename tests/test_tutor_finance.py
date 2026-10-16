@@ -235,3 +235,24 @@ def test_attendance_risk_counts_remaining_absences(tmp_path, monkeypatch):
     assert row["sisa_jatah"] == 1 and row["status"] == "waspada"
     _attendance(path, [None] * 5)
     assert radar.attendance_risk()[0]["status"] == "melewati"
+
+
+def test_new_device_cards_only_for_firmware_that_knows_them(monkeypatch):
+    from edupad.agent import updates
+
+    card = {
+        "id": "review:1:2:x",
+        "kind": "review",
+        "course": "MSBD P2",
+        "detail": "Indeks",
+        "when": "Penguasaan 40%",
+        "from_ts": 0,
+        "to_ts": 0,
+    }
+    monkeypatch.setattr(radar, "device_alerts", lambda now=None, cached=True: [card])
+    monkeypatch.setattr(updates, "attendance_alerts", lambda now: [])
+    monkeypatch.setattr(updates, "deadline_alerts", lambda now: [])
+    monkeypatch.setattr(updates, "next_class", lambda now: None)
+    monkeypatch.setattr(updates, "stale_sources", lambda: [])
+    assert updates.updates()["alerts"] == []
+    assert updates.updates(extra_cards=True)["alerts"] == [card]

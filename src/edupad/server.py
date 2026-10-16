@@ -268,7 +268,9 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self._intro()[0])
             return
         if path == "/v1/updates":
-            self._json(200, updates.updates())
+            # Kartu peringatan/pengulangan hanya untuk firmware yang mengenalnya (kirim X-Firmware).
+            known = bool(self.headers.get("X-Firmware"))
+            self._json(200, updates.updates(extra_cards=True) if known else updates.updates())
             return
         if path == intro.AUDIO_URL:
             self._send_audio(self._intro()[1], wav=query.get("format") == ["wav"])

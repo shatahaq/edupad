@@ -9,6 +9,14 @@ Semua permintaan selain `/v1/health` wajib membawa header:
 Authorization: Bearer <EDUPAD_DEVICE_TOKEN>
 ```
 
+Firmware 1.1+ juga mengirim status perangkat (dicatat ke `data/device/status.json` untuk
+dashboard Monitoring → Perangkat):
+
+```
+X-Device-Id: <MAC>      X-Device-RSSI: -61      X-Device-Uptime: <detik>
+X-Device-Heap: <byte>   X-Firmware: 1.1
+```
+
 ## Alur satu pertanyaan
 
 ```
@@ -139,6 +147,11 @@ Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca da
     berganti tiap hari dan saat tinggal < 3 jam, jadi diingatkan lagi.
   - `attended`: presensi pertemuan yang sedang berlangsung sudah tercatat "hadir" (mis. diisi
     otomatis oleh cron `attendance --fill`).
+  - `warning` (hanya bila permintaan membawa `X-Firmware`): peringatan dini Equity Radar, yaitu
+    jatah tidak hadir hampir/sudah habis atau anggaran keuangan >= 90%; `level` `high`/`medium`.
+  - `review` (hanya dengan `X-Firmware`, pukul 16-21 WIB): topik kuis Tutor yang jatuh tempo
+    diulang; `when` berisi "Penguasaan 40%". Tahan tombol lalu ucapkan "uji aku lagi".
+  - Isi kartu tambahan dihitung di `src/edupad/agent/radar.py` (cache 5 menit).
 - `stale`: sumber yang sesinya habis (`SATU`, `kelas.usu`); perangkat menampilkan peringatan.
 - Semua teks ASCII (font LCD). Isinya disusun di `src/edupad/agent/updates.py`.
 

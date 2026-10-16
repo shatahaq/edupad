@@ -13,6 +13,16 @@ API-nya ada di [../deploy/DEVICE_API.md](../deploy/DEVICE_API.md).
 
 Server hanya menyimpan suara **jawaban terakhir**; jawaban baru menimpanya.
 
+Yang bisa diucapkan selain bertanya materi: catat keuangan ("tadi beli makan dua puluh lima
+ribu", "hapus yang tadi"), kuis lisan ("uji aku Basis Data pertemuan dua"), dan rencana belajar
+("hari ini belajar apa?"). Hasilnya langsung tampil di dashboard `https://shata.id/dashboard/`.
+
+Kartu pemberitahuan dari `GET /v1/updates`: presensi dibuka, presensi tercatat, deadline,
+**peringatan dini** (jatah absen/anggaran hampir habis) dan **waktunya mengulang** (topik kuis
+yang jatuh tempo). Pada dua kartu terakhir, tahan tombol lalu bicara, mis. "uji aku lagi".
+Firmware mengirim `X-Firmware` (`FIRMWARE_VERSION` di `config.h`) dan status Wi-Fi ke server;
+server baru mengirim dua kartu itu ke firmware 1.1+. Pratinjau: `cd preview && make`.
+
 Perangkat keras: ESP32-S3 DevKitC N16R8, LCD SPI ST7796 4" 320x480, mikrofon I2S INMP441,
 amplifier I2S MAX98357A + speaker 4-8 ohm.
 

@@ -169,12 +169,15 @@ def stale_sources() -> list[str]:
     return [label for service, label in labels.items() if get_state(service).get("expired_since")]
 
 
-def updates(now: datetime | None = None) -> dict:
+def updates(now: datetime | None = None, extra_cards: bool = False) -> dict:
+    """`extra_cards`: perangkat mengenal kartu "warning" & "review" (firmware yang mengirim
+    X-Firmware); firmware lama akan menampilkan jenis tak dikenal sebagai deadline."""
     now = now or datetime.now(WIB)
     alerts = attendance_alerts(now)
     from edupad.agent.radar import device_alerts
 
-    extra = device_alerts(now)  # peringatan dini & pengingat mengulang (Tutor/Equity Radar)
+    # peringatan dini & pengingat mengulang (Tutor/Equity Radar)
+    extra = device_alerts(now) if extra_cards else []
     alerts = (
         [a for a in alerts if a["kind"] == "attendance"]
         + deadline_alerts(now)

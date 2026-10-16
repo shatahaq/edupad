@@ -44,52 +44,63 @@ src/edupad/
 ├── core/              sesi, klien Moodle & Supabase, koneksi HTTP bersama, file, logging, notifikasi
 ├── collectors/        materials (Playwright), assignments, schedule
 ├── processing/        convert (PDF/PPTX/DOCX -> Markdown), corpus, summaries, embeddings, index
-├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate
+├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate,
+│                      finance (keuangan suara), tutor (kuis lisan), radar (Equity Radar)
+├── office/            Office API dashboard: login Google pemilik, data panel, event owl
 ├── voice/             stt (Groq Whisper), tts (ElevenLabs); PCM 16 kHz untuk ESP32
 ├── google/            oauth (login Google + PKCE), accounts (refresh token & sesi web)
 ├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md) + web
+├── device_status.py   status perangkat terakhir (RSSI, uptime, firmware) untuk dashboard
 ├── webapp.py          web: login Google, /api, halaman React hasil build
 └── jobs/              keepalive, pipeline
-web/                   halaman web React + Tailwind (halaman depan & dashboard)
+web/                   halaman web React + Tailwind (halaman depan & login Google)
+dashboard/             dashboard EduPad (AI Office, keuangan, Tutor, Equity Radar, monitoring)
+frontend/              kantor virtual Phaser (kode game dipakai dashboard; preview mandiri)
+firmware/              sketch ESP32-S3 (LCD, mic, speaker) + pratinjau layar di PC
+supabase/migrations/   tabel tambahan (keuangan, tutor, Office)
 tests/                 unit test (pytest)
 evals/                 set uji AI agent & hasil evaluasi
 deploy/                crontab, panduan server, jadwal Windows
 data/  logs/  user_data/   dibuat saat berjalan (tidak dibagikan)
 ```
 
-## EduPad AI Office
+## Dashboard EduPad (AI Office)
 
-Dashboard utama berada di `dashboard/` dan memakai React, TypeScript, Vite, Recharts,
-serta Phaser 3. Halaman pertama adalah kantor virtual 2D; halaman presensi, tugas,
-jadwal, percakapan, riwayat belajar, dan monitoring memakai gaya dashboard yang sama.
-Implementasi Office lama di `frontend/` tetap dipertahankan sebagai sumber komponen game
-dan preview mandiri. Office API adalah adapter terpisah di `src/edupad/office/`; API
-perangkat ESP32 `/v1/*` tidak berubah.
+Dashboard di `dashboard/` (React, TypeScript, Vite, Recharts, Phaser 3) disajikan di
+`https://shata.id/dashboard/`. Setelah login Google di halaman depan (`web/`), pemilik
+(`EDUPAD_OWNER_EMAILS`) langsung dibawa ke sini. Halaman pertama adalah kantor virtual 2D:
+tujuh owl bergerak sesuai pekerjaan AI agent yang sebenarnya, termasuk saat perangkat ESP32
+ditanya (SORA tutor, KOIN keuangan, TEMPO jadwal, NEXUS pengetahuan). Kode game ada di
+`frontend/src/game` (juga bisa dijalankan mandiri sebagai preview).
+
+Fitur yang tersambung dengan perangkat (satu sumber data untuk suara & dashboard):
+
+| Fitur | Lewat suara di perangkat | Di dashboard |
+|---|---|---|
+| Keuangan | "tadi beli makan dua puluh lima ribu", "sisa anggaran makanku?", "atur anggaran transportasi tiga ratus ribu", "hapus yang tadi" | `#/keuangan`: catat manual, anggaran, laporan; transaksi suara diberi label |
+| Tutor Belajar (SDG 4.1/4.4) | "uji aku Basis Data pertemuan dua", "aku belum paham rekursi", "hari ini belajar apa?" | `#/tutor`: penguasaan per topik, riwayat kuis, salah paham |
+| Equity Radar (SDG 4.5/4.a/10) | peringatan dini & pengingat mengulang tampil sebagai kartu di layar | `#/equity`: kesenjangan akses materi, kehadiran vs syarat ujian, langkah berikutnya |
+| Monitoring | status perangkat dikirim lewat header (RSSI, uptime, firmware) | `#/monitoring`: perangkat, latensi `/v1/ask`, error |
+
+- Office API (`src/edupad/office/`, `python -m edupad office-api`, port 8001) melayani
+  `/dashboard/`, `/api/office/*`, dan `/v1/dashboard/*`; semuanya memerlukan sesi login Google
+  pemilik dari web EduPad (`EDUPAD_OFFICE_AUTH=off` hanya untuk pengembangan lokal).
+- Keuangan & Tutor disimpan di Supabase: jalankan
+  `supabase/migrations/20261017_finance_tutor.sql` sekali. Logika ada di
+  `src/edupad/agent/finance.py`, `tutor.py`, dan `radar.py` (tool agent + data dashboard).
+- Status owl dikirim dari antrean latar belakang, sehingga jawaban perangkat tidak menunggu.
+  Penyimpanan event/tugas Office default lokal (`data/office/`); tabel Office di
+  `supabase/migrations/20261013_edu_pad_office.sql` opsional (`EDUPAD_OFFICE_STORAGE=supabase`).
 
 ```bash
 pip install -e ".[dev,office]"
-python -m edupad office-api --host 127.0.0.1 --port 8001
-
-# terminal worker (mengeksekusi task Office yang diizinkan)
-python -m edupad office-worker
-
-# terminal lain (dashboard terpadu)
-cd dashboard
-npm install
-npm run dev
+python -m edupad serve                    # web + login Google + API perangkat (port 8000)
+python -m edupad office-api               # dashboard API (port 8001)
+cd web && npm run dev                     # http://localhost:5173 (login)
+cd frontend && npm ci && cd ../dashboard && npm ci && npm run dev   # http://localhost:5174/dashboard/
 ```
 
-Dashboard memakai `/api/office/snapshot`, `/api/office/events` (SSE), dan endpoint baca-saja
-`/v1/dashboard/*`. Data dashboard berasal dari file `data/`, log lokal, serta tabel Supabase
-yang sudah dipakai EduPad; mode dummy hanya aktif jika `VITE_DATA_SOURCE=mock` ditetapkan
-secara eksplisit. Bila migration
-`supabase/migrations/20261013_edu_pad_office.sql` belum diterapkan, penyimpanan tugas dan event
-otomatis memakai `data/office/` secara lokal. Migration hanya file sumber dan tidak dijalankan
-otomatis. Setelah migration diterapkan, set `EDUPAD_OFFICE_STORAGE=supabase` untuk mengaktifkan
-sinkronisasi Supabase; mode default tetap `local` agar backend lama tidak terganggu.
-Vertical slice worker saat ini sengaja hanya menerima job `index` dan hanya melakukan claim pada
-storage lokal. Worker menolak mode Supabase sampai migration claiming atomik ditinjau dan
-disetujui; tidak ada migration yang dijalankan otomatis.
+Deploy: `deploy/SERVER.md` bagian "Dashboard EduPad".
 
 ## Instalasi
 
@@ -162,9 +173,8 @@ Bila sesi habis, notifikasi Telegram dikirim sekali.
 - **Hemat token**: potongan yang sudah dikirim tidak dikirim ulang; `get_meeting` mengirim
   ringkasan kecuali diminta `full=true`. Default **mode perangkat**: hanya suara + layar LCD;
   jawaban Markdown panjang hanya dengan `--detail` / `ask(..., with_detail=True)`.
-  Pemakaian token & biaya per pertanyaan dicatat di `logs/agent_usage.jsonl`. Batas keluaran
-  dan putaran tool dikendalikan oleh `EDUPAD_LLM_MAX_OUTPUT_TOKENS` dan
-  `EDUPAD_LLM_MAX_TOOL_ROUNDS`; frontend preview tidak memanggil DeepSeek.
+  Pemakaian token & biaya per pertanyaan dicatat di `logs/agent_usage.jsonl`. Batas opsional:
+  `EDUPAD_LLM_MAX_OUTPUT_TOKENS` dan `EDUPAD_LLM_MAX_TOOL_ROUNDS` (default 5 putaran).
 - **Memory**: percakapan disimpan per sesi (sesi baru setelah 30 menit menganggur) di Supabase
   (`agent_sessions`, `agent_turns`); 8 giliran lama diringkas otomatis. Fakta tentang pengguna
   (`agent_memories`) dipakai lintas sesi. `memory --clear` menghapus semuanya.
