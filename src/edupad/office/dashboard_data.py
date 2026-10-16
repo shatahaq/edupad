@@ -77,6 +77,12 @@ def _course_parts(value: str) -> tuple[str, str, str]:
     return match.group(2).strip(), match.group(1).strip(), (match.group(3) or "").strip()
 
 
+def _overdue(flag: object, submitted: bool, deadline: object) -> bool:
+    """Lewat deadline dihitung ulang terhadap waktu sekarang: data scraper bisa berumur jam/hari."""
+    due = _dt(deadline)
+    return bool(flag) or (not submitted and due is not None and due < datetime.now(WIB))
+
+
 def assignments() -> dict:
     raw = _json(ASSIGNMENTS_DIR / "assignments.json", {})
     items = []
@@ -102,7 +108,7 @@ def assignments() -> dict:
                 "deadline": row.get("deadline"),
                 "submitted": submitted,
                 "late_submission": submitted and "terlambat" in timing,
-                "overdue": bool(row.get("lewat_deadline")),
+                "overdue": _overdue(row.get("lewat_deadline"), submitted, row.get("deadline")),
                 "graded": bool(grading and grading != "belum_dinilai"),
                 "nilai": status.get("nilai"),
                 "url": str(row.get("url") or ""),
@@ -143,7 +149,11 @@ def _classroom_tasks() -> list[dict]:
                     "deadline": task.get("deadline"),
                     "submitted": bool(task.get("sudah_dikumpulkan")),
                     "late_submission": bool(status.get("terlambat")),
-                    "overdue": bool(task.get("lewat_deadline")),
+                    "overdue": _overdue(
+                        task.get("lewat_deadline"),
+                        bool(task.get("sudah_dikumpulkan")),
+                        task.get("deadline"),
+                    ),
                     "graded": grade is not None,
                     "nilai": None if grade is None else str(grade),
                     "url": str(task.get("url") or ""),

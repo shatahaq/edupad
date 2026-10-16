@@ -4,6 +4,7 @@ import { Icon } from "../components/Icon";
 import { Panel } from "../components/Panel";
 import { ago, dayHeading, hourLabel, secs } from "../lib/format";
 import { go } from "../lib/router";
+import { owlSrc } from "../lib/owls";
 
 /** Satu giliran: pertanyaan lewat suara, jawaban yang disuarakan, layar LCD, sumber materi. */
 export function TurnView({ t, compact }: { t: ConversationTurn; compact?: boolean }) {
@@ -16,9 +17,7 @@ export function TurnView({ t, compact }: { t: ConversationTurn; compact?: boolea
         </span>
       </div>
       <div className="turn-a">
-        <span className="a-mark" aria-hidden>
-          E
-        </span>
+        <img className="a-mark a-owl" src={owlSrc("sora")} alt="" aria-hidden width={32} height={32} />
         <div className="a-body">
           <div className="turn-meta mono">
             {compact ? ago(t.at) : hourLabel(t.at)}

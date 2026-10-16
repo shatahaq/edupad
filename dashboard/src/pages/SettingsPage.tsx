@@ -1,7 +1,4 @@
 import { type FormEvent, useState } from "react";
-import { API_URL, DATA_SOURCE, REFRESH_SECONDS } from "../api/client";
-import { usePanel } from "../api/usePanel";
-import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
 import { FINANCE_BUDGETS_KEY, FINANCE_TRANSACTIONS_KEY, loadFinanceBudgets, loadFinanceTransactions } from "../lib/finance";
 import { loadPreferences, savePreferences, type DashboardPreferences } from "../lib/preferences";
@@ -14,7 +11,6 @@ export function SettingsPage() {
     const hasBudget = Object.values(loadFinanceBudgets()).some((value) => value > 0);
     return { transactionCount, hasData: transactionCount > 0 || hasBudget };
   });
-  const api = usePanel("api");
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -32,10 +28,10 @@ export function SettingsPage() {
 
   return (
     <div className="settings-page">
-      <PageHeader title="Pengaturan" subtitle="Preferensi dashboard dan data lokal" live={false} />
+      <PageHeader title="Pengaturan" subtitle="Nama tampilan dan kenyamanan tampilan dashboard." />
       <form className="settings-grid" onSubmit={submit}>
         <section className="card settings-panel">
-          <div className="settings-panel-head"><span className="settings-icon"><Icon name="users" /></span><div><h2>Profil mahasiswa</h2><p>Nama ini tampil pada bagian bawah menu utama.</p></div></div>
+          <div className="settings-panel-head"><div><h2>Profil mahasiswa</h2><p>Nama ini tampil pada bagian bawah menu utama.</p></div></div>
           <div className="settings-fields">
             <label><span>Nama tampilan</span><input value={draft.studentName} onChange={(event) => setDraft((current) => ({ ...current, studentName: event.target.value }))} placeholder="Nama mahasiswa" maxLength={60} /></label>
             <label><span>NIM <small>(opsional)</small></span><input value={draft.studentId} onChange={(event) => setDraft((current) => ({ ...current, studentId: event.target.value }))} placeholder="Nomor induk mahasiswa" maxLength={30} /></label>
@@ -43,27 +39,18 @@ export function SettingsPage() {
         </section>
 
         <section className="card settings-panel">
-          <div className="settings-panel-head"><span className="settings-icon"><Icon name="sliders" /></span><div><h2>Tampilan</h2><p>Sesuaikan kepadatan dan gerakan antarmuka.</p></div></div>
+          <div className="settings-panel-head"><div><h2>Tampilan</h2><p>Sesuaikan kepadatan dan gerakan antarmuka.</p></div></div>
           <div className="settings-toggles">
             <label><div><strong>Mode ringkas</strong><span>Mengurangi jarak antarkomponen agar lebih banyak informasi terlihat.</span></div><input type="checkbox" checked={draft.compactMode} onChange={(event) => setDraft((current) => ({ ...current, compactMode: event.target.checked }))} /></label>
             <label><div><strong>Kurangi animasi</strong><span>Mengurangi transisi dashboard dan animasi dekoratif.</span></div><input type="checkbox" checked={draft.reduceMotion} onChange={(event) => setDraft((current) => ({ ...current, reduceMotion: event.target.checked }))} /></label>
           </div>
         </section>
 
-        <section className="card settings-panel">
-          <div className="settings-panel-head"><span className="settings-icon"><Icon name="server" /></span><div><h2>Sumber data</h2><p>Status konfigurasi dashboard saat ini.</p></div></div>
-          <dl className="settings-status">
-            <div><dt>Mode data</dt><dd><i className={DATA_SOURCE === "live" ? "good" : "warn"} />{DATA_SOURCE === "live" ? "Server live" : "Data contoh"}</dd></div>
-            <div><dt>Office API</dt><dd><i className={api.error ? "bad" : api.data ? "good" : "warn"} />{api.error ? "Tidak terhubung" : api.data ? "Terhubung" : "Memeriksa"}</dd></div>
-            <div><dt>Alamat API</dt><dd className="mono">{API_URL || "Satu domain dengan dashboard"}</dd></div>
-            <div><dt>Refresh dashboard</dt><dd>{REFRESH_SECONDS} detik</dd></div>
-          </dl>
-        </section>
 
-        <section className="card settings-panel">
-          <div className="settings-panel-head"><span className="settings-icon danger"><Icon name="alert" /></span><div><h2>Salinan lama di browser</h2><p>Keuangan kini tersimpan di server EduPad (Supabase) dan sinkron dengan perangkat. Salinan lama hanya tersisa bila belum dipindahkan dari halaman Keuangan.</p></div></div>
+        {financeStorage.hasData && <section className="card settings-panel">
+          <div className="settings-panel-head"><div><h2>Salinan lama di browser</h2><p>Keuangan kini tersimpan di server EduPad (Supabase) dan sinkron dengan perangkat. Salinan lama hanya tersisa bila belum dipindahkan dari halaman Keuangan.</p></div></div>
           <div className="settings-data-row"><div><strong>{financeStorage.transactionCount} transaksi di browser ini</strong><span>{financeStorage.hasData ? "Pindahkan dari halaman Keuangan sebelum menghapus." : "Tidak ada salinan lama."}</span></div><button type="button" className="btn settings-danger" disabled={!financeStorage.hasData} onClick={clearFinance}>Hapus salinan lama</button></div>
-        </section>
+        </section>}
 
         <div className="settings-savebar"><span className={saved ? "visible" : ""}><i />Pengaturan berhasil disimpan</span><button type="submit" className="btn btn-dark">Simpan pengaturan</button></div>
       </form>

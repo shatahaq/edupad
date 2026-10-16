@@ -74,7 +74,8 @@ export class OwlFurniture {
   }
   private setEditing(value: boolean) {
     this.editing=value;this.cancelPlacement()
-    this.sprites.forEach(sprite=>{this.scene.input.setDraggable(sprite,value);if(sprite.input)sprite.input.cursor=value?'move':'pointer'})
+    // Saat halaman Office ditinggalkan, sprite sudah dihancurkan sebelum editor ditutup.
+    this.sprites.forEach(sprite=>{if(!sprite.input)return;this.scene.input.setDraggable(sprite,value);sprite.input.cursor=value?'move':'pointer'})
     this.editChanged(value)
     officeGameEvents.furnitureFeedback(value?'Pilih objek untuk ditambahkan, atau geser furnitur yang sudah ada.':'')
   }

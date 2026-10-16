@@ -1,12 +1,12 @@
 /** Warna & gaya bersama Recharts. Grafik monokrom; biru hanya untuk aksen (latensi), merah untuk error. */
 export const C = {
-  ink: "#18181b",
-  inkSoft: "#55555c",
-  inkFaint: "#a1a1a6",
-  accent: "#2f5bea",
-  bad: "#d92d20",
-  muted: "#8b8b92",
-  grid: "#ececea",
+  ink: "#3d4a58",
+  inkSoft: "#5f6b78",
+  inkFaint: "#b9b0a2",
+  accent: "#1d727a",
+  bad: "#c2414b",
+  muted: "#5f6b78",
+  grid: "#ebe2d3",
 };
 
 export const MONO = '"Geist Mono", ui-monospace, "Cascadia Code", Consolas, monospace';

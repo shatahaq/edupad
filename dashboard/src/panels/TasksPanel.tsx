@@ -50,6 +50,7 @@ export function TaskRow({ t }: { t: Task }) {
             <div className="cell-strong wrap">{t.judul}</div>
             <div className="cell-sub wrap">
               {t.course} · {t.jenis}
+              {t.sumber === "Google Classroom" && " · Classroom"}
               {t.pertemuan != null && ` · p${t.pertemuan}`}
             </div>
           </div>
@@ -61,9 +62,11 @@ export function TaskRow({ t }: { t: Task }) {
         </summary>
         <div className="task-body">
           <p>{t.soal || "Tidak ada deskripsi soal."}</p>
-          <a className="link" href={t.url} target="_blank" rel="noreferrer">
-            Buka di kelas.usu.ac.id <Icon name="external" size={12} />
-          </a>
+          {t.url && (
+            <a className="link" href={t.url} target="_blank" rel="noreferrer">
+              Buka di {t.sumber === "Google Classroom" ? "Google Classroom" : "kelas.usu.ac.id"} <Icon name="external" size={12} />
+            </a>
+          )}
         </div>
       </details>
     </li>
@@ -74,7 +77,7 @@ export function TaskRow({ t }: { t: Task }) {
 export function TasksPanel() {
   const [filter, setFilter] = useState<Filter>("pending");
   return (
-    <Panel panel="assignments" title="Tugas & kuis" subtitle="kelas.usu.ac.id · klik untuk melihat soal">
+    <Panel panel="assignments" title="Daftar tugas" subtitle="Klik tugas untuk melihat soalnya">
       {(d) => {
         const f = FILTERS.find((x) => x.id === filter)!;
         const list = sortTasks(d.tasks.filter(f.match), filter);
@@ -90,7 +93,7 @@ export function TasksPanel() {
             {list.length ? (
               <ul className="rows tasks">
                 {list.map((t) => (
-                  <TaskRow key={t.id} t={t} />
+                  <TaskRow key={`${t.sumber}-${t.id}`} t={t} />
                 ))}
               </ul>
             ) : (
@@ -124,7 +127,7 @@ export function UpcomingTasksPanel({ limit = 4 }: { limit?: number }) {
             {pending.length ? (
               <ul className="rows tasks">
                 {pending.slice(0, limit).map((t) => (
-                  <TaskRow key={t.id} t={t} />
+                  <TaskRow key={`${t.sumber}-${t.id}`} t={t} />
                 ))}
               </ul>
             ) : (

@@ -3,7 +3,7 @@ import { apiSend } from "../api/client";
 import type { FinanceRow } from "../api/types";
 import { usePanel } from "../api/usePanel";
 import { Icon } from "../components/Icon";
-import { PageHeader } from "../components/PageHeader";
+import { PageIntro } from "../components/PageIntro";
 import {
   clearLegacyFinance,
   loadFinanceBudgets,
@@ -191,16 +191,28 @@ export function FinancePage() {
 
   return (
     <div className="finance-page">
-      <PageHeader
-        title="Keuangan mahasiswa"
-        subtitle="Catat di sini atau cukup bicara ke EduPad; keduanya tersimpan di tempat yang sama"
-        live={false}
+      <PageIntro
+        owl="koin"
+        title="Keuangan"
+        say="tadi beli makan dua puluh lima ribu"
         actions={
           <button className="btn btn-dark" disabled={!available} onClick={() => setComposer((open) => !open)}>
-            <span aria-hidden>+</span>{composer ? "Tutup formulir" : "Catat transaksi"}
+            {composer ? "Tutup formulir" : "Catat transaksi"}
           </button>
         }
-      />
+      >
+        {!panel.data ? (
+          "Memuat catatan keuangan…"
+        ) : budgetTotal ? (
+          <>
+            Sisa anggaran bulan ini <b>{money.format(remainingBudget)}</b> dari {money.format(budgetTotal)}.
+          </>
+        ) : (
+          <>
+            Pengeluaran bulan ini <b>{money.format(expense)}</b>. Atur anggaran supaya aku bisa mengingatkan sebelum habis.
+          </>
+        )}
+      </PageIntro>
 
       {panel.data && !available && (
         <div className="panel-error" role="alert">Keuangan belum aktif di server: {panel.data.reason}</div>
@@ -208,17 +220,6 @@ export function FinancePage() {
       {panel.error && <div className="panel-error" role="alert">Data keuangan belum bisa dimuat: {panel.error}</div>}
       {error && !composer && <div className="panel-error" role="alert">{error}</div>}
 
-      <section className="finance-voice card" aria-label="Catat lewat suara">
-        <Icon name="mic" size={18} />
-        <div>
-          <strong>Catat lewat suara di perangkat EduPad</strong>
-          <p>
-            Tekan tombol lalu ucapkan, misalnya <q>tadi beli makan siang dua puluh lima ribu</q>,{" "}
-            <q>dapat kiriman dari ibu satu juta</q>, <q>sisa anggaran makanku berapa?</q>, atau{" "}
-            <q>atur anggaran transportasi tiga ratus ribu</q>. Salah catat? Ucapkan <q>hapus yang tadi</q>.
-          </p>
-        </div>
-      </section>
 
       {available && legacyCount > 0 && (
         <section className="finance-voice card warn" aria-label="Pindahkan data lama">
@@ -242,7 +243,7 @@ export function FinancePage() {
 
       {composer && (
         <section className="finance-composer card">
-          <div className="finance-section-head"><div><span className="eyebrow">TRANSAKSI BARU</span><h2>Catat perubahan uang</h2><p>Isi berdasarkan transaksi sebenarnya. Data disimpan di server EduPad dan langsung terbaca AI di perangkat.</p></div></div>
+          <div className="finance-section-head"><div><h2>Catat perubahan uang</h2><p>Isi berdasarkan transaksi sebenarnya. Data disimpan di server EduPad dan langsung terbaca AI di perangkat.</p></div></div>
           <form onSubmit={submit}>
             <div className="finance-kind" role="group" aria-label="Jenis transaksi">
               <button type="button" className={kind === "expense" ? "active expense" : ""} onClick={() => changeKind("expense")}>Pengeluaran</button>
@@ -267,21 +268,21 @@ export function FinancePage() {
       {tab === "summary" && (
         <div className="finance-grid">
           <section className="card finance-panel">
-            <div className="finance-section-head"><div><span className="eyebrow">PENGELUARAN</span><h2>Penggunaan per kategori</h2></div><button className="text-button" onClick={() => setTab("budgets")}>Atur anggaran</button></div>
+            <div className="finance-section-head"><div><h2>Penggunaan per kategori</h2></div><button className="text-button" onClick={() => setTab("budgets")}>Atur anggaran</button></div>
             {spendingByCategory.length ? <div className="finance-bars">{spendingByCategory.map((row) => <div className="finance-bar-row" key={row.name}><div><strong>{row.name}</strong><span>{money.format(row.amount)}{row.budget ? ` / ${money.format(row.budget)}` : ""}</span></div><div className="finance-bar-track"><i style={{ width: `${Math.min(100, (row.amount / maxCategory) * 100)}%` }} /><b style={{ left: `${Math.min(100, (row.budget / maxCategory) * 100)}%` }} /></div></div>)}</div> : <div className="finance-empty"><Icon name="wallet" size={28} /><strong>Belum ada pengeluaran</strong><span>Catat transaksi pertama untuk melihat pembagian kategori.</span></div>}
           </section>
           <section className="card finance-panel">
-            <div className="finance-section-head"><div><span className="eyebrow">TERBARU</span><h2>Transaksi terakhir</h2></div><button className="text-button" onClick={() => setTab("transactions")}>Lihat semua</button></div>
+            <div className="finance-section-head"><div><h2>Transaksi terakhir</h2></div><button className="text-button" onClick={() => setTab("transactions")}>Lihat semua</button></div>
             <TransactionList rows={monthRows.slice(0, 6)} onDelete={removeTransaction} />
           </section>
         </div>
       )}
 
-      {tab === "transactions" && <section className="card finance-panel"><div className="finance-section-head"><div><span className="eyebrow">{monthRows.length} CATATAN</span><h2>Daftar transaksi</h2><p>{formatMonth(month)}</p></div></div><TransactionList rows={monthRows} onDelete={removeTransaction} /></section>}
+      {tab === "transactions" && <section className="card finance-panel"><div className="finance-section-head"><div><h2>Daftar transaksi</h2><p>{formatMonth(month)}</p></div></div><TransactionList rows={monthRows} onDelete={removeTransaction} /></section>}
 
       {tab === "budgets" && (
         <section className="card finance-panel">
-          <div className="finance-section-head"><div><span className="eyebrow">ANGGARAN BULANAN</span><h2>Tetapkan batas pengeluaran</h2><p>Tersimpan saat kolom ditinggalkan; bisa juga diatur lewat suara. AI memakai angka ini untuk menjawab sisa anggaran.</p></div><strong className="finance-budget-total">{money.format(budgetTotal)}</strong></div>
+          <div className="finance-section-head"><div><h2>Tetapkan batas pengeluaran</h2><p>Tersimpan saat kolom ditinggalkan; bisa juga diatur lewat suara. AI memakai angka ini untuk menjawab sisa anggaran.</p></div><strong className="finance-budget-total">{money.format(budgetTotal)}</strong></div>
           <div className="budget-grid">{EXPENSE_CATEGORIES.map((name) => <label key={name}><span>{name}</span><div className="money-input"><b>Rp</b><input inputMode="numeric" disabled={!available} value={budgets[name] || ""} placeholder="0" onBlur={() => saveBudget(name)} onChange={(event) => setBudgets((current) => ({ ...current, [name]: Math.max(0, Number(event.target.value.replace(/[^0-9]/g, "")) || 0) }))} /></div></label>)}</div>
           <div className="finance-callout"><Icon name="help" /><span>Mulailah dari kebutuhan utama seperti makan, transportasi, tempat tinggal, dan biaya kuliah. Anggaran bukan target untuk dihabiskan.</span></div>
         </section>
@@ -289,7 +290,7 @@ export function FinancePage() {
 
       {tab === "reports" && (
         <section className="card finance-panel finance-report">
-          <div className="finance-section-head"><div><span className="eyebrow">LAPORAN KEUANGAN</span><h2>{formatMonth(month)}</h2><p>Laporan dihitung dari transaksi yang Anda catat, tanpa perkiraan AI.</p></div><button className="btn" disabled={!monthRows.length} onClick={() => downloadCsv(monthRows, month)}><Icon name="external" size={14} />Unduh CSV</button></div>
+          <div className="finance-section-head"><div><h2>{formatMonth(month)}</h2><p>Laporan dihitung dari transaksi yang Anda catat, tanpa perkiraan AI.</p></div><button className="btn" disabled={!monthRows.length} onClick={() => downloadCsv(monthRows, month)}><Icon name="external" size={14} />Unduh CSV</button></div>
           <div className="report-summary"><div><span>Total pemasukan</span><strong>{money.format(income)}</strong></div><div><span>Total pengeluaran</span><strong>{money.format(expense)}</strong></div><div><span>Selisih akhir</span><strong className={balance < 0 ? "bad-text" : "good-text"}>{money.format(balance)}</strong></div><div><span>Rasio tersisa</span><strong>{income ? `${savingsRate.toFixed(1)}%` : "—"}</strong></div></div>
           {monthRows.length ? <div className="report-table"><div className="report-row report-head"><span>Kategori</span><span>Terpakai</span><span>Anggaran</span><span>Status</span></div>{spendingByCategory.map((row) => { const ratio = row.budget ? row.amount / row.budget : 0; return <div className="report-row" key={row.name}><strong>{row.name}</strong><span>{money.format(row.amount)}</span><span>{row.budget ? money.format(row.budget) : "Belum diatur"}</span><span className={ratio > 1 ? "bad-text" : ratio > 0.8 ? "warn-text" : "good-text"}>{!row.budget ? "—" : ratio > 1 ? "Melebihi" : ratio > 0.8 ? "Mendekati" : "Aman"}</span></div>})}</div> : <div className="finance-empty"><Icon name="clipboard" size={28} /><strong>Laporan belum tersedia</strong><span>Tambahkan transaksi pada periode ini agar laporan dapat dihitung.</span></div>}
           <div className="finance-report-note">Ringkasan: pemasukan {compactMoney.format(income)}, pengeluaran {compactMoney.format(expense)}, dan selisih {compactMoney.format(balance)}.</div>

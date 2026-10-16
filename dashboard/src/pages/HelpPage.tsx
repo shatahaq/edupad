@@ -1,47 +1,130 @@
-import { API_URL, DATA_SOURCE } from "../api/client";
-import { Icon } from "../components/Icon";
-import { PageHeader } from "../components/PageHeader";
-import { go } from "../lib/router";
+import type { CSSProperties } from "react";
+import { PageIntro } from "../components/PageIntro";
+import { Section } from "../components/Section";
+import { OWL_COLOR, owlSrc, type OwlName } from "../lib/owls";
 
-const FAQ = [
-  ["Mengapa aktivitas agent tidak berubah?", "Pastikan Office API aktif dan indikator sumber data menunjukkan Server live. Agent hanya berpindah saat backend mengirim tugas atau aktivitas nyata."],
-  ["Mengapa riwayat percakapan kosong?", "Riwayat muncul setelah SUPABASE_URL dan kredensial backend yang sesuai tersedia, lalu perangkat EduPad mengirim percakapan ke tabel yang digunakan backend."],
-  ["Di mana data keuangan disimpan?", "Untuk tahap ini, transaksi dan anggaran disimpan pada localStorage browser. Data belum tersinkron ke Supabase agar tidak ada perubahan skema tanpa persetujuan."],
-  ["Apakah fitur keuangan memakai DeepSeek?", "Tidak. Perhitungan saldo, anggaran, dan laporan dilakukan langsung di browser sehingga tidak memakai kuota API AI."],
-  ["Bagaimana mengembalikan tampilan kantor?", "Tekan tombol bingkai pada kontrol zoom. Tampilan akan kembali ke 100% dan posisi kamera kembali ke tengah."],
+const BUTTONS = [
+  ["Tahan", "Bicara, lalu lepas untuk mengirim pertanyaan."],
+  ["Tekan sekali", "Putar ulang jawaban terakhir."],
+  ["Tekan dua kali", "Mulai percakapan baru."],
+  ["Tekan saat EduPad bicara", "Hentikan suara. Tahan terus untuk langsung bertanya lagi."],
+] as const;
+
+const PHRASES: { owl: OwlName; name: string; topic: string; examples: string[] }[] = [
+  {
+    owl: "pixel",
+    name: "PIXEL",
+    topic: "Materi kuliah",
+    examples: ["Pertemuan lima Pemrograman Visual bahas apa?", "Jelaskan normalisasi 3NF", "Ada materi baru di Classroom?"],
+  },
+  {
+    owl: "tempo",
+    name: "TEMPO",
+    topic: "Tugas, presensi, jadwal",
+    examples: ["Tugas apa yang deadline minggu ini?", "Ada absen apa hari ini?", "Kuliah besok apa?"],
+  },
+  {
+    owl: "sora",
+    name: "SORA",
+    topic: "Belajar dan kuis",
+    examples: ["Uji aku Basis Data pertemuan dua", "Aku belum paham rekursi", "Hari ini aku belajar apa?", "Mulai (saat SORA menawarkan bantuan)"],
+  },
+  {
+    owl: "koin",
+    name: "KOIN",
+    topic: "Keuangan",
+    examples: ["Tadi beli makan dua puluh lima ribu", "Sisa anggaran makanku berapa?", "Atur anggaran transportasi tiga ratus ribu", "Hapus yang tadi"],
+  },
+];
+
+const CARDS = [
+  ["Presensi dibuka", "Muncul dengan bunyi saat presensi bisa diisi, lengkap dengan jam tutupnya."],
+  ["Deadline", "Dua hari dan tiga jam sebelum tugas ditutup."],
+  ["Peringatan dini", "Saat jatah tidak hadir hampir habis atau anggaran tinggal sedikit."],
+  ["Waktunya mengulang", "Sore hari, untuk topik kuis yang perlu diulang atau bantuan yang disiapkan SORA."],
 ] as const;
 
 export function HelpPage() {
   return (
-    <div className="help-page">
-      <PageHeader title="Bantuan" subtitle="Panduan singkat menggunakan EduPad" live={false} />
+    <>
+      <PageIntro owl="nova" title="Cara pakai">
+        Tahan tombol di EduPad, bicara, lalu lepas. Jawabannya dibacakan dan poin pentingnya tampil di layar.
+      </PageIntro>
 
-      <section className="help-hero card">
-        <div><span className="eyebrow">MULAI DARI SINI</span><h2>Apa yang ingin Anda lakukan?</h2><p>Pilih bagian yang ingin dibuka. Semua istilah dibuat sederhana untuk penggunaan mahasiswa.</p></div>
-        <div className="help-actions">
-          <button onClick={() => go("office")}><Icon name="bot" /><span><strong>Lihat AI Office</strong><small>Pantau agent dan tugas backend</small></span></button>
-          <button onClick={() => go("keuangan")}><Icon name="wallet" /><span><strong>Atur keuangan</strong><small>Catat transaksi dan lihat laporan</small></span></button>
-          <button onClick={() => go("tugas")}><Icon name="clipboard" /><span><strong>Periksa tugas</strong><small>Lihat tugas kuliah dan deadline</small></span></button>
+      <div className="grid-3-2">
+        <div className="column">
+          <Section title="Yang bisa kamu ucapkan">
+            <div className="phrase-groups">
+              {PHRASES.map((group) => (
+                <div key={group.owl} className="phrase-group" style={{ "--owl": OWL_COLOR[group.owl] } as CSSProperties}>
+                  <img src={owlSrc(group.owl)} alt="" width={44} height={44} />
+                  <div>
+                    <strong>{group.topic}</strong>
+                    <span className="item-meta">dikerjakan {group.name}</span>
+                    <ul>
+                      {group.examples.map((text) => (
+                        <li key={text}>“{text}”</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Tentang EduPad">
+            <p className="prose">
+              EduPad adalah asisten belajar berbentuk perangkat kecil yang cukup diajak bicara. Ia membaca materi dosen, tugas,
+              presensi, dan jadwal kuliahmu, mengingatkan sebelum terlambat, dan menguji pemahamanmu lewat kuis lisan. Dibuat
+              untuk mendukung pendidikan yang berkualitas dan setara (SDG 4 dan 10): bisa dipakai tanpa layar besar, dan
+              kekosongan materi kuliah terlihat lewat Equity Radar.
+            </p>
+          </Section>
         </div>
-      </section>
 
-      <div className="help-grid">
-        <section className="card help-panel">
-          <div className="help-panel-head"><Icon name="help" /><div><h2>Pertanyaan umum</h2><p>Jawaban untuk kendala yang sering muncul.</p></div></div>
-          <div className="help-faq">{FAQ.map(([question, answer], index) => <details key={question} open={index === 0}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
-        </section>
+        <div className="column">
+          <Section title="Tombol perangkat">
+            <ul className="list">
+              {BUTTONS.map(([action, effect]) => (
+                <li key={action}>
+                  <span className="tag">{action}</span>
+                  <span className="item-text">{effect}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
 
-        <aside className="help-stack">
-          <section className="card help-panel">
-            <div className="help-panel-head"><Icon name="activity" /><div><h2>Pemeriksaan cepat</h2><p>Konfigurasi yang sedang dipakai.</p></div></div>
-            <dl className="help-diagnostics"><div><dt>Sumber data</dt><dd className={DATA_SOURCE === "live" ? "good-text" : "warn-text"}>{DATA_SOURCE === "live" ? "Server live" : "Data contoh"}</dd></div><div><dt>Alamat backend</dt><dd className="mono">{API_URL || "Satu domain"}</dd></div><div><dt>Halaman kantor</dt><dd><button onClick={() => go("office")}>Buka sekarang</button></dd></div></dl>
-          </section>
-          <section className="card help-panel">
-            <div className="help-panel-head"><Icon name="sparkle" /><div><h2>Kontrol kantor</h2><p>Navigasi peta dengan cepat.</p></div></div>
-            <ul className="help-shortcuts"><li><kbd>Scroll</kbd><span>Perbesar atau perkecil kantor</span></li><li><kbd>Drag</kbd><span>Geser peta saat diperbesar</span></li><li><kbd>Klik bot</kbd><span>Buka profil dan riwayat tugas</span></li><li><kbd>Klik ruang</kbd><span>Buka fungsi dan statistik ruangan</span></li></ul>
-          </section>
-        </aside>
+          <Section title="Kartu di layar EduPad">
+            <ul className="list">
+              {CARDS.map(([name, when]) => (
+                <li key={name}>
+                  <div className="item-main">
+                    <strong>{name}</strong>
+                    <span>{when}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section title="AI Office">
+            <ul className="list">
+              <li>
+                <span className="tag">Scroll</span>
+                <span className="item-text">Perbesar atau perkecil kantor</span>
+              </li>
+              <li>
+                <span className="tag">Geser</span>
+                <span className="item-text">Pindahkan peta saat diperbesar</span>
+              </li>
+              <li>
+                <span className="tag">Klik owl</span>
+                <span className="item-text">Lihat apa yang sedang dikerjakannya</span>
+              </li>
+            </ul>
+          </Section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { LearningData } from "../api/types";
 import { ChartTooltip } from "../components/ChartTooltip";
-import { Icon } from "../components/Icon";
 import { Panel, Stat } from "../components/Panel";
 import { axisProps, C, cursorProps } from "../lib/chart";
 import { dayLabel, dec, num } from "../lib/format";
@@ -44,22 +43,17 @@ export function LearningActivityPanel() {
 
 export function MemoryPanel() {
   return (
-    <Panel panel="learning" id="learning-memory" title="Yang diingat EduPad" subtitle="Fakta dari memory agent, dipakai lintas sesi">
+    <Panel panel="learning" id="learning-memory" title="Yang diingat EduPad" subtitle="Dipakai agar jawaban menyesuaikan dirimu">
       {(d) =>
         d.facts.length ? (
-          <>
-            <ul className="facts">
-              {d.facts.map((f) => (
-                <li key={f}>
-                  <Icon name="sparkle" size={13} />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="footnote">
-              Dihapus dengan <code>python -m edupad memory --clear</code>.
-            </p>
-          </>
+          <ul className="facts">
+            {d.facts.map((f) => (
+              <li key={f}>
+                <i className="fact-dot" aria-hidden />
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
         ) : (
           <p className="empty">Belum ada yang diingat.</p>
         )

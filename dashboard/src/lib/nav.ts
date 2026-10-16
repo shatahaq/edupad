@@ -1,5 +1,6 @@
 import type { PanelKey } from "../api/types";
 import type { IconName } from "../components/Icon";
+import type { OwlName } from "./owls";
 import type { Page } from "./router";
 
 export type NavId = Page;
@@ -8,38 +9,47 @@ export interface NavItem {
   id: NavId;
   label: string;
   icon: IconName;
+  /** Owl pemandu halaman (warna penanda di menu). Tanpa owl = halaman sistem. */
+  owl?: OwlName;
   /** false = belum ada halaman tujuan. */
   target?: false;
 }
 
 export const NAV: { group: string; items: NavItem[] }[] = [
   {
-    group: "Kantor AI",
-    items: [{ id: "office", label: "AI Office", icon: "bot" }],
+    group: "Hari ini",
+    items: [
+      { id: "beranda", label: "Beranda", icon: "home", owl: "nova" },
+      { id: "office", label: "AI Office", icon: "bot", owl: "nova" },
+    ],
+  },
+  {
+    group: "Kuliah",
+    items: [
+      { id: "tugas", label: "Tugas", icon: "clipboard", owl: "tempo" },
+      { id: "presensi", label: "Presensi", icon: "calendarCheck", owl: "tempo" },
+      { id: "jadwal", label: "Jadwal", icon: "calendar", owl: "tempo" },
+    ],
   },
   {
     group: "Belajar",
     items: [
-      { id: "beranda", label: "Beranda", icon: "home" },
-      { id: "presensi", label: "Presensi", icon: "calendarCheck" },
-      { id: "tugas", label: "Tugas", icon: "clipboard" },
-      { id: "jadwal", label: "Jadwal", icon: "calendar" },
-      { id: "keuangan", label: "Keuangan", icon: "wallet" },
-      { id: "percakapan", label: "Riwayat percakapan", icon: "message" },
-      { id: "belajar", label: "Riwayat belajar", icon: "book" },
-      { id: "tutor", label: "Tutor Belajar", icon: "sparkle" },
-      { id: "equity", label: "Equity Radar", icon: "activity" },
+      { id: "tutor", label: "Tutor Belajar", icon: "sparkle", owl: "sora" },
+      { id: "equity", label: "Equity Radar", icon: "activity", owl: "nexus" },
+      { id: "belajar", label: "Riwayat belajar", icon: "book", owl: "metric" },
+      { id: "percakapan", label: "Percakapan", icon: "message", owl: "pixel" },
     ],
   },
   {
-    group: "Sistem",
-    items: [{ id: "monitoring", label: "Monitoring", icon: "gauge" }],
+    group: "Pribadi",
+    items: [{ id: "keuangan", label: "Keuangan", icon: "wallet", owl: "koin" }],
   },
   {
-    group: "Pengaturan",
+    group: "Lainnya",
     items: [
+      { id: "monitoring", label: "Monitoring", icon: "gauge" },
       { id: "pengaturan", label: "Pengaturan", icon: "sliders" },
-      { id: "bantuan", label: "Bantuan", icon: "help" },
+      { id: "bantuan", label: "Cara pakai", icon: "help" },
     ],
   },
 ];

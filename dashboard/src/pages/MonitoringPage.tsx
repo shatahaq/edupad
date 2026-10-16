@@ -1,10 +1,7 @@
 import { useEffect } from "react";
-import { Icon } from "../components/Icon";
+import { usePanel } from "../api/usePanel";
 import { MonitoringKpis } from "../components/KpiRow";
-import { PageHeader } from "../components/PageHeader";
-import { fullDate } from "../lib/format";
-import { MONITOR_SECTIONS } from "../lib/nav";
-import { go } from "../lib/router";
+import { PageIntro } from "../components/PageIntro";
 import { ActivityPanel } from "../panels/ActivityPanel";
 import { AgentPanel } from "../panels/AgentPanel";
 import { ApiPanel } from "../panels/ApiPanel";
@@ -14,13 +11,6 @@ import { ErrorsPanel } from "../panels/ErrorsPanel";
 import { KnowledgePanel } from "../panels/KnowledgePanel";
 import { ResourcesPanel } from "../panels/ResourcesPanel";
 import { ServicesPanel } from "../panels/ServicesPanel";
-
-/** Endpoint saat ini hanya melayani 24 jam terakhir; rentang lain menunggu dukungan server. */
-const RANGES = [
-  { id: "24h", label: "24 jam", ready: true },
-  { id: "7d", label: "7 hari", ready: false },
-  { id: "30d", label: "30 hari", ready: false },
-];
 
 /** Kesehatan sistem: perangkat, API, agent, biaya, layanan luar. `section` = kartu tujuan. */
 export function MonitoringPage({ section }: { section: string | null }) {
@@ -40,35 +30,31 @@ export function MonitoringPage({ section }: { section: string | null }) {
     return () => cancelAnimationFrame(id);
   }, [section]);
 
+  const devices = usePanel("devices").data?.devices;
+  const online = devices?.filter((d) => d.online).length ?? 0;
+  const api = usePanel("api").data;
+  const failed = api ? api.by_status.server_error + api.by_status.client_error : 0;
+
   return (
     <>
-      <PageHeader
-        title="Monitoring sistem"
-        subtitle="perangkat, server & AI agent"
-        actions={
+      <PageIntro owl="nova" title="Monitoring" mood={devices?.length && online && !failed ? "happy" : "idle"}>
+        {!devices ? (
+          "Memeriksa perangkat dan server…"
+        ) : !devices.length ? (
+          "Belum ada perangkat EduPad yang terhubung ke server."
+        ) : (
           <>
-            <div className="segmented" role="group" aria-label="Rentang waktu">
-              {RANGES.map((r) => (
-                <button key={r.id} aria-pressed={r.id === "24h"} disabled={!r.ready} title={r.ready ? undefined : "Belum didukung endpoint server"}>
-                  {r.label}
-                </button>
-              ))}
-            </div>
-            <button className="btn" type="button" title="Pemilih tanggal belum tersedia">
-              <Icon name="calendar" size={14} />
-              <span className="mono">{fullDate(new Date())}</span>
-            </button>
+            {online ? <b>{online} perangkat online</b> : <b>Perangkat offline</b>}
+            {api && (
+              <>
+                {" "}· {api.requests} pertanyaan dalam 24 jam
+                {failed ? <>, <b>{failed} gagal</b></> : ", semuanya berhasil"}
+              </>
+            )}
+            .
           </>
-        }
-      />
-
-      <nav className="chip-nav" aria-label="Bagian monitoring">
-        {MONITOR_SECTIONS.map((s) => (
-          <button key={s.id} className={section === s.id ? "active" : undefined} onClick={() => go("monitoring", s.id)}>
-            {s.label}
-          </button>
-        ))}
-      </nav>
+        )}
+      </PageIntro>
 
       <MonitoringKpis />
 
