@@ -15,7 +15,7 @@ from datetime import datetime
 
 import requests
 
-from edupad.agent import finance, tutor
+from edupad.agent import coach, finance, tutor
 from edupad.agent.formatting import clean_speech, fallback_answer, fit_screen
 from edupad.agent.memory import ConversationMemory, turn_messages
 from edupad.agent.tools import (
@@ -334,6 +334,7 @@ def ask(
     schemas = [
         *tool_schemas(),
         *tutor.SCHEMAS,
+        *coach.SCHEMAS,
         *finance.SCHEMAS,
         answer_schema(with_detail),
         *([REMEMBER_SCHEMA] if memory else []),

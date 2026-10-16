@@ -72,6 +72,11 @@ def _parser() -> argparse.ArgumentParser:
     stt = sub.add_parser("transcribe", help="ubah rekaman pertanyaan jadi teks (STT)")
     stt.add_argument("audio", help="file audio: wav, mp3, m4a, ogg, flac, webm")
 
+    coach = sub.add_parser(
+        "tutor-coach", help="SORA: analisis topik yang sulit & siapkan bantuan belajar"
+    )
+    coach.add_argument("--analyze-only", action="store_true", help="hanya tampilkan analisis")
+
     intro = sub.add_parser(
         "intro", help="buat/simpan suara perkenalan perangkat (data/voice/intro/intro.wav)"
     )
@@ -350,6 +355,10 @@ def main(argv: list[str] | None = None) -> int:
         return _transcribe(args.audio)
     if args.command == "intro":
         return _intro(args.force)
+    if args.command == "tutor-coach":
+        from edupad.agent import coach
+
+        return coach.run(prepare=not args.analyze_only)
     if args.command == "serve":
         from edupad import server
 

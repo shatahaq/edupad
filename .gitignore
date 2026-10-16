@@ -35,4 +35,7 @@ data/voice/intro/
 frontend/node_modules/
 frontend/dist/
 data/office/
+# Bank soal Tutor & status perangkat (dibuat server saat berjalan)
+data/tutor/
+data/device/
 .test-tmp/

@@ -312,8 +312,38 @@ export interface MasteryOverview {
   miskonsepsi?: { teks: string; jumlah: number }[];
 }
 
+export interface LearningCurve {
+  topic_key: string;
+  matkul: string;
+  pertemuan: number | null;
+  judul: string;
+  /** Skor tiap kuis (0-100), urut waktu; bantuan = kuis terarah dari SORA. */
+  titik: { waktu: string; skor: number; bantuan: boolean }[];
+}
+
+export type HelpStatus = "siap" | "berjalan" | "kuis" | "selesai" | "ditolak" | "kedaluwarsa";
+
+/** Bantuan yang disiapkan SORA sendiri untuk topik yang sulit (tutor mandiri). */
+export interface TutorHelp {
+  id: string;
+  judul: string;
+  matkul: string;
+  pertemuan: number | null;
+  status: HelpStatus;
+  alasan: string[];
+  masalah: string;
+  pelajaran: string[];
+  soal: number;
+  sebelum: number | null;
+  sesudah: number | null;
+  dibuat: string | null;
+  selesai: string | null;
+}
+
 export interface TutorData extends MasteryOverview {
   checks: QuizCheck[];
+  history?: LearningCurve[];
+  help?: TutorHelp[];
 }
 
 export interface AccessCourse {

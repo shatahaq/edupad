@@ -78,16 +78,23 @@ Fitur yang tersambung dengan perangkat (satu sumber data untuk suara & dashboard
 | Fitur | Lewat suara di perangkat | Di dashboard |
 |---|---|---|
 | Keuangan | "tadi beli makan dua puluh lima ribu", "sisa anggaran makanku?", "atur anggaran transportasi tiga ratus ribu", "hapus yang tadi" | `#/keuangan`: catat manual, anggaran, laporan; transaksi suara diberi label |
-| Tutor Belajar (SDG 4.1/4.4) | "uji aku Basis Data pertemuan dua", "aku belum paham rekursi", "hari ini belajar apa?" | `#/tutor`: penguasaan per topik, riwayat kuis, salah paham |
+| Tutor Belajar (SDG 4.1/4.4) | "uji aku Basis Data pertemuan dua", "aku belum paham rekursi", "hari ini belajar apa?", "mulai" (bantuan SORA) | `#/tutor`: bantuan SORA (sebelum/sesudah), kurva belajar, penguasaan per topik, salah paham |
 | Equity Radar (SDG 4.5/4.a/10) | peringatan dini & pengingat mengulang tampil sebagai kartu di layar | `#/equity`: kesenjangan akses materi, kehadiran vs syarat ujian, langkah berikutnya |
 | Monitoring | status perangkat dikirim lewat header (RSSI, uptime, firmware) | `#/monitoring`: perangkat, latensi `/v1/ask`, error |
 
 - Office API (`src/edupad/office/`, `python -m edupad office-api`, port 8001) melayani
   `/dashboard/`, `/api/office/*`, dan `/v1/dashboard/*`; semuanya memerlukan sesi login Google
   pemilik dari web EduPad (`EDUPAD_OFFICE_AUTH=off` hanya untuk pengembangan lokal).
-- Keuangan & Tutor disimpan di Supabase: jalankan
-  `supabase/migrations/20261017_finance_tutor.sql` sekali. Logika ada di
-  `src/edupad/agent/finance.py`, `tutor.py`, dan `radar.py` (tool agent + data dashboard).
+- Keuangan & Tutor disimpan di Supabase: jalankan `supabase/migrations/20261017_finance_tutor.sql`
+  dan `20261018_tutor_help.sql` sekali. Logika ada di `src/edupad/agent/finance.py`, `tutor.py`,
+  `coach.py`, dan `radar.py` (tool agent + data dashboard).
+- **Tutor mandiri (SORA)**: `python -m edupad tutor-coach` (cron 15:30 WIB) mencari topik dengan
+  minimal dua tanda kesulitan (jawaban kuis salah, penguasaan rendah, pengulangan terlewat,
+  pertanyaan berulang, ucapan "belum paham"; kehadiran tidak dipakai), mencatatnya sebagai
+  ingatan agent, lalu menyiapkan pelajaran mini 3 bagian + kuis terarah. Bantuan ditawarkan lewat
+  kartu sore di perangkat dan saat mahasiswa bicara ke EduPad; skor sebelum/sesudah tampil di
+  dashboard. Soal kuis per pertemuan disimpan di `data/tutor/bank.json` (kuis berikutnya
+  langsung mulai; tingkat soal mengikuti penguasaan).
 - Status owl dikirim dari antrean latar belakang, sehingga jawaban perangkat tidak menunggu.
   Penyimpanan event/tugas Office default lokal (`data/office/`); tabel Office di
   `supabase/migrations/20261013_edu_pad_office.sql` opsional (`EDUPAD_OFFICE_STORAGE=supabase`).

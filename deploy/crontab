@@ -9,3 +9,5 @@
 # Presensi: tiap 2 menit selama jam kuliah, 07:00-19:59 WIB (ada presensi yang dibuka hanya
 # ~8 menit); isi otomatis yang bisa "langsung", kegagalan di logs/attendance_fill_failures.jsonl
 */2 0-12 * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad attendance --fill >/dev/null 2>&1
+# SORA (Tutor mandiri): analisis topik yang sulit & siapkan bantuan, 15:30 WIB (kartu muncul 16-21)
+30 8 * * *   cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad tutor-coach >/dev/null 2>&1

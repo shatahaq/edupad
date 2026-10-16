@@ -30,6 +30,37 @@ export const tutor: TutorData = {
     { teks: "WAL dikira mempercepat baca", jumlah: 2 },
     { teks: "Bobot SAW tidak dinormalisasi", jumlah: 1 },
   ],
+  history: [
+    {
+      topic_key: "1:2",
+      matkul: "Manajemen Sistem Basis Data",
+      pertemuan: 2,
+      judul: "Database Engine & Indeks",
+      titik: [
+        { waktu: at(9), skor: 33, bantuan: false },
+        { waktu: at(6), skor: 50, bantuan: false },
+        { waktu: at(4), skor: 67, bantuan: true },
+        { waktu: at(1), skor: 83, bantuan: false },
+      ],
+    },
+  ],
+  help: [
+    {
+      id: "h1",
+      judul: "Write-Ahead Logging",
+      matkul: "Manajemen Sistem Basis Data",
+      pertemuan: 2,
+      status: "selesai",
+      alasan: ["2 jawaban kuis belum tepat", "penguasaan 40%"],
+      masalah: "Masih mengira WAL mempercepat pembacaan data",
+      pelajaran: ["Bayangkan WAL seperti buku catatan kasir...", "Saat listrik padam...", "Jadi WAL menjaga data tetap aman..."],
+      soal: 3,
+      sebelum: 40,
+      sesudah: 72,
+      dibuat: at(5),
+      selesai: at(4),
+    },
+  ],
   checks: [
     { matkul: "Manajemen Sistem Basis Data", pertemuan: 2, soal: "Apa fungsi buffer pool?", jawaban: "Cache halaman data di memori supaya jarang baca disk", penilaian: "benar", umpan_balik: "Tepat, buffer pool mengurangi I/O disk.", waktu: at(1) },
     { matkul: "Manajemen Sistem Basis Data", pertemuan: 2, soal: "Mengapa WAL penting untuk durability?", jawaban: "Supaya query lebih cepat", penilaian: "salah", umpan_balik: "WAL mencatat perubahan sebelum ditulis agar bisa dipulihkan.", waktu: at(1) },

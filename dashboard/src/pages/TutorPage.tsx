@@ -1,13 +1,18 @@
-import type { MasteryTopic, QuizCheck } from "../api/types";
+import { useState } from "react";
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { HelpStatus, LearningCurve, MasteryTopic, QuizCheck, TutorHelp } from "../api/types";
 import { usePanel } from "../api/usePanel";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
+import { axisProps, C } from "../lib/chart";
 import { ago, dayLabel, num } from "../lib/format";
 
 const VOICE_EXAMPLES = [
   "Uji aku Basis Data pertemuan dua",
   "Kuis dong tentang normalisasi, tiga soal",
   "Aku belum paham rekursi",
+  "Mulai (saat SORA menawarkan bantuan)",
   "Hari ini aku sebaiknya belajar apa?",
   "Berhenti kuisnya",
 ];
@@ -17,6 +22,17 @@ const VERDICT: Record<QuizCheck["penilaian"], { label: string; tone: string }> =
   sebagian: { label: "Sebagian", tone: "warn" },
   salah: { label: "Belum tepat", tone: "bad" },
 };
+
+const HELP_STATUS: Record<HelpStatus, { label: string; tone: string }> = {
+  siap: { label: "Siap ditawarkan", tone: "warn" },
+  berjalan: { label: "Sedang belajar", tone: "" },
+  kuis: { label: "Kuis terarah", tone: "" },
+  selesai: { label: "Selesai", tone: "good" },
+  ditolak: { label: "Ditunda", tone: "" },
+  kedaluwarsa: { label: "Kedaluwarsa", tone: "" },
+};
+
+const GOOD = "#15803d";
 
 function level(value: number) {
   if (value >= 80) return { label: "Dikuasai", tone: "good" };
@@ -34,6 +50,11 @@ export function TutorPage() {
   const topics = data?.topics ?? [];
   const checks = data?.checks ?? [];
   const due = topics.filter((topic) => topic.jatuh_tempo);
+  const helps = data?.help ?? [];
+  const measured = helps.filter((h) => h.sebelum != null && h.sesudah != null);
+  const effect = measured.length
+    ? Math.round(measured.reduce((total, h) => total + (h.sesudah! - h.sebelum!), 0) / measured.length)
+    : null;
 
   return (
     <div className="equity-page tutor-page">
@@ -65,9 +86,16 @@ export function TutorPage() {
       <section className="equity-kpis" aria-busy={tutor.loading}>
         <Metric label="Rata-rata penguasaan" value={data?.rata_rata != null ? `${data.rata_rata}%` : "—"} note={topics.length ? `${topics.length} topik sudah diuji` : "mulai kuis pertama lewat suara"} />
         <Metric label="Topik dikuasai" value={data ? `${data.dikuasai ?? 0}/${topics.length}` : "—"} note="penguasaan ≥ 80%" />
-        <Metric label="Perlu diulang" value={data ? num(due.length) : "—"} note={due.length ? "sudah jatuh tempo hari ini" : "belum ada yang jatuh tempo"} />
-        <Metric label="Soal 7 hari" value={data ? num(data.soal_7_hari ?? 0) : "—"} note={data?.skor_7_hari != null ? `skor rata-rata ${data.skor_7_hari}%` : "belum ada jawaban minggu ini"} />
+        <Metric label="Soal 7 hari" value={data ? num(data.soal_7_hari ?? 0) : "—"} note={data?.skor_7_hari != null ? `skor rata-rata ${data.skor_7_hari}%` : due.length ? `${due.length} topik jatuh tempo diulang` : "belum ada jawaban minggu ini"} />
+        <Metric
+          label="Efek bantuan SORA"
+          value={effect != null ? `${effect >= 0 ? "+" : ""}${effect} poin` : "—"}
+          note={measured.length ? `rata-rata kenaikan penguasaan, ${measured.length} bantuan` : "terukur setelah bantuan pertama selesai"}
+        />
       </section>
+
+      <HelpSection helps={helps} />
+      <CurveSection curves={data?.history ?? []} />
 
       <div className="equity-grid">
         <section className="card equity-card">
@@ -192,6 +220,143 @@ export function TutorPage() {
         )}
       </section>
     </div>
+  );
+}
+
+function HelpSection({ helps }: { helps: TutorHelp[] }) {
+  return (
+    <section className="card equity-card">
+      <header>
+        <div>
+          <h2>Bantuan dari SORA</h2>
+          <p>Disiapkan sendiri oleh AI saat muncul minimal dua tanda kesulitan pada satu topik</p>
+        </div>
+      </header>
+      {helps.length ? (
+        <ul className="help-list">
+          {helps.map((h) => {
+            const status = HELP_STATUS[h.status] ?? { label: h.status, tone: "" };
+            return (
+              <li key={h.id}>
+                <div className="mastery-head">
+                  <span>
+                    <strong>{h.judul}</strong>
+                    <small>
+                      {h.matkul}
+                      {h.pertemuan != null ? ` · pertemuan ${h.pertemuan}` : ""} · {h.dibuat ? ago(h.dibuat) : "—"}
+                    </small>
+                  </span>
+                  <span className={`pill ${status.tone}`}>{status.label}</span>
+                </div>
+                {h.masalah && <p className="help-problem">{h.masalah}</p>}
+                <div className="voice-examples help-reasons">
+                  {h.alasan.map((reason) => (
+                    <span key={reason} className="pill chip">
+                      {reason}
+                    </span>
+                  ))}
+                </div>
+                {h.sebelum != null && (
+                  <p className="help-effect">
+                    Penguasaan {h.sebelum}%
+                    {h.sesudah != null ? (
+                      <>
+                        {" → "}
+                        <b className={h.sesudah >= h.sebelum ? "good-text" : "warn-text"}>{h.sesudah}%</b>
+                        {` (${h.sesudah >= h.sebelum ? "+" : ""}${h.sesudah - h.sebelum} poin)`}
+                      </>
+                    ) : (
+                      " sebelum bantuan"
+                    )}
+                  </p>
+                )}
+                {h.status === "siap" && <small className="warn-text">Tahan tombol di EduPad lalu ucapkan “mulai”.</small>}
+                {h.pelajaran.length > 0 && (
+                  <details>
+                    <summary>
+                      Isi pelajaran mini ({h.pelajaran.length} bagian) + {h.soal} soal terarah
+                    </summary>
+                    <ol>
+                      {h.pelajaran.map((text, index) => (
+                        <li key={index}>{text}</li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="empty">
+          Belum ada. Setiap sore SORA menganalisis jawaban kuis, penguasaan, pertanyaan berulang, dan ucapan “belum paham”; bila
+          ada topik yang sulit, bantuan muncul di sini dan di layar EduPad.
+        </p>
+      )}
+    </section>
+  );
+}
+
+type CurvePoint = LearningCurve["titik"][number] & { label: string };
+
+function CurveDot(props: { cx?: number; cy?: number; payload?: CurvePoint; index?: number }) {
+  const { cx, cy, payload, index } = props;
+  if (cx == null || cy == null) return null;
+  return payload?.bantuan ? (
+    <circle key={index} cx={cx} cy={cy} r={6} fill={GOOD} stroke="#fff" strokeWidth={2} />
+  ) : (
+    <circle key={index} cx={cx} cy={cy} r={4} fill={C.accent} stroke="#fff" strokeWidth={2} />
+  );
+}
+
+function CurveSection({ curves }: { curves: LearningCurve[] }) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const curve = curves.find((c) => c.topic_key === selected) ?? curves[0];
+  const points: CurvePoint[] = (curve?.titik ?? []).map((p, i) => ({ ...p, label: `Kuis ${i + 1}` }));
+  return (
+    <section className="card equity-card">
+      <header>
+        <div>
+          <h2>Kurva belajar</h2>
+          <p>Skor tiap kuis lisan per topik; titik hijau = kuis setelah bantuan SORA</p>
+        </div>
+        {curves.length > 1 && (
+          <select className="curve-select" value={curve?.topic_key} onChange={(e) => setSelected(e.target.value)} aria-label="Pilih topik">
+            {curves.map((c) => (
+              <option key={c.topic_key} value={c.topic_key}>
+                {c.judul || c.matkul} {c.pertemuan != null ? `(P${c.pertemuan})` : ""}
+              </option>
+            ))}
+          </select>
+        )}
+      </header>
+      {points.length ? (
+        <div className="chart" style={{ height: 220 }}>
+          <ResponsiveContainer>
+            <LineChart data={points} margin={{ top: 10, right: 16, left: -20, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke={C.grid} />
+              <XAxis dataKey="label" {...axisProps} />
+              <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} {...axisProps} />
+              <ReferenceLine y={80} stroke={GOOD} strokeDasharray="4 4" label={{ value: "dikuasai", position: "insideTopRight", fill: GOOD, fontSize: 11 }} />
+              <Tooltip
+                content={
+                  <ChartTooltip<CurvePoint>
+                    title={(p) => `${p.label} · ${dayLabel(p.waktu)}`}
+                    rows={(p) => [
+                      { label: "Skor", value: `${p.skor}%`, color: p.bantuan ? GOOD : C.accent },
+                      { label: "Jenis", value: p.bantuan ? "kuis terarah SORA" : "kuis lisan" },
+                    ]}
+                  />
+                }
+              />
+              <Line type="monotone" dataKey="skor" stroke={C.accent} strokeWidth={2} dot={<CurveDot />} activeDot={{ r: 6 }} isAnimationActive={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <p className="empty">Kurva muncul setelah topik yang sama diuji lebih dari sekali.</p>
+      )}
+    </section>
   );
 }
 

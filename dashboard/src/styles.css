@@ -4845,7 +4845,7 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 .finance-voice.warn > svg { color: var(--warn); }
 .voice-chip { height: 18px; margin-left: 6px; padding: 0 6px; color: var(--accent); font-size: 0.625rem; vertical-align: 1px; }
 
-.equity-privacy .voice-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.equity-privacy .voice-examples, .help-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .voice-examples .pill { height: auto; padding: 3px 8px; font-size: 0.6875rem; white-space: normal; }
 
 .tutor-side { display: grid; gap: var(--gap); min-width: 0; }
@@ -4882,3 +4882,14 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
   .finance-voice { flex-wrap: wrap; }
   .quiz-history li { flex-direction: column; gap: 6px; }
 }
+
+.help-list { display: grid; gap: 14px; padding: 0; list-style: none; }
+.help-list > li { display: grid; gap: 6px; padding-bottom: 14px; border-bottom: 1px solid var(--border-soft); }
+.help-list > li:last-child { padding-bottom: 0; border-bottom: 0; }
+.help-problem { color: var(--text-2); font-size: 0.75rem; line-height: 1.5; }
+.help-reasons { margin-top: 0; }
+.help-effect { font-size: 0.75rem; }
+.help-list details { font-size: 0.7188rem; color: var(--text-2); }
+.help-list summary { cursor: pointer; color: var(--accent); }
+.help-list details ol { display: grid; gap: 6px; margin-top: 6px; padding-left: 18px; line-height: 1.55; }
+.curve-select { height: 30px; padding: 0 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); font: inherit; font-size: 0.75rem; }

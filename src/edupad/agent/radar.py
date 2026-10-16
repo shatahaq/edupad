@@ -424,6 +424,30 @@ def study_plan(now: datetime | None = None) -> dict:
 
 
 # --------------------------- pemberitahuan perangkat -----------------------
+def _help_card(now: datetime, to_display_text) -> dict | None:
+    """Kartu sore untuk bantuan yang disiapkan SORA (memakai tampilan kartu "review")."""
+    from edupad.agent import coach
+    from edupad.agent.tutor import TutorStore, TutorUnavailable
+    from edupad.agent.updates import short_name
+
+    try:
+        h = coach.current_help(TutorStore())
+    except TutorUnavailable:
+        return None
+    if not h or h["status"] != "siap":
+        return None
+    before = h.get("mastery_before")
+    return {
+        "id": f"help:{h['id']}:{now.date().isoformat()}",
+        "kind": "review",
+        "course": to_display_text(f"{short_name(h['course'], h.get('course_id'))} P{h['meeting']}"),
+        "detail": to_display_text(f"SORA siapkan bantuan: {h['title']}"),
+        "when": f"Penguasaan {round(before * 100)}%" if before is not None else "Pelajaran + kuis",
+        "from_ts": 0,
+        "to_ts": 0,
+    }
+
+
 _alerts_cache: tuple[float, str, list[dict]] | None = None
 _alerts_lock = threading.Lock()
 ALERTS_CACHE_SECONDS = 300  # perangkat bertanya tiap 2 menit; Supabase cukup dibaca tiap 5 menit
@@ -478,6 +502,10 @@ def _device_alerts(now: datetime) -> list[dict]:
             }
         )
     if now.hour in REVIEW_HOURS:
+        help_card = _help_card(now, to_display_text)
+        if help_card:  # bantuan SORA menggantikan pengingat biasa hari itu
+            alerts.append(help_card)
+            return alerts
         mastery = mastery_overview(now)
         due = [t for t in mastery.get("topics", []) if t["jatuh_tempo"]]
         if due:

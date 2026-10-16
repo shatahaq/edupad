@@ -132,8 +132,9 @@ Dashboard (`dashboard/`, buatan tim) disajikan Office API di `https://shata.id/d
 Setelah login Google di halaman depan, pengguna langsung dibawa ke sana. Hanya email di
 `EDUPAD_OWNER_EMAILS` yang bisa membuka datanya.
 
-Tabel Supabase keuangan & tutor: `supabase/migrations/20261017_finance_tutor.sql`
-(sekali, lewat SQL Editor Supabase).
+Tabel Supabase keuangan & tutor: `supabase/migrations/20261017_finance_tutor.sql` dan
+`20261018_tutor_help.sql` (sekali, lewat SQL Editor Supabase). `crontab deploy/crontab` memuat
+`python -m edupad tutor-coach` (SORA menyiapkan bantuan tiap sore).
 
 ```bash
 # laptop: build (dashboard memakai kode game di frontend/, jadi keduanya di-install)

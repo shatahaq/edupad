@@ -750,10 +750,82 @@ def devices() -> dict:
     return {"devices": rows, "source": "data/device/status.json" if rows else "unavailable"}
 
 
-def tutor_panel() -> dict:
-    from edupad.agent.radar import mastery_overview
+HISTORY_DAYS = 120
 
-    return {**mastery_overview(), "source": "supabase"}
+
+def tutor_panel() -> dict:
+    """Penguasaan, kurva belajar per topik (skor tiap kuis), dan bantuan yang disiapkan SORA."""
+    from edupad.agent import coach
+    from edupad.agent.radar import mastery_overview
+    from edupad.agent.tutor import TutorStore, TutorUnavailable, topic_key
+
+    data = {**mastery_overview(), "history": [], "help": [], "source": "supabase"}
+    if not data.get("available"):
+        return data
+    now = datetime.now(WIB)
+    try:
+        store = TutorStore()
+        quizzes = store._run(
+            store.db.select,
+            "tutor_quizzes",
+            "*",
+            user_id=f"eq.{store.user_id}",
+            order="created_at.asc",
+            limit="500",
+        )
+        scores: dict[str, list[float]] = defaultdict(list)
+        for c in store.checks(since=now - timedelta(days=HISTORY_DAYS)):
+            scores[str(c.get("quiz_id"))].append(float(c["score"]))
+        titles = {t["topic_key"]: t["title"] for t in store.mastery()}
+        history: dict[str, dict] = {}
+        for q in quizzes:
+            got = scores.get(str(q["id"]))
+            if not got:
+                continue
+            key = topic_key(q.get("course_id"), q["course"], q.get("meeting"))
+            item = history.setdefault(
+                key,
+                {
+                    "topic_key": key,
+                    "matkul": q["course"],
+                    "pertemuan": q.get("meeting"),
+                    "judul": titles.get(key) or q.get("title") or "",
+                    "titik": [],
+                },
+            )
+            item["titik"].append(
+                {
+                    "waktu": q.get("created_at"),
+                    "skor": round(sum(got) * 100 / len(got)),
+                    "bantuan": bool(q.get("help_id")),
+                }
+            )
+        data["history"] = sorted(history.values(), key=lambda h: -len(h["titik"]))
+        data["help"] = [
+            {
+                "id": h["id"],
+                "judul": h.get("title") or "",
+                "matkul": h["course"],
+                "pertemuan": h.get("meeting"),
+                "status": h["status"],
+                "alasan": list(h.get("reasons") or []),
+                "masalah": h.get("problem") or "",
+                "pelajaran": [part.get("ucapan") or "" for part in h.get("lesson") or []],
+                "soal": len(h.get("questions") or []),
+                "sebelum": None
+                if h.get("mastery_before") is None
+                else round(float(h["mastery_before"]) * 100),
+                "sesudah": None
+                if h.get("mastery_after") is None
+                else round(float(h["mastery_after"]) * 100),
+                "dibuat": h.get("created_at"),
+                "selesai": h.get("finished_at"),
+            }
+            for h in coach.helps(store, 20)
+        ]
+    except TutorUnavailable as e:
+        data["help_reason"] = str(e)
+    return data
 
 
 def equity() -> dict:

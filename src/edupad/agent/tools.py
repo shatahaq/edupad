@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
-from edupad.agent import finance, tutor
+from edupad.agent import coach, finance, tutor
 from edupad.config import (
     ASSIGNMENTS_DIR,
     CLASSROOM_DIR,
@@ -452,6 +452,7 @@ TOOLS: dict[str, Callable[..., dict]] = {
     "get_classroom_materials": get_classroom_materials,
     **finance.TOOLS,
     **tutor.TOOLS,
+    **coach.TOOLS,
 }
 
 # Tool penutup: memaksa jawaban akhir terstruktur untuk suara, LCD, dan detail.

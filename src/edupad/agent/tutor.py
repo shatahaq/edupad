@@ -7,8 +7,12 @@ Alur kuis di perangkat (satu tekan tombol = satu giliran):
   answer_quiz menyimpan nilai & memberi soal berikutnya -> ... -> penguasaan topik diperbarui
   dan topik dijadwalkan diulang (1/3/7/14/30 hari).
 
+Soal per pertemuan disimpan di bank (data/tutor/bank.json) sehingga kuis berikutnya langsung
+mulai tanpa menunggu AI membuat soal; urutannya menyesuaikan penguasaan (dasar -> lanjut).
+Bantuan mandiri (pelajaran mini + kuis terarah) ada di agent/coach.py.
+
 Data di Supabase: `tutor_quizzes`, `learning_checks`, `topic_mastery`
-(supabase/migrations/20261017_finance_tutor.sql).
+(supabase/migrations/20261017_finance_tutor.sql), `tutor_help` (20261018_tutor_help.sql).
 """
 
 from __future__ import annotations
@@ -19,7 +23,9 @@ import threading
 import time
 from datetime import datetime, timedelta
 
-from edupad.config import WIB, get_settings
+from edupad.config import DATA_DIR, WIB, get_settings
+from edupad.core.files import read_json, write_json
+from edupad.core.lock import wait_for_lock
 from edupad.core.supabase import SupabaseClient, SupabaseError
 
 log = logging.getLogger(__name__)
@@ -36,6 +42,11 @@ SCORES = {"benar": 1.0, "sebagian": 0.5, "salah": 0.0}
 WEAK_BELOW = 0.6
 MASTERED_FROM = 0.8
 INTERVALS = (1, 3, 7, 14, 30)  # hari; naik satu tingkat tiap kuis dengan skor >= 0.8
+BANK_FILE = DATA_DIR / "tutor" / "bank.json"
+BANK_BATCH = 6  # soal yang dibuat sekaligus per pertemuan (2 dasar, 2 menengah, 2 lanjut)
+BANK_MAX = 30
+RECENT_QUESTIONS = timedelta(days=14)  # soal yang baru ditanyakan tidak diulang dulu
+LEVELS = ("dasar", "menengah", "lanjut")
 
 # Aturan tambahan di system prompt agent (statis agar tetap ter-cache).
 TUTOR_RULES = """
@@ -49,6 +60,9 @@ Tutor belajar (SORA):
   mahasiswa minta penjelasan lengkap atau sudah mencoba, beri penjelasan langkah demi langkah.
 - Minta diuji/kuis/latihan soal -> start_quiz (sebut mata kuliah + pertemuan atau topik; tanpa
   itu, start_quiz memilih topik yang jatuh tempo diulang). Bacakan soal persis dari hasil tool.
+- Mahasiswa menyatakan belum paham suatu materi: setelah menjelaskan, tawarkan "Mau SORA
+  siapkan pelajaran singkat lalu kuis tentang ini?". Bila mau -> start_help (mata kuliah +
+  pertemuan atau topik).
 - "Hari ini belajar apa", "progres belajarku", "apa yang perlu diulang" -> study_plan.
 - Keuangan: transaksi yang jelas jenis & nominalnya -> record_transaction langsung, lalu ulangi
   nominal & kategori di jawaban. Nominal ambigu ("dua lima") -> tanya balik, jangan menebak.
@@ -58,12 +72,14 @@ QUIZ_PROMPT = """Kamu tutor EduPad untuk mahasiswa D3 Teknik Informatika. Buat {
 LISAN dari materi di bawah.
 Aturan:
 - Pertanyaan pendek (maks 25 kata), bisa dijawab lisan dalam 1-2 kalimat.
+- level: sepertiga "dasar" (definisi/fungsi), sepertiga "menengah" (mengapa/bedanya),
+  sepertiga "lanjut" (penerapan pada contoh kasus).
 - Tanpa kode, simbol, rumus panjang, atau pilihan ganda.
 - Uji pemahaman konsep (apa, mengapa, bagaimana, bedanya), bukan hafalan angka/tahun.
 - Urut dari mudah ke sulit, hanya dari isi materi ini.
 - kunci: jawaban ideal singkat (maks 40 kata) berisi poin yang wajib ada.
 - konsep: nama konsep yang diuji (maks 5 kata).
-Balas JSON: {{"judul": "topik singkat", "soal": [{{"pertanyaan": "...", "kunci": "...", "konsep": "..."}}]}}
+Balas JSON: {{"judul": "topik singkat", "soal": [{{"pertanyaan": "...", "kunci": "...", "konsep": "...", "level": "dasar"}}]}}
 
 Mata kuliah: {course}, pertemuan {meeting}
 Materi:
@@ -126,7 +142,7 @@ class TutorStore:
         rows = self._run(
             self.db.select,
             QUIZZES,
-            "id,course,course_id,meeting,title,questions,current,status,created_at,updated_at",
+            "*",
             user_id=f"eq.{self.user_id}",
             status="eq.active",
             order="created_at.desc",
@@ -148,6 +164,7 @@ class TutorStore:
         meeting: int | None,
         title: str,
         questions: list[dict],
+        help_id: str | None = None,
     ) -> dict:
         now = _now().isoformat()
         for row in self._run(
@@ -169,6 +186,7 @@ class TutorStore:
                     "status": "active",
                     "created_at": now,
                     "updated_at": now,
+                    **({"help_id": help_id} if help_id else {}),
                 }
             ],
         )[0]
@@ -255,8 +273,15 @@ def _remember_quiz(user_id: str, quiz: dict | None) -> None:
 
 
 def prefetch(user_id: str | None = None) -> dict | None:
-    """Muat ulang kuis aktif dari Supabase (dipanggil paralel dengan rekaman perangkat)."""
+    """Muat ulang kuis aktif & bantuan SORA dari Supabase (paralel dengan rekaman perangkat)."""
+    from edupad.agent import coach
+
     user_id = user_id or get_settings().user_id
+    coach.prefetch(user_id)
+    return _load_quiz(user_id)
+
+
+def _load_quiz(user_id: str) -> dict | None:
     try:
         quiz = TutorStore(user_id).active_quiz()
     except TutorUnavailable as e:
@@ -272,11 +297,18 @@ def cached_quiz(user_id: str | None = None) -> dict | None:
         entry = _cache.get(user_id)
     if entry and time.monotonic() - entry[0] < CACHE_SECONDS:
         return entry[1]
-    return prefetch(user_id)
+    return _load_quiz(user_id)
 
 
 def context_note(user_id: str | None = None) -> str | None:
-    """Pesan sistem untuk ask() selama kuis berjalan: soal yang ditunggu & kunci penilaiannya."""
+    """Pesan sistem untuk ask(): kuis yang berjalan dan bantuan SORA yang siap/berjalan."""
+    from edupad.agent import coach
+
+    notes = [n for n in (_quiz_note(user_id), coach.context_note(user_id)) if n]
+    return "\n\n".join(notes) or None
+
+
+def _quiz_note(user_id: str | None = None) -> str | None:
     quiz = cached_quiz(user_id)
     if not quiz:
         return None
@@ -295,6 +327,10 @@ def context_note(user_id: str | None = None) -> str | None:
         "- Bila pesan mahasiswa adalah jawaban soal ini: nilai benar/sebagian/salah berdasarkan "
         "kunci (maknanya, bukan kata per kata), lalu panggil answer_quiz. Di jawaban akhir: "
         "umpan balik singkat + soal berikutnya dari hasil tool (atau hasil akhir).\n"
+        "- Jawaban berasal dari pengenalan suara dan bisa salah dengar istilah teknis (mis. "
+        '"bi plus tri" = B+ Tree, "es kyu el" = SQL). Nilai maksudnya; jangan menyalahkan '
+        "ejaan atau salah dengar.\n"
+        '- screen_lines baris pertama: "Kamu: <jawaban yang terdengar, singkat>", lalu penilaian.\n'
         '- "Tidak tahu"/"lewati" = salah; jelaskan kuncinya singkat.\n'
         "- Minta berhenti -> stop_quiz. Pertanyaan lain -> jawab seperti biasa dan ingatkan "
         "kuis masih menunggu jawaban."
@@ -367,6 +403,7 @@ def _generate(source: dict, count: int) -> tuple[str, list[dict]]:
             "pertanyaan": " ".join(str(q.get("pertanyaan") or "").split()),
             "kunci": " ".join(str(q.get("kunci") or "").split()),
             "konsep": " ".join(str(q.get("konsep") or "").split()),
+            "level": q.get("level") if q.get("level") in LEVELS else "menengah",
         }
         for q in data.get("soal") or []
         if q.get("pertanyaan") and q.get("kunci")
@@ -374,6 +411,112 @@ def _generate(source: dict, count: int) -> tuple[str, list[dict]]:
     if not questions:
         raise TutorUnavailable("soal kuis gagal dibuat dari materi ini")
     return str(data.get("judul") or source.get("title") or "").strip(), questions
+
+
+# --------------------------------- bank soal ---------------------------------
+def _bank() -> dict:
+    return read_json(BANK_FILE)
+
+
+def bank_entry(key: str) -> dict:
+    return _bank().get(key) or {}
+
+
+def _bank_add(key: str, title: str, questions: list[dict]) -> dict:
+    """Tambahkan soal baru (tanpa duplikat) ke bank pertemuan `key`."""
+    BANK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with wait_for_lock(BANK_FILE.with_suffix(".lock"), timeout=10, poll=0.1):
+        data = _bank()
+        entry = data.get(key) or {"judul": title, "soal": []}
+        known = {q["pertanyaan"] for q in entry["soal"]}
+        entry["soal"] = (entry["soal"] + [q for q in questions if q["pertanyaan"] not in known])[
+            -BANK_MAX:
+        ]
+        entry["judul"] = entry.get("judul") or title
+        entry["diperbarui"] = _now().isoformat()
+        data[key] = entry
+        write_json(BANK_FILE, data)
+    return entry
+
+
+def _level_order(mastery: float | None) -> tuple[str, ...]:
+    """Penguasaan rendah mulai dari soal dasar; tinggi langsung ke penerapan."""
+    if mastery is None or mastery < 0.5:
+        return ("dasar", "menengah", "lanjut")
+    if mastery < MASTERED_FROM:
+        return ("menengah", "dasar", "lanjut")
+    return ("lanjut", "menengah", "dasar")
+
+
+def pick_questions(
+    questions: list[dict], count: int, asked: set[str], mastery: float | None
+) -> list[dict]:
+    """Soal yang belum ditanyakan dalam 14 hari, diurutkan menurut tingkat yang cocok."""
+    order = _level_order(mastery)
+    rank = {level: i for i, level in enumerate(order)}
+    fresh = [q for q in questions if q["pertanyaan"] not in asked]
+    fresh.sort(key=lambda q: rank.get(q.get("level") or "menengah", 1))
+    return fresh[:count]
+
+
+def _key_for(course: str | None, meeting: int | None) -> tuple[str | None, dict | None]:
+    from edupad.agent import tools
+
+    if not course or meeting is None:
+        return None, None
+    target = tools.resolve_course(course)
+    if not target or str(meeting) not in target.get("pertemuan", {}):
+        return None, target
+    return topic_key(target["course_id"], target["matkul"], meeting), target
+
+
+def prepare_questions(
+    store: TutorStore,
+    course: str | None,
+    meeting: int | None,
+    topic: str | None,
+    count: int,
+) -> dict:
+    """Soal kuis: dari bank bila cukup, selain itu dibuat dari materi lalu disimpan ke bank."""
+    key, target = _key_for(course, meeting)
+    mastery_rows = {m["topic_key"]: m for m in store.mastery()}
+    source: dict | None = None
+    if key is None:  # topik bebas atau pertemuan tanpa materi: cari dulu sumbernya
+        source = _quiz_source(course, meeting, topic)
+        if "error" in source:
+            return source
+        if source.get("meeting") is not None and source.get("course_id"):
+            key = topic_key(source["course_id"], source["course"], source["meeting"])
+    info = {
+        "course": target["matkul"] if target else (source or {}).get("course"),
+        "course_id": target["course_id"] if target else (source or {}).get("course_id"),
+        "meeting": meeting if target else (source or {}).get("meeting"),
+    }
+    recent_since = _now() - RECENT_QUESTIONS
+    asked = {c["question"] for c in store.checks(since=recent_since) if c["topic_key"] == key}
+    level = mastery_rows.get(key, {}).get("mastery") if key else None
+    level = float(level) if level is not None else None
+    entry = bank_entry(key) if key else {}
+    chosen = pick_questions(entry.get("soal", []), count, asked, level)
+    from_bank = len(chosen) >= count
+    title = entry.get("judul") or ""
+    if not from_bank:
+        source = source or _quiz_source(info["course"], info["meeting"], topic)
+        if "error" in source:
+            return source
+        title, generated = _generate(source, BANK_BATCH)
+        if key:
+            entry = _bank_add(key, title, generated)
+            chosen = pick_questions(entry["soal"], count, asked, level)
+        if len(chosen) < count:  # semua soal baru saja ditanyakan: pakai yang terbaru dibuat
+            chosen = pick_questions(generated, count, set(), level)
+        title = entry.get("judul") or title
+    return {
+        **info,
+        "title": title or (source or {}).get("title") or "",
+        "questions": chosen,
+        "from_bank": from_bank,
+    }
 
 
 def start_quiz(
@@ -392,20 +535,24 @@ def start_quiz(
                     "pertemuan atau topik"
                 }
             course, meeting = due["course"], due["meeting"]
-        source = _quiz_source(course, meeting, topic)
-        if "error" in source:
-            return source
         count = max(1, min(int(count or DEFAULT_QUESTIONS), MAX_QUESTIONS))
-        title, questions = _generate(source, count)
+        prepared = prepare_questions(store, course, meeting, topic, count)
+        if "error" in prepared:
+            return prepared
+        questions = prepared["questions"]
         quiz = store.create_quiz(
-            source["course"], source.get("course_id"), source.get("meeting"), title, questions
+            prepared["course"],
+            prepared.get("course_id"),
+            prepared.get("meeting"),
+            prepared["title"],
+            questions,
         )
         _remember_quiz(store.user_id, quiz)
         return {
             "kuis_dimulai": True,
-            "matkul": source["course"],
-            "pertemuan": source.get("meeting"),
-            "judul": title,
+            "matkul": prepared["course"],
+            "pertemuan": prepared.get("meeting"),
+            "judul": prepared["title"],
             "jumlah_soal": len(questions),
             "soal_ke": 1,
             "pertanyaan": questions[0]["pertanyaan"],
@@ -425,6 +572,10 @@ def _finish(store: TutorStore, quiz: dict, status: str) -> dict:
     score = sum(float(c["score"]) for c in checks) / len(checks)
     concepts = {q["pertanyaan"]: q.get("konsep") for q in quiz.get("questions") or []}
     mastery = store.update_mastery(quiz, score)
+    if quiz.get("help_id"):
+        from edupad.agent import coach
+
+        coach.on_quiz_finished(store, quiz["help_id"], float(mastery["mastery"]))
     return {
         "selesai": True,
         "dinilai": len(checks),
