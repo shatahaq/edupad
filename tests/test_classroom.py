@@ -469,7 +469,9 @@ def test_usu_only_users_see_no_change(agent_data):
     for path in agent_data.glob("*.json"):
         path.unlink()
     result = tools.list_assignments()
-    assert set(result) == {"diperbarui", "tugas"} and len(result["tugas"]) == 1
+    # `peringatan` ada karena `diperbarui` fixture memang sudah lama; yang penting tidak ada
+    # satu pun kunci Classroom untuk pengguna tanpa akun Google.
+    assert set(result) == {"diperbarui", "tugas", "peringatan"} and len(result["tugas"]) == 1
     assert [s["function"]["name"] for s in tools.tool_schemas()] == [
         s["function"]["name"] for s in tools.SCHEMAS
     ]

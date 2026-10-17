@@ -3,6 +3,11 @@
 # Keepalive tiap 10 menit: Keycloak SATU memutus sesi yang menganggur ~30 menit.
 */10 * * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad keepalive  >/dev/null 2>&1
 0 */2 * * *   cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad pipeline   >/dev/null 2>&1
+# Tugas & status pengumpulan tiap 15 menit: pengingat deadline di bawah 24 jam juga berbunyi tiap
+# 15 menit, jadi datanya harus seumur itu agar tugas yang baru dikumpulkan berhenti diingatkan.
+# Tanpa browser (HTTP + BeautifulSoup). Bertabrakan dengan langkah `assignments` di pipeline
+# dilewati sendiri lewat assignments.lock.
+*/15 * * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad assignments >/dev/null 2>&1
 30 22 * * *   cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad schedule   >/dev/null 2>&1
 # Google Classroom: kelas, tugas, materi & pengumuman akun yang login di web (tiap 2 jam, menit 15)
 15 */2 * * *  cd /home/ubuntu/Tugas_Akhir && .venv/bin/python -m edupad classroom  >/dev/null 2>&1

@@ -3,13 +3,16 @@
 Saat aktif:
 - jawaban AI menyampaikan seluruh isi lewat suara, tidak merujuk ke layar, dan menawarkan
   "lanjut" untuk penjelasan panjang (VOICE_RULES di system prompt, agent/assistant.py);
-- pemberitahuan di perangkat dibacakan (GET /v1/updates memberi `speech` + `audio_url`);
+- semua pemberitahuan di perangkat dibacakan (GET /v1/updates memberi `speech` + `audio_url`);
+  presensi dibuka dan deadline tugas dibacakan walau mode ini mati (ALWAYS_SPOKEN);
 - firmware 1.2 membunyikan penanda (mulai/selesai merekam, sedang berpikir) dan memutar pesan
   status yang disimpan di perangkat (voice/clips.py), sehingga tetap terdengar walau offline.
 Kecepatan bicara berlaku untuk semua suara jawaban, Mode Suara aktif atau tidak.
 
-Pengaturan di data/device/voice_mode.json; diubah lewat suara (tool set_voice_mode) atau dashboard
-(Pengaturan). Pemakaian dicatat di data/device/voice_events.jsonl untuk Equity Radar.
+Pengaturan di data/device/voice_mode.json; diubah lewat suara atau dashboard (Pengaturan).
+Frasa yang umum ("aktifkan mode suara", "bicara lebih cepat") sudah ditangani voice/commands.py
+sebelum LLM dipanggil; tool set_voice_mode tinggal menangani sisanya. Pemakaian dicatat di
+data/device/voice_events.jsonl untuk Equity Radar.
 """
 
 from __future__ import annotations
@@ -30,6 +33,9 @@ EVENTS_FILE = DATA_DIR / "device" / "voice_events.jsonl"
 SPEEDS = {"lambat": 0.9, "normal": 1.05, "cepat": 1.15, "sangat_cepat": 1.2}
 DEFAULT = {"enabled": False, "speed": "normal"}
 EVENTS = frozenset({"answer", "alert"})
+# Dibacakan walau Mode Suara mati: dua pemberitahuan yang menuntut tindakan segera, dan mudah
+# terlewat kalau mahasiswa tidak sedang melihat layar (server.py memberinya `audio_url`).
+ALWAYS_SPOKEN = frozenset({"attendance", "deadline"})
 
 _lock = threading.Lock()
 

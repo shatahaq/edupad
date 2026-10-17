@@ -263,24 +263,42 @@ bool closeOrAsk() {
   return false;
 }
 
+// Pemberitahuan yang menuntut tindakan segera (ALWAYS_SPOKEN di src/edupad/voice/mode.py):
+// selalu berbunyi, dibacakan, dan membangunkan perangkat yang sedang tidur.
+bool urgentAlert(const char *kind) {
+  return !strcmp(kind, "attendance") || !strcmp(kind, "deadline");
+}
+
+// Tunggu `ms` sambil memantau tombol; false bila ditekan (pemanggil menutup atau bertanya).
+bool alertWait(uint32_t ms) {
+  for (uint32_t start = millis(); millis() - start < ms; delay(20)) {
+    if (buttonDown()) return false;
+  }
+  return true;
+}
+
 // Satu pemberitahuan sampai waktunya habis atau tombol ditekan; hasilnya seperti closeOrAsk().
-// Mode Suara: semua jenis berbunyi, lalu isinya dibacakan (audio_url dari server).
+// Jenis selain yang mendesak hanya berbunyi dan dibacakan di Mode Suara. Server yang memutuskan:
+// audio_url ada hanya bila isinya memang perlu dibacakan.
 bool showAlert(JsonObjectConst alert) {
   const char *kind = alert["kind"] | "";
   bool attendance = !strcmp(kind, "attendance");
   display::alert(alert);
-  if (attendance || voice::enabled()) speaker::chime();
+  if (urgentAlert(kind) || voice::enabled()) speaker::chime();
   const char *audio = alert["audio_url"] | "";
-  if (voice::enabled() && *audio && play(audio, false, true)) return closeOrAsk();
+  // Yang mendesak dibacakan ALERT_SPEAK_TIMES kali; server menyimpan PCM-nya, jadi pengulangan
+  // tidak memakai kuota TTS lagi.
+  int times = urgentAlert(kind) ? ALERT_SPEAK_TIMES : 1;
+  for (int spoken = 0; *audio && spoken < times; spoken++) {
+    if (spoken && !alertWait(ALERT_SPEAK_GAP_MS)) return closeOrAsk();
+    if (play(audio, false, true)) return closeOrAsk();
+  }
   uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
                       : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS
                       : !strcmp(kind, "warning")  ? ALERT_WARNING_MS
                       : !strcmp(kind, "review")   ? ALERT_REVIEW_MS
                                                   : ALERT_ATTENDED_MS;
-  for (uint32_t start = millis(); millis() - start < duration; delay(20)) {
-    if (buttonDown()) return closeOrAsk();
-  }
-  return false;
+  return alertWait(duration) ? false : closeOrAsk();
 }
 
 void checkUpdates(bool force = false) {
@@ -297,13 +315,13 @@ void checkUpdates(bool force = false) {
   display::clock(doc["now_ts"] | 0);
   display::schedule(doc["next_class"].as<JsonObjectConst>(), doc["stale"].as<JsonArrayConst>());
 
-  // Saat tidur hanya presensi yang dibuka yang membangunkan; pemberitahuan lain menunggu
-  // sampai bangun (tidak ditandai tampil, jadi muncul pada pengecekan berikutnya).
+  // Saat tidur hanya presensi dibuka dan deadline tugas yang membangunkan; pemberitahuan lain
+  // menunggu sampai bangun (tidak ditandai tampil, jadi muncul pada pengecekan berikutnya).
   bool shown = false, held = false;
   for (JsonObjectConst alert : doc["alerts"].as<JsonArrayConst>()) {
     const char *id = alert["id"] | "";
     if (!*id || alertShown(id)) continue;
-    if (asleep && strcmp(alert["kind"] | "", "attendance") != 0) continue;
+    if (asleep && !urgentAlert(alert["kind"] | "")) continue;
     asleep = false;
     powerSave(false);
     shownAlerts[shownNext++ % 16] = id;

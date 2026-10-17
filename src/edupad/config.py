@@ -28,6 +28,10 @@ MOODLE_SESSION_FILE = STATE_DIR / "session.json"
 SATU_SESSION_FILE = STATE_DIR / "satu_session.json"
 STATE_FILE = STATE_DIR / "session_state.json"
 SCRAPER_LOCK_FILE = STATE_DIR / "scraper.lock"
+# Tugas diambil tiap 15 menit (status pengumpulan dipakai pengingat deadline) sekaligus jadi
+# langkah di pipeline tiap 2 jam, jadi keduanya bisa bertabrakan; kunci sendiri agar yang
+# datang belakangan melewati putarannya, bukan menunggu atau menimpa.
+ASSIGNMENTS_LOCK_FILE = STATE_DIR / "assignments.lock"
 # Token portal SATU dirotasi saat diperbarui; dua proses yang memperbarui bersamaan
 # membuat salah satunya gagal (RefreshAccessTokenError), jadi aksesnya bergiliran.
 SATU_LOCK_FILE = STATE_DIR / "satu_session.lock"

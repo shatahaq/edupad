@@ -13,7 +13,13 @@ import re
 from datetime import datetime, time, timedelta
 
 from edupad.agent.formatting import to_display_text
-from edupad.agent.tools import ATTENDANCE_FILE, _catalog, list_assignments, presence_window
+from edupad.agent.tools import (
+    ATTENDANCE_FILE,
+    _catalog,
+    list_assignments,
+    presence_window,
+    stale_task_sources,
+)
 from edupad.config import WIB
 from edupad.core.academic import krs_classes
 from edupad.core.files import read_json
@@ -22,7 +28,8 @@ from edupad.core.session import MOODLE, SATU, get_state
 DAYS = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"]
 DAY_LABELS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
 DEADLINE_WINDOW = timedelta(hours=48)  # tugas belum dikumpulkan yang deadline-nya sedekat ini
-URGENT_DEADLINE = timedelta(hours=3)  # diingatkan sekali lagi
+DEADLINE_URGENT = timedelta(hours=24)  # di dalam ini diingatkan berulang, bukan sekali sehari
+URGENT_EVERY = timedelta(minutes=15)  # jarak antar pengingat saat sudah mendesak
 ATTENDANCE_FRESH = timedelta(minutes=15)  # cron presensi berjalan tiap 2 menit di jam kuliah
 ATTENDED_SHOWN = timedelta(hours=2)  # "presensi tercatat" tampil selama pertemuan berlangsung
 MAX_ALERTS = 5
@@ -155,9 +162,17 @@ def attendance_alerts(now: datetime) -> list[dict]:
 
 def deadline_alerts(now: datetime) -> list[dict]:
     """Tugas belum dikumpulkan (kelas.usu dan Classroom) yang deadline-nya dalam 48 jam.
-    id berganti tiap hari dan saat tinggal 3 jam, sehingga perangkat mengingatkan lagi."""
+    id berganti tiap hari, lalu tiap 15 menit di 24 jam terakhir, sehingga perangkat
+    mengingatkan lagi.
+
+    Pengulangan 15 menit hanya untuk sumber yang datanya masih segar. Kalau cron tugas berhenti,
+    status "belum dikumpulkan" bisa saja sudah basi, dan mengingatkan 96 kali untuk tugas yang
+    sudah dikumpulkan hanya melatih mahasiswa mengabaikan alat. Pengingat hariannya tetap jalan:
+    deadline terlewat lebih mahal daripada satu pengingat berlebih."""
+    data = list_assignments(only_pending=True)
+    stale = stale_task_sources(data, now)
     alerts = []
-    for t in list_assignments(only_pending=True)["tugas"]:
+    for t in data["tugas"]:
         if not t.get("deadline"):
             continue
         due = datetime.fromisoformat(t["deadline"])
@@ -165,7 +180,10 @@ def deadline_alerts(now: datetime) -> list[dict]:
         if not timedelta(0) < left <= DEADLINE_WINDOW:
             continue
         key = hashlib.sha1(f"{t.get('url')}|{t['judul']}".encode()).hexdigest()[:10]
-        phase = "urgent" if left <= URGENT_DEADLINE else now.date().isoformat()
+        # Fase mendesak dihitung dari sisa waktu (bukan jam dinding), jadi pengingat terakhir
+        # selalu jatuh tepat sebelum deadline.
+        urgent = left <= DEADLINE_URGENT and t.get("sumber") not in stale
+        phase = f"urgent{int(left / URGENT_EVERY)}" if urgent else now.date().isoformat()
         name = short_name(t["matkul"])
         alerts.append(
             {

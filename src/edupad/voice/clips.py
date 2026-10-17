@@ -37,10 +37,11 @@ CLIPS = {
 _lock = threading.Lock()  # dua permintaan bersamaan: TTS tetap hanya dipanggil sekali
 
 
-def _version(name: str, speed: float) -> str:
+def version(text: str, speed: float) -> str:
+    """Penanda versi suara satu kalimat; berganti bila teks, suara, atau kecepatannya berubah."""
     s = get_settings()
     raw = json.dumps(
-        [CLIPS[name], s.tts_provider, s.tts_model, s.elevenlabs_voice_id, tts.VOICE_SETTINGS]
+        [text, s.tts_provider, s.tts_model, s.elevenlabs_voice_id, tts.VOICE_SETTINGS]
         + [tts.SEED, speed]
     )
     return hashlib.sha256(raw.encode()).hexdigest()[:12]
@@ -50,14 +51,18 @@ def urls() -> dict[str, str]:
     """Alamat tiap pesan. `v` berganti bila suaranya berubah (mis. kecepatan bicara), sehingga
     perangkat tahu harus mengunduh ulang."""
     speed = voice_mode.speed_value()
-    return {name: f"{URL_PREFIX}{name}?v={_version(name, speed)}" for name in CLIPS}
+    return {name: f"{URL_PREFIX}{name}?v={version(CLIPS[name], speed)}" for name in CLIPS}
 
 
 def load(name: str) -> bytes:
     """PCM 16 kHz pesan `name`; KeyError bila tidak dikenal, tts.TTSError bila TTS gagal."""
-    text = CLIPS[name]
-    speed = voice_mode.speed_value()
-    path = CLIPS_DIR / f"{name}-{_version(name, speed)}.pcm"
+    return cached_pcm(name, CLIPS[name], voice_mode.speed_value())
+
+
+def cached_pcm(name: str, text: str, speed: float) -> bytes:
+    """PCM 16 kHz untuk `text`, dibuat sekali lalu dibaca dari simpanan pada pemakaian berikutnya.
+    `name` hanya nama berkasnya, jadi kalimat tetap lain (voice/commands.py) ikut memakai ini."""
+    path = CLIPS_DIR / f"{name}-{version(text, speed)}.pcm"
     with _lock:
         try:
             return path.read_bytes()
@@ -65,8 +70,12 @@ def load(name: str) -> bytes:
             pass
         pcm = intro.trim(tts.synthesize_part(text, speed=speed))
         CLIPS_DIR.mkdir(parents=True, exist_ok=True)
-        for old in CLIPS_DIR.glob(f"{name}-*.pcm"):  # versi lama (teks/kecepatan berubah)
-            old.unlink(missing_ok=True)
+        # Tiap kecepatan untuk teks ini disimpan sendiri, jadi berpindah kecepatan lalu kembali
+        # tidak memanggil TTS lagi. Yang dibuang hanya sisa dari teks atau suara versi lama.
+        keep = {version(text, s) for s in voice_mode.SPEEDS.values()}
+        for old in CLIPS_DIR.glob(f"{name}-*.pcm"):
+            if old.stem.rsplit("-", 1)[-1] not in keep:
+                old.unlink(missing_ok=True)
         tmp = path.with_suffix(".tmp")
         tmp.write_bytes(pcm)
         tmp.replace(path)

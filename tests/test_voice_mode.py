@@ -5,12 +5,12 @@ from array import array
 
 import pytest
 from tests.test_latency import FakeMemory, fake_llm  # noqa: F401 - fixture
-from tests.test_server import fake_tts, request, server  # noqa: F401 - fixture
+from tests.test_server import ask_json, fake_tts, request, server  # noqa: F401 - fixture
 
 from edupad.agent import assistant, tools
 from edupad.agent.formatting import MAX_SPEECH_CHARS, VOICE_MODE_SPEECH_CHARS
 from edupad.office import dashboard_data
-from edupad.voice import clips
+from edupad.voice import clips, commands
 from edupad.voice import mode as voice_mode
 
 
@@ -80,6 +80,16 @@ ALERT = {
     "to_ts": 1,
     "speech": "Pengingat tugas praktikum MSBD: **ERD**. Batasnya besok pukul 23.59.",
 }
+REVIEW = {  # jenis yang hanya dibacakan saat Mode Suara aktif
+    "id": "rev:msbd",
+    "kind": "review",
+    "course": "Prak MSBD",
+    "detail": "Normalisasi",
+    "when": "Penguasaan 40%",
+    "from_ts": 0,
+    "to_ts": 0,
+    "speech": "Waktunya mengulang normalisasi di praktikum MSBD.",
+}
 
 
 @pytest.fixture
@@ -89,7 +99,11 @@ def device_updates(monkeypatch):
     monkeypatch.setattr(
         srv.updates,
         "updates",
-        lambda extra_cards=False: {"now_ts": 1, "next_class": None, "alerts": [dict(ALERT)]},
+        lambda extra_cards=False: {
+            "now_ts": 1,
+            "next_class": None,
+            "alerts": [dict(ALERT), dict(REVIEW)],
+        },
     )
 
 
@@ -99,10 +113,11 @@ def _updates(server):  # noqa: F811
     return json.loads(data)
 
 
-def test_updates_have_no_voice_extras_when_mode_is_off(server, device_updates):  # noqa: F811
+def test_deadline_is_spoken_but_review_is_not_when_mode_is_off(server, device_updates):  # noqa: F811
     body = _updates(server)
     assert body["voice_mode"] is False and "voice_clips" not in body
-    assert "audio_url" not in body["alerts"][0]
+    assert body["alerts"][0]["audio_url"].startswith("/v1/speech/")  # deadline tugas
+    assert "audio_url" not in body["alerts"][1]  # kartu review: hanya di Mode Suara
 
 
 def test_alert_is_spoken_once_and_cached(server, device_updates, fake_tts):  # noqa: F811
@@ -112,6 +127,7 @@ def test_alert_is_spoken_once_and_cached(server, device_updates, fake_tts):  # n
     assert body["voice_clips"]["wifi"].startswith("/v1/voice/clip/wifi?v=")
     url = body["alerts"][0]["audio_url"]
     assert url == _updates(server)["alerts"][0]["audio_url"]  # pemberitahuan sama, kunci sama
+    assert "audio_url" in body["alerts"][1]  # mode aktif: semua jenis ikut dibacakan
 
     for _ in range(2):
         response, pcm = request(server, "GET", url)
@@ -161,9 +177,18 @@ def test_status_clip_is_made_once_then_served_from_disk(server, monkeypatch):  #
     assert made == [(clips.CLIPS["no_speech"], voice_mode.speed_value())]
     assert request(server, "GET", "/v1/voice/clip/rahasia")[0].status == 404
 
-    voice_mode.save(speed="cepat")  # kecepatan berubah: dibuat ulang, versi lama dihapus
+    voice_mode.save(speed="cepat")  # kecepatan berubah: dibuat untuk kecepatan itu
     request(server, "GET", "/v1/voice/clip/no_speech")
-    assert len(made) == 2 and len(list(clips.CLIPS_DIR.glob("no_speech-*.pcm"))) == 1
+    assert len(made) == 2 and len(list(clips.CLIPS_DIR.glob("no_speech-*.pcm"))) == 2
+
+    voice_mode.save(speed="normal")  # kembali: varian lama masih ada, TTS tidak dipakai lagi
+    request(server, "GET", "/v1/voice/clip/no_speech")
+    assert len(made) == 2
+
+    monkeypatch.setitem(clips.CLIPS, "no_speech", "Teks baru.")  # teks diubah: sisa lama dibuang
+    request(server, "GET", "/v1/voice/clip/no_speech")
+    assert made[-1][0] == "Teks baru."
+    assert len(list(clips.CLIPS_DIR.glob("no_speech-*.pcm"))) == 1
 
 
 # --------------------------------- dashboard --------------------------------
@@ -194,3 +219,98 @@ def test_accessibility_counts_ocr_pages_and_spoken_audio(tmp_path, monkeypatch):
         "alerts_spoken_30d": 1,
     }
     assert dashboard_data.panel("voice")["speeds"] == list(voice_mode.SPEEDS)
+
+
+# ------------------ perintah setelan: dijawab tanpa LLM & TTS ------------------
+def test_only_settings_commands_are_matched():
+    perintah = [
+        "aktifkan mode suara",
+        "Matikan mode suara.",
+        "nyalain mode tunanetra",
+        "tolong bicara lebih cepat",
+        "bicara lebih lambat ya",
+        "percepat bicaranya",
+    ]
+    pertanyaan = [  # diteruskan ke agent: pertanyaan, bukan perintah
+        "mode suara",
+        "apa itu mode suara?",
+        "jelaskan lebih cepat",
+        "kenapa mode suara tidak bisa dimatikan",
+        "apa tugas minggu ini?",
+    ]
+    assert all(commands._match(t) for t in perintah)
+    assert not any(commands._match(t) for t in pertanyaan)
+
+
+def test_speed_moves_one_step_and_stops_at_the_end():
+    voice_mode.save(speed="normal")
+    assert [commands.handle("bicara lebih cepat")["reply"] for _ in range(3)] == [
+        "cepat",
+        "sangat_cepat",
+        "fastest",
+    ]
+    assert voice_mode.load()["speed"] == "sangat_cepat"  # mentok, tidak melewati batas
+    assert commands.handle("bicara lebih lambat")["reply"] == "cepat"
+
+
+def test_settings_command_skips_agent_and_tts(server, fake_tts):  # noqa: F811
+    status, body = ask_json(server, "aktifkan mode suara")
+    assert status == 200 and voice_mode.load()["enabled"] is True
+    assert server.asked == [] and fake_tts == []  # tanpa token LLM, tanpa kuota TTS
+    assert body["speech"] == commands.REPLIES["on"]["speech"] and body["screen"]["lines"]
+    assert body["audio_url"].startswith("/v1/voice/reply/on?v=")
+    assert body["voice_mode"] is True and set(body["voice_clips"]) == set(clips.CLIPS)
+    assert voice_mode.usage()["answer"] == 1
+
+
+def test_question_about_voice_mode_still_reaches_the_agent(server, fake_tts):  # noqa: F811
+    ask_json(server, "apa itu mode suara?")
+    assert [q for q, _ in server.asked] == ["apa itu mode suara?"]
+
+
+def test_template_audio_is_made_once_then_served_from_disk(server, monkeypatch):  # noqa: F811
+    loud = array("h", [0] * 3200 + [8000, -8000] * 1600 + [0] * 3200).tobytes()
+    made = []
+
+    def synthesize_part(text, previous_text=None, next_text=None, speed=None):
+        made.append((text, speed))
+        return loud
+
+    monkeypatch.setattr(clips.tts, "synthesize_part", synthesize_part)
+    for _ in range(2):
+        response, pcm = request(server, "GET", "/v1/voice/reply/on")
+        assert response.status == 200 and 0 < len(pcm) < len(loud)
+    assert made == [(commands.REPLIES["on"]["speech"], voice_mode.speed_value())]
+    assert request(server, "GET", "/v1/voice/reply/rahasia")[0].status == 404
+
+
+def test_toggle_audio_is_reused_across_speeds(server, monkeypatch):  # noqa: F811
+    """Tiap (kalimat, kecepatan) dibuat sekali; bolak-balik setelah itu gratis."""
+    made = []
+    monkeypatch.setattr(
+        clips.tts,
+        "synthesize_part",
+        lambda text, previous_text=None, next_text=None, speed=None: (
+            made.append(speed) or b"\0" * 64000
+        ),
+    )
+    monkeypatch.setattr(clips.intro, "trim", lambda pcm: pcm)
+
+    def say(text):
+        request(server, "GET", ask_json(server, text)[1]["audio_url"])
+
+    voice_mode.save(speed="normal")
+    for text in ("aktifkan mode suara", "matikan mode suara", "aktifkan mode suara"):
+        say(text)
+    assert len(made) == 2  # 'aktifkan' kedua sudah dari simpanan
+
+    say("bicara lebih cepat")  # -> kalimat 'cepat', selalu diucapkan pada kecepatan cepat
+    say("bicara lebih lambat")  # -> kalimat 'normal', kalimat yang lain lagi
+    say("bicara lebih cepat")  # -> 'cepat' lagi: sudah ada
+    assert len(made) == 4
+
+    at_normal = len(made)
+    for _ in range(3):  # aktif/mati di kecepatan 'cepat': sekali saja per kalimat
+        say("matikan mode suara")
+        say("aktifkan mode suara")
+    assert len(made) == at_normal + 2

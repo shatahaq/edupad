@@ -69,6 +69,9 @@
 #define ALERT_ATTENDED_MS 8000
 #define ALERT_WARNING_MS 15000  // peringatan dini (kehadiran, anggaran)
 #define ALERT_REVIEW_MS 12000   // waktunya mengulang topik dari kuis Tutor
+// Presensi dibuka & deadline tugas dibacakan berulang: sekali saja sering terlewat didengar.
+#define ALERT_SPEAK_TIMES 2
+#define ALERT_SPEAK_GAP_MS 2500
 
 // Mode Suara (diatur server, lihat voice.h): pesan status disimpan di PSRAM, masing-masing
 // paling lama 10 detik; yang gagal diunduh dicoba lagi setelah VOICE_RETRY_MS.
@@ -77,5 +80,8 @@
 #define VOICE_THINKING_EVERY_MS 2000  // ketukan "sedang berpikir" selama menunggu jawaban
 #define VOICE_IDLE_LOAD_MS 3000       // pesan status diunduh setelah menganggur selama ini
 
-// Dikirim di header X-Firmware; server baru mengirim kartu warning/review hanya ke versi ini.
-#define FIRMWARE_VERSION "1.2"
+// Dikirim di header X-Firmware dan tampil di dashboard (Perangkat), jadi versi inilah cara
+// memastikan build mana yang sedang terpasang: naikkan setiap kali kelakuan perangkat berubah.
+// Server hanya memeriksa header ini ada atau tidak (kartu warning/review), bukan nilainya.
+// 1.3: presensi & deadline membangunkan alat, berbunyi, dan dibacakan dua kali walau Mode Suara mati.
+#define FIRMWARE_VERSION "1.3"

@@ -127,7 +127,7 @@ cp .env.example .env           # isi token Telegram (opsional)
 |---|---|
 | `python -m edupad login` | Login SSO kelas.usu.ac.id di browser, simpan sesi |
 | `python -m edupad scrape [--course ID ...] [--list] [--headless]` | Unduh materi |
-| `python -m edupad assignments [--course ID ...]` | Tugas & kuis: deadline, status, soal |
+| `python -m edupad assignments [--course ID ...]` | Tugas & kuis: deadline, status, soal (cron tiap 15 menit: status pengumpulan dipakai pengingat deadline) |
 | `python -m edupad schedule [--login]` | Jadwal kuliah & presensi dari portal SATU |
 | `python -m edupad attendance [--fill] [--dry-run]` | Cek presensi yang dibuka, notifikasi Telegram; `--fill` mengisi presensi mandiri |
 | `python -m edupad classroom [--email EMAIL]` | Kelas, tugas + status, materi & pengumuman Google Classroom akun yang login di web |
@@ -197,7 +197,8 @@ Bila sesi habis, notifikasi Telegram dikirim sekali.
 ## Prinsip
 
 - **Moodle hanya dibaca.** Tidak pernah mengirim, mengumpulkan, atau mengubah data di Moodle.
-  Satu-satunya penulisan ke layanan kampus adalah `attendance --fill` (presensi mandiri SATU).
+  Satu-satunya penulisan ke layanan kampus adalah `attendance --fill` (presensi mandiri SATU),
+  lewat cron atau saat mahasiswa sendiri memintanya ke EduPad (tool `fill_attendance`).
 - **Tidak menyimpan password.** Yang disimpan hanya cookie sesi di `user_data/`.
 - **Konversi lokal.** Konversi & OCR berjalan di mesin sendiri. Teks materi dikirim ke
   Cloudflare Workers AI (embedding, reranker) dan DeepSeek (ringkasan, jawaban) untuk AI agent.

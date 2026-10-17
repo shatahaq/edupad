@@ -6,6 +6,7 @@ import pytest
 import requests
 
 from edupad import cli
+from edupad.agent import tools
 from edupad.collectors import attendance, schedule
 from edupad.collectors.attendance import simplify_meeting
 from edupad.config import SATU_URL, USU_LATITUDE, USU_LOCATION, USU_LONGITUDE, WIB
@@ -296,3 +297,40 @@ def test_monitor_only_writes_no_failure_log(portal):
     portal({})
     attendance.run()
     assert not attendance.FILL_FAILURE_LOG.exists()
+
+
+# ----------------------- tool agent (diminta lewat suara) -----------------------
+def test_fill_tool_reports_what_it_filled(portal):
+    server = portal({})
+    result = tools.fill_attendance()
+    assert [r["matkul"] for r in result["terisi"]] == ["SPK"]
+    assert result["harus_qr"] == [] and result["gagal"] == []
+    assert len(server.posts) == 1
+
+
+def test_fill_tool_keeps_qr_only_apart_without_posting(portal):
+    server = portal({"use_direct": False})
+    result = tools.fill_attendance()
+    assert result["terisi"] == [] and [r["matkul"] for r in result["harus_qr"]] == ["SPK"]
+    assert "QR-nya dipindai sendiri" in result["petunjuk"] and server.posts == []
+
+
+def test_fill_tool_reports_failure_reason(portal):
+    portal({}, records_post=False)  # portal membalas 200 tapi tidak mencatat
+    result = tools.fill_attendance()
+    assert result["terisi"] == [] and "masih kosong" in result["gagal"][0]["sebab"]
+
+
+def test_fill_tool_says_plainly_when_nothing_is_open(portal):
+    server = portal({"presence": "hadir"})
+    result = tools.fill_attendance()
+    assert result["terisi"] == [] and "tidak ada yang diisi" in result["petunjuk"]
+    assert server.posts == []
+
+
+def test_fill_tool_asks_for_relogin_when_session_expired(portal, monkeypatch):
+    portal({})
+    monkeypatch.setattr(schedule, "satu_session", _raise_login)
+    monkeypatch.setattr(schedule, "silent_relogin", _raise_login)  # cookie SSO juga habis
+    monkeypatch.setattr(attendance, "report_login_expired", lambda *a: None)
+    assert "login ulang" in tools.fill_attendance()["error"]

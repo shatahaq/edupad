@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
 
+from edupad.collectors import assignments
 from edupad.collectors.assignments import parse_assign, parse_moodle_date, summarize
 from edupad.collectors.materials import file_key, filename_from_url, is_login_page
+from edupad.core.lock import acquire_lock, release_lock
+from edupad.errors import EXIT_OK
 
 
 def test_file_key_ignores_revision_number():
@@ -59,3 +62,24 @@ def test_unsubmitted_overdue_assignment_summary():
 def test_parse_moodle_date():
     assert parse_moodle_date("Tuesday, 15 September 2026, 11:30 AM") is not None
     assert parse_moodle_date("bukan tanggal") is None
+
+
+def test_assignments_skips_the_round_while_another_run_holds_the_lock(monkeypatch, tmp_path):
+    """Cron tiap 15 menit dan langkah `assignments` di pipeline memakai berkas yang sama."""
+    lock = tmp_path / "assignments.lock"
+    ran = []
+    monkeypatch.setattr(assignments, "ASSIGNMENTS_LOCK_FILE", lock)
+    monkeypatch.setattr(
+        assignments, "_run", lambda course_ids=None: ran.append(course_ids) or EXIT_OK
+    )
+
+    assert assignments.run() == EXIT_OK and ran == [None]  # kunci bebas: jalan
+
+    fd = acquire_lock(lock)  # putaran lain sedang jalan
+    try:
+        assert assignments.run(["7"]) == EXIT_OK and ran == [None]  # dilewati, bukan menunggu
+    finally:
+        release_lock(fd)
+
+    assignments.run(["7"])  # kunci dilepas: putaran berikutnya jalan lagi
+    assert ran == [None, ["7"]]

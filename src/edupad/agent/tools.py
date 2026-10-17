@@ -1,5 +1,7 @@
 """Tools yang bisa dipanggil LLM: pencarian vektor, materi per pertemuan, tugas, presensi,
 dan Google Classroom (bila pengguna menautkan akun Google di web EduPad).
+Semuanya hanya membaca, kecuali fill_attendance yang mengisi presensi di portal SATU; itu
+dipanggil hanya bila mahasiswa memintanya sendiri (aturannya di SYSTEM_PROMPT).
 Fungsi tool keuangan (agent/finance.py) dan tutor (agent/tutor.py) ikut di TOOLS; schemanya
 ditambahkan di assistant.ask()."""
 
@@ -13,6 +15,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 
 from edupad.agent import coach, finance, tutor
+from edupad.collectors import attendance as attendance_portal
 from edupad.config import (
     ASSIGNMENTS_DIR,
     CLASSROOM_DIR,
@@ -23,6 +26,7 @@ from edupad.config import (
 )
 from edupad.core.files import read_json
 from edupad.core.supabase import SupabaseClient
+from edupad.errors import EXIT_LOGIN_REQUIRED, EXIT_OK
 from edupad.processing.embeddings import EmbeddingError, embed_query, rerank
 from edupad.processing.summaries import get_summary
 from edupad.voice import mode as voice_mode
@@ -33,6 +37,11 @@ CATALOG_FILE = CORPUS_DIR / "catalog.json"
 ASSIGNMENTS_FILE = ASSIGNMENTS_DIR / "assignments.json"
 ATTENDANCE_FILE = SCHEDULE_DIR / "attendance.json"
 STALE_AFTER = timedelta(hours=3)  # cron presensi berjalan tiap 2 menit di jam kuliah
+CLASSROOM_SOURCE = "Google Classroom"
+# Status pengumpulan hanya sesegar cron yang mengambilnya: tugas kelas.usu tiap 15 menit,
+# Classroom tiap 2 jam. Ambangnya diberi kelonggaran beberapa putaran supaya satu-dua kegagalan
+# jaringan tidak langsung dianggap mati. Lewat ini, "belum dikumpulkan" tidak bisa dipercaya.
+TASKS_STALE_AFTER = {None: timedelta(hours=1), CLASSROOM_SOURCE: timedelta(hours=3)}
 MAX_MEETING_CHARS = 40_000
 SNIPPET_CHARS = 1_800
 CLASSROOM_SNIPPET_CHARS = 500
@@ -264,6 +273,24 @@ def _task_view(t: dict) -> dict:
     }
 
 
+def stale_task_sources(data: dict, now: datetime | None = None) -> set[str | None]:
+    """Sumber tugas pada `data` yang datanya sudah lewat ambang segar, jadi status pengumpulannya
+    tidak bisa dipercaya. Hanya sumber yang memang punya tugas di `data` yang dilaporkan."""
+    now = now or datetime.now(WIB)
+    updated = {None: data.get("diperbarui"), CLASSROOM_SOURCE: data.get("classroom_diperbarui")}
+    return {
+        source
+        for source in {t.get("sumber") for t in data.get("tugas", [])}
+        if not updated.get(source)
+        or now - datetime.fromisoformat(updated[source])
+        > TASKS_STALE_AFTER.get(source, timedelta(hours=1))
+    }
+
+
+def source_label(source: str | None) -> str:
+    return source or "kelas.usu"
+
+
 def list_assignments(only_pending: bool = False) -> dict:
     data = read_json(ASSIGNMENTS_FILE)
     tasks = [t for t in data.get("tugas", []) if not (only_pending and t["sudah_dikumpulkan"])]
@@ -295,6 +322,13 @@ def list_assignments(only_pending: bool = False) -> dict:
                 f"{hidden} tugas Classroom lama (deadline lewat lebih dari 30 hari, atau tanpa "
                 "deadline dan dibuat lebih dari 60 hari lalu) tidak ditampilkan"
             )
+    stale = stale_task_sources(result)
+    if stale:
+        names = ", ".join(sorted(source_label(s) for s in stale))
+        result["peringatan"] = (
+            f"data tugas {names} sudah lama tidak diperbarui, jadi status pengumpulannya mungkin "
+            "sudah berubah; sebut ini bila mahasiswa menanyakan sudah dikumpulkan atau belum"
+        )
     return result
 
 
@@ -445,11 +479,56 @@ def get_attendance(course: str | None = None, date: str | None = None) -> dict:
     return result
 
 
+def _filled_view(result: dict) -> dict:
+    return {k: result[k] for k in ("matkul", "kelas", "pertemuan")}
+
+
+def fill_attendance() -> dict:
+    """Isi presensi yang sedang terbuka di portal SATU, jalur yang sama dengan cron
+    `attendance --fill`. Hanya pertemuan bercara "langsung"; yang QR harus dipindai sendiri."""
+    code, results = attendance_portal.fill_open()
+    if code == EXIT_LOGIN_REQUIRED:
+        return {
+            "error": "sesi portal SATU sudah habis, presensi tidak bisa diisi sampai mahasiswa "
+            "login ulang lewat dashboard EduPad"
+        }
+    if code != EXIT_OK:
+        return {
+            "error": "portal SATU tidak bisa dihubungi sekarang; sarankan mencoba lagi sebentar "
+            "lagi atau mengisi sendiri di portal"
+        }
+    if not results:
+        return {
+            "terisi": [],
+            "petunjuk": "Tidak ada presensi yang sedang terbuka, jadi tidak ada yang diisi. "
+            "Sampaikan apa adanya.",
+        }
+
+    def pick(status: str) -> list[dict]:
+        return [_filled_view(r) for r in results if r["status"] == status]
+
+    terisi, harus_qr = pick(attendance_portal.FILLED), pick(attendance_portal.QR_ONLY)
+    gagal = [
+        _filled_view(r) | {"sebab": r.get("error", "")}
+        for r in results
+        if r["status"] == attendance_portal.ERROR
+    ]
+    petunjuk = []
+    if terisi:
+        petunjuk.append("Yang di 'terisi' sudah dicek ulang ke portal, jadi boleh dipastikan.")
+    if harus_qr:
+        petunjuk.append("'harus_qr' tidak bisa diisi dari jauh: QR-nya dipindai sendiri di kelas.")
+    if gagal:
+        petunjuk.append("Untuk 'gagal', sebut sebabnya singkat dan sarankan mengisi di portal.")
+    return {"terisi": terisi, "harus_qr": harus_qr, "gagal": gagal, "petunjuk": " ".join(petunjuk)}
+
+
 TOOLS: dict[str, Callable[..., dict]] = {
     "search_materials": search_materials,
     "get_meeting": get_meeting,
     "list_assignments": list_assignments,
     "get_attendance": get_attendance,
+    "fill_attendance": fill_attendance,
     "get_classroom_materials": get_classroom_materials,
     **finance.TOOLS,
     **tutor.TOOLS,
@@ -551,6 +630,17 @@ SCHEMAS = [
                     },
                 },
             },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "fill_attendance",
+            "description": "Isikan presensi yang SEDANG terbuka di portal SATU untuk mahasiswa "
+            "ini. Panggil hanya bila mahasiswa memang memintanya ('isikan presensi', 'absenkan "
+            "aku'), tidak pernah atas inisiatif sendiri. Pertemuan yang hanya menyediakan QR "
+            "tidak bisa diisi dari sini. Untuk sekadar melihat status, pakai get_attendance.",
+            "parameters": {"type": "object", "properties": {}},
         },
     },
     {

@@ -23,7 +23,12 @@ deadline untuk layar (agent/updates.py).
 
 Mode Suara (voice/mode.py): /v1/updates dan /v1/ask memberi `voice_mode`; saat aktif tiap
 pemberitahuan punya `audio_url` (GET /v1/speech/<kunci>) dan perangkat mengunduh pesan status
-dari GET /v1/voice/clip/<nama> (voice/clips.py).
+dari GET /v1/voice/clip/<nama> (voice/clips.py). Pemberitahuan presensi dibuka dan deadline
+tugas membawa `audio_url` walau Mode Suara mati, jadi selalu terdengar.
+
+Perintah setelan ("aktifkan mode suara", "bicara lebih cepat") dijawab /v1/ask tanpa memanggil
+agent: kalimatnya tetap dan suaranya tersimpan di disk, dilayani GET /v1/voice/reply/<nama>
+(voice/commands.py), jadi tidak ada token LLM maupun kuota TTS yang terpakai.
 
 Semua permintaan selain GET /v1/health wajib membawa header
 `Authorization: Bearer <EDUPAD_DEVICE_TOKEN>`.
@@ -53,7 +58,7 @@ from edupad.agent import updates
 from edupad.agent.formatting import clean_speech, fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
-from edupad.voice import clips, intro, stt, tts
+from edupad.voice import clips, commands, intro, stt, tts
 from edupad.voice import mode as voice_mode
 from edupad.webapp import WebApp
 
@@ -326,21 +331,34 @@ class Handler(BaseHTTPRequestHandler):
                 raise RequestError(502, f"TTS: {e}") from e
             self._send_audio(pcm, wav=query.get("format") == ["wav"])
             return
+        if path.startswith(commands.URL_PREFIX):
+            name = path.removeprefix(commands.URL_PREFIX)
+            if name not in commands.REPLIES:
+                raise RequestError(404, f"tidak ada jawaban template {name}")
+            try:
+                pcm = commands.load(name)
+            except tts.TTSError as e:
+                raise RequestError(502, f"TTS: {e}") from e
+            self._send_audio(pcm, wav=query.get("format") == ["wav"])
+            return
         if path == intro.AUDIO_URL:
             self._send_audio(self._intro()[1], wav=query.get("format") == ["wav"])
             return
         raise RequestError(404, f"tidak ada {path}")
 
     def _with_voice(self, data: dict) -> dict:
-        """Mode Suara: tandai status, beri audio_url tiap pemberitahuan, dan daftar pesan status."""
+        """Beri audio_url tiap pemberitahuan yang perlu dibacakan, tandai status Mode Suara, dan
+        (saat mode aktif) daftar pesan status. Presensi dibuka dan deadline tugas selalu
+        dibacakan; jenis lain hanya saat Mode Suara aktif."""
         settings = voice_mode.load()
         data["voice_mode"] = settings["enabled"]
+        speed = voice_mode.SPEEDS[settings["speed"]]
+        for alert in data.get("alerts", []):
+            spoken = settings["enabled"] or alert.get("kind") in voice_mode.ALWAYS_SPOKEN
+            if spoken and alert.get("speech"):
+                key = self.server.speech.add(clean_speech(alert["speech"]), speed)
+                alert["audio_url"] = f"/v1/speech/{key}"
         if settings["enabled"]:
-            speed = voice_mode.SPEEDS[settings["speed"]]
-            for alert in data.get("alerts", []):
-                if alert.get("speech"):
-                    key = self.server.speech.add(clean_speech(alert["speech"]), speed)
-                    alert["audio_url"] = f"/v1/speech/{key}"
             data["voice_clips"] = clips.urls()
         return data
 
@@ -455,6 +473,15 @@ class Handler(BaseHTTPRequestHandler):
                 return
 
         started = time.time()
+        # Perintah setelan ("aktifkan mode suara", "bicara lebih cepat") dijawab di sini: hasilnya
+        # selalu kalimat yang sama, jadi tidak perlu token LLM maupun kuota TTS. `prepared`
+        # dibiarkan selesai sendiri dan giliran ini tidak disimpan ke memory: bukan percakapan.
+        reply = commands.handle(question)
+        if reply is not None:
+            timing["agent"] = round(time.time() - started, 2)
+            self._template_reply(question, reply, timing)
+            return
+
         from edupad.agent.assistant import LLMError
 
         try:
@@ -476,6 +503,28 @@ class Handler(BaseHTTPRequestHandler):
                 "speech": result["speech"],
                 "screen": result["screen"],
                 "audio_url": f"/v1/audio/{audio_id}" if audio_id else None,
+                "timing": timing,
+                "voice_mode": voice,
+                **({"voice_clips": clips.urls()} if voice else {}),
+            },
+        )
+
+    def _template_reply(self, question: str, reply: dict, timing: dict) -> None:
+        """Jawaban perintah setelan: bentuknya sama dengan jawaban agent, tapi `audio_url`-nya
+        menunjuk PCM yang sudah tersimpan di disk."""
+        device_status.record(self.headers, "/v1/ask", latency_s=sum(timing.values()))
+        log.info("[device] %r -> template %s %s", question, reply["reply"], timing)
+        voice = voice_mode.enabled()  # dibaca setelah setelan diterapkan
+        if voice:
+            voice_mode.record("answer")
+        self._json(
+            200,
+            {
+                "status": "ok",
+                "question": question,
+                "speech": reply["speech"],
+                "screen": reply["screen"],
+                "audio_url": reply["audio_url"],
                 "timing": timing,
                 "voice_mode": voice,
                 **({"voice_clips": clips.urls()} if voice else {}),

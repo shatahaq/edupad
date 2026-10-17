@@ -7,6 +7,10 @@ dan jam akhir pertemuan). Tiap pertemuan hanya dinotifikasi sekali.
 Pengisian otomatis (`--fill`) meniru form presensi di halaman class/[classId] portal
 (POST multipart ke /study-card/presence). Hasilnya selalu dicek ulang dengan membaca
 presensi lagi, karena server bisa menolak, mis. karena lokasi.
+
+Jalur yang sama dipakai `fill_open()` ketika mahasiswa meminta lewat suara (tool
+fill_attendance di agent/tools.py); bedanya hanya hasil per pertemuan ikut dikembalikan
+dan antrean lock tidak ditunggu selama cron.
 """
 
 from __future__ import annotations
@@ -294,21 +298,34 @@ def send_notifications(courses: list[dict], results: list[dict]) -> None:
 
 
 def run(fill: bool = False, dry_run: bool = False) -> int:
+    """Kode keluar saja (cron dan CLI); fill_open() bila hasil per pertemuan ikut diperlukan."""
+    return _locked(fill, dry_run)[0]
+
+
+def fill_open(timeout: float = 20) -> tuple[int, list[dict]]:
+    """Isi sekarang juga presensi yang sedang terbuka; (kode keluar, hasil per pertemuan).
+
+    Dipakai tool agent saat mahasiswa memintanya lewat suara, jadi menunggu giliran cron jauh
+    lebih singkat daripada pemanggilan terjadwal: mahasiswa sedang menunggu jawaban."""
+    return _locked(fill=True, dry_run=False, timeout=timeout)
+
+
+def _locked(fill: bool, dry_run: bool, timeout: float = 120) -> tuple[int, list[dict]]:
     try:
-        with wait_for_lock(SATU_LOCK_FILE):
+        with wait_for_lock(SATU_LOCK_FILE, timeout=timeout):
             return _run(fill, dry_run)
     except AlreadyRunning as e:
         log.warning("[!] %s terlalu lama, pengecekan presensi dilewati", e)
-        return EXIT_ERROR
+        return EXIT_ERROR, []
 
 
-def _run(fill: bool, dry_run: bool) -> int:
+def _run(fill: bool, dry_run: bool) -> tuple[int, list[dict]]:
     if not load_cookies(SATU_SESSION_FILE).get("cookies"):
         log.error("[x] Belum ada sesi SATU. Login: python -m edupad schedule --login")
-        return EXIT_LOGIN_REQUIRED
+        return EXIT_LOGIN_REQUIRED, []
     if not krs_classes():
         log.error("[x] Jadwal (KRS) belum ada. Jalankan: python -m edupad schedule")
-        return EXIT_ERROR
+        return EXIT_ERROR, []
 
     http = cookie_session(SATU_SESSION_FILE)
 
@@ -327,10 +344,10 @@ def _run(fill: bool, dry_run: bool) -> int:
     except LoginRequired as e:
         log.error("[x] %s. Presensi tidak bisa dipantau sampai login ulang.", e)
         report_login_expired(SATU, "pemantau presensi")
-        return EXIT_LOGIN_REQUIRED
+        return EXIT_LOGIN_REQUIRED, []
     except (requests.RequestException, ValueError, KeyError) as e:
         log.warning("[!] Portal SATU tidak bisa dibaca: %s", e)
-        return EXIT_ERROR
+        return EXIT_ERROR, []
     persist_cookie_updates(SATU_SESSION_FILE, http)
     report_login_ok(SATU)
 
@@ -352,4 +369,4 @@ def _run(fill: bool, dry_run: bool) -> int:
             count[QR_ONLY],
             count[DRY_RUN],
         )
-    return EXIT_OK
+    return EXIT_OK, results

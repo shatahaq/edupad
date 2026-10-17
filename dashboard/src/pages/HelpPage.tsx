@@ -21,7 +21,7 @@ const PHRASES: { owl: OwlName; name: string; topic: string; examples: string[] }
     owl: "tempo",
     name: "TEMPO",
     topic: "Tugas, presensi, jadwal",
-    examples: ["Tugas apa yang deadline minggu ini?", "Ada absen apa hari ini?", "Kuliah besok apa?"],
+    examples: ["Tugas apa yang deadline minggu ini?", "Ada absen apa hari ini?", "Isikan presensiku sekarang", "Kuliah besok apa?"],
   },
   {
     owl: "sora",
@@ -43,13 +43,13 @@ const VOICE_MODE = [
   ["Bunyi naik", "Mulai merekam: silakan bicara sambil menahan tombol."],
   ["Bunyi turun", "Rekaman terkirim; ketukan pelan berarti EduPad sedang berpikir."],
   ["Jawaban", "Seluruh isinya dibacakan. Jawaban panjang ditutup “mau dilanjutkan?”; jawab “lanjut”."],
-  ["Pemberitahuan", "Presensi, deadline, dan peringatan dibacakan, bukan hanya tampil di layar."],
+  ["Pemberitahuan", "Semua jenis dibacakan, termasuk peringatan dini dan waktunya mengulang; presensi dan deadline dibacakan walau mode ini mati."],
   ["Kecepatan", "Ucapkan “bicara lebih cepat” atau “bicara lebih lambat”."],
 ] as const;
 
 const CARDS = [
-  ["Presensi dibuka", "Muncul dengan bunyi saat presensi bisa diisi, lengkap dengan jam tutupnya."],
-  ["Deadline", "Dua hari dan tiga jam sebelum tugas ditutup."],
+  ["Presensi dibuka", "Muncul dengan bunyi dan dibacakan saat presensi bisa diisi, lengkap dengan jam tutupnya."],
+  ["Deadline", "Mulai dua hari sebelum tugas ditutup, sekali sehari; 24 jam terakhir diingatkan dan dibacakan tiap 15 menit."],
   ["Peringatan dini", "Saat jatah tidak hadir hampir habis atau anggaran tinggal sedikit."],
   ["Waktunya mengulang", "Sore hari, untuk topik kuis yang perlu diulang atau bantuan yang disiapkan SORA."],
 ] as const;

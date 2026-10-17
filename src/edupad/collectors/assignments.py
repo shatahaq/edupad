@@ -19,9 +19,16 @@ from urllib.parse import parse_qs, unquote, urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
-from edupad.config import ASSIGNMENTS_DIR, MOODLE_URL, WIB, get_settings
+from edupad.config import (
+    ASSIGNMENTS_DIR,
+    ASSIGNMENTS_LOCK_FILE,
+    MOODLE_URL,
+    WIB,
+    get_settings,
+)
 from edupad.core.academic import course_class, krs_course_ids, meeting_number
 from edupad.core.files import read_json, safe_name, sha256_bytes, write_json, write_text_atomic
+from edupad.core.lock import AlreadyRunning, acquire_lock, release_lock
 from edupad.core.markdown import html_to_markdown
 from edupad.core.moodle import MoodleClient
 from edupad.core.session import MOODLE, report_login_expired, report_login_ok
@@ -384,6 +391,20 @@ def write_summary(tasks: list[dict], generated: str) -> None:
 
 
 def run(course_ids: list[str] | None = None) -> int:
+    """Satu putaran saja yang boleh jalan: cron 15 menit dan langkah pipeline memakai berkas yang
+    sama, dan dua scrape bersamaan hanya menggandakan permintaan ke Moodle."""
+    try:
+        fd = acquire_lock(ASSIGNMENTS_LOCK_FILE)
+    except AlreadyRunning:
+        log.info("[lewat] pengambilan tugas lain masih jalan, putaran ini dilewati")
+        return EXIT_OK
+    try:
+        return _run(course_ids)
+    finally:
+        release_lock(fd)
+
+
+def _run(course_ids: list[str] | None = None) -> int:
     ASSIGNMENTS_DIR.mkdir(parents=True, exist_ok=True)
     previous = {t["cmid"]: t for t in read_json(ASSIGNMENTS_FILE).get("tugas", [])}
     client = MoodleClient()

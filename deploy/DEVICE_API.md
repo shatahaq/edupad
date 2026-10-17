@@ -14,7 +14,7 @@ dashboard Monitoring → Perangkat):
 
 ```
 X-Device-Id: <MAC>      X-Device-RSSI: -61      X-Device-Uptime: <detik>
-X-Device-Heap: <byte>   X-Firmware: 1.1
+X-Device-Heap: <byte>   X-Firmware: 1.3
 ```
 
 ## Alur satu pertanyaan
@@ -127,6 +127,8 @@ Perkenalan diri yang diputar perangkat setiap menyala (setelah `/v1/health`).
 ## GET /v1/updates
 
 Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca data hasil cron.
+Saat tidur hanya `attendance` dan `deadline` yang membangunkan layar; jenis lain menunggu sampai
+perangkat dibangunkan sendiri.
 
 ```json
 {
@@ -149,7 +151,10 @@ Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca da
   - `attendance`: presensi sedang dibuka dan belum diisi (`method` `qr` / `direct`); hanya bila
     data presensi berumur < 15 menit.
   - `deadline`: tugas belum dikumpulkan (kelas.usu dan Classroom) dengan deadline < 48 jam; `id`
-    berganti tiap hari dan saat tinggal < 3 jam, jadi diingatkan lagi.
+    berganti tiap hari, lalu tiap 15 menit sekali di 24 jam terakhir, jadi diingatkan lagi.
+    Pengulangan 15 menit hanya berlaku bila data tugas sumber itu masih segar (kelas.usu < 1 jam,
+    Classroom < 3 jam); di luar itu kembali sekali sehari, karena status "belum dikumpulkan" tidak
+    bisa dipastikan lagi. `list_assignments` juga memberi `peringatan` saat datanya lewat ambang.
   - `attended`: presensi pertemuan yang sedang berlangsung sudah tercatat "hadir" (mis. diisi
     otomatis oleh cron `attendance --fill`).
   - `warning` (hanya bila permintaan membawa `X-Firmware`): peringatan dini Equity Radar, yaitu
@@ -161,7 +166,9 @@ Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca da
 - Semua teks ASCII (font LCD). Isinya disusun di `src/edupad/agent/updates.py`.
 - Tiap pemberitahuan juga membawa `speech` (kalimat untuk dibacakan) dan `voice_mode` ada di
   tingkat atas; saat Mode Suara aktif tiap pemberitahuan mendapat `audio_url` dan jawaban
-  memuat `voice_clips` (lihat bagian berikut).
+  memuat `voice_clips` (lihat bagian berikut). `attendance` dan `deadline` mendapat `audio_url`
+  walau Mode Suara mati: perangkat memutar `audio_url` apa pun yang dikirim, tanpa memeriksa
+  status Mode Suara.
 
 ## Mode Suara
 
@@ -175,6 +182,13 @@ cepat") atau dashboard (Pengaturan); disimpan di `data/device/voice_mode.json`.
 - `GET /v1/speech/{kunci}`: suara satu pemberitahuan (PCM seperti `/v1/audio`, `?format=wav`
   untuk laptop). Kunci = hash teks + kecepatan, sehingga pemberitahuan yang sama hanya sekali
   memakai kuota TTS.
+- Perintah setelan ("aktifkan/matikan mode suara", "bicara lebih cepat/lambat") dijawab `/v1/ask`
+  langsung dari `src/edupad/voice/commands.py`, tanpa memanggil agent: bentuk responsnya sama
+  (`status`, `speech`, `screen`, `audio_url`), hanya `audio_url`-nya menunjuk
+  `GET /v1/voice/reply/{nama}` yang PCM-nya sudah tersimpan di disk. Jadi perintah ini tidak
+  memakai token LLM maupun kuota TTS, dan tidak masuk riwayat percakapan. Kecepatan bergerak satu
+  tingkat per perintah. Ucapan yang tidak persis cocok (mis. "apa itu mode suara?") tetap
+  diteruskan ke agent, yang masih punya tool `set_voice_mode`.
 - `GET /v1/voice/clip/{nama}`: pesan status yang disimpan perangkat di PSRAM dan diputar sendiri,
   sehingga tetap terdengar saat Wi-Fi atau server putus: `wifi`, `send`, `server`, `error`,
   `no_speech`, `audio`, `no_answer`, `new_session` (teks di `src/edupad/voice/clips.py`).
@@ -182,7 +196,8 @@ cepat") atau dashboard (Pengaturan); disimpan di `data/device/voice_mode.json`.
   kecepatan berubah, tanda perangkat perlu mengunduh ulang.
 - Firmware 1.2 (`firmware/edupad/voice.cpp`): bunyi naik saat mulai merekam, bunyi turun saat
   rekaman terkirim, ketukan pelan tiap 2 detik selama menunggu jawaban, semua pemberitahuan
-  berbunyi lalu dibacakan, dan pesan status di atas untuk setiap kegagalan. Status Mode Suara
+  berbunyi lalu dibacakan (di luar Mode Suara hanya presensi dibuka dan deadline tugas yang
+  berbunyi dan dibacakan), dan pesan status di atas untuk setiap kegagalan. Status Mode Suara
   disimpan di NVS, jadi bunyi penanda tetap ada walau server belum terjangkau saat menyala.
 
 ## GET /v1/health
