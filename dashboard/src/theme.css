@@ -5,6 +5,14 @@
    Dimuat sesudah styles.css: token di sini menimpa token lama.
    ========================================================================== */
 
+/* Ligatur Pixelify Sans ("fi", "fl") tampil sebagai glyph aneh: "Profil" terbaca "ProAl".
+   !important karena shorthand `font:` di banyak aturan mereset ligatur per elemen. */
+*,
+*::before,
+*::after {
+  font-variant-ligatures: none !important;
+}
+
 :root {
   --floor: #f4efe6;
   --floor-line: #ebe2d3;

@@ -1,4 +1,7 @@
 import "@fontsource-variable/plus-jakarta-sans";
+// Huruf disimpan di situs sendiri: CSP web EduPad (webapp.py) hanya mengizinkan font dari 'self'.
+import "@fontsource/pixelify-sans/400.css";
+import "@fontsource/pixelify-sans/600.css";
 import "./index.css";
 
 import { StrictMode } from "react";

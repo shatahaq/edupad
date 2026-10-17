@@ -38,16 +38,3 @@ export async function logout(): Promise<void> {
   const response = await fetch("/auth/logout", { method: "POST", credentials: "same-origin" });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 }
-
-// Kode `?error=` dari server saat login gagal -> pesan untuk pengguna.
-const LOGIN_ERRORS: Record<string, string> = {
-  access_denied: "Login dibatalkan.",
-  state: "Sesi login kedaluwarsa. Silakan coba lagi.",
-  not_configured: "Login Google belum dikonfigurasi di server.",
-  google_error: "Login dengan Google gagal. Silakan coba lagi.",
-};
-
-export function loginErrorMessage(code: string | null): string | null {
-  if (!code) return null;
-  return LOGIN_ERRORS[code] ?? LOGIN_ERRORS.google_error ?? null;
-}

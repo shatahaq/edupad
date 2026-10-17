@@ -4,6 +4,29 @@
 
 @layer base {
   html {
-    @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+    @apply bg-floor text-ink antialiased;
+    scroll-behavior: smooth;
+  }
+
+  /* Ligatur Pixelify Sans ("fi", "ffl") tampil sebagai glyph aneh: "first" terbaca "Arst". */
+  .font-display {
+    font-variant-ligatures: none;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-teal-ink ring-offset-2 ring-offset-floor;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer utilities {
+  /* Owl & aset piksel tetap tajam saat diperbesar. */
+  .pixelated {
+    image-rendering: pixelated;
   }
 }

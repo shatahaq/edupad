@@ -16,5 +16,8 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
+    // Jangan sisipkan font kecil sebagai data: URI; CSP web EduPad (webapp.py) hanya
+    // mengizinkan font dari 'self', jadi font data: diblokir browser.
+    assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined),
   },
 });
