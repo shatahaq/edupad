@@ -1,0 +1,6 @@
+# Hasil `make` (juga di new_ui_preview/): objek kompilasi dan GIF/PNG pratinjau
+build/
+out/
+out_dark/
+# Suara TTS hasil make_voice.py (untuk make video)
+voice/

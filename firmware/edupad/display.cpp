@@ -4,6 +4,8 @@
 
 #include "config.h"
 #include "scene.h"
+#include "sound_cues.h"
+#include "speaker.h"
 
 namespace {
 
@@ -100,7 +102,7 @@ constexpr int BRIGHT_FULL = 255, BRIGHT_SLEEP = 40;
 
 void uiTask(void *) {
   static scene::Ui ui;
-  uint32_t seen = 0, last = millis();
+  uint32_t seen = 0, last = millis(), cuedStart = 0, cuedDone = 0;
   float progress = 0, level = -90, voiced = -90, bright = BRIGHT_FULL;
   int shownBright = BRIGHT_FULL;
   for (;;) {
@@ -134,6 +136,18 @@ void uiTask(void *) {
     ui.toastT = shownAt ? (now - shownAt) / 1000.0f : -1;
     ui.wake = woke ? (now - woke) / 1000.0f : -1;
     ui.nowTs = baseTs ? baseTs + (now - baseMs) / 1000 : 0;
+
+    // efek suara yang mengiringi layar baru / boot selesai (sound_cues.h), selaras dengan animasi
+    if (start != cuedStart) {
+      cuedStart = start;
+      cues::List list = cues::forScreen(ui);
+      speaker::effects(list.items, list.count, list.fromWake ? woke : start);
+    }
+    if (doneAt && doneAt != cuedDone) {
+      cuedDone = doneAt;
+      cues::List list = cues::bootDone(INTRO_ON_BOOT);
+      speaker::effects(list.items, list.count, doneAt);
+    }
 
     // tidur: setelah tertidur lampu meredup pelan dan gambar cukup 15 fps; bangun: terang cepat
     bool dozing = ui.kind == scene::Kind::Sleep && ui.t > scene::SLEEP_SETTLE_SECONDS;

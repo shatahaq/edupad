@@ -212,8 +212,7 @@ bool alertShown(const char *id) {
 bool showAlert(JsonObjectConst alert) {
   const char *kind = alert["kind"] | "";
   bool attendance = !strcmp(kind, "attendance");
-  display::alert(alert);
-  if (attendance) speaker::chime();
+  display::alert(alert);  // bunyi "ding-dong" presensi dari layar ini (sound_cues.h)
   uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
                       : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS
                                                   : ALERT_ATTENDED_MS;

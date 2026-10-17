@@ -9,6 +9,9 @@ namespace mic {
 bool begin();
 void start();
 void stop();
+// Bila sedang merekam: `ms` ke depan direkam sebagai hening dan tidak menggerakkan meter, supaya
+// efek suara dari speaker (mis. blip mulai rekam) tidak ikut terkirim. Di luar rekaman: diabaikan.
+void mute(uint32_t ms);
 // Ambil PCM yang tertampung, menunggu paling lama `waitMs` bila kosong.
 size_t read(uint8_t *dst, size_t maxBytes, uint32_t waitMs);
 size_t available();

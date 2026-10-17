@@ -16,6 +16,7 @@ StreamBufferHandle_t buffer;
 volatile bool capturing = false;
 volatile float level = -90.0f;
 volatile uint32_t dropped = 0;
+volatile uint32_t muteUntil = 0;  // millis(); rekaman dibisukan sampai saat ini
 
 void task(void *) {
   static int32_t raw[FRAMES];
@@ -35,6 +36,11 @@ void task(void *) {
       int32_t s = constrain((int32_t)y, -32768, 32767);
       pcm[i] = (int16_t)s;
       sumSquares += (float)s * s;
+    }
+    bool muted = (int32_t)(millis() - muteUntil) < 0;
+    if (muted) {
+      memset(pcm, 0, n * sizeof pcm[0]);
+      sumSquares = 0;
     }
     float rms = sqrtf(sumSquares / n);
     float db = 20.0f * log10f(fmaxf(rms, 1.0f) / 32768.0f);
@@ -95,10 +101,15 @@ void start() {
   while (xStreamBufferReceive(buffer, scrap, sizeof scrap, 0) > 0) {
   }
   dropped = 0;
+  muteUntil = millis();  // bisu dari efek sebelum merekam tidak terbawa
   capturing = true;
 }
 
 void stop() { capturing = false; }
+
+void mute(uint32_t ms) {
+  if (capturing) muteUntil = millis() + ms;
+}
 
 size_t read(uint8_t *dst, size_t maxBytes, uint32_t waitMs) {
   return xStreamBufferReceive(buffer, dst, maxBytes, pdMS_TO_TICKS(waitMs));

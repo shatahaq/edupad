@@ -55,7 +55,10 @@ Amplifier MAX98357A (sama dengan [speaker_test](speaker_test/speaker_test.ino)):
 | GAIN, SD | tidak disambung |
 | + / - | speaker (jangan ke GND) |
 
-Volume: `SPEAKER_VOLUME` di `config.h` (0.0-1.0).
+Volume: `SPEAKER_VOLUME` di `config.h` (0.0-1.0). Efek suara (nada antarmuka + suara burung
+hantu, dibuat di perangkat tanpa server): `SOUND_EFFECTS` di `config.h`, 0 = hening kecuali bunyi
+presensi dibuka. Daftar bunyi per layar ada di `edupad/sound_cues.h`; penjelasan dan cara
+mendengarnya di [preview/new_ui_preview/README.md](preview/new_ui_preview/README.md).
 
 Semua pin bisa diubah di [edupad/config.h](edupad/config.h).
 

@@ -49,6 +49,9 @@
 #define SPEAKER_VOLUME 0.7f  // 0.0-1.0; di atas 1.0 suara pecah
 // Audio ditampung dulu sebelum mulai diputar supaya tidak tersendat saat jaringan lambat.
 #define SPEAKER_PREBUFFER_MS 300
+// Efek suara (nada + suara burung hantu, earcon.h / sound_cues.h). 0 = hening, misalnya di kelas;
+// bunyi presensi dibuka tetap terdengar.
+#define SOUND_EFFECTS 1
 
 // Perkenalan diri (suara + animasi) setiap kali menyala; 0 untuk langsung ke layar siap.
 // Suaranya dibuat sekali dan disimpan server (GET /v1/intro), jadi tidak memakai kuota TTS.

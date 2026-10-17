@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "config.h"
+#include "mic.h"
 
 namespace {
 
@@ -22,9 +23,25 @@ bool hasCarry = false;
 volatile uint32_t samplesOut = 0;  // sampel yang sudah masuk I2S sejak audio mulai
 volatile float levelDb = -90;      // keras suara blok terakhir yang masuk I2S
 
-// Sampel mono -> kiri+kanan (MAX98357A memutar rata-rata keduanya), dengan volume.
-void output(const int16_t *samples, size_t count) {
+// Efek suara: jadwal (diisi effects(), diambil task efek) dan penanda suara server.
+constexpr int MAX_CUES = 8;
+constexpr uint32_t LATE_MS = 250;
+struct Pending {
+  uint32_t atMs;
+  earcon::Sound sound;
+};
+portMUX_TYPE cueMux = portMUX_INITIALIZER_UNLOCKED;  // siap dipakai sebelum begin()
+Pending pending[MAX_CUES];
+int pendingCount = 0;
+volatile uint32_t cueGeneration = 0;  // naik tiap effects(): efek yang sedang diputar berhenti
+volatile bool voiceActive = false;    // suara server sedang diputar (write() .. finish/stop)
+SemaphoreHandle_t ioLock = nullptr;   // satu penulis I2S pada satu waktu (loop / task efek)
+
+// Sampel mono -> kiri+kanan (MAX98357A memutar rata-rata keduanya), dengan volume. `voice`:
+// suara server (dihitung untuk positionMs/level); efek tidak.
+void output(const int16_t *samples, size_t count, bool voice = true) {
   static int16_t frame[FRAMES * 2];
+  xSemaphoreTake(ioLock, portMAX_DELAY);
   while (count > 0) {
     size_t n = min(count, FRAMES);
     float energy = 0;
@@ -35,10 +52,51 @@ void output(const int16_t *samples, size_t count) {
     }
     size_t written;
     i2s_write(PORT, frame, n * 2 * sizeof(int16_t), &written, portMAX_DELAY);
-    levelDb = energy > 0 ? 10 * log10f(energy / n / (32768.0f * 32768.0f)) : -90;
-    samplesOut += n;
+    if (voice) {
+      levelDb = energy > 0 ? 10 * log10f(energy / n / (32768.0f * 32768.0f)) : -90;
+      samplesOut += n;
+    }
     samples += n;
     count -= n;
+  }
+  xSemaphoreGive(ioLock);
+}
+
+// Putar satu efek per blok; berhenti bila jadwal diganti atau suara server mulai.
+void playEffect(earcon::Sound sound, uint32_t generation) {
+  earcon::Player player(sound);
+  // Bila sedang merekam (blip mulai rekam): bisukan mikrofon selama bunyi + antrean DMA (~130 ms)
+  // supaya bunyinya tidak ikut terkirim ke server.
+  mic::mute(player.length() * 1000 / SAMPLE_RATE + 200);
+  static int16_t block[FRAMES];
+  int n;
+  while ((n = player.read(block, FRAMES)) > 0) {
+    if (generation != cueGeneration || voiceActive) return;
+    output(block, n, false);
+  }
+}
+
+void effectsTask(void *) {
+  for (;;) {
+    bool found = false;
+    Pending next{};
+    uint32_t generation = 0;
+    portENTER_CRITICAL(&cueMux);
+    int first = -1;
+    for (int i = 0; i < pendingCount; i++)
+      if (first < 0 || (int32_t)(pending[i].atMs - pending[first].atMs) < 0) first = i;
+    if (first >= 0 && (int32_t)(millis() - pending[first].atMs) >= 0) {
+      next = pending[first];
+      pending[first] = pending[--pendingCount];
+      generation = cueGeneration;
+      found = true;
+    }
+    portEXIT_CRITICAL(&cueMux);
+    if (!found) {
+      vTaskDelay(pdMS_TO_TICKS(5));
+      continue;
+    }
+    if (millis() - next.atMs <= LATE_MS && !voiceActive) playEffect(next.sound, generation);
   }
 }
 
@@ -72,6 +130,7 @@ void reset() {
   hasCarry = false;
   samplesOut = 0;
   levelDb = -90;
+  voiceActive = false;
 }
 
 }  // namespace
@@ -98,11 +157,16 @@ bool begin() {
   pins.data_out_num = PIN_AMP_DIN;
   pins.data_in_num = I2S_PIN_NO_CHANGE;
 
-  return i2s_driver_install(PORT, &cfg, 0, nullptr) == ESP_OK && i2s_set_pin(PORT, &pins) == ESP_OK;
+  if (i2s_driver_install(PORT, &cfg, 0, nullptr) != ESP_OK || i2s_set_pin(PORT, &pins) != ESP_OK) return false;
+  ioLock = xSemaphoreCreateMutex();
+  // core 1 bersama loop(); prioritas sedikit lebih tinggi supaya efek tidak tersendat. Sebagian
+  // besar waktunya menunggu DMA I2S (i2s_write), jadi loop tetap berjalan.
+  return ioLock && xTaskCreatePinnedToCore(effectsTask, "effects", 4096, nullptr, 2, nullptr, 1) == pdPASS;
 }
 
 void write(const uint8_t *pcm, size_t size) {
   if (size == 0) return;
+  voiceActive = true;  // efek yang sedang diputar berhenti di blok berikutnya
   if (hasCarry) {
     uint8_t pair[2] = {carry, pcm[0]};
     hasCarry = false;
@@ -124,30 +188,21 @@ void finish() {
 }
 
 void stop() {
+  xSemaphoreTake(ioLock, portMAX_DELAY);
   i2s_zero_dma_buffer(PORT);
+  xSemaphoreGive(ioLock);
   reset();
 }
 
-void chime() {
-  // dua nada (E6 lalu C6) dengan harmoni oktaf dan dengung yang meluruh, seperti bel pintu
-  static const struct {
-    float freq, seconds;
-  } notes[] = {{1318.5f, 0.32f}, {1046.5f, 0.6f}};
-  static int16_t block[FRAMES];
-  for (const auto &note : notes) {
-    int total = (int)(note.seconds * SAMPLE_RATE);
-    for (int i = 0; i < total; i += FRAMES) {
-      int n = min((int)FRAMES, total - i);
-      for (int k = 0; k < n; k++) {
-        float t = (float)(i + k) / SAMPLE_RATE;
-        float env = expf(-t * 5.5f) * fminf(1.0f, t * 400);  // serangan 2,5 ms lalu meluruh
-        float wave = sinf(2 * PI * note.freq * t) + 0.3f * sinf(4 * PI * note.freq * t);
-        block[k] = (int16_t)(wave * env * 9000);
-      }
-      write((const uint8_t *)block, n * 2);
-    }
+void effects(const earcon::Cue *cues, int count, uint32_t baseMs) {
+  portENTER_CRITICAL(&cueMux);
+  cueGeneration = cueGeneration + 1;
+  pendingCount = 0;
+  for (int i = 0; i < count && pendingCount < MAX_CUES; i++) {
+    if (!SOUND_EFFECTS && cues[i].sound != earcon::Sound::Attendance) continue;
+    pending[pendingCount++] = {baseMs + (uint32_t)lroundf(cues[i].at * 1000), cues[i].sound};
   }
-  finish();
+  portEXIT_CRITICAL(&cueMux);
 }
 
 float level() { return levelDb; }
