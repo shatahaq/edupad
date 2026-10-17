@@ -54,3 +54,53 @@ def test_silent_relogin_detects_expired_sso():
     http = FakeHttp(final_url="https://id.usu.ac.id/realms/usu/login-actions/authenticate")
     with pytest.raises(LoginRequired):
         schedule.silent_relogin(http)
+
+
+SESSION = {"user": {"identity": "241712061"}, "accessToken": "t"}
+
+
+def test_with_relogin_uses_current_session_when_valid(monkeypatch):
+    monkeypatch.setattr(schedule, "satu_session", lambda _: SESSION)
+    monkeypatch.setattr(schedule, "silent_relogin", lambda _: pytest.fail("tidak perlu login"))
+    assert schedule.with_relogin(object(), lambda s: s["accessToken"]) == "t"
+
+
+@pytest.fixture
+def satu_keepalive(monkeypatch, tmp_path):
+    """keepalive SATU dengan status & cookie palsu; kembalikan catatan pemanggilan."""
+    from edupad.jobs import keepalive
+
+    calls = {"ok": 0, "expired": 0}
+    state = {}
+    monkeypatch.setattr(keepalive, "SATU_LOCK_FILE", tmp_path / "satu.lock")
+    monkeypatch.setattr(keepalive, "load_cookies", lambda _: {"cookies": [{}], "login_at": None})
+    monkeypatch.setattr(keepalive, "get_state", lambda _: state)
+    monkeypatch.setattr(keepalive, "cookie_session", lambda _: object())
+    monkeypatch.setattr(keepalive, "persist_cookie_updates", lambda *a: None)
+    monkeypatch.setattr(keepalive, "report_login_ok", lambda _: calls.update(ok=calls["ok"] + 1))
+    monkeypatch.setattr(
+        keepalive, "report_login_expired", lambda *a: calls.update(expired=calls["expired"] + 1)
+    )
+    return keepalive, state, calls
+
+
+def test_keepalive_recovers_session_marked_expired(satu_keepalive, monkeypatch):
+    """Job lain menandai habis di batas 8 jam; cookie SSO masih berlaku -> pulih sendiri."""
+    keepalive, state, calls = satu_keepalive
+    state["expired_since"] = "2026-10-15T09:00:05+07:00"
+    monkeypatch.setattr(schedule, "silent_relogin", lambda _: SESSION)
+    assert keepalive.keep_satu_alive() == 0
+    assert calls == {"ok": 1, "expired": 0}
+
+
+def test_keepalive_reports_dead_sso_once(satu_keepalive, monkeypatch):
+    keepalive, state, calls = satu_keepalive
+
+    def dead(_):
+        raise LoginRequired("sesi SSO Keycloak berakhir")
+
+    monkeypatch.setattr(schedule, "silent_relogin", dead)
+    assert keepalive.keep_satu_alive() != 0
+    state["expired_since"] = "2026-10-17T10:00:00+07:00"  # dicatat report_login_expired
+    assert keepalive.keep_satu_alive() != 0
+    assert calls == {"ok": 0, "expired": 1}

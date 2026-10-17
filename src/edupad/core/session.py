@@ -17,7 +17,11 @@ MOODLE = "moodle"
 SATU = "satu"
 
 _SERVICE_LABEL = {MOODLE: "kelas.usu.ac.id", SATU: "portal SATU USU"}
-_LOGIN_COMMAND = {MOODLE: "python -m edupad login", SATU: "python -m edupad schedule --login"}
+# Dijalankan di laptop dari folder proyek (tanpa mengaktifkan venv).
+_LOGIN_COMMAND = {
+    MOODLE: ".venv/bin/python -m edupad login",
+    SATU: ".venv/bin/python -m edupad schedule --login",
+}
 
 
 def load_cookies(path: Path) -> dict:
@@ -89,15 +93,15 @@ def report_login_expired(service: str, detected_by: str) -> None:
     if get_state(service).get("expired_since"):
         return
     update_state(service, expired_since=now_iso())
-    note = (
-        " Jadwal terakhir tetap dipakai; login ulang cukup saat KRS berubah."
-        if service == SATU
-        else ""
-    )
-    notify(
-        f"⚠️ Sesi {_SERVICE_LABEL[service]} habis (terdeteksi oleh {detected_by}).{note} "
-        f"Login ulang dengan: {_LOGIN_COMMAND[service]}"
-    )
+    how = f"Login ulang dengan: {_LOGIN_COMMAND[service]}"
+    if service == SATU:
+        how = (
+            "Presensi otomatis & pengingat presensi ikut berhenti (jadwal terakhir tetap "
+            "dipakai). EduPad terus mencoba login ulang otomatis lewat SSO; bila tidak pulih "
+            f"dalam 10 menit, login ulang di laptop: {_LOGIN_COMMAND[service]}, lalu salin "
+            "user_data/satu_session.json ke server."
+        )
+    notify(f"⚠️ Sesi {_SERVICE_LABEL[service]} habis (terdeteksi oleh {detected_by}). {how}")
 
 
 def report_login_ok(service: str) -> None:

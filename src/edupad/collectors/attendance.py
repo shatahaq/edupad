@@ -17,7 +17,7 @@ from datetime import datetime
 
 import requests
 
-from edupad.collectors.schedule import get_json, satu_session
+from edupad.collectors.schedule import get_json, satu_session, with_relogin
 from edupad.config import (
     LOG_DIR,
     REQUEST_TIMEOUT,
@@ -311,15 +311,19 @@ def _run(fill: bool, dry_run: bool) -> int:
         return EXIT_ERROR
 
     http = cookie_session(SATU_SESSION_FILE)
-    results: list[dict] = []
-    try:
-        session = satu_session(http)
+
+    def check(session: dict) -> tuple[list[dict], list[dict]]:
         courses = fetch_attendance(http, session)
+        results: list[dict] = []
         if fill:
             results = fill_attendance(http, session, courses, dry_run=dry_run)
             if any(r["status"] == FILLED for r in results):
                 courses = fetch_attendance(http, session)
                 verify_filled(results, courses)
+        return courses, results
+
+    try:
+        courses, results = with_relogin(http, check)
     except LoginRequired as e:
         log.error("[x] %s. Presensi tidak bisa dipantau sampai login ulang.", e)
         report_login_expired(SATU, "pemantau presensi")

@@ -6,12 +6,13 @@ import pytest
 import requests
 
 from edupad import cli
-from edupad.collectors import attendance
+from edupad.collectors import attendance, schedule
 from edupad.collectors.attendance import simplify_meeting
 from edupad.config import SATU_URL, USU_LATITUDE, USU_LOCATION, USU_LONGITUDE, WIB
 from edupad.errors import EXIT_LOGIN_REQUIRED, EXIT_OK, LoginRequired
 
 NOW = datetime(2026, 10, 1, 15, 30, tzinfo=WIB)
+SESSION = {"user": {"identity": "241712061"}, "accessToken": "t"}
 
 
 def _meeting(**overrides) -> dict:
@@ -112,11 +113,8 @@ def portal(monkeypatch, tmp_path):
     }
     monkeypatch.setattr(attendance, "krs_classes", lambda: [klass])
     monkeypatch.setattr(attendance, "load_cookies", lambda _: {"cookies": [{}]})
-    monkeypatch.setattr(
-        attendance,
-        "satu_session",
-        lambda _: {"user": {"identity": "241712061"}, "accessToken": "t"},
-    )
+    monkeypatch.setattr(schedule, "satu_session", lambda _: SESSION)
+    monkeypatch.setattr(schedule, "silent_relogin", lambda _: SESSION)
     monkeypatch.setattr(attendance, "persist_cookie_updates", lambda *a: None)
     monkeypatch.setattr(attendance, "report_login_ok", lambda _: None)
     monkeypatch.setattr(attendance, "get_state", lambda _: dict(state))
@@ -210,17 +208,48 @@ def test_closed_meeting_is_left_alone(portal):
     assert server.posts == [] and server.sent == []
 
 
+def _raise_login(_):
+    raise LoginRequired("sesi SATU berakhir")
+
+
 def test_expired_session_returns_login_required(portal, monkeypatch):
     portal({})
     expired = []
-
-    def raise_login(_):
-        raise LoginRequired("sesi SATU berakhir")
-
-    monkeypatch.setattr(attendance, "satu_session", raise_login)
+    monkeypatch.setattr(schedule, "satu_session", _raise_login)
+    monkeypatch.setattr(schedule, "silent_relogin", _raise_login)  # cookie SSO juga habis
     monkeypatch.setattr(attendance, "report_login_expired", lambda *a: expired.append(a))
     assert attendance.run(fill=True) == EXIT_LOGIN_REQUIRED
     assert expired
+
+
+def test_ended_portal_session_is_renewed_through_sso(portal, monkeypatch, tmp_path):
+    """Batas ~8 jam sesi portal: login ulang senyap, bukan "sesi habis"."""
+    portal({})
+    relogins, expired = [], []
+    monkeypatch.setattr(schedule, "satu_session", _raise_login)
+    monkeypatch.setattr(schedule, "silent_relogin", lambda _: relogins.append(1) or SESSION)
+    monkeypatch.setattr(attendance, "report_login_expired", lambda *a: expired.append(a))
+    assert attendance.run() == EXIT_OK
+    assert relogins == [1] and not expired
+    assert (tmp_path / "attendance.json").exists()
+
+
+def test_token_rejected_mid_run_is_renewed_and_retried(portal, monkeypatch):
+    server = portal({})
+    calls, relogins = [], []
+    original = server.get_json
+
+    def get_json(http, path, token=None):
+        calls.append(path)
+        if len(calls) == 1:  # token portal kedaluwarsa tepat saat dipakai
+            raise LoginRequired(f"HTTP 401 dari {path}")
+        return original(http, path, token)
+
+    monkeypatch.setattr(attendance, "get_json", get_json)
+    monkeypatch.setattr(schedule, "silent_relogin", lambda _: relogins.append(1) or SESSION)
+    monkeypatch.setattr(attendance, "report_login_expired", lambda *a: pytest.fail("bukan habis"))
+    assert attendance.run() == EXIT_OK
+    assert relogins == [1] and len(calls) == 2
 
 
 def test_cli_routes_fill_flags(monkeypatch):

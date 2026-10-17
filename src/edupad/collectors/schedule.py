@@ -1,17 +1,19 @@
 """Jadwal kuliah & presensi dari portal SATU USU (satu.usu.ac.id/mahasiswa).
 
 Portal SATU memakai SSO Keycloak (id.usu.ac.id) yang terpisah dari SSO
-kelas.usu.ac.id. Sesi Keycloak berakhir setelah beberapa jam tidak dipakai
-(cookie aplikasinya bertahan 30 hari, tapi token di dalamnya tidak). Jadwal
-jarang berubah, jadi data terakhir tetap dipakai dan login ulang cukup saat
-KRS berubah. Data diambil dari API JSON yang dipakai halaman portal itu sendiri.
+kelas.usu.ac.id. Sesi portal punya batas ~8 jam, sedangkan cookie SSO Keycloak ("Ingat
+saya") bertahan ~30 hari: sesi portal baru dibuat otomatis lewat cookie SSO itu
+(silent_relogin / with_relogin), jadi login manual hanya perlu bila cookie SSO-nya sendiri
+habis. Data diambil dari API JSON yang dipakai halaman portal itu sendiri.
 """
 
 from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime
+from typing import TypeVar
 
 import requests
 
@@ -39,6 +41,8 @@ from edupad.core.session import (
 from edupad.errors import EXIT_ERROR, EXIT_LOGIN_REQUIRED, EXIT_OK, LoginRequired
 
 log = logging.getLogger(__name__)
+
+T = TypeVar("T")
 
 SUMMARY_FILE = SCHEDULE_DIR / "summary.md"
 DAYS = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"]
@@ -109,6 +113,21 @@ def silent_relogin(http: requests.Session) -> dict:
     return satu_session(http)
 
 
+def with_relogin(http: requests.Session, work: Callable[[dict], T]) -> T:
+    """Jalankan `work(session)`; bila portal menolak, login ulang senyap lalu ulangi sekali.
+
+    Sesi portal SATU punya batas keras ~8 jam: setelah itu /app/auth/session menjawab
+    KeycloakSessionEnded atau API memberi 401, padahal cookie SSO Keycloak (Ingat saya,
+    ~30 hari) masih berlaku. Alur signin membuat sesi portal baru tanpa password; baru bila
+    itu juga gagal (silent_relogin melempar LoginRequired) sesi benar-benar perlu login ulang.
+    """
+    try:
+        return work(satu_session(http))
+    except LoginRequired as e:
+        log.info("[..] SATU: %s; login ulang senyap lewat SSO", e)
+        return work(silent_relogin(http))
+
+
 def get_json(http: requests.Session, path: str, token: str | None = None) -> dict:
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     r = http.get(
@@ -154,8 +173,7 @@ def simplify_presence(p: dict) -> dict:
     }
 
 
-def fetch_schedule(http: requests.Session) -> dict:
-    session = satu_session(http)
+def fetch_schedule(http: requests.Session, session: dict) -> dict:
     nim = session["user"]["identity"]
     token = session.get("accessToken")
 
@@ -230,12 +248,12 @@ def _run(login: bool) -> int:
         if not load_cookies(SATU_SESSION_FILE).get("cookies"):
             raise LoginRequired("belum ada sesi SATU tersimpan")
         http = cookie_session(SATU_SESSION_FILE)
-        result = fetch_schedule(http)
+        result = with_relogin(http, lambda session: fetch_schedule(http, session))
         persist_cookie_updates(SATU_SESSION_FILE, http)
     except LoginRequired as e:
         log.error(
-            "[x] %s. Jadwal terakhir tetap dipakai; login ulang saat KRS berubah: "
-            "python -m edupad schedule --login",
+            "[x] %s. Jadwal terakhir tetap dipakai; login ulang: "
+            ".venv/bin/python -m edupad schedule --login",
             e,
         )
         report_login_expired(SATU, "pengambil jadwal")

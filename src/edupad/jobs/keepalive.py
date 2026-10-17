@@ -4,10 +4,11 @@
   core_session_touch (dipakai halaman Moodle sendiri) memperpanjangnya. Bila sesi
   tetap terputus (mis. diakhiri server), login ulang otomatis lewat token SSO USU,
   paling sering sekali per SSO_RELOGIN_INTERVAL agar tidak memutus sesi di perangkat lain.
-- Portal SATU: Keycloak (id.usu.ac.id) memutus sesi yang menganggur ~30 menit,
-  sedangkan cookie SSO-nya berlaku ~14 hari. Tiap run melakukan login ulang
-  senyap lewat cookie SSO agar batas menganggur ter-reset. Umur sesi dicatat
-  saat berakhir untuk mengetahui batas maksimumnya.
+- Portal SATU: Keycloak (id.usu.ac.id) memutus sesi yang menganggur ~30 menit dan
+  sesi portal punya batas keras ~8 jam, sedangkan cookie SSO-nya ("Ingat saya") berlaku
+  ~30 hari. Tiap run melakukan login ulang senyap lewat cookie SSO: batas menganggur
+  ter-reset dan sesi portal baru dibuat setelah batas 8 jam. Tetap dicoba walau sesi sudah
+  ditandai berakhir, sehingga pulih sendiri selama cookie SSO masih berlaku.
 """
 
 from __future__ import annotations
@@ -147,21 +148,18 @@ def _keep_satu_alive() -> int:
     if not load_cookies(SATU_SESSION_FILE).get("cookies"):
         log.info("[-] SATU: belum ada sesi, dilewati (login: python -m edupad schedule --login)")
         return EXIT_OK
+    # Sesi yang ditandai berakhir tetap dicoba: tanda itu bisa berasal dari job lain yang
+    # kebetulan menemui batas ~8 jam sesi portal, padahal cookie SSO masih bisa dipakai.
     expired_since = get_state(SATU).get("expired_since")
-    login_at = load_cookies(SATU_SESSION_FILE).get("login_at")
-    # Sesi yang berakhir tidak dicoba lagi, kecuali ada login baru (mis. disalin dari laptop).
-    if expired_since and not (
-        login_at and datetime.fromisoformat(login_at) > datetime.fromisoformat(expired_since)
-    ):
-        log.info("[-] SATU: sesi berakhir sejak %s, menunggu login ulang", expired_since)
-        return EXIT_LOGIN_REQUIRED
-
     http = cookie_session(SATU_SESSION_FILE)
     try:
         session = silent_relogin(http)
     except LoginRequired as e:
-        log.error("[x] SATU: %s setelah bertahan %s sejak login.", e, _session_age())
-        report_login_expired(SATU, "keepalive")
+        if expired_since:
+            log.info("[-] SATU: %s; masih perlu login ulang (sejak %s)", e, expired_since)
+        else:
+            log.error("[x] SATU: %s setelah bertahan %s sejak login.", e, _session_age())
+            report_login_expired(SATU, "keepalive")
         return EXIT_LOGIN_REQUIRED
     except (requests.RequestException, ValueError) as e:
         log.warning("[!] SATU: keep-alive gagal, bukan karena sesi: %s", e)

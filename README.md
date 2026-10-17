@@ -167,9 +167,11 @@ Akun gratis: 10.000 karakter/bulan (~30 jawaban) dan hanya suara bawaan / buatan
 - **kelas.usu.ac.id**: batas sesi 8 jam tanpa aktivitas. `keepalive` tiap 20 menit
   menjaganya tetap aktif. Sesi tidak terikat IP, jadi bisa login di laptop lalu
   menyalin `user_data/session.json` ke server.
-- **Portal SATU** (jadwal): sesi Keycloak berakhir setelah beberapa jam tidak
-  dipakai. Jadwal jarang berubah, jadi data terakhir tetap dipakai; login ulang
-  (`schedule --login`) cukup saat KRS berubah.
+- **Portal SATU** (jadwal & presensi): sesi portal punya batas ~8 jam, tetapi cookie SSO
+  Keycloak ("Ingat saya" saat login) berlaku ~30 hari. `keepalive`, presensi, dan jadwal
+  membuat sesi portal baru lewat cookie itu tanpa password, jadi login ulang
+  (`schedule --login`, lalu salin `user_data/satu_session.json` ke server) hanya perlu
+  bila cookie SSO-nya sendiri habis.
 
 Bila sesi habis, notifikasi Telegram dikirim sekali.
 
