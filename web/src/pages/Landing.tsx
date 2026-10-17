@@ -21,6 +21,9 @@ const OWL_COLOR: Record<OwlName, string> = {
 const TEAM: OwlName[] = ["pixel", "sora", "tempo", "metric", "koin", "nexus"];
 const CUES: CueName[] = ["listen", "sent", "thinking", "alert", "error"];
 const SECTION = "mx-auto max-w-6xl px-4 sm:px-6";
+// Foto perangkat untuk bagian pembuka. Simpan fotonya di web/public/media/, lalu isi alamatnya,
+// mis. "/media/edupad-device.webp" (potret 4:5). Selama null, tampil bingkai kosong.
+const DEVICE_PHOTO: string | null = null;
 
 const button = {
   dark: "inline-flex h-12 items-center gap-2 rounded-lg bg-slate px-5 text-[15px] font-semibold text-white shadow-hard-dark transition hover:bg-slate-2",
@@ -164,23 +167,7 @@ export default function Landing() {
               </a>
             </div>
           </div>
-          <figure className="rounded-xl border-2 border-edge bg-paper p-6 shadow-hard">
-            <img
-              src="/owls/nova-happy.webp"
-              width={160}
-              height={160}
-              alt="NOVA"
-              className="pixelated mx-auto motion-safe:animate-bob"
-            />
-            <figcaption className="mt-4">
-              <p className="text-sm font-semibold text-ink-3">{t.hero.transcriptLabel}</p>
-              <blockquote lang={lang === "id" ? "id" : "en"} className="mt-2 space-y-1 border-l-4 border-teal pl-4 text-[16px] text-ink-2">
-                {t.hero.transcript.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </blockquote>
-            </figcaption>
-          </figure>
+          <DevicePhoto alt={t.hero.photoAlt} pending={t.hero.photoPending} note={t.hero.photoPendingNote} />
         </section>
 
         {/* ------------------------------------------------- SDG: kenapa penting */}
@@ -567,5 +554,19 @@ function GraduationLine({ from, to, label }: { from: string; to: string; label: 
         {to}
       </text>
     </svg>
+  );
+}
+
+/** Foto perangkat di pembuka; bingkai kosong yang jujur selama perangkat belum selesai dirakit. */
+function DevicePhoto({ alt, pending, note }: { alt: string; pending: string; note: string }) {
+  const frame = "aspect-[4/3] w-full rounded-xl md:aspect-[4/5]";
+  if (DEVICE_PHOTO) {
+    return <img src={DEVICE_PHOTO} alt={alt} className={`${frame} border-2 border-edge object-cover shadow-hard`} />;
+  }
+  return (
+    <div className={`${frame} flex flex-col items-center justify-center gap-1 border-2 border-dashed border-edge bg-paper-2 p-6 text-center`}>
+      <p className="font-semibold text-ink-2">{pending}</p>
+      <p className="text-[15px] text-ink-3">{note}</p>
+    </div>
   );
 }

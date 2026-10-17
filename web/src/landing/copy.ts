@@ -25,8 +25,9 @@ type Copy = {
     listen: string;
     stop: string;
     how: string;
-    transcriptLabel: string;
-    transcript: string[];
+    photoAlt: string;
+    photoPending: string;
+    photoPendingNote: string;
   };
   how: {
     title: string;
@@ -109,12 +110,9 @@ export const COPY: Record<Lang, Copy> = {
       listen: "Dengarkan EduPad",
       stop: "Hentikan",
       how: "Lihat cara kerjanya",
-      transcriptLabel: "Yang diucapkan EduPad saat menyala",
-      transcript: [
-        "Halo! Aku EduPad. Teman belajarmu.",
-        "Aku bisa menjelaskan materi kuliahmu, mengecek tugas, deadline, dan presensi.",
-        "Caranya gampang: tahan tombol, lalu tanya saja. Yuk, mulai belajar!",
-      ],
+      photoAlt: "Perangkat EduPad di meja belajar: layar kecil, satu tombol, dan speaker.",
+      photoPending: "Foto perangkat EduPad",
+      photoPendingNote: "Perangkat sedang dirakit; fotonya menyusul.",
     },
     how: {
       title: "Satu tombol, dari pertanyaan sampai jawaban",
@@ -345,12 +343,9 @@ export const COPY: Record<Lang, Copy> = {
       listen: "Listen to EduPad",
       stop: "Stop",
       how: "See how it works",
-      transcriptLabel: "What EduPad says when it starts (in Indonesian)",
-      transcript: [
-        "Hi! I'm EduPad, your study buddy.",
-        "I can explain your course materials, and check assignments, deadlines and attendance.",
-        "It's easy: hold the button and just ask. Let's start studying!",
-      ],
+      photoAlt: "The EduPad device on a desk: a small screen, one button and a speaker.",
+      photoPending: "EduPad device photo",
+      photoPendingNote: "The device is still being built; a photo is on its way.",
     },
     how: {
       title: "One button, from question to answer",
