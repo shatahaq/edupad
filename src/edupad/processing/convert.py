@@ -105,6 +105,12 @@ def pdf_to_markdown_isolated(path: Path) -> tuple[str, str]:
 
 
 # ------------------------------ PPTX -----------------------------------------
+def _part_name(base: str, target: str) -> str:
+    """Target relasi OPC -> nama file di zip. Target absolut ("/ppt/slides/slide1.xml",
+    ditulis sebagian aplikasi selain PowerPoint) dihitung dari akar paket."""
+    return posixpath.normpath(posixpath.join(base, target)).lstrip("/")
+
+
 def _slide_text(root, skip_placeholders: tuple[str, ...] = ()) -> tuple[str | None, list[str]]:
     title, lines = None, []
     for shape in root.iter(f"{{{_NS['p']}}}sp"):
@@ -149,7 +155,7 @@ def pptx_to_markdown(path: Path) -> tuple[str, str]:
         rels = ET.fromstring(z.read("ppt/_rels/presentation.xml.rels"))
         targets = {r.get("Id"): r.get("Target") for r in rels}
         slide_paths = [
-            posixpath.normpath(posixpath.join("ppt", targets[s.get(f"{{{_NS['r']}}}id")]))
+            _part_name("ppt", targets[s.get(f"{{{_NS['r']}}}id")])
             for s in presentation.find("p:sldIdLst", _NS)
         ]
         names = set(z.namelist())
@@ -163,9 +169,7 @@ def pptx_to_markdown(path: Path) -> tuple[str, str]:
             if rel_path in names:
                 for rel in ET.fromstring(z.read(rel_path)):
                     if rel.get("Type", "").endswith("/notesSlide"):
-                        notes_path = posixpath.normpath(
-                            posixpath.join(posixpath.dirname(slide_path), rel.get("Target"))
-                        )
+                        notes_path = _part_name(posixpath.dirname(slide_path), rel.get("Target"))
                         _, notes = _slide_text(
                             ET.fromstring(z.read(notes_path)),
                             skip_placeholders=("sldImg", "sldNum"),
