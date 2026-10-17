@@ -15,11 +15,13 @@ import hashlib
 import io
 import json
 import logging
+import multiprocessing
 import posixpath
 import re
 import time
 import xml.etree.ElementTree as ET
 import zipfile
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pathlib import Path
 
@@ -68,9 +70,10 @@ def pdf_to_markdown(path: Path) -> tuple[str, str]:
     import pymupdf
     import pymupdf4llm
 
-    doc = pymupdf.open(path)
-    ocr_pages = [i for i, page in enumerate(doc) if _needs_ocr(page)]
-    with contextlib.redirect_stdout(io.StringIO()):  # pymupdf4llm mencetak log ke stdout
+    # Ditutup setelah dipakai: dokumen yang dibiarkan terbuka menumpuk memori selama run.
+    with pymupdf.open(path) as doc, contextlib.redirect_stdout(io.StringIO()):
+        # pymupdf4llm mencetak log ke stdout
+        ocr_pages = [i for i, page in enumerate(doc) if _needs_ocr(page)]
         pages = {
             p["metadata"]["page_number"]: p["text"]
             for p in pymupdf4llm.to_markdown(doc, page_chunks=True, use_ocr=False)
@@ -88,6 +91,17 @@ def pdf_to_markdown(path: Path) -> tuple[str, str]:
     ]
     converter = f"pymupdf4llm+ocr({len(ocr_pages)} hal)" if ocr_pages else "pymupdf4llm"
     return "\n\n".join(parts), converter
+
+
+def pdf_to_markdown_isolated(path: Path) -> tuple[str, str]:
+    """pdf_to_markdown di proses anak sekali pakai.
+
+    Di server (Python 3.14) memori OCR menumpuk ratusan MB per file sampai convert dimatikan
+    OOM killer; proses anak mengembalikan semuanya ke OS setelah tiap file. "spawn" (bukan
+    fork) agar anak mulai bersih walau induk sedang punya thread.
+    """
+    with ProcessPoolExecutor(1, mp_context=multiprocessing.get_context("spawn")) as pool:
+        return pool.submit(pdf_to_markdown, path).result()
 
 
 # ------------------------------ PPTX -----------------------------------------
@@ -177,7 +191,7 @@ def convert_file(path: Path) -> tuple[str, str]:
             "markdownify",
         )
     elif ext == ".pdf":
-        md, converter = pdf_to_markdown(path)
+        md, converter = pdf_to_markdown_isolated(path)
     elif ext == ".pptx":
         md, converter = pptx_to_markdown(path)
     elif ext in ANYDOC_EXTS:
@@ -310,6 +324,9 @@ def run(force: bool = False) -> int:
             "converted_at": datetime.now().isoformat(timespec="seconds"),
         }
         converted += 1
+        # Simpan kemajuan tiap file: bila proses dihentikan (mis. kehabisan memori di server),
+        # run berikutnya melanjutkan, tidak mengulang file yang sama dari awal.
+        write_json(INDEX_FILE, old_index | index)
         log.info("     [ok] %s, %d kata, %.1f dtk", converter, len(md.split()), time.time() - t0)
 
     for source_file, entry in old_index.items():  # sumber sudah dihapus dosen
