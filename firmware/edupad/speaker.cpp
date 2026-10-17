@@ -150,6 +150,22 @@ void chime() {
   finish();
 }
 
+void tone(float freq, uint16_t ms, float amplitude) {
+  static int16_t block[FRAMES];
+  int total = (int)ms * SAMPLE_RATE / 1000;
+  int edge = SAMPLE_RATE / 200;  // naik & turun 5 ms supaya tidak berbunyi "klik"
+  for (int i = 0; i < total; i += FRAMES) {
+    int n = min((int)FRAMES, total - i);
+    for (int k = 0; k < n; k++) {
+      int s = i + k;
+      float env = fminf(1.0f, fminf((float)s / edge, (float)(total - s) / edge));
+      block[k] = (int16_t)(sinf(2 * PI * freq * s / SAMPLE_RATE) * env * amplitude * 32767);
+    }
+    write((const uint8_t *)block, n * 2);
+  }
+  finish();
+}
+
 float level() { return levelDb; }
 
 uint32_t positionMs() {

@@ -60,6 +60,7 @@ TOOL_AGENTS: dict[str, tuple[str, str]] = {
     "finance_summary": ("finance", "finance-office"),
     "undo_last_transaction": ("finance", "finance-office"),
     "set_budget": ("finance", "finance-office"),
+    "set_voice_mode": ("coordinator", "command-center"),
 }
 
 

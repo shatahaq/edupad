@@ -50,6 +50,11 @@ def short_name(matkul: str, course_id: str | None = None) -> str:
     )
 
 
+def spoken_course(name: str) -> str:
+    """Nama pendek untuk dibacakan Mode Suara: 'Prak MSBD' -> 'praktikum MSBD'."""
+    return re.sub(r"^Prak\b", "praktikum", name)
+
+
 def day_label(when: datetime, now: datetime) -> str:
     days = (when.date() - now.date()).days
     if days == 0:
@@ -109,8 +114,9 @@ def attendance_alerts(now: datetime) -> list[dict]:
                 continue
             start = datetime.fromisoformat(m["mulai"])
             end = datetime.fromisoformat(m["selesai"]) if m.get("selesai") else None
+            name = short_name(course["matkul"], course.get("moodle_course_id"))
             base = {
-                "course": short_name(course["matkul"], course.get("moodle_course_id")),
+                "course": name,
                 "detail": _room(course.get("moodle_course_id"))
                 or to_display_text(m.get("nama") or ""),
                 "from_ts": int(start.timestamp()),
@@ -125,12 +131,24 @@ def attendance_alerts(now: datetime) -> list[dict]:
                         "kind": "attendance",
                         "when": f"Tutup {end:%H:%M}" if end else "Sedang dibuka",
                         "method": "direct" if "langsung" in cara else "qr",
+                        "speech": f"Presensi {spoken_course(name)} sudah dibuka"
+                        + (f", tutup pukul {end:%H.%M}. " if end else ". ")
+                        + (
+                            "Bisa diisi langsung di portal SATU."
+                            if "langsung" in cara
+                            else "Presensinya lewat scan QR di kelas."
+                        ),
                     }
                 )
             elif m.get("status") == "hadir" and start <= now <= (end or start) + ATTENDED_SHOWN:
                 alerts.append(
                     base
-                    | {"id": f"hadir:{m['id']}", "kind": "attended", "when": m.get("nama") or ""}
+                    | {
+                        "id": f"hadir:{m['id']}",
+                        "kind": "attended",
+                        "when": m.get("nama") or "",
+                        "speech": f"Presensi {spoken_course(name)} sudah tercatat hadir.",
+                    }
                 )
     return alerts
 
@@ -148,15 +166,18 @@ def deadline_alerts(now: datetime) -> list[dict]:
             continue
         key = hashlib.sha1(f"{t.get('url')}|{t['judul']}".encode()).hexdigest()[:10]
         phase = "urgent" if left <= URGENT_DEADLINE else now.date().isoformat()
+        name = short_name(t["matkul"])
         alerts.append(
             {
                 "id": f"due:{key}:{phase}",
                 "kind": "deadline",
-                "course": short_name(t["matkul"]),
+                "course": name,
                 "detail": to_display_text(t["judul"]),
                 "when": f"{day_label(due, now)} {due:%H:%M}",
                 "from_ts": 0,
                 "to_ts": int(due.timestamp()),
+                "speech": f"Pengingat tugas {spoken_course(name)}: {t['judul']}. Batasnya "
+                f"{day_label(due, now).lower()} pukul {due:%H.%M}.",
             }
         )
     alerts.sort(key=lambda a: a["to_ts"])

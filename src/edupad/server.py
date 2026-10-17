@@ -21,6 +21,10 @@ GET /v1/intro/audio. Suaranya dibuat sekali lalu disimpan (voice/intro.py).
 GET /v1/updates (dicek perangkat berkala): kuliah berikutnya dan pemberitahuan presensi /
 deadline untuk layar (agent/updates.py).
 
+Mode Suara (voice/mode.py): /v1/updates dan /v1/ask memberi `voice_mode`; saat aktif tiap
+pemberitahuan punya `audio_url` (GET /v1/speech/<kunci>) dan perangkat mengunduh pesan status
+dari GET /v1/voice/clip/<nama> (voice/clips.py).
+
 Semua permintaan selain GET /v1/health wajib membawa header
 `Authorization: Bearer <EDUPAD_DEVICE_TOKEN>`.
 
@@ -29,6 +33,7 @@ Path di luar /v1/ dilayani web EduPad (login Google, /api, halaman React): lihat
 
 from __future__ import annotations
 
+import hashlib
 import hmac
 import itertools
 import json
@@ -37,6 +42,7 @@ import secrets
 import signal
 import threading
 import time
+from collections import OrderedDict
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -44,10 +50,11 @@ from urllib.parse import parse_qs, urlsplit
 
 from edupad import device_status
 from edupad.agent import updates
-from edupad.agent.formatting import fit_screen
+from edupad.agent.formatting import clean_speech, fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
-from edupad.voice import intro, stt, tts
+from edupad.voice import clips, intro, stt, tts
+from edupad.voice import mode as voice_mode
 from edupad.webapp import WebApp
 
 log = logging.getLogger(__name__)
@@ -161,6 +168,38 @@ class AudioStore:
                 self._latest["pcm"] = pcm
 
 
+class SpeechStore:
+    """Pemberitahuan yang dibacakan Mode Suara: teks, lalu PCM-nya setelah pertama disuarakan.
+
+    Kunci = hash teks + kecepatan, jadi pemberitahuan yang sama (pengecekan berikutnya, perangkat
+    lain) tidak memakai kuota TTS lagi. Hanya MAX_ENTRIES terbaru yang disimpan.
+    """
+
+    MAX_ENTRIES = 32
+
+    def __init__(self):
+        self._items: OrderedDict[str, dict] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def add(self, text: str, speed: float) -> str:
+        key = hashlib.sha256(f"{speed}|{text}".encode()).hexdigest()[:16]
+        with self._lock:
+            item = self._items.pop(key, None) or {
+                "text": text,
+                "speed": speed,
+                "pcm": None,
+                "lock": threading.Lock(),
+            }
+            self._items[key] = item
+            while len(self._items) > self.MAX_ENTRIES:
+                self._items.popitem(last=False)
+        return key
+
+    def get(self, key: str) -> dict | None:
+        with self._lock:
+            return self._items.get(key)
+
+
 class EduPadServer(ThreadingHTTPServer):
     daemon_threads = True
 
@@ -173,6 +212,7 @@ class EduPadServer(ThreadingHTTPServer):
     ):
         super().__init__(address, Handler)
         self.token, self.agent, self.audio = token, agent or Agent(), AudioStore()
+        self.speech = SpeechStore()
         self.web = web or WebApp()
 
     def server_close(self) -> None:
@@ -270,12 +310,52 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/v1/updates":
             # Kartu peringatan/pengulangan hanya untuk firmware yang mengenalnya (kirim X-Firmware).
             known = bool(self.headers.get("X-Firmware"))
-            self._json(200, updates.updates(extra_cards=True) if known else updates.updates())
+            data = updates.updates(extra_cards=True) if known else updates.updates()
+            self._json(200, self._with_voice(data))
+            return
+        if path.startswith("/v1/speech/"):
+            self._speech(path.removeprefix("/v1/speech/"), wav=query.get("format") == ["wav"])
+            return
+        if path.startswith(clips.URL_PREFIX):
+            name = path.removeprefix(clips.URL_PREFIX)
+            if name not in clips.CLIPS:
+                raise RequestError(404, f"tidak ada pesan suara {name}")
+            try:
+                pcm = clips.load(name)
+            except tts.TTSError as e:
+                raise RequestError(502, f"TTS: {e}") from e
+            self._send_audio(pcm, wav=query.get("format") == ["wav"])
             return
         if path == intro.AUDIO_URL:
             self._send_audio(self._intro()[1], wav=query.get("format") == ["wav"])
             return
         raise RequestError(404, f"tidak ada {path}")
+
+    def _with_voice(self, data: dict) -> dict:
+        """Mode Suara: tandai status, beri audio_url tiap pemberitahuan, dan daftar pesan status."""
+        settings = voice_mode.load()
+        data["voice_mode"] = settings["enabled"]
+        if settings["enabled"]:
+            speed = voice_mode.SPEEDS[settings["speed"]]
+            for alert in data.get("alerts", []):
+                if alert.get("speech"):
+                    key = self.server.speech.add(clean_speech(alert["speech"]), speed)
+                    alert["audio_url"] = f"/v1/speech/{key}"
+            data["voice_clips"] = clips.urls()
+        return data
+
+    def _speech(self, key: str, wav: bool) -> None:
+        item = self.server.speech.get(key)
+        if item is None:
+            raise RequestError(404, "suara pemberitahuan tidak ada atau sudah usang")
+        with item["lock"]:
+            if item["pcm"] is None:
+                try:
+                    item["pcm"] = b"".join(tts.stream(item["text"], speed=item["speed"]))
+                except tts.TTSError as e:
+                    raise RequestError(502, f"TTS: {e}") from e
+        voice_mode.record("alert")
+        self._send_audio(item["pcm"], wav)
 
     def _intro(self) -> tuple[dict, bytes]:
         try:
@@ -385,6 +465,9 @@ class Handler(BaseHTTPRequestHandler):
         device_status.record(self.headers, "/v1/ask", latency_s=sum(timing.values()))
         audio_id = self.server.audio.add(result["speech"]) if result["speech"] else None
         log.info("[device] %r -> %r %s", question, result["speech"][:80], timing)
+        voice = voice_mode.enabled()  # dibaca setelah menjawab: bisa baru diubah lewat suara
+        if voice and audio_id:
+            voice_mode.record("answer")
         self._json(
             200,
             {
@@ -394,6 +477,8 @@ class Handler(BaseHTTPRequestHandler):
                 "screen": result["screen"],
                 "audio_url": f"/v1/audio/{audio_id}" if audio_id else None,
                 "timing": timing,
+                "voice_mode": voice,
+                **({"voice_clips": clips.urls()} if voice else {}),
             },
         )
 
@@ -405,9 +490,10 @@ class Handler(BaseHTTPRequestHandler):
             if item["pcm"] is not None:
                 self._send_audio(item["pcm"], wav)
                 return
-            chunks = tts.stream(item["text"])
+            chunks = tts.stream(item["text"], speed=voice_mode.speed_value())
             try:
-                first = next(chunks, b"")  # error kuota/kunci muncul di sini, sebelum header terkirim
+                # error kuota/kunci muncul di sini, sebelum header terkirim
+                first = next(chunks, b"")
                 if wav:
                     pcm = first + b"".join(chunks)
                     self.server.audio.set_pcm(item["id"], pcm)

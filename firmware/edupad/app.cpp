@@ -2,6 +2,7 @@
 // Rekaman dikirim ke POST /v1/ask sambil merekam (chunked); suara jawaban (audio_url) diambil
 // lewat koneksi yang sama dan diputar begitu tiba. Tekan 1x = putar ulang (server memakai
 // suara tersimpan, tanpa kuota TTS), tekan 2x = percakapan baru, tekan saat bicara = berhenti.
+// Mode Suara (voice.h): bunyi penanda, pemberitahuan dibacakan, dan pesan status bersuara.
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
@@ -13,6 +14,7 @@
 #include "mic.h"
 #include "secrets.h"
 #include "speaker.h"
+#include "voice.h"
 #include "wifi_setup.h"
 
 namespace {
@@ -67,10 +69,12 @@ String showResponse(const api::Response &res) {
   if (res.status == 0) {
     Serial.printf("[ask] gagal: %s\n", res.error.c_str());
     display::message("Gagal terhubung", res.error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
+    voice::say("server");
     return "";
   }
   if (res.status == 401) {  // layar dari server hanya "sedang ada gangguan"
     display::message("Token perangkat salah", "Samakan EDUPAD_DEVICE_TOKEN di secrets.h", "dan .env server", display::Tone::Error);
+    voice::say("error");
     return "";
   }
   JsonDocument doc;
@@ -79,22 +83,28 @@ String showResponse(const api::Response &res) {
     Serial.printf("[ask] HTTP %d, JSON tidak valid (%s): %.200s\n", res.status, err.c_str(),
                   res.body.c_str());
     display::message("Jawaban tidak valid", "Lihat Serial Monitor", nullptr, display::Tone::Error);
+    voice::say("error");
     return "";
   }
+  voice::update(doc.as<JsonVariantConst>());  // Mode Suara bisa baru diubah lewat pertanyaan ini
   const char *status = doc["status"] | "";
   Serial.printf("[ask] HTTP %d %s | stt %.2fs agent %.2fs | %s\n", res.status, status,
                 doc["timing"]["stt"] | 0.0f, doc["timing"]["agent"] | 0.0f,
                 doc["question"] | "");
   if (doc["error"].is<const char *>()) Serial.printf("[ask] error: %s\n", doc["error"].as<const char *>());
   display::answer(doc["screen"], doc["question"] | "", status);
-  if (strcmp(status, "ok") != 0) return "";
+  if (strcmp(status, "ok") != 0) {
+    voice::say(strcmp(status, "no_speech") == 0 ? "no_speech" : "error");
+    return "";
+  }
   newSession = false;
   lastAnswer = res.body;
   return doc["audio_url"] | "";
 }
 
 // Putar suara; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
-bool play(const String &path, bool replay) {
+// `alert`: suara pemberitahuan (Mode Suara), kegagalannya cukup ditandai bunyi.
+bool play(const String &path, bool replay, bool alert = false) {
   display::speaking(true);
   api::AudioResult r = api::streamAudio(path.c_str(), [](const uint8_t *pcm, size_t size) {
     if (buttonDown()) return false;
@@ -112,10 +122,26 @@ bool play(const String &path, bool replay) {
                 r.stopped ? " (dihentikan)" : "", r.error.c_str());
   if (replay && r.status == 404) {
     display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan tombol lalu bicara", display::Tone::Warn);
+    voice::say("no_answer");
   } else if (!r.stopped && !r.complete) {
     display::toast("Suara gagal diputar");
+    if (alert) {
+      voice::cue(voice::Cue::Error);
+    } else {
+      voice::say("audio");
+    }
   }
   return r.stopped;
+}
+
+// Dipanggil berkala selama menunggu jawaban: layar proses + ketukan "sedang berpikir".
+uint32_t nextThinkingMs = 0;
+void waitingForAnswer(uint32_t elapsedMs) {
+  display::processing(elapsedMs);
+  if (elapsedMs >= nextThinkingMs) {
+    voice::cue(voice::Cue::Thinking);
+    nextThinkingMs = elapsedMs + VOICE_THINKING_EVERY_MS;
+  }
 }
 
 Press ask() {
@@ -138,6 +164,7 @@ Press ask() {
         ok = api::askOpen(newSession, error);
       }
       if (!ok) break;
+      voice::cue(voice::Cue::Listen);  // rekaman dikirim: silakan bicara
     }
     if (ok && mic::available() >= 2048) {
       size_t n = mic::read(chunk, sizeof chunk, 0);
@@ -178,6 +205,7 @@ Press ask() {
     }
     Serial.printf("[ask] gagal: %s\n", error.c_str());
     display::message("Gagal mengirim", error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
+    voice::say(WiFi.status() != WL_CONNECTED ? "wifi" : "send");
     waitRelease();
     return press;
   }
@@ -192,8 +220,10 @@ Press ask() {
   }
   Serial.printf("[ask] rekaman %.1f s terkirim\n", held / 1000.0f);
 
+  voice::cue(voice::Cue::Sent);
   display::processing(0);
-  api::Response res = api::askFinish(display::processing);
+  nextThinkingMs = VOICE_THINKING_EVERY_MS;
+  api::Response res = api::askFinish(waitingForAnswer);
   press.audioPath = showResponse(res);
   waitRelease();  // bila rekaman berhenti karena MAX_RECORD_MS
   return press;
@@ -224,24 +254,31 @@ bool alertShown(const char *id) {
   return false;
 }
 
-// Satu pemberitahuan sampai waktunya habis atau tombol ditekan. true bila tombol masih ditahan
-// (pengguna langsung ingin bertanya); tekan singkat hanya menutup.
+// Tombol ditekan saat pemberitahuan tampil: true bila terus ditahan (pengguna langsung ingin
+// bertanya), false bila tekan singkat (hanya menutup).
+bool closeOrAsk() {
+  for (uint32_t pressed = millis(); buttonDown() && millis() - pressed < SHORT_PRESS_MS;) delay(10);
+  if (buttonDown()) return true;
+  delay(30);  // pantulan tombol
+  return false;
+}
+
+// Satu pemberitahuan sampai waktunya habis atau tombol ditekan; hasilnya seperti closeOrAsk().
+// Mode Suara: semua jenis berbunyi, lalu isinya dibacakan (audio_url dari server).
 bool showAlert(JsonObjectConst alert) {
   const char *kind = alert["kind"] | "";
   bool attendance = !strcmp(kind, "attendance");
   display::alert(alert);
-  if (attendance) speaker::chime();
+  if (attendance || voice::enabled()) speaker::chime();
+  const char *audio = alert["audio_url"] | "";
+  if (voice::enabled() && *audio && play(audio, false, true)) return closeOrAsk();
   uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
                       : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS
                       : !strcmp(kind, "warning")  ? ALERT_WARNING_MS
                       : !strcmp(kind, "review")   ? ALERT_REVIEW_MS
                                                   : ALERT_ATTENDED_MS;
   for (uint32_t start = millis(); millis() - start < duration; delay(20)) {
-    if (!buttonDown()) continue;
-    for (uint32_t pressed = millis(); buttonDown() && millis() - pressed < SHORT_PRESS_MS;) delay(10);
-    if (buttonDown()) return true;
-    delay(30);  // pantulan tombol
-    return false;
+    if (buttonDown()) return closeOrAsk();
   }
   return false;
 }
@@ -256,6 +293,7 @@ void checkUpdates(bool force = false) {
     Serial.printf("[updates] gagal: HTTP %d %s\n", res.status, res.error.c_str());
     return;
   }
+  voice::update(doc.as<JsonVariantConst>());
   display::clock(doc["now_ts"] | 0);
   display::schedule(doc["next_class"].as<JsonObjectConst>(), doc["stale"].as<JsonArrayConst>());
 
@@ -323,6 +361,8 @@ void setup() {
     while (true) delay(1000);
   }
 
+  voice::begin();
+
   Serial.printf("[mem] heap bebas %u, blok terbesar %u, PSRAM %u\n", (unsigned)ESP.getFreeHeap(),
                 (unsigned)ESP.getMaxAllocHeap(), (unsigned)ESP.getPsramSize());
   api::begin();
@@ -346,6 +386,7 @@ void setup() {
     Serial.printf("[api] health: HTTP %d %s\n", res.status, res.error.c_str());
     display::message("Server tidak terjangkau", res.status ? "Jawaban server tidak normal" : res.error.c_str(),
                      "Tetap bisa dicoba: tahan tombol", display::Tone::Warn);
+    voice::cue(voice::Cue::Error);
   }
   lastActivityMs = millis();
 }
@@ -353,6 +394,8 @@ void setup() {
 void loop() {
   checkWifi();
   checkUpdates();
+  // Pesan status Mode Suara diunduh saat menganggur, supaya tidak menunda tombol berikutnya.
+  if (!asleep && !buttonDown() && millis() - lastActivityMs > VOICE_IDLE_LOAD_MS) voice::loadPending();
   delay(10);
   if (!asleep && millis() - lastActivityMs > SLEEP_AFTER_MS) {
     asleep = true;
@@ -376,6 +419,7 @@ void loop() {
   Press press = ask();
   if (press.tap && woke) {
     if (press.shown) display::idle(newSession);  // kembali ke layar siap, animasi bangun berlanjut
+    voice::cue(voice::Cue::Wake);
     lastActivityMs = millis();
     return;
   }
@@ -383,6 +427,7 @@ void loop() {
     if (secondTap()) {
       newSession = true;
       display::idle(true);
+      voice::say("new_session");
       lastActivityMs = millis();
       return;
     }

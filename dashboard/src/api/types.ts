@@ -381,6 +381,28 @@ export interface EarlyWarning {
   kunci: string;
 }
 
+export type VoiceSpeed = "lambat" | "normal" | "cepat" | "sangat_cepat";
+
+/** Mode Suara: EduPad dipakai tanpa melihat layar (dirancang untuk mahasiswa tunanetra). */
+export interface VoiceModeData {
+  enabled: boolean;
+  speed: VoiceSpeed;
+  speeds: VoiceSpeed[];
+}
+
+/** Bukti aksesibilitas di Equity Radar: materi yang bisa didengar & suara yang diputar. */
+export interface AccessibilityData {
+  voice_mode: boolean;
+  speed: VoiceSpeed;
+  listenable_meetings: number;
+  meetings_with_material: number;
+  ocr_pages: number;
+  ocr_meetings: number;
+  questions_30d: number;
+  answers_spoken_30d: number;
+  alerts_spoken_30d: number;
+}
+
 export interface EquityData {
   access: {
     mata_kuliah: AccessCourse[];
@@ -398,6 +420,7 @@ export interface EquityData {
   mastery: MasteryOverview;
   voice: { questions_30d: number; listenable_meetings: number; meetings_with_material: number };
   rules: { semester_meetings: number; min_attendance: number };
+  accessibility: AccessibilityData;
 }
 
 /** Semua panel, dipakai client & mock agar nama endpoint selalu cocok. */
@@ -419,6 +442,7 @@ export interface DashboardData {
   tutor: TutorData;
   equity: EquityData;
   finance: FinanceData;
+  voice: VoiceModeData;
 }
 
 export type PanelKey = keyof DashboardData;

@@ -47,7 +47,8 @@ src/edupad/
 ├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate,
 │                      finance (keuangan suara), tutor (kuis lisan), radar (Equity Radar)
 ├── office/            Office API dashboard: login Google pemilik, data panel, event owl
-├── voice/             stt (Groq Whisper), tts (ElevenLabs); PCM 16 kHz untuk ESP32
+├── voice/             stt (Groq Whisper), tts (ElevenLabs), mode (Mode Suara), clips (pesan status
+│                      bersuara); PCM 16 kHz untuk ESP32
 ├── google/            oauth (login Google + PKCE), accounts (refresh token & sesi web)
 ├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md) + web
 ├── device_status.py   status perangkat terakhir (RSSI, uptime, firmware) untuk dashboard
@@ -80,6 +81,7 @@ Fitur yang tersambung dengan perangkat (satu sumber data untuk suara & dashboard
 | Keuangan | "tadi beli makan dua puluh lima ribu", "sisa anggaran makanku?", "atur anggaran transportasi tiga ratus ribu", "hapus yang tadi" | `#/keuangan`: catat manual, anggaran, laporan; transaksi suara diberi label |
 | Tutor Belajar (SDG 4.1/4.4) | "uji aku Basis Data pertemuan dua", "aku belum paham rekursi", "hari ini belajar apa?", "mulai" (bantuan SORA) | `#/tutor`: bantuan SORA (sebelum/sesudah), kurva belajar, penguasaan per topik, salah paham |
 | Equity Radar (SDG 4.5/4.a/10) | peringatan dini & pengingat mengulang tampil sebagai kartu di layar | `#/equity`: kesenjangan akses materi, kehadiran vs syarat ujian, langkah berikutnya |
+| Mode Suara (SDG 4.5, mahasiswa tunanetra) | "aktifkan mode suara", "bicara lebih cepat", "lanjut": semua jawaban & pemberitahuan dibacakan, bunyi penanda, pesan status tersimpan di perangkat | `#/pengaturan`: nyalakan & kecepatan; `#/equity`: kartu Aksesibilitas (pertemuan yang bisa didengar, halaman OCR, suara yang diputar) |
 | Monitoring | status perangkat dikirim lewat header (RSSI, uptime, firmware) | `#/monitoring`: perangkat, latensi `/v1/ask`, error |
 
 - Office API (`src/edupad/office/`, `python -m edupad office-api`, port 8001) melayani

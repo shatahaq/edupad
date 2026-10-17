@@ -59,7 +59,10 @@ class TTSError(RuntimeError):
 
 
 def _elevenlabs(
-    text: str, previous_text: str | None = None, next_text: str | None = None
+    text: str,
+    previous_text: str | None = None,
+    next_text: str | None = None,
+    speed: float | None = None,
 ) -> Iterator[bytes]:
     settings = get_settings()
     if not (settings.elevenlabs_api_key and settings.elevenlabs_voice_id):
@@ -68,7 +71,7 @@ def _elevenlabs(
         "text": text,
         "model_id": settings.tts_model,
         "language_code": "id",
-        "voice_settings": VOICE_SETTINGS,
+        "voice_settings": {**VOICE_SETTINGS, **({"speed": speed} if speed else {})},
         "seed": SEED,
     }
     payload.update(
@@ -128,7 +131,7 @@ class _Download:
         provider: Callable[..., Iterator[bytes]],
         text: str,
         retry_after: threading.Event | None = None,
-        **context: str,
+        **context: str | float,
     ):
         self.done = threading.Event()
         self._provider, self._text, self._context = provider, text, context
@@ -190,24 +193,30 @@ def _provider() -> Callable[..., Iterator[bytes]]:
     return PROVIDERS[name]
 
 
-def stream(text: str) -> Iterator[bytes]:
-    """Potongan PCM 16 kHz mono 16-bit, berurutan."""
+def stream(text: str, speed: float | None = None) -> Iterator[bytes]:
+    """Potongan PCM 16 kHz mono 16-bit, berurutan. `speed` menggantikan kecepatan bawaan."""
     text = " ".join(text.split())
     if not text:
         return iter(())
     if len(text) > MAX_TEXT_CHARS:
         raise TTSError(f"teks {len(text)} karakter melebihi batas {MAX_TEXT_CHARS}")
     provider = _provider()
+    extra = {"speed": speed} if speed else {}
     parts = split_first(text)
     if len(parts) == 1:
-        return _play(_Download(provider, text))
+        return _play(_Download(provider, text, **extra))
     first, rest = parts
-    head = _Download(provider, first, next_text=rest)
-    return _play(head, _Download(provider, rest, retry_after=head.done, previous_text=first))
+    head = _Download(provider, first, next_text=rest, **extra)
+    return _play(
+        head, _Download(provider, rest, retry_after=head.done, previous_text=first, **extra)
+    )
 
 
 def synthesize_part(
-    text: str, previous_text: str | None = None, next_text: str | None = None
+    text: str,
+    previous_text: str | None = None,
+    next_text: str | None = None,
+    speed: float | None = None,
 ) -> bytes:
     """Satu bagian dari naskah yang lebih panjang. Teks sebelum/sesudahnya hanya konteks
     intonasi (tidak ikut disuarakan dan tidak ditagih)."""
@@ -216,8 +225,11 @@ def synthesize_part(
         return b""
     if len(text) > MAX_TEXT_CHARS:
         raise TTSError(f"teks {len(text)} karakter melebihi batas {MAX_TEXT_CHARS}")
+    extra = {"speed": speed} if speed else {}
     with _SLOTS:
-        return b"".join(_provider()(text, previous_text=previous_text, next_text=next_text))
+        return b"".join(
+            _provider()(text, previous_text=previous_text, next_text=next_text, **extra)
+        )
 
 
 def synthesize(text: str) -> bytes:

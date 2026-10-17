@@ -94,6 +94,17 @@ export const equity: EquityData = {
   mastery: tutor,
   voice: { questions_30d: 86, listenable_meetings: 12, meetings_with_material: 12 },
   rules: { semester_meetings: 16, min_attendance: 0.75 },
+  accessibility: {
+    voice_mode: true,
+    speed: "cepat",
+    listenable_meetings: 12,
+    meetings_with_material: 12,
+    ocr_pages: 46,
+    ocr_meetings: 3,
+    questions_30d: 86,
+    answers_spoken_30d: 64,
+    alerts_spoken_30d: 21,
+  },
 };
 
 export const finance: FinanceData = {

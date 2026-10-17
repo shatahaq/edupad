@@ -28,6 +28,7 @@ export const ENDPOINTS: Record<PanelKey, string> = {
   tutor: "/v1/dashboard/tutor",
   equity: "/v1/dashboard/equity",
   finance: "/v1/dashboard/finance",
+  voice: "/v1/dashboard/voice",
 };
 
 /** Halaman depan web EduPad (login Google); dashboard kembali ke sini bila sesi habis. */

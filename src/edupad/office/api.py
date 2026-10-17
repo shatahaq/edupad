@@ -27,6 +27,7 @@ from edupad.office.dashboard_data import PANELS, panel
 from edupad.office.events import build_snapshot, emit_status
 from edupad.office.models import AgentState
 from edupad.office.repository import get_repository
+from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +72,11 @@ class FinanceImport(BaseModel):
 
     transactions: list[TransactionIn] = Field(default_factory=list, max_length=2000)
     budgets: dict[str, int] = Field(default_factory=dict)
+
+
+class VoiceModeIn(BaseModel):
+    enabled: bool | None = None
+    speed: Literal["lambat", "normal", "cepat", "sangat_cepat"] | None = None
 
 
 class DashboardFiles(StaticFiles):
@@ -220,6 +226,20 @@ def create_app() -> FastAPI:
         if added or body.budgets:
             _finance_event(f"{added} transaksi lama dipindahkan dari browser")
         return {"transactions": added, "budgets": len(body.budgets)}
+
+    # ------------------------------ Mode Suara ------------------------------
+    @api.put("/api/office/voice-mode")
+    def put_voice_mode(body: VoiceModeIn) -> dict:
+        data = voice_mode.save(body.enabled, body.speed)
+        emit_status(
+            "coordinator",
+            AgentState.SUCCEEDED,
+            room="command-center",
+            job_type="voice_mode",
+            message=f"Mode Suara {'aktif' if data['enabled'] else 'mati'} dari dashboard",
+            progress=100,
+        )
+        return {**data, "speeds": list(voice_mode.SPEEDS)}
 
     @api.get("/api/office/events")
     async def events(

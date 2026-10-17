@@ -23,6 +23,22 @@ yang jatuh tempo). Pada dua kartu terakhir, tahan tombol lalu bicara, mis. "uji 
 Firmware mengirim `X-Firmware` (`FIRMWARE_VERSION` di `config.h`) dan status Wi-Fi ke server;
 server baru mengirim dua kartu itu ke firmware 1.1+. Pratinjau: `cd preview && make`.
 
+**Mode Suara** (firmware 1.2+, untuk mahasiswa tunanetra): dinyalakan dengan mengucapkan
+"aktifkan mode suara" atau lewat dashboard (Pengaturan). Semua informasi lalu sampai lewat suara:
+
+| Kejadian | Yang terdengar |
+|---|---|
+| Tombol ditahan cukup lama | Bunyi naik: mulai merekam, silakan bicara |
+| Tombol dilepas | Bunyi turun: rekaman terkirim, lalu ketukan pelan tiap 2 detik selama EduPad berpikir |
+| Jawaban | Seluruh isinya dibacakan; jawaban panjang ditutup "mau dilanjutkan?" (jawab "lanjut") |
+| Pemberitahuan | Bunyi "ding-dong", lalu isinya dibacakan (presensi, deadline, peringatan, mengulang) |
+| Wi-Fi/server putus, suara tak terdengar, gagal kirim, percakapan baru | Pesan suara yang disimpan di perangkat (PSRAM), terdengar walau offline |
+
+Pesan status diunduh sekali dari server setelah Mode Suara aktif dan perangkat menganggur
+beberapa detik ([voice.cpp](edupad/voice.cpp)). Status Mode Suara disimpan di NVS. Animasi layar
+tetap ada untuk pendamping dan pengguna low vision. Saat Mode Suara mati, perilaku perangkat
+sama seperti firmware 1.1.
+
 Perangkat keras: ESP32-S3 DevKitC N16R8, LCD SPI ST7796 4" 320x480, mikrofon I2S INMP441,
 amplifier I2S MAX98357A + speaker 4-8 ohm.
 

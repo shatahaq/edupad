@@ -25,6 +25,7 @@ from edupad.core.files import read_json
 from edupad.core.supabase import SupabaseClient
 from edupad.processing.embeddings import EmbeddingError, embed_query, rerank
 from edupad.processing.summaries import get_summary
+from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
 
@@ -453,15 +454,28 @@ TOOLS: dict[str, Callable[..., dict]] = {
     **finance.TOOLS,
     **tutor.TOOLS,
     **coach.TOOLS,
+    **voice_mode.TOOLS,
 }
 
 # Tool penutup: memaksa jawaban akhir terstruktur untuk suara, LCD, dan detail.
 ANSWER_TOOL = "answer"
 
 
-def answer_schema(with_detail: bool) -> dict:
-    """Tanpa detail, model tidak menulis jawaban Markdown panjang (token output paling mahal)."""
+VOICE_SPEECH_DESCRIPTION = (
+    "Dibacakan TTS; Mode Suara: SELURUH isi jawaban (maks ~120 kata) karena pengguna tidak "
+    "melihat layar. Daftar dibacakan berurutan, angka & waktu seperti diucapkan, tanpa "
+    "Markdown/simbol/kode/URL. Bila masih ada lanjutan, akhiri dengan 'Mau dilanjutkan?'."
+)
+
+
+def answer_schema(with_detail: bool, voice: bool = False) -> dict:
+    """Tanpa detail, model tidak menulis jawaban Markdown panjang (token output paling mahal).
+    `voice`: Mode Suara, speech memuat seluruh isi (pengguna tidak melihat layar)."""
     schema = json.loads(json.dumps(_ANSWER_SCHEMA))
+    if voice:
+        schema["function"]["parameters"]["properties"]["speech"]["description"] = (
+            VOICE_SPEECH_DESCRIPTION
+        )
     if not with_detail:
         params = schema["function"]["parameters"]
         del params["properties"]["detail"]

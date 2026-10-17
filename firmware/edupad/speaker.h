@@ -15,6 +15,8 @@ void finish();
 void stop();
 // Bunyi "ding-dong" singkat (~0,9 s) untuk pemberitahuan; dibuat di perangkat, tanpa server.
 void chime();
+// Satu nada pendek (penanda Mode Suara, mis. mulai merekam). `amplitude` 0.0-1.0.
+void tone(float freq, uint16_t ms, float amplitude = 0.3f);
 // Keras suara (dBFS) yang sedang keluar, untuk gerak paruh burung hantu.
 float level();
 // Lama audio yang sudah terdengar sejak write() pertama (ms), untuk menyelaraskan layar.

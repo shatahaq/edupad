@@ -445,6 +445,8 @@ def _help_card(now: datetime, to_display_text) -> dict | None:
         "when": f"Penguasaan {round(before * 100)}%" if before is not None else "Pelajaran + kuis",
         "from_ts": 0,
         "to_ts": 0,
+        "speech": f"SORA sudah menyiapkan pelajaran singkat tentang {h['title']}, "
+        f"{h['course']} pertemuan {h['meeting']}. Ucapkan mulai untuk memulai.",
     }
 
 
@@ -499,6 +501,7 @@ def _device_alerts(now: datetime) -> list[dict]:
                 "from_ts": 0,
                 "to_ts": 0,
                 "level": "high" if w["tingkat"] == "tinggi" else "medium",
+                "speech": f"Peringatan. {w['pesan']}",
             }
         )
     if now.hour in REVIEW_HOURS:
@@ -524,6 +527,9 @@ def _device_alerts(now: datetime) -> list[dict]:
                     "from_ts": 0,
                     "to_ts": 0,
                     "count": len(due),
+                    "speech": f"Waktunya mengulang {t['judul'] or t['matkul']}"
+                    + (f", {t['matkul']} pertemuan {t['pertemuan']}" if t.get("pertemuan") else "")
+                    + f". Penguasaanmu {t['penguasaan']} persen. Ucapkan uji aku lagi untuk kuis.",
                 }
             )
     return alerts

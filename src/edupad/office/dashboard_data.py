@@ -25,11 +25,13 @@ from edupad.config import (
     BASE_DIR,
     CORPUS_DIR,
     LOG_DIR,
+    MARKDOWN_DIR,
     SCHEDULE_DIR,
     WIB,
     get_settings,
 )
 from edupad.core.supabase import SupabaseClient
+from edupad.voice import mode as voice_mode
 
 STARTED_AT = time.monotonic()
 
@@ -857,8 +859,44 @@ def equity() -> dict:
         "rules": dict(
             zip(("semester_meetings", "min_attendance"), _attendance_rules(), strict=True)
         ),
+        "accessibility": _accessibility(audit, len(answered)),
         "source": "local+supabase",
     }
+
+
+OCR_PAGES = re.compile(r"\+ocr\((\d+) hal\)")
+
+
+def _ocr_pages() -> int:
+    """Halaman materi berupa gambar yang diubah jadi teks (OCR), sehingga bisa dibacakan."""
+    index = _json(MARKDOWN_DIR / "index.json", {})
+    return sum(
+        int(m.group(1))
+        for entry in index.values()
+        if isinstance(entry, dict) and (m := OCR_PAGES.search(str(entry.get("converter") or "")))
+    )
+
+
+def _accessibility(audit: dict, questions_30d: int) -> dict:
+    """Bukti EduPad bisa dipakai tanpa melihat layar (Mode Suara, materi yang bisa didengar)."""
+    settings = voice_mode.load()
+    usage = voice_mode.usage(30)
+    return {
+        "voice_mode": settings["enabled"],
+        "speed": settings["speed"],
+        "listenable_meetings": audit["bisa_didengar"],
+        "meetings_with_material": audit["pertemuan_bermateri"],
+        "ocr_pages": _ocr_pages(),
+        "ocr_meetings": audit["pertemuan_ocr"],
+        "questions_30d": questions_30d,
+        "answers_spoken_30d": usage["answer"],
+        "alerts_spoken_30d": usage["alert"],
+    }
+
+
+def voice_panel() -> dict:
+    """Pengaturan Mode Suara untuk halaman Pengaturan dashboard."""
+    return {**voice_mode.load(), "speeds": list(voice_mode.SPEEDS), "source": "local"}
 
 
 def _attendance_rules() -> tuple[int, float]:
@@ -914,6 +952,7 @@ PANELS = {
     "tutor": tutor_panel,
     "equity": equity,
     "finance": finance_panel,
+    "voice": voice_panel,
 }
 
 

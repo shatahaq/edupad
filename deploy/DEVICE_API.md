@@ -56,9 +56,14 @@ cukup punya satu jalur tampilan:
     "lines": ["- Percabangan If-Else", "- ElseIf dan Nested If", "- Operator: And, Or, Not"]
   },
   "audio_url": "/v1/audio/1U_sndi5W3cq",
-  "timing": {"stt": 0.37, "agent": 2.63}
+  "timing": {"stt": 0.37, "agent": 2.63},
+  "voice_mode": false
 }
 ```
+
+`voice_mode` dibaca setelah menjawab, jadi langsung berubah bila pertanyaan ini menyalakan atau
+mematikan Mode Suara ("aktifkan mode suara"); saat aktif, `voice_clips` ikut dikirim (lihat
+[Mode Suara](#mode-suara)).
 
 Latensi (uji lokal, rekaman dikirim real-time): akhir bicara -> layar ~3,0 s (terukur),
 -> suara pertama ~4,0 s (layar + audio pertama TTS ~0,95 s yang terukur terpisah). Supaya tetap cepat, kirim rekaman **sambil merekam** (chunked):
@@ -154,6 +159,31 @@ Dicek perangkat tiap 2 menit saat menganggur (juga saat tidur), hanya membaca da
   - Isi kartu tambahan dihitung di `src/edupad/agent/radar.py` (cache 5 menit).
 - `stale`: sumber yang sesinya habis (`SATU`, `kelas.usu`); perangkat menampilkan peringatan.
 - Semua teks ASCII (font LCD). Isinya disusun di `src/edupad/agent/updates.py`.
+- Tiap pemberitahuan juga membawa `speech` (kalimat untuk dibacakan) dan `voice_mode` ada di
+  tingkat atas; saat Mode Suara aktif tiap pemberitahuan mendapat `audio_url` dan jawaban
+  memuat `voice_clips` (lihat bagian berikut).
+
+## Mode Suara
+
+EduPad bisa dipakai tanpa melihat layar, dirancang untuk mahasiswa tunanetra
+(`src/edupad/voice/mode.py`). Dinyalakan lewat suara ("aktifkan mode suara", "bicara lebih
+cepat") atau dashboard (Pengaturan); disimpan di `data/device/voice_mode.json`.
+
+- Jawaban AI memuat seluruh isi dalam `speech` (hingga ~900 karakter), tanpa merujuk ke layar,
+  dan menawarkan "mau dilanjutkan?" untuk penjelasan panjang. Kecepatan bicara (`lambat`,
+  `normal`, `cepat`, `sangat_cepat`) berlaku untuk semua suara jawaban.
+- `GET /v1/speech/{kunci}`: suara satu pemberitahuan (PCM seperti `/v1/audio`, `?format=wav`
+  untuk laptop). Kunci = hash teks + kecepatan, sehingga pemberitahuan yang sama hanya sekali
+  memakai kuota TTS.
+- `GET /v1/voice/clip/{nama}`: pesan status yang disimpan perangkat di PSRAM dan diputar sendiri,
+  sehingga tetap terdengar saat Wi-Fi atau server putus: `wifi`, `send`, `server`, `error`,
+  `no_speech`, `audio`, `no_answer`, `new_session` (teks di `src/edupad/voice/clips.py`).
+  `voice_clips` berisi alamat masing-masing dengan `?v=`; nilainya berganti bila suara atau
+  kecepatan berubah, tanda perangkat perlu mengunduh ulang.
+- Firmware 1.2 (`firmware/edupad/voice.cpp`): bunyi naik saat mulai merekam, bunyi turun saat
+  rekaman terkirim, ketukan pelan tiap 2 detik selama menunggu jawaban, semua pemberitahuan
+  berbunyi lalu dibacakan, dan pesan status di atas untuk setiap kegagalan. Status Mode Suara
+  disimpan di NVS, jadi bunyi penanda tetap ada walau server belum terjangkau saat menyala.
 
 ## GET /v1/health
 

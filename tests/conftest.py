@@ -3,6 +3,8 @@ import pytest
 from edupad import device_status
 from edupad.agent import coach, radar, tutor
 from edupad.office import events, repository
+from edupad.voice import clips
+from edupad.voice import mode as voice_mode
 
 
 @pytest.fixture(autouse=True)
@@ -16,6 +18,9 @@ def _office_state_in_tmp(tmp_path, monkeypatch):
     monkeypatch.setattr(device_status, "STATUS_FILE", tmp_path / "device" / "status.json")
     monkeypatch.setattr(device_status, "_state", {})
     monkeypatch.setattr(tutor, "BANK_FILE", tmp_path / "tutor" / "bank.json")
+    monkeypatch.setattr(voice_mode, "SETTINGS_FILE", tmp_path / "device" / "voice_mode.json")
+    monkeypatch.setattr(voice_mode, "EVENTS_FILE", tmp_path / "device" / "voice_events.jsonl")
+    monkeypatch.setattr(clips, "CLIPS_DIR", tmp_path / "voice" / "clips")
     yield
     events.flush()
 

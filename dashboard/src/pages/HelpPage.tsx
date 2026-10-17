@@ -37,6 +37,16 @@ const PHRASES: { owl: OwlName; name: string; topic: string; examples: string[] }
   },
 ];
 
+/** Mode Suara: semua lewat suara, untuk mahasiswa tunanetra (server: voice/mode.py). */
+const VOICE_MODE = [
+  ["Nyalakan", "Ucapkan “aktifkan mode suara”, atau lewat Pengaturan di dashboard."],
+  ["Bunyi naik", "Mulai merekam: silakan bicara sambil menahan tombol."],
+  ["Bunyi turun", "Rekaman terkirim; ketukan pelan berarti EduPad sedang berpikir."],
+  ["Jawaban", "Seluruh isinya dibacakan. Jawaban panjang ditutup “mau dilanjutkan?”; jawab “lanjut”."],
+  ["Pemberitahuan", "Presensi, deadline, dan peringatan dibacakan, bukan hanya tampil di layar."],
+  ["Kecepatan", "Ucapkan “bicara lebih cepat” atau “bicara lebih lambat”."],
+] as const;
+
 const CARDS = [
   ["Presensi dibuka", "Muncul dengan bunyi saat presensi bisa diisi, lengkap dengan jam tutupnya."],
   ["Deadline", "Dua hari dan tiga jam sebelum tugas ditutup."],
@@ -76,8 +86,8 @@ export function HelpPage() {
             <p className="prose">
               EduPad adalah asisten belajar berbentuk perangkat kecil yang cukup diajak bicara. Ia membaca materi dosen, tugas,
               presensi, dan jadwal kuliahmu, mengingatkan sebelum terlambat, dan menguji pemahamanmu lewat kuis lisan. Dibuat
-              untuk mendukung pendidikan yang berkualitas dan setara (SDG 4 dan 10): bisa dipakai tanpa layar besar, dan
-              kekosongan materi kuliah terlihat lewat Equity Radar.
+              untuk mendukung pendidikan yang berkualitas dan setara (SDG 4 dan 10): bisa dipakai tanpa layar besar, Mode
+              Suara membuatnya bisa dipakai mahasiswa tunanetra, dan kekosongan materi kuliah terlihat lewat Equity Radar.
             </p>
           </Section>
         </div>
@@ -88,6 +98,17 @@ export function HelpPage() {
               {BUTTONS.map(([action, effect]) => (
                 <li key={action}>
                   <span className="tag">{action}</span>
+                  <span className="item-text">{effect}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section title="Mode Suara" note="Dipakai tanpa melihat layar, dirancang untuk mahasiswa tunanetra">
+            <ul className="list">
+              {VOICE_MODE.map(([name, effect]) => (
+                <li key={name}>
+                  <span className="tag">{name}</span>
                   <span className="item-text">{effect}</span>
                 </li>
               ))}

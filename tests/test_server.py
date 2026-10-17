@@ -100,7 +100,7 @@ def fake_stt(monkeypatch):
 def fake_tts(monkeypatch):
     calls = []
 
-    def stream(text):
+    def stream(text, speed=None):
         calls.append(text)
         yield from (b"\x01", b"\x02\x03", b"\x04\x05")  # potongan ganjil, total 5 byte
 
@@ -237,11 +237,11 @@ def test_audio_as_wav_and_unknown_id(server, fake_tts):
 
 
 def test_tts_error_before_and_during_audio(server, monkeypatch):
-    def quota(text):
+    def quota(text, speed=None):
         raise srv.tts.TTSError("ElevenLabs HTTP 401: quota_exceeded")
         yield
 
-    def cut(text):
+    def cut(text, speed=None):
         yield b"\x01\x00" * 10
         raise srv.tts.TTSError("stream ElevenLabs terputus")
 
@@ -271,7 +271,7 @@ def test_new_answer_replaces_audio_and_latest_replays_without_tts(server, fake_t
 def test_audio_is_kept_when_device_stops_playback(server, monkeypatch):
     calls, sent_first = [], threading.Event()
 
-    def stream(text):
+    def stream(text, speed=None):
         calls.append(text)
         yield b"\x01\x00" * 4
         sent_first.wait(5)

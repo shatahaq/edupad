@@ -30,6 +30,7 @@ firmware/preview/out/
 
 # Suara perkenalan perangkat, dibuat server lewat TTS (python -m edupad intro)
 data/voice/intro/
+data/voice/clips/
 
 # EduPad Office frontend & local runtime state
 frontend/node_modules/

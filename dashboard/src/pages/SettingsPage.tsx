@@ -1,7 +1,11 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import { apiSend } from "../api/client";
+import type { VoiceSpeed } from "../api/types";
+import { usePanel } from "../api/usePanel";
 import { PageHeader } from "../components/PageHeader";
 import { FINANCE_BUDGETS_KEY, FINANCE_TRANSACTIONS_KEY, loadFinanceBudgets, loadFinanceTransactions } from "../lib/finance";
 import { loadPreferences, savePreferences, type DashboardPreferences } from "../lib/preferences";
+import { SPEED_LABEL } from "../lib/voice";
 
 export function SettingsPage() {
   const [draft, setDraft] = useState<DashboardPreferences>(loadPreferences);
@@ -30,6 +34,8 @@ export function SettingsPage() {
     <div className="settings-page">
       <PageHeader title="Pengaturan" subtitle="Nama tampilan dan kenyamanan tampilan dashboard." />
       <form className="settings-grid" onSubmit={submit}>
+        <VoiceModeSection />
+
         <section className="card settings-panel">
           <div className="settings-panel-head"><div><h2>Profil mahasiswa</h2><p>Nama ini tampil pada bagian bawah menu utama.</p></div></div>
           <div className="settings-fields">
@@ -55,5 +61,76 @@ export function SettingsPage() {
         <div className="settings-savebar"><span className={saved ? "visible" : ""}><i />Pengaturan berhasil disimpan</span><button type="submit" className="btn btn-dark">Simpan pengaturan</button></div>
       </form>
     </div>
+  );
+}
+
+/** Mode Suara (server, src/edupad/voice/mode.py): tersimpan langsung, tanpa tombol Simpan. */
+function VoiceModeSection() {
+  const panel = usePanel("voice");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  // Pilihan langsung tampil saat diklik; dikembalikan bila server menolak.
+  const [pending, setPending] = useState<{ enabled?: boolean; speed?: VoiceSpeed }>({});
+  useEffect(() => setPending({}), [panel.data]);
+  const data = panel.data && { ...panel.data, ...pending };
+
+  const change = async (body: { enabled?: boolean; speed?: VoiceSpeed }) => {
+    setBusy(true);
+    setError("");
+    setPending((current) => ({ ...current, ...body }));
+    try {
+      await apiSend("PUT", "/api/office/voice-mode", body);
+      panel.reload();
+    } catch (e) {
+      setPending({});
+      setError(e instanceof Error ? e.message : "Mode Suara gagal disimpan.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="card settings-panel">
+      <div className="settings-panel-head">
+        <div>
+          <h2>Mode Suara</h2>
+          <p>
+            Untuk mahasiswa tunanetra: semua jawaban dan pemberitahuan dibacakan, ada bunyi penanda saat mulai merekam. Tersimpan
+            langsung; bisa juga lewat suara, “aktifkan mode suara”.
+          </p>
+        </div>
+      </div>
+      {data ? (
+        <div className="settings-toggles">
+          <label>
+            <div>
+              <strong>Aktifkan Mode Suara</strong>
+              <span>Bunyi penanda dan pemberitahuan bersuara butuh firmware perangkat 1.2.</span>
+            </div>
+            <input type="checkbox" checked={data.enabled} disabled={busy} onChange={(event) => change({ enabled: event.target.checked })} />
+          </label>
+          <label>
+            <div>
+              <strong>Kecepatan bicara</strong>
+              <span>Berlaku untuk semua jawaban. Pengguna pembaca layar biasanya nyaman dengan yang lebih cepat.</span>
+            </div>
+            <select className="curve-select" value={data.speed} disabled={busy} onChange={(event) => change({ speed: event.target.value as VoiceSpeed })}>
+              {data.speeds.map((speed) => (
+                <option key={speed} value={speed}>
+                  {SPEED_LABEL[speed]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : (
+        <p className="empty-line">{panel.error ? `Belum bisa dimuat: ${panel.error}` : "Memuat…"}</p>
+      )}
+      {error && (
+        <div className="panel-error" role="alert">
+          {error}
+        </div>
+      )}
+    </section>
   );
 }

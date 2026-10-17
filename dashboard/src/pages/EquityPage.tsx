@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { AccessCourse, AttendanceRisk, EarlyWarning } from "../api/types";
+import type { AccessCourse, AccessibilityData, AttendanceRisk, EarlyWarning } from "../api/types";
 import { usePanel } from "../api/usePanel";
 import { PageIntro } from "../components/PageIntro";
 import { Bar, Figure, Section } from "../components/Section";
 import { dayLabel } from "../lib/format";
 import { go } from "../lib/router";
 import { loadPreferences } from "../lib/preferences";
+import { SPEED_LABEL } from "../lib/voice";
 
 const ACCESS: Record<AccessCourse["status"], { label: string; tone: string }> = {
   lengkap: { label: "Lengkap", tone: "good" },
@@ -145,6 +146,8 @@ export function EquityPage() {
         </div>
 
         <div className="column">
+          {data?.accessibility && <AccessibilitySection a={data.accessibility} />}
+
           {warnings.length > 0 && (
             <Section title="Perlu perhatian">
               <ul className="list">
@@ -217,5 +220,64 @@ export function EquityPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/** Bukti EduPad bisa dipakai tanpa melihat layar (Mode Suara untuk mahasiswa tunanetra). */
+function AccessibilitySection({ a }: { a: AccessibilityData }) {
+  const listenable = a.meetings_with_material ? (a.listenable_meetings / a.meetings_with_material) * 100 : 0;
+  return (
+    <Section
+      title="Aksesibilitas"
+      note="EduPad bisa dipakai tanpa melihat layar"
+      action={
+        <button className="section-link" onClick={() => go("pengaturan")}>
+          Atur
+        </button>
+      }
+    >
+      <ul className="list">
+        <li className="topic-row">
+          <div className="item-main">
+            <strong>Mode Suara</strong>
+            <span>
+              {a.voice_mode
+                ? `Semua jawaban & pemberitahuan dibacakan · bicara ${SPEED_LABEL[a.speed].toLowerCase()}`
+                : "Mati · nyalakan di Pengaturan atau lewat suara"}
+            </span>
+          </div>
+          <span className={`tag ${a.voice_mode ? "good" : ""}`}>{a.voice_mode ? "Aktif" : "Mati"}</span>
+        </li>
+        <li className="topic-row">
+          <div className="item-main">
+            <strong>Pertemuan yang bisa didengar</strong>
+            <span>Ringkasan materinya bisa dibacakan EduPad</span>
+            <Bar value={listenable} tone={listenable >= 80 ? "good" : "warn"} label={`${Math.round(listenable)}% pertemuan bermateri`} />
+          </div>
+          <b className="topic-pct">
+            {a.listenable_meetings}/{a.meetings_with_material}
+          </b>
+        </li>
+        <li className="topic-row">
+          <div className="item-main">
+            <strong>Halaman gambar jadi teks</strong>
+            <span>Slide berupa gambar dibaca dengan OCR, sehingga isinya ikut bisa didengar</span>
+          </div>
+          <b className="topic-pct">{a.ocr_pages}</b>
+        </li>
+        <li className="topic-row">
+          <div className="item-main">
+            <strong>Dibacakan 30 hari terakhir</strong>
+            <span>
+              {a.answers_spoken_30d} jawaban dan {a.alerts_spoken_30d} pemberitahuan dalam Mode Suara · {a.questions_30d} pertanyaan lewat suara
+            </span>
+          </div>
+          <b className="topic-pct">{a.answers_spoken_30d + a.alerts_spoken_30d}</b>
+        </li>
+      </ul>
+      <p className="say-hint">
+        Ucapkan ke EduPad: <q>{a.voice_mode ? "bicara lebih cepat" : "aktifkan mode suara"}</q>
+      </p>
+    </Section>
   );
 }

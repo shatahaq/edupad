@@ -16,7 +16,13 @@ from datetime import datetime
 import requests
 
 from edupad.agent import coach, finance, tutor
-from edupad.agent.formatting import clean_speech, fallback_answer, fit_screen
+from edupad.agent.formatting import (
+    MAX_SPEECH_CHARS,
+    VOICE_MODE_SPEECH_CHARS,
+    clean_speech,
+    fallback_answer,
+    fit_screen,
+)
 from edupad.agent.memory import ConversationMemory, turn_messages
 from edupad.agent.tools import (
     ANSWER_TOOL,
@@ -32,6 +38,7 @@ from edupad.core.files import now_iso
 from edupad.core.supabase import SupabaseError
 from edupad.office.events import emit_status
 from edupad.office.models import TOOL_AGENTS, AgentState
+from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +112,9 @@ class LLMError(RuntimeError):
     pass
 
 
-def _system_prompt(memory: ConversationMemory | None = None, with_detail: bool = True) -> str:
+def _system_prompt(
+    memory: ConversationMemory | None = None, with_detail: bool = True, voice: bool = False
+) -> str:
     now = datetime.now(WIB)
     today = f"{DAYS_ID[now.weekday()]}, {now:%d-%m-%Y}"  # per hari agar prefix prompt ter-cache
     detail_rule = (
@@ -114,7 +123,9 @@ def _system_prompt(memory: ConversationMemory | None = None, with_detail: bool =
         else "  * Tidak perlu jawaban panjang; layar dan suara sudah cukup."
     )
     prompt = SYSTEM_PROMPT.format(today=today, courses=course_overview(), detail_rule=detail_rule)
-    prompt += tutor.TUTOR_RULES
+    prompt += tutor.TUTOR_RULES + voice_mode.PROMPT_RULE
+    if voice:
+        prompt += voice_mode.VOICE_RULES
     if memory:
         prompt += MEMORY_PROMPT.format(facts="\n".join(f"- {f}" for f in memory.facts()) or "-")
     return prompt
@@ -276,14 +287,15 @@ def _log_usage(question: str, result: dict) -> None:
         log.warning("[!] gagal mencatat pemakaian token: %s", e)
 
 
-def _final(raw_args: str) -> dict:
+def _final(raw_args: str, voice: bool = False) -> dict:
     try:
         args = json.loads(raw_args or "{}")
     except json.JSONDecodeError:
         return fallback_answer(raw_args)
     detail = (args.get("detail") or "").strip()
+    limit = VOICE_MODE_SPEECH_CHARS if voice else MAX_SPEECH_CHARS
     return {
-        "speech": clean_speech(args.get("speech") or detail),
+        "speech": clean_speech(args.get("speech") or detail, limit),
         "screen": fit_screen(args.get("screen_title") or "EduPad", args.get("screen_lines") or []),
         "detail": detail,
     }
@@ -331,17 +343,19 @@ def ask(
     if memory:
         history = memory.history()
     history = list(history or [])
+    voice = voice_mode.enabled()
     schemas = [
         *tool_schemas(),
         *tutor.SCHEMAS,
         *coach.SCHEMAS,
         *finance.SCHEMAS,
-        answer_schema(with_detail),
+        *voice_mode.SCHEMAS,
+        answer_schema(with_detail, voice),
         *([REMEMBER_SCHEMA] if memory else []),
     ]
     quiz_note = tutor.context_note(getattr(memory, "user_id", None))
     messages = [
-        {"role": "system", "content": _system_prompt(memory, with_detail)},
+        {"role": "system", "content": _system_prompt(memory, with_detail, voice)},
         *history,
         # Kuis yang sedang berjalan: setelah riwayat agar awalan prompt tetap ter-cache.
         *([{"role": "system", "content": quiz_note}] if quiz_note else []),
@@ -379,7 +393,7 @@ def ask(
             continue
         if final_call or not calls:
             answer = (
-                _final(final_call["function"]["arguments"])
+                _final(final_call["function"]["arguments"], voice)
                 if final_call
                 else fallback_answer(message.get("content") or "")
             )

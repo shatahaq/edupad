@@ -7,6 +7,7 @@ from tests.test_tutor_finance import Db  # noqa: E402
 from edupad.agent import finance  # noqa: E402
 from edupad.google.accounts import AccountStore, SessionStore  # noqa: E402
 from edupad.office import api, auth  # noqa: E402
+from edupad.voice import mode as voice_mode  # noqa: E402
 
 OWNER = "pemilik@usu.ac.id"
 
@@ -132,3 +133,15 @@ def test_api_health_and_devices_come_from_real_device_traffic(tmp_path, monkeypa
     [device] = dashboard_data.devices()["devices"]
     assert device["online"] and device["rssi_dbm"] == -61 and device["avg_latency_s"] == 4.0
     assert device["firmware"] == "1.2"
+
+
+def test_dashboard_switches_voice_mode_for_owner_only(client):
+    body = {"enabled": True, "speed": "cepat"}
+    assert client.put("/api/office/voice-mode", json=body).status_code == 401
+    _login(client, OWNER, "g1")
+    response = client.put("/api/office/voice-mode", json=body)
+    assert response.status_code == 200 and response.json()["enabled"] is True
+    assert voice_mode.load() == {"enabled": True, "speed": "cepat"}
+    assert client.put("/api/office/voice-mode", json={"speed": "kilat"}).status_code == 422
+    panel = client.get("/v1/dashboard/voice").json()
+    assert panel["enabled"] is True and panel["speed"] == "cepat"

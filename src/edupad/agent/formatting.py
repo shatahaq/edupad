@@ -11,6 +11,7 @@ import textwrap
 import unicodedata
 
 MAX_SPEECH_CHARS = 450  # ~30 detik bicara
+VOICE_MODE_SPEECH_CHARS = 900  # ~60 detik: Mode Suara, semua isi lewat suara
 SCREEN_COLS = 38  # LCD 2,4" 320x240, font 8x16 dengan margin
 SCREEN_TITLE_COLS = 24  # judul memakai font 2x
 SCREEN_MAX_LINES = 9
@@ -53,16 +54,16 @@ def _strip_symbols(text: str) -> str:
     return "".join(ch for ch in text if unicodedata.category(ch)[0] in "LNPZ" or ch in "+-=<>/%\n")
 
 
-def clean_speech(text: str) -> str:
+def clean_speech(text: str, max_chars: int = MAX_SPEECH_CHARS) -> str:
     text = _strip_symbols(strip_markdown(text).translate(_ASCII_MAP))
     text = re.sub(r"\s*\n+\s*", ". ", text.strip())
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"\s+([.,;:!?])", r"\1", text)
     text = re.sub(r"([.!?])[.,;:\s]+(?=\S)", r"\1 ", text)
-    if len(text) > MAX_SPEECH_CHARS:
-        cut = text[:MAX_SPEECH_CHARS]
+    if len(text) > max_chars:
+        cut = text[:max_chars]
         end = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "))
-        text = cut[: end + 1] if end > MAX_SPEECH_CHARS // 3 else cut.rsplit(" ", 1)[0] + "."
+        text = cut[: end + 1] if end > max_chars // 3 else cut.rsplit(" ", 1)[0] + "."
     return text.strip()
 
 
