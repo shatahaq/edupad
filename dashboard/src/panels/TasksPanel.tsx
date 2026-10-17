@@ -3,7 +3,6 @@ import type { Task } from "../api/types";
 import { Icon } from "../components/Icon";
 import { Panel } from "../components/Panel";
 import { countdown, dayLabel, hourLabel } from "../lib/format";
-import { go } from "../lib/router";
 
 const DAY_MS = 86_400_000;
 
@@ -98,46 +97,6 @@ export function TasksPanel() {
               </ul>
             ) : (
               <p className="empty">Tidak ada tugas di kategori ini.</p>
-            )}
-          </>
-        );
-      }}
-    </Panel>
-  );
-}
-
-/** Tugas yang belum dikumpulkan, deadline terdekat dulu (Beranda). */
-export function UpcomingTasksPanel({ limit = 4 }: { limit?: number }) {
-  return (
-    <Panel
-      panel="assignments"
-      title="Tugas mendekati deadline"
-      subtitle="Belum dikumpulkan"
-      action={
-        <button className="link-btn" onClick={() => go("tugas")}>
-          Semua
-        </button>
-      }
-    >
-      {(d) => {
-        const pending = sortTasks(d.tasks.filter(FILTERS[0].match), "pending");
-        const overdue = d.tasks.filter(FILTERS[1].match).length;
-        return (
-          <>
-            {pending.length ? (
-              <ul className="rows tasks">
-                {pending.slice(0, limit).map((t) => (
-                  <TaskRow key={`${t.sumber}-${t.id}`} t={t} />
-                ))}
-              </ul>
-            ) : (
-              <p className="empty">Semua tugas sudah dikumpulkan.</p>
-            )}
-            {(overdue > 0 || pending.length > limit) && (
-              <p className="footnote">
-                {pending.length > limit && <>{pending.length - limit} tugas lain belum dikumpulkan. </>}
-                {overdue > 0 && <span className="bad-text">{overdue} tugas lewat deadline belum dikumpulkan.</span>}
-              </p>
             )}
           </>
         );

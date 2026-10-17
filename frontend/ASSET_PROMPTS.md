@@ -2,7 +2,9 @@
 
 Generated with the built-in Imagegen tool on 2026-10-13. The user's supplied office image was
 used only as a composition and style reference. All project assets were generated as original
-artwork and saved locally under `public/assets/`.
+artwork and saved locally. Files loaded by the office at runtime live in `public/assets/`;
+source sheets and earlier versions live in `art/` (same folder layout) so they are not shipped
+with the dashboard build.
 
 ## Office map
 
@@ -15,7 +17,7 @@ artwork and saved locally under `public/assets/`.
 > and clean character floor space. Environment only: no characters, embedded text, logos,
 > watermark, isometric angle, blur, antialiasing, or furniture blocking corridors.
 
-Output: `public/assets/office/edupad-office-map-v1.png`.
+Output: `art/office/edupad-office-map-v1.png`.
 
 ## Calm structural office shell v2
 
@@ -28,7 +30,7 @@ Output: `public/assets/office/edupad-office-map-v1.png`.
 > stone floors, subtle cyan highlights, and small yellow light accents. No text, characters,
 > furniture, or objects.
 
-Output: `public/assets/office/edupad-office-shell-v2.png`.
+Output: `art/office/edupad-office-shell-v2.png`.
 
 ## Modular office furniture atlas v1
 
@@ -40,7 +42,7 @@ Output: `public/assets/office/edupad-office-shell-v2.png`.
 > navy sofa; tall plant, small plant, office chair, technology kiosk. No characters, labels,
 > logos, background, visible grid, borders, or cropped objects.
 
-Output: `public/assets/office/office-furniture-atlas-v1.png`.
+Output: `art/office/office-furniture-atlas-v1.png`.
 
 ### Safe-gutter atlas v2
 
@@ -53,7 +55,7 @@ objects.
 
 Outputs:
 
-- `public/assets/office/office-furniture-atlas-source-v2.png`
+- `art/office/office-furniture-atlas-source-v2.png`
 - `public/assets/office/office-furniture-atlas-v2.png`
 
 ## Foreground wall layer v1
@@ -65,7 +67,7 @@ Outputs:
 > characters, text, labels, and decoration. Every non-wall pixel is transparent and every door
 > opening remains transparent.
 
-Output: `public/assets/office/edupad-office-walls-v1.png`.
+Output: `art/office/edupad-office-walls-v1.png`.
 
 ## PIXEL walk sheet
 
@@ -76,7 +78,7 @@ Output: `public/assets/office/edupad-office-walls-v1.png`.
 > handcrafted 16-bit pixels with no antialiasing. Transparent background; no labels, borders,
 > floor, shadow, logo, watermark, props, cropped limbs, or character redesign between frames.
 
-Output: `public/assets/agents/pixel/pixel-walk-v1.png`.
+Output: `art/agents/pixel/pixel-walk-v1.png`.
 
 ## PIXEL action sheet
 
@@ -98,7 +100,7 @@ Output: `public/assets/agents/pixel/pixel-actions-v1.png`.
 > office map. Keep the background genuinely transparent and preserve the exact silhouette,
 > palette, scale, anchor, and pixel treatment.
 
-Output: `public/assets/agents/pixel/pixel-actions-seated-v2.png`.
+Output: `art/agents/pixel/pixel-actions-seated-v2.png`.
 
 ## Role-based work action sheet v1
 
@@ -108,7 +110,7 @@ Output: `public/assets/agents/pixel/pixel-actions-seated-v2.png`.
 > gestures. Preserve character scale, proportions, palette, antenna, outline, pixel density, and
 > stable anchors. Do not draw floors, desks, chairs, large props, text, labels, or borders.
 
-Output: `public/assets/agents/pixel/pixel-work-actions-v1.png`.
+Output: `art/agents/pixel/pixel-work-actions-v1.png`.
 
 NOVA, SORA, TEMPO, METRIC, and NEXUS intentionally reuse the same canonical walk/action sheets.
 Phaser applies each agent's configured accent tint at runtime. This prevents per-frame geometry

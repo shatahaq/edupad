@@ -1,4 +1,4 @@
-import { assetUrl } from './assetUrl'
+import { assetUrl } from './assetUrl.ts' // keep the extension: scripts/test-owl-navigation.mjs loads this file with plain Node
 
 // Shared by Phaser, the editor, detail dialogs and the route validation tests.
 export type Point = { x: number; y: number }

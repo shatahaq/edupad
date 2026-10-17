@@ -77,7 +77,7 @@ export function Sidebar({ active, open, onNavigate, onClose }: Props) {
                     title={badge?.title}
                     onClick={() => onNavigate(item.id)}
                   >
-                    <i className="nav-dot" aria-hidden />
+                    <Icon name={item.icon} size={18} />
                     <span>{item.label}</span>
                     {badge && <span className={`nav-badge ${badge.tone ?? ""}`}>{badge.text}</span>}
                   </button>

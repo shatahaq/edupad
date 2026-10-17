@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Topbar } from "./components/Topbar";
-import { NAV_ITEMS, pageLabel, type NavId } from "./lib/nav";
-import { go, useRoute, type Page } from "./lib/router";
+import { pageLabel } from "./lib/nav";
+import { go, useRoute } from "./lib/router";
 import { applyPreferences, loadPreferences } from "./lib/preferences";
 import { CONSENT_URL, useViewer } from "./lib/session";
 import { AttendancePage } from "./pages/AttendancePage";
@@ -13,11 +13,13 @@ import { HelpPage } from "./pages/HelpPage";
 import { HomePage } from "./pages/HomePage";
 import { LearningPage } from "./pages/LearningPage";
 import { MonitoringPage } from "./pages/MonitoringPage";
-import { OfficePage } from "./pages/OfficePage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TasksPage } from "./pages/TasksPage";
 import { TutorPage } from "./pages/TutorPage";
+
+// Kantor virtual memakai Phaser (~1 MB); dimuat terpisah agar halaman lain tetap cepat dibuka.
+const OfficePage = lazy(() => import("./pages/OfficePage").then((m) => ({ default: m.OfficePage })));
 
 export function App() {
   const { page, section } = useRoute();
@@ -44,14 +46,9 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [drawer]);
 
-  const navigate = (id: NavId) => {
-    if (NAV_ITEMS.find((i) => i.id === id)?.target === false) return;
-    go(id as Page);
-  };
-
   return (
     <div className="app">
-      <Sidebar active={page} open={drawer} onNavigate={navigate} onClose={() => setDrawer(false)} />
+      <Sidebar active={page} open={drawer} onNavigate={go} onClose={() => setDrawer(false)} />
 
       <div className="main">
         <Topbar page={pageLabel(page)} onMenu={() => setDrawer(true)} />
@@ -70,7 +67,11 @@ export function App() {
         )}
 
         <main className={`content ${page === "office" ? "content-office" : ""}`}>
-          {page === "office" && <OfficePage />}
+          {page === "office" && (
+            <Suspense fallback={<p className="empty-line">Membuka AI Office…</p>}>
+              <OfficePage />
+            </Suspense>
+          )}
           {page === "beranda" && <HomePage />}
           {page === "presensi" && <AttendancePage />}
           {page === "tugas" && <TasksPage />}

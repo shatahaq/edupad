@@ -21,7 +21,8 @@ status PIXEL dan workstation `knowledge-index-01` ke Phaser.
 Kantor owl terbaru memakai peta struktural `edupad-office-empty-v2.png`; meja, rak server,
 tanaman, dan sofa adalah 16 sprite transparan terpisah di `public/assets/office/furniture-muted/`.
 Masing-masing dipasang dengan rasio asli agar tidak gepeng. Area di luar peta mengikuti lantai
-kotak-kotak abu-abu kantor. Aset kantor lama tetap disimpan.
+kotak-kotak abu-abu kantor. Aset kantor lama dan gambar sumber (bahan skrip di `scripts/`)
+disimpan di `art/`, bukan di `public/`, agar tidak ikut ter-build ke dashboard.
 
 Tujuh owl menggunakan spritesheet per karakter. Saat tanpa tugas, mereka bergantian membaca,
 beristirahat, dan berjalan melewati koridor lalu kembali ke tempat kerja. Gerak memakai A* di

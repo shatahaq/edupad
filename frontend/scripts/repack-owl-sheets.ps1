@@ -1,4 +1,5 @@
 param(
+    [string]$SourceDirectory = (Join-Path $PSScriptRoot "..\art\agents\owls"),
     [string]$AssetDirectory = (Join-Path $PSScriptRoot "..\public\assets\agents\owls"),
     [int]$FrameSize = 320
 )
@@ -9,7 +10,7 @@ Add-Type -AssemblyName System.Drawing
 $agentNames = @("nova", "pixel", "sora", "tempo", "metric", "nexus", "koin")
 
 foreach ($agentName in $agentNames) {
-    $sourcePath = Join-Path $AssetDirectory "$agentName-owl-v1.png"
+    $sourcePath = Join-Path $SourceDirectory "$agentName-owl-v1.png"
     $targetPath = Join-Path $AssetDirectory "$agentName-owl-sheet-v1.png"
     if (-not (Test-Path -LiteralPath $sourcePath)) {
         throw "Aset sumber tidak ditemukan: $sourcePath"

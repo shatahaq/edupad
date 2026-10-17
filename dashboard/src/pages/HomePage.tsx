@@ -2,7 +2,7 @@ import type { ClassSlot, FinanceData, Task, Weekday } from "../api/types";
 import { usePanel } from "../api/usePanel";
 import { PageIntro } from "../components/PageIntro";
 import { Bar, Section } from "../components/Section";
-import { countdown, dayLabel, hourLabel } from "../lib/format";
+import { countdown, dayLabel, hourLabel, wibDate } from "../lib/format";
 import { go } from "../lib/router";
 import { useViewer } from "../lib/session";
 import { classState, todayWeekday } from "../panels/SchedulePanels";
@@ -14,7 +14,7 @@ const money = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR
 const hm = (hhmm: string) => hhmm.replace(":", ".");
 
 function greeting() {
-  const hour = Number(hourLabel(new Date().toISOString()).split(".")[0]);
+  const hour = Number(hourLabel(new Date().toISOString()).slice(0, 2));
   if (hour < 4) return "Selamat malam";
   if (hour < 11) return "Selamat pagi";
   if (hour < 15) return "Selamat siang";
@@ -207,7 +207,7 @@ export function HomePage() {
 
 function MoneySection({ finance }: { finance: FinanceData | null }) {
   if (!finance?.available) return null;
-  const month = new Date().toISOString().slice(0, 7);
+  const month = wibDate(Date.now()).slice(0, 7);
   const spent = finance.transactions
     .filter((t) => t.kind === "expense" && String(t.occurred_on).startsWith(month))
     .reduce((total, t) => total + Number(t.amount), 0);

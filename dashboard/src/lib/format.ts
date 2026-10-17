@@ -2,8 +2,6 @@ const nf = new Intl.NumberFormat("id-ID");
 const timeFmt = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" });
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" });
 
-const fullDateFmt = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
-
 export const num = (n: number) => nf.format(n);
 /** Desimal gaya Indonesia tanpa satuan: 3,0 */
 export const dec = (n: number, digits = 1) => n.toFixed(digits).replace(".", ",");
@@ -12,7 +10,6 @@ export const secs = (n: number | null) => (n == null ? "—" : `${n.toFixed(1).r
 export const usd = (n: number, digits = 2) => `$${n.toFixed(digits)}`;
 export const hourLabel = (iso: string) => timeFmt.format(new Date(iso));
 export const dayLabel = (iso: string) => dateFmt.format(new Date(iso));
-export const fullDate = (d: Date) => fullDateFmt.format(d);
 
 export function ago(iso: string | null): string {
   if (!iso) return "—";
@@ -30,12 +27,10 @@ export function duration(s: number): string {
 }
 
 const isoDateFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" });
-const weekdayFmt = new Intl.DateTimeFormat("id-ID", { weekday: "long", timeZone: "Asia/Jakarta" });
 const shortDayFmt = new Intl.DateTimeFormat("id-ID", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Jakarta" });
 
 /** Tanggal WIB "YYYY-MM-DD", untuk membandingkan hari. */
 export const wibDate = (d: string | Date | number) => isoDateFmt.format(new Date(d));
-export const weekdayLabel = (iso: string) => weekdayFmt.format(new Date(iso));
 
 /** "Hari ini" / "Besok" / "Kemarin" / "Sen, 14 Okt". */
 export function dayHeading(iso: string): string {

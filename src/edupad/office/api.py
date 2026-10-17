@@ -230,7 +230,11 @@ def create_app() -> FastAPI:
             marker = after or last_event_id
             heartbeat = 0
             while True:
-                rows = get_repository().list_events(after=marker, limit=100)
+                # Query Supabase bersifat blocking: jalankan di thread agar event loop
+                # (dan permintaan lain ke proses ini) tidak ikut menunggu.
+                rows = await asyncio.to_thread(
+                    get_repository().list_events, after=marker, limit=100
+                )
                 for row in rows:
                     marker = str(row["id"])
                     yield f"id: {marker}\nevent: office.status\ndata: {json.dumps(row, ensure_ascii=False)}\n\n"

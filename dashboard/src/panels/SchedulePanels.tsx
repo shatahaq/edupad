@@ -1,7 +1,7 @@
 import type { ClassSlot, Weekday } from "../api/types";
 import { Panel } from "../components/Panel";
 import { Icon } from "../components/Icon";
-import { countdown, hourLabel, wibDate } from "../lib/format";
+import { hourLabel, wibDate } from "../lib/format";
 
 const ORDER: Weekday[] = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"];
 const LABEL: Record<Weekday, string> = { senin: "Senin", selasa: "Selasa", rabu: "Rabu", kamis: "Kamis", jumat: "Jumat", sabtu: "Sabtu", minggu: "Minggu" };
@@ -12,9 +12,6 @@ export function todayWeekday(): Weekday {
   const days = Math.round((Date.parse(wibDate(Date.now())) - Date.parse("2024-01-01")) / 86_400_000);
   return ORDER[((days % 7) + 7) % 7];
 }
-
-/** "HH:MM" WIB hari ini -> ISO, untuk countdown. */
-const todayAt = (hhmm: string) => new Date(`${wibDate(Date.now())}T${hhmm}:00+07:00`).toISOString();
 
 export type ClassState = "selesai" | "berlangsung" | "nanti";
 
@@ -29,47 +26,6 @@ export function classesToday(classes: ClassSlot[]) {
 }
 
 const hm = (hhmm: string) => hhmm.replace(":", ".");
-
-export function TodaySchedulePanel() {
-  return (
-    <Panel panel="schedule" title="Jadwal hari ini" subtitle="Kelas dan ruangan">
-      {(d) => {
-        const list = classesToday(d.classes);
-        if (!list.length) return <p className="empty">Tidak ada kelas hari ini.</p>;
-        return (
-          <ol className="timeline">
-            {list.map((c) => {
-              const state = classState(c);
-              return (
-                <li key={`${c.kode}-${c.mulai}`} className={state}>
-                  <div className="slot-time mono">
-                    {hm(c.mulai)}
-                    <span>{hm(c.selesai)}</span>
-                  </div>
-                  <div className="row-main">
-                    <div className="cell-strong wrap">{c.course}</div>
-                    <div className="cell-sub wrap">
-                      {c.nama_ruang} · {c.ruang}
-                    </div>
-                  </div>
-                  <div className="row-side">
-                    {state === "berlangsung" ? (
-                      <span className="pill good">Berlangsung</span>
-                    ) : state === "selesai" ? (
-                      <span className="cell-sub">selesai</span>
-                    ) : (
-                      <span className="cell-sub mono">{countdown(todayAt(c.mulai))}</span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        );
-      }}
-    </Panel>
-  );
-}
 
 export function WeekSchedulePanel() {
   return (

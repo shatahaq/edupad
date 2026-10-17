@@ -27,15 +27,6 @@ interface Entry {
 
 const entries = new Map<PanelKey, Entry>();
 
-export interface Summary {
-  /** Waktu data terbaru dari panel mana pun yang sedang tampil. */
-  updatedAt: Date | null;
-  loading: boolean;
-}
-
-let summary: Summary = { updatedAt: null, loading: false };
-const summaryListeners = new Set<() => void>();
-
 function entry(panel: PanelKey): Entry {
   let e = entries.get(panel);
   if (!e) {
@@ -49,18 +40,6 @@ function update(panel: PanelKey, patch: Partial<PanelSnapshot<unknown>>) {
   const e = entry(panel);
   e.snap = { ...e.snap, ...patch };
   e.listeners.forEach((l) => l());
-
-  let updatedAt: Date | null = null;
-  let loading = false;
-  for (const x of entries.values()) {
-    if (!x.listeners.size) continue;
-    loading ||= x.snap.loading;
-    if (x.snap.updatedAt && (!updatedAt || x.snap.updatedAt > updatedAt)) updatedAt = x.snap.updatedAt;
-  }
-  if (updatedAt !== summary.updatedAt || loading !== summary.loading) {
-    summary = { updatedAt, loading };
-    summaryListeners.forEach((l) => l());
-  }
 }
 
 function load(panel: PanelKey) {
@@ -100,18 +79,4 @@ export function usePanel<K extends PanelKey>(panel: K): PanelState<DashboardData
   const snap = useSyncExternalStore(sub, () => entry(panel).snap) as PanelSnapshot<DashboardData[K]>;
   const reload = useCallback(() => load(panel), [panel]);
   return { ...snap, reload };
-}
-
-/** Muat ulang semua panel yang sedang tampil. */
-export function reloadAll() {
-  for (const [panel, e] of entries) if (e.listeners.size) load(panel);
-}
-
-const subscribeSummary = (l: () => void) => {
-  summaryListeners.add(l);
-  return () => summaryListeners.delete(l);
-};
-
-export function useSummary(): Summary {
-  return useSyncExternalStore(subscribeSummary, () => summary);
 }

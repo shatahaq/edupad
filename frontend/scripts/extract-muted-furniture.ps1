@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.Drawing
 $assetDir = Join-Path $PSScriptRoot '../public/assets/office'
 $outputDir = Join-Path $assetDir 'furniture-muted'
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
-$source = [System.Drawing.Bitmap]::FromFile((Join-Path $assetDir 'furniture-muted-source-v1.png'))
+$source = [System.Drawing.Bitmap]::FromFile((Join-Path $PSScriptRoot '../art/office/furniture-muted-source-v1.png'))
 # Isolate each complete object, including silhouettes wider than a nominal atlas cell.
 # Coordinates are fractions of the inspected 1254px source; no distortion or recoloring.
 $regions = @(

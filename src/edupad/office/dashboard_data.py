@@ -641,11 +641,7 @@ def errors() -> dict:
     events: list[tuple[datetime, str]] = []
     pattern = re.compile(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d).*?(?:ERROR|WARNING)\s+(.*)$")
     for path in LOG_DIR.glob("*.log"):
-        try:
-            lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-        except OSError:
-            continue
-        for line in lines:
+        for line in _tail_lines(path):  # log tidak dirotasi: cukup bagian akhirnya
             match = pattern.match(line)
             if not match:
                 continue
@@ -775,14 +771,15 @@ def tutor_panel() -> dict:
     now = datetime.now(WIB)
     try:
         store = TutorStore()
+        # 500 kuis terbaru (bukan terlama), lalu dibalik agar kurva berurutan waktu.
         quizzes = store._run(
             store.db.select,
             "tutor_quizzes",
             "*",
             user_id=f"eq.{store.user_id}",
-            order="created_at.asc",
+            order="created_at.desc",
             limit="500",
-        )
+        )[::-1]
         scores: dict[str, list[float]] = defaultdict(list)
         for c in store.checks(since=now - timedelta(days=HISTORY_DAYS)):
             scores[str(c.get("quiz_id"))].append(float(c["score"]))

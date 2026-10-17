@@ -10,9 +10,9 @@ import {
   type ReactNode,
 } from 'react'
 
+import { assetUrl } from './game/assetUrl'
 import { useOfficeData } from './hooks/useOfficeData'
 import type {
-import { assetUrl } from './game/assetUrl'
   AgentState,
   IoTChatTurn,
   NewTask,

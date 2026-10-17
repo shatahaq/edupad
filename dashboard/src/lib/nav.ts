@@ -1,4 +1,3 @@
-import type { PanelKey } from "../api/types";
 import type { IconName } from "../components/Icon";
 import type { OwlName } from "./owls";
 import type { Page } from "./router";
@@ -9,10 +8,8 @@ export interface NavItem {
   id: NavId;
   label: string;
   icon: IconName;
-  /** Owl pemandu halaman (warna penanda di menu). Tanpa owl = halaman sistem. */
+  /** Owl pemandu halaman (warna ikon di menu). Tanpa owl = halaman sistem. */
   owl?: OwlName;
-  /** false = belum ada halaman tujuan. */
-  target?: false;
 }
 
 export const NAV: { group: string; items: NavItem[] }[] = [
@@ -57,16 +54,3 @@ export const NAV: { group: string; items: NavItem[] }[] = [
 export const NAV_ITEMS = NAV.flatMap((g) => g.items);
 
 export const pageLabel = (page: Page) => NAV_ITEMS.find((i) => i.id === page)?.label ?? "AI Office";
-
-/** Kartu di halaman Monitoring; id = kunci panel = id elemen kartu. */
-export const MONITOR_SECTIONS: { id: PanelKey; label: string }[] = [
-  { id: "api", label: "Kesehatan API" },
-  { id: "devices", label: "Perangkat" },
-  { id: "agent", label: "AI Agent" },
-  { id: "cost", label: "Biaya API" },
-  { id: "services", label: "Layanan luar" },
-  { id: "knowledge", label: "Basis pengetahuan" },
-  { id: "errors", label: "Error" },
-  { id: "resources", label: "Server" },
-  { id: "activity", label: "Aktivitas pengguna" },
-];

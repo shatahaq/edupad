@@ -98,8 +98,10 @@ export function FinancePage() {
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
 
-  // Draf anggaran mengikuti server; perubahan disimpan saat kolom ditinggalkan.
-  useEffect(() => setBudgets(panel.data?.budgets ?? {}), [panel.data]);
+  // Draf anggaran mengikuti server; perubahan disimpan saat kolom ditinggalkan. Disinkronkan
+  // hanya bila nilai di server berubah, agar refresh berkala tidak menimpa angka yang sedang diketik.
+  const savedKey = JSON.stringify(savedBudgets);
+  useEffect(() => setBudgets(JSON.parse(savedKey) as FinanceBudgets), [savedKey]);
 
   const saveBudget = async (name: string) => {
     const value = budgets[name] ?? 0;
@@ -112,9 +114,10 @@ export function FinancePage() {
     }
   };
 
-  const removeTransaction = async (id: string) => {
+  const removeTransaction = async (row: FinanceTransaction) => {
+    if (!window.confirm(`Hapus transaksi ${row.note || row.category} (${money.format(row.amount)})?`)) return;
     try {
-      await apiSend("DELETE", `/api/office/finance/transactions/${encodeURIComponent(id)}`);
+      await apiSend("DELETE", `/api/office/finance/transactions/${encodeURIComponent(row.id)}`);
       panel.reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Transaksi gagal dihapus.");
@@ -300,7 +303,7 @@ export function FinancePage() {
   );
 }
 
-function TransactionList({ rows, onDelete }: { rows: FinanceTransaction[]; onDelete: (id: string) => void }) {
+function TransactionList({ rows, onDelete }: { rows: FinanceTransaction[]; onDelete: (row: FinanceTransaction) => void }) {
   if (!rows.length) return <div className="finance-empty"><Icon name="clipboard" size={28} /><strong>Belum ada transaksi</strong><span>Data hanya muncul setelah Anda mencatat transaksi sebenarnya.</span></div>;
-  return <div className="transaction-list">{rows.map((row) => <article key={row.id}><span className={`transaction-icon ${row.kind}`} aria-hidden>{row.kind === "income" ? "+" : "−"}</span><div><strong>{row.note || row.category}{row.source === "suara" && <span className="pill chip voice-chip" title="Dicatat AI EduPad dari ucapan di perangkat">Suara</span>}</strong><span>{row.category} · {dateLabel.format(new Date(`${row.date}T12:00:00`))}</span></div><b className={row.kind}>{row.kind === "income" ? "+" : "−"}{money.format(row.amount)}</b><button type="button" onClick={() => onDelete(row.id)} aria-label={`Hapus ${row.note || row.category}`} title="Hapus transaksi">×</button></article>)}</div>;
+  return <div className="transaction-list">{rows.map((row) => <article key={row.id}><span className={`transaction-icon ${row.kind}`} aria-hidden>{row.kind === "income" ? "+" : "−"}</span><div><strong>{row.note || row.category}{row.source === "suara" && <span className="pill chip voice-chip" title="Dicatat AI EduPad dari ucapan di perangkat">Suara</span>}</strong><span>{row.category} · {dateLabel.format(new Date(`${row.date}T12:00:00`))}</span></div><b className={row.kind}>{row.kind === "income" ? "+" : "−"}{money.format(row.amount)}</b><button type="button" onClick={() => onDelete(row)} aria-label={`Hapus ${row.note || row.category}`} title="Hapus transaksi">×</button></article>)}</div>;
 }
