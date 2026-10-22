@@ -1,0 +1,481 @@
+/* ==========================================================================
+   EduPad NEO — lapisan tema neo-brutalism untuk dashboard.
+
+   Dimuat paling akhir, sesudah styles.css + readability.css + theme.css milik
+   dashboard versi pertama. Berkas ini hanya mengubah RUPA: warna, tepi, bayangan,
+   huruf, dan sudut. Tata letak, kelas, dan isi halaman tetap milik versi pertama.
+
+   Aturan bentuk ada di web-neo/DESIGN.md:
+   - tepi hitam 3 px, sudut siku, bayangan blok 5 px tanpa blur
+   - angka selalu memakai huruf teks (tabular), bukan huruf judul
+   ========================================================================== */
+
+:root {
+  /* ---- warna dasar ---- */
+  --floor: #f3ead9;
+  --floor-line: #e4d8c2;
+  --paper: #fffdf5;
+  --paper-2: #f7f1e4;
+  --edge: #111111;
+  --edge-soft: #111111;
+
+  /* "slate" dipakai untuk sidebar & bidang gelap: di sini hitam pekat */
+  --slate: #111111;
+  --slate-2: #262626;
+  --slate-3: #3a3a3a;
+  --slate-text: #fffdf5;
+  --slate-muted: #b7b1a4;
+
+  --ink: #111111;
+  --ink-2: #3a3a3a;
+  --ink-3: #5e5e5e;
+
+  --teal: #35c8f3;
+  --teal-ink: #0f6f86;
+
+  /* ---- warna status: bidang terang dengan teks gelap ---- */
+  --accent: #0f6f86;
+  --accent-bg: #cdf0fb;
+  --good: #0b6b3a;
+  --good-bg: #9ff0c8;
+  --warn: #8a5a00;
+  --warn-bg: #ffe066;
+  --bad: #b3121b;
+  --bad-bg: #ffb3b5;
+
+  --track: #e4d8c2;
+  --hover: #f1e7d5;
+
+  /* ---- bentuk ---- */
+  --radius: 0px;
+  --hard: 5px 5px 0 #111111;
+  --hard-dark: 5px 5px 0 #111111;
+  --sidebar: 258px;
+
+  /* ---- huruf ---- */
+  --font: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Archivo Black", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Ligatur tidak perlu dimatikan di sini (itu untuk Pixelify Sans), tetapi aturan di
+   theme.css memakai !important, jadi dibiarkan apa adanya. */
+
+body {
+  background: var(--ink);
+  font-family: var(--font);
+}
+
+/* ---------- kerangka ---------- */
+
+.app {
+  background: var(--ink);
+}
+
+.main {
+  margin: 10px 10px 10px 0;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--floor);
+}
+
+/* Garis grid halus pada latar isi: satu-satunya tekstur. */
+.content {
+  background-image:
+    linear-gradient(to right, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---------- sidebar ---------- */
+
+.sidebar {
+  background: var(--ink);
+  color: var(--slate-text);
+  border-right: 3px solid var(--ink);
+  padding: 18px 14px;
+}
+
+.sidebar .brand {
+  border-bottom: 3px solid var(--slate-3);
+  padding-bottom: 14px;
+}
+
+.sidebar .brand-owl {
+  border: 3px solid var(--slate-text);
+  background: var(--paper);
+  border-radius: 0;
+  padding: 2px;
+}
+
+.sidebar .brand-text strong {
+  font: 1.25rem/1 var(--display);
+  letter-spacing: 0;
+}
+
+.sidebar .nav-label {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--slate-muted);
+}
+
+.sidebar .nav-item {
+  border: 3px solid transparent;
+  border-radius: 0;
+  font-weight: 600;
+  min-height: 40px;
+}
+
+.sidebar .nav-item:hover {
+  background: var(--slate-2);
+}
+
+/* Halaman aktif: blok warna owl pemandunya, teks hitam, bingkai terang. */
+.sidebar .nav-item.active {
+  background: var(--owl, var(--teal));
+  border-color: var(--slate-text);
+  box-shadow: none;
+  color: var(--ink);
+}
+
+.sidebar .nav-item.active svg {
+  color: var(--ink);
+}
+
+.sidebar .nav-badge {
+  border: 2px solid var(--slate-text);
+  border-radius: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar .nav-badge.bad {
+  background: var(--bad-bg);
+  border-color: var(--slate-text);
+  color: #7a0d14;
+}
+
+.sidebar .nav-badge.good {
+  background: var(--good-bg);
+  border-color: var(--slate-text);
+  color: #064a27;
+}
+
+.sidebar .profile {
+  border-top: 3px solid var(--slate-3);
+}
+
+.sidebar .avatar {
+  border: 3px solid var(--slate-text);
+  border-radius: 0;
+}
+
+/* ---------- topbar (layar kecil) ---------- */
+
+@media (max-width: 900px) {
+  .topbar {
+    background: var(--ink);
+    color: var(--slate-text);
+    border-bottom: 3px solid var(--ink);
+  }
+
+  .topbar strong,
+  .topbar b {
+    font-family: var(--display);
+    letter-spacing: 0;
+  }
+
+  .main {
+    margin: 0;
+    border-width: 0;
+  }
+
+  .sidebar {
+    border-right: 3px solid var(--ink);
+  }
+}
+
+/* ---------- kartu & panel ---------- */
+
+.card {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--hard);
+}
+
+.card.strong {
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.panel-head,
+.section-head {
+  border-bottom-width: 3px;
+  border-bottom-color: var(--ink);
+}
+
+.card-title,
+.section-head h2,
+.finance-section-head h2,
+.settings-panel-head h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.card-title {
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+/* ---------- angka: selalu huruf teks, rata lebar ---------- */
+
+.kpi-value,
+.stat-value,
+.figure b,
+.finance-metric strong,
+.money b,
+.task-due b,
+.topic-pct,
+.help-score,
+.when b {
+  font-family: var(--font);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+}
+
+.unit {
+  font-family: var(--font);
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* ---------- judul halaman & sapaan owl ---------- */
+
+.intro h1 {
+  font: 2.25rem/1.05 var(--display);
+  letter-spacing: -0.01em;
+}
+
+.intro-owl {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: var(--hard);
+}
+
+.say {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: var(--hard);
+}
+
+/* Ekor gelembung ucapan ikut bersudut siku. */
+.say::before,
+.say::after {
+  border-radius: 0;
+}
+
+/* ---------- tombol ---------- */
+
+.btn {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+}
+
+.btn:hover {
+  background: var(--paper);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.btn-dark,
+.btn.primary {
+  background: #ffd400;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.btn-dark:hover,
+.btn.primary:hover {
+  background: #ffd400;
+}
+
+/* ---------- label status ---------- */
+
+.tag {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: none;
+  font-weight: 700;
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.tag.good {
+  background: var(--good-bg);
+  color: #064a27;
+}
+
+.tag.warn {
+  background: var(--warn-bg);
+  color: #6b4500;
+}
+
+.tag.bad {
+  background: var(--bad-bg);
+  color: #7a0d14;
+}
+
+/* ---------- isian ---------- */
+
+input,
+select,
+textarea,
+.search input {
+  border: 3px solid var(--ink) !important;
+  border-radius: 0 !important;
+  background: var(--paper);
+  font-family: var(--font);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---------- bilah & grafik sederhana ---------- */
+
+.bars-track,
+.bar,
+.budget-bar,
+.meter,
+.money .bar,
+.progress {
+  border-radius: 0;
+}
+
+/* Bilah kemajuan: kotak bertepi hitam, isinya blok penuh. */
+.bars-track,
+.budget-bar,
+.meter,
+.progress {
+  border: 2px solid var(--ink);
+  background: var(--track);
+}
+
+.recharts-cartesian-grid line {
+  stroke: rgba(17, 17, 17, 0.14);
+}
+
+.recharts-text {
+  fill: var(--ink-2);
+}
+
+/* ---------- tab & segmented ---------- */
+
+.segmented,
+.finance-tabs {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+}
+
+.segmented button,
+.finance-tabs button {
+  border-radius: 0;
+  font-weight: 700;
+}
+
+.segmented button[aria-selected="true"],
+.segmented button.active,
+.finance-tabs button[aria-selected="true"],
+.finance-tabs button.active {
+  background: #ffd400;
+  color: var(--ink);
+  box-shadow: none;
+}
+
+/* ---------- tabel ---------- */
+
+table {
+  border-collapse: collapse;
+}
+
+/* Di versi pertama tabel perangkat dipadatkan ke kolom 1/3 lebar, sehingga kolom "Latensi" dan
+   "Status" tersembunyi di balik gulir dalam kartu. Baris yang berisi tabel dibuat satu kolom
+   penuh supaya seluruh kolomnya terbaca. */
+@media (max-width: 1600px) {
+  .row-2-1:has(.table-wrap) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.table-wrap table {
+  font-size: 0.8125rem;
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+th {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-bottom: 3px solid var(--ink) !important;
+}
+
+td {
+  border-bottom: 2px solid rgba(17, 17, 17, 0.12);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- lain-lain ---------- */
+
+.empty,
+.empty-line {
+  border: 3px dashed var(--ink);
+  border-radius: 0;
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+
+.consent-banner {
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--warn-bg);
+  color: var(--ink);
+  box-shadow: var(--hard);
+}
+
+details,
+.help-faq details {
+  border-radius: 0;
+}

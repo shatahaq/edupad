@@ -44,7 +44,7 @@ curl http://localhost:8000/v1/health                              # harus: {"sta
 ```
 
 Server hanya mendengarkan di `127.0.0.1:8000`; dari internet (perangkat ESP32 dan browser)
-lewat Caddy di `https://shata.id` (bagian berikut), jadi port 8000 tetap tertutup. Server
+lewat Caddy di `https://edupad.ai.id` (bagian berikut), jadi port 8000 tetap tertutup. Server
 menolak berjalan tanpa `EDUPAD_DEVICE_TOKEN` bila bisa dicapai dari internet (`--host 0.0.0.0`
 atau `EDUPAD_PUBLIC_URL` bukan localhost). Kontrak API untuk firmware: [DEVICE_API.md](DEVICE_API.md).
 
@@ -85,13 +85,13 @@ Batasan dari Google yang perlu diketahui:
 
 ### 2. Domain & HTTPS di server (Cloudflare + Caddy)
 
-`shata.id` dikelola Cloudflare dengan proxy aktif (awan oranye): browser dan perangkat
+`edupad.ai.id` dikelola Cloudflare dengan proxy aktif (awan oranye): browser dan perangkat
 terhubung ke Cloudflare, Cloudflare meneruskan ke VPS lewat HTTPS.
 
 1. **Cloudflare → SSL/TLS → Overview**: mode **Full (strict)**.
 2. **Cloudflare → SSL/TLS → Origin Server → Create Certificate**: RSA 2048, hostname
-   `shata.id` dan `*.shata.id`, berlaku 15 tahun. Simpan *Origin Certificate* sebagai
-   `/etc/caddy/certs/shata.id.pem` dan *Private Key* sebagai `/etc/caddy/certs/shata.id.key`
+   `edupad.ai.id` dan `*.edupad.ai.id`, berlaku 15 tahun. Simpan *Origin Certificate* sebagai
+   `/etc/caddy/certs/edupad.ai.id.pem` dan *Private Key* sebagai `/etc/caddy/certs/edupad.ai.id.key`
    di server (`sudo chown root:caddy` dan `chmod 640` untuk kunci).
 3. **AWS → EC2 → Security Group**: inbound TCP **443** dari rentang IP Cloudflare
    (<https://www.cloudflare.com/ips/>), atau `0.0.0.0/0` bila ingin sederhana. Port 8000
@@ -103,7 +103,7 @@ sudo apt install -y caddy
 sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
 ```
 
-`.env` server: `EDUPAD_PUBLIC_URL=https://shata.id` (cookie sesi otomatis bertanda `Secure`).
+`.env` server: `EDUPAD_PUBLIC_URL=https://edupad.ai.id` (cookie sesi otomatis bertanda `Secure`).
 
 ### 3. Halaman web (React)
 
@@ -117,7 +117,7 @@ scp -r dist ubuntu@SERVER:Tugas_Akhir/web/
 
 # server
 sudo systemctl restart edupad-server
-curl -I https://shata.id/                    # harus: HTTP/2 200
+curl -I https://edupad.ai.id/                 # harus: HTTP/2 200
 ```
 
 ### 4. Sinkronisasi
@@ -128,7 +128,7 @@ juga dijalankan otomatis tepat setelah pengguna login. Manual:
 
 ### 5. Dashboard EduPad (AI Office, Keuangan, Tutor, Equity Radar)
 
-Dashboard (`dashboard/`, buatan tim) disajikan Office API di `https://shata.id/dashboard/`.
+Dashboard (`dashboard/`, buatan tim) disajikan Office API di `https://edupad.ai.id/dashboard/`.
 Setelah login Google di halaman depan, pengguna langsung dibawa ke sana. Hanya email di
 `EDUPAD_OWNER_EMAILS` yang bisa membuka datanya.
 
@@ -146,8 +146,8 @@ rsync -az --delete dashboard/dist/ ubuntu@SERVER:Tugas_Akhir/dashboard/dist/
 sudo cp deploy/edupad-office.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now edupad-office
 sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
-curl -I https://shata.id/dashboard/            # harus: HTTP/2 200
-curl https://shata.id/v1/dashboard/schedule    # harus: 401 (perlu login)
+curl -I https://edupad.ai.id/dashboard/          # harus: HTTP/2 200
+curl https://edupad.ai.id/v1/dashboard/schedule   # harus: 401 (perlu login)
 ```
 
 Opsional di `.env`: `EDUPAD_SEMESTER_MEETINGS=16`, `EDUPAD_MIN_ATTENDANCE=0.75` (batas

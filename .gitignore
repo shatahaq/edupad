@@ -40,3 +40,13 @@ data/office/
 data/tutor/
 data/device/
 .test-tmp/
+
+# Web & dashboard versi baru (neo): dependensi & hasil build dibuat ulang dengan npm
+web-neo/node_modules/
+web-neo/dist/
+dashboard-neo/node_modules/
+dashboard-neo/dist/
+dashboard-neo/.vite/
+
+# Log sementara browser otomatis (Playwright MCP)
+.playwright-mcp/

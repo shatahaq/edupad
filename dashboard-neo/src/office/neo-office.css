@@ -1,0 +1,202 @@
+/* Denah kantor AI versi neo-brutalism. Bentuknya mengikuti DESIGN.md: blok bertepi hitam,
+   bayangan keras, tanpa sudut membulat. */
+
+.no-office {
+  display: grid;
+  gap: 16px;
+}
+
+.no-offline {
+  margin: 0;
+  padding: 12px 16px;
+  border: 3px solid var(--ink);
+  background: var(--warn-bg);
+  color: var(--ink);
+  box-shadow: var(--hard);
+}
+
+.no-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.no-metric {
+  padding: 14px 16px;
+}
+
+.no-metric-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.no-metric-value {
+  margin: 6px 0 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Tujuh ruangan: tiga kolom di layar lebar, menyusut ke satu kolom di ponsel. */
+.no-floor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.no-room {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Isi kartu mengisi sisa tinggi supaya kartu dalam satu baris sama tingginya. */
+.no-room-body {
+  flex: 1;
+}
+
+.no-room-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 3px solid var(--ink);
+}
+
+.no-room-head h3 {
+  margin: 0;
+  font: 1rem/1.2 var(--display);
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.no-room-agent {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.no-room-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px;
+}
+
+.no-room-owl {
+  border: 3px solid var(--ink);
+  background: var(--paper-2);
+  padding: 2px;
+}
+
+.no-room-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.no-room-role {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+.no-room-task {
+  margin: 0;
+  font-weight: 600;
+}
+
+.no-room-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+}
+
+.no-room-time {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.no-room-progress {
+  height: 14px;
+  margin: 0 14px 14px;
+  border: 3px solid var(--ink);
+  background: var(--track);
+}
+
+.no-room-progress span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+.no-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.no-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.no-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 2px solid rgba(17, 17, 17, 0.12);
+}
+
+.no-list li:last-child {
+  border-bottom: 0;
+}
+
+.no-list-main {
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-list .empty {
+  margin: 14px;
+  padding: 14px;
+}
+
+@media (max-width: 1100px) {
+  .no-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .no-lists {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .no-room-owl {
+    width: 56px;
+    height: 56px;
+  }
+}

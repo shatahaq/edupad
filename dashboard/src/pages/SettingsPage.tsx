@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { apiSend } from "../api/client";
-import type { VoiceSpeed } from "../api/types";
+import type { VoiceLang, VoiceSpeed } from "../api/types";
 import { usePanel } from "../api/usePanel";
 import { PageHeader } from "../components/PageHeader";
 import { FINANCE_BUDGETS_KEY, FINANCE_TRANSACTIONS_KEY, loadFinanceBudgets, loadFinanceTransactions } from "../lib/finance";
@@ -34,6 +34,7 @@ export function SettingsPage() {
     <div className="settings-page">
       <PageHeader title="Pengaturan" subtitle="Nama tampilan dan kenyamanan tampilan dashboard." />
       <form className="settings-grid" onSubmit={submit}>
+        <LanguageSection />
         <VoiceModeSection />
 
         <section className="card settings-panel">
@@ -61,6 +62,70 @@ export function SettingsPage() {
         <div className="settings-savebar"><span className={saved ? "visible" : ""}><i />Pengaturan berhasil disimpan</span><button type="submit" className="btn btn-dark">Simpan pengaturan</button></div>
       </form>
     </div>
+  );
+}
+
+/** Bahasa perangkat (server, src/edupad/voice/lang.py): mengubah suara, layar, dan jawaban. */
+function LanguageSection() {
+  const panel = usePanel("voice");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState<VoiceLang | null>(null);
+  useEffect(() => setPending(null), [panel.data]);
+  const data = panel.data;
+  const active = pending ?? data?.lang;
+
+  const change = async (lang: VoiceLang) => {
+    setBusy(true);
+    setError("");
+    setPending(lang);
+    try {
+      await apiSend("PUT", "/api/office/language", { lang });
+      panel.reload();
+    } catch (e) {
+      setPending(null);
+      setError(e instanceof Error ? e.message : "Bahasa gagal disimpan.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="card settings-panel">
+      <div className="settings-panel-head">
+        <div>
+          <h2>Bahasa EduPad</h2>
+          <p>
+            Bahasa jawaban, layar perangkat, dan pengenalan suara. Tersimpan langsung; bisa juga lewat suara, “switch to
+            English” atau “ganti ke bahasa Indonesia”. Nama mata kuliah tetap seperti aslinya.
+          </p>
+        </div>
+      </div>
+      {data && active ? (
+        <div className="settings-toggles">
+          <label>
+            <div>
+              <strong>Bahasa perangkat</strong>
+              <span>Mengganti bahasa membuat perangkat mengunduh ulang pesan suaranya (sekali).</span>
+            </div>
+            <select className="curve-select" value={active} disabled={busy} onChange={(event) => change(event.target.value as VoiceLang)}>
+              {Object.entries(data.languages).map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : (
+        <p className="empty-line">{panel.error ? `Belum bisa dimuat: ${panel.error}` : "Memuat…"}</p>
+      )}
+      {error && (
+        <div className="panel-error" role="alert">
+          {error}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -27,6 +27,7 @@ from edupad.office.dashboard_data import PANELS, panel
 from edupad.office.events import build_snapshot, emit_status
 from edupad.office.models import AgentState
 from edupad.office.repository import get_repository
+from edupad.voice import lang
 from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
@@ -77,6 +78,10 @@ class FinanceImport(BaseModel):
 class VoiceModeIn(BaseModel):
     enabled: bool | None = None
     speed: Literal["lambat", "normal", "cepat", "sangat_cepat"] | None = None
+
+
+class LanguageIn(BaseModel):
+    lang: Literal["id", "en"]
 
 
 class DashboardFiles(StaticFiles):
@@ -240,6 +245,20 @@ def create_app() -> FastAPI:
             progress=100,
         )
         return {**data, "speeds": list(voice_mode.SPEEDS)}
+
+    # -------------------------------- bahasa --------------------------------
+    @api.put("/api/office/language")
+    def put_language(body: LanguageIn) -> dict:
+        data = lang.save(body.lang)
+        emit_status(
+            "coordinator",
+            AgentState.SUCCEEDED,
+            room="command-center",
+            job_type="language",
+            message=f"Bahasa EduPad: {lang.label(data['lang'])} (dari dashboard)",
+            progress=100,
+        )
+        return {**data, "languages": {c: v["label"] for c, v in lang.LANGUAGES.items()}}
 
     @api.get("/api/office/events")
     async def events(

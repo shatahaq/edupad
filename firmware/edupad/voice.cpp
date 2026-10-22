@@ -15,12 +15,12 @@ struct Clip {
   const char *name;
   String url;        // alamat terbaru dari server (?v= berganti bila suaranya berubah)
   String loadedUrl;  // alamat yang isinya sudah ada di `pcm`
-  uint8_t *pcm = nullptr;
+  uint8_t *pcm = nullptr;  // PCM di PSRAM; hilang saat perangkat dimatikan, diunduh lagi saat menyala
   size_t size = 0;
   uint32_t retryAt = 0;
 };
 
-Clip clips[] = {{"wifi"},  {"send"},      {"server"},    {"error"},
+Clip clips[] = {{"ready"},     {"wifi"},  {"send"},      {"server"},     {"error"},
                 {"no_speech"}, {"audio"}, {"no_answer"}, {"new_session"}};
 
 bool on = false;
@@ -97,7 +97,7 @@ void cue(Cue c) {
   }
 }
 
-void say(const char *name) {
+void say(const char *name, Cue fallback) {
   if (!on) return;
   for (Clip &c : clips) {
     if (strcmp(c.name, name) != 0) continue;
@@ -112,7 +112,7 @@ void say(const char *name) {
     speaker::finish();
     return;
   }
-  cue(Cue::Error);  // pesan belum terunduh (mis. baru menyala tanpa server)
+  cue(fallback);  // pesan belum terunduh (mis. baru menyala tanpa server)
 }
 
 void loadPending() {

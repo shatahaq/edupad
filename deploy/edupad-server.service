@@ -10,7 +10,7 @@ Wants=network-online.target
 [Service]
 User=ubuntu
 WorkingDirectory=/home/ubuntu/Tugas_Akhir
-# Hanya lokal: dari internet lewat Caddy (deploy/Caddyfile) di https://shata.id
+# Hanya lokal: dari internet lewat Caddy (deploy/Caddyfile) di https://edupad.ai.id
 ExecStart=/home/ubuntu/Tugas_Akhir/.venv/bin/python -m edupad serve --host 127.0.0.1 --port 8000
 Restart=on-failure
 RestartSec=5

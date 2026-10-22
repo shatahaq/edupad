@@ -1,4 +1,4 @@
-// EduPad: tahan tombol BOOT, bicara, lepas -> jawaban tampil di LCD lalu dibacakan lewat speaker.
+// EduPad: tahan tombol, bicara, lepas -> jawaban tampil di LCD lalu dibacakan lewat speaker.
 // Rekaman dikirim ke POST /v1/ask sambil merekam (chunked); suara jawaban (audio_url) diambil
 // lewat koneksi yang sama dan diputar begitu tiba. Tekan 1x = putar ulang (server memakai
 // suara tersimpan, tanpa kuota TTS), tekan 2x = percakapan baru, tekan saat bicara = berhenti.
@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <esp_heap_caps.h>
 
 #include "api.h"
 #include "app.h"
@@ -229,8 +230,42 @@ Press ask() {
   return press;
 }
 
-// Perkenalan diri setelah menyala: kalimat + gerakan dari /v1/intro, suaranya disimpan server
-// (tidak memakai kuota TTS). Tombol menghentikannya; bila terus ditahan, langsung merekam.
+// ---- Perkenalan diri setelah menyala: kalimat + gerakan dari /v1/intro, suaranya disimpan
+// server (tidak memakai kuota TTS). Suara diunduh utuh ke PSRAM lebih dulu, baru diputar:
+// memutar sambil mengunduh membuat suara patah-patah bila Wi-Fi melambat sesaat.
+
+uint8_t *introPcm = nullptr;  // penampung di PSRAM, dilepas lagi setelah perkenalan selesai
+size_t introBytes = 0, introRoom = 0;
+
+bool introCollect(const uint8_t *pcm, size_t size) {
+  if (buttonDown()) return false;  // pengguna ingin langsung bertanya: unduhan dibatalkan
+  size_t take = min(size, introRoom - introBytes);
+  memcpy(introPcm + introBytes, pcm, take);
+  introBytes += take;
+  return true;  // sisa yang tidak muat dibuang, unduhan tetap dituntaskan
+}
+
+// Putar dari PSRAM; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
+bool introPlay() {
+  display::speaking(true);
+  bool stopped = false;
+  for (size_t at = 0; at < introBytes && !stopped; at += 2048) {
+    stopped = buttonDown();
+    if (!stopped) {
+      speaker::write(introPcm + at, min((size_t)2048, introBytes - at));
+      display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
+    }
+  }
+  if (stopped) {
+    speaker::stop();
+  } else {
+    speaker::finish();
+  }
+  display::speaking(false);
+  return stopped;
+}
+
+// Tombol menghentikan perkenalan; bila terus ditahan, langsung merekam (seperti layar lain).
 void introduce() {
   api::Response res = api::get("/v1/intro", 30000);  // pertama kali server membuat suaranya dulu
   JsonDocument doc;
@@ -238,8 +273,31 @@ void introduce() {
     Serial.printf("[intro] dilewati: HTTP %d %s\n", res.status, res.error.c_str());
     return;
   }
-  display::intro(doc["segments"], doc["duration"] | 0.0f);
-  if (!play(doc["audio_url"] | "/v1/intro/audio", false)) delay(800);  // biarkan confetti selesai
+  float duration = doc["duration"] | 0.0f;
+  // Penampung sepanjang suaranya + 1 detik kelonggaran; tanpa info durasi pakai batas penuh.
+  introRoom = duration > 0 ? min((size_t)((duration + 1) * SAMPLE_RATE * 2), (size_t)INTRO_MAX_BYTES)
+                           : (size_t)INTRO_MAX_BYTES;
+  introPcm = (uint8_t *)heap_caps_malloc(introRoom, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (!introPcm) {  // PSRAM tidak cukup: lebih baik perkenalan dilewati daripada patah-patah
+    Serial.println("[intro] dilewati: PSRAM tidak cukup untuk menampung suaranya");
+    return;
+  }
+  introBytes = 0;
+  display::bootStep("Menyiapkan perkenalan", 1.0f);
+  uint32_t started = millis();
+  api::AudioResult r = api::streamAudio(doc["audio_url"] | "/v1/intro/audio", introCollect);
+  Serial.printf("[intro] %u byte diunduh dalam %u ms (HTTP %d %s)\n", (unsigned)introBytes,
+                (unsigned)(millis() - started), r.status, r.error.c_str());
+  bool stopped = r.stopped;  // tombol ditekan saat mengunduh: langsung ke layar siap
+  // Unduhan yang terlalu pendek (mis. jaringan terputus di awal) tidak enak didengar: dilewati.
+  if (!stopped && introBytes > SAMPLE_RATE) {
+    display::intro(doc["segments"], duration);
+    stopped = introPlay();
+  }
+  free(introPcm);
+  introPcm = nullptr;
+  introBytes = introRoom = 0;
+  if (!stopped && r.complete) delay(800);  // biarkan confetti selesai
 }
 
 // ---- Kabar dari server (/v1/updates): kuliah berikutnya + pemberitahuan presensi/deadline
@@ -437,7 +495,9 @@ void loop() {
   Press press = ask();
   if (press.tap && woke) {
     if (press.shown) display::idle(newSession);  // kembali ke layar siap, animasi bangun berlanjut
-    voice::cue(voice::Cue::Wake);
+    // Mode Suara: dibangunkan tanpa melihat layar -> "EduPad siap, tahan tombol lalu tanya"
+    // (bahasa mengikuti setelan server). Bila pesannya belum terunduh, cukup penanda bangun.
+    voice::say("ready", voice::Cue::Wake);
     lastActivityMs = millis();
     return;
   }

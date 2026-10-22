@@ -82,6 +82,8 @@ class Settings:
     tts_model: str
     elevenlabs_api_key: str | None
     elevenlabs_voice_id: str | None
+    # (API key, voice ID) tiap akun ElevenLabs, urut sesuai .env; yang pertama = yang di atas.
+    elevenlabs_accounts: tuple[tuple[str, str | None], ...]
     stt_provider: str
     stt_model: str
     groq_api_key: str | None
@@ -101,6 +103,25 @@ def load_env(path: Path = ENV_FILE) -> None:
         if line and not line.startswith("#") and "=" in line:
             key, value = line.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+
+
+MAX_TTS_ACCOUNTS = 9  # API_KEY_ElevenLabs, ...2, ...3, dan seterusnya
+
+
+def elevenlabs_accounts() -> tuple[tuple[str, str | None], ...]:
+    """Akun ElevenLabs dari .env: API_KEY_ElevenLabs/Voice_ID_ElevenLabs, lalu yang berakhiran
+    2, 3, ... Dipakai berurutan: kuota akun pertama habis -> akun berikutnya (voice/tts.py).
+    Voice ID kosong mewarisi voice akun sebelumnya; itu hanya cocok untuk suara bawaan
+    ElevenLabs, karena suara buatan sendiri hanya ada di akun pembuatnya."""
+    accounts: list[tuple[str, str | None]] = []
+    for n in range(1, MAX_TTS_ACCOUNTS + 1):
+        suffix = "" if n == 1 else str(n)
+        key = _env(f"ELEVENLABS_API_KEY{suffix}", f"API_KEY_ElevenLabs{suffix}")
+        if not key:
+            continue  # nomor yang bolong dilewati, bukan menghentikan pembacaan
+        voice = _env(f"ELEVENLABS_VOICE_ID{suffix}", f"Voice_ID_ElevenLabs{suffix}")
+        accounts.append((key, voice or (accounts[0][1] if accounts else None)))
+    return tuple(accounts)
 
 
 def _env(*names: str) -> str | None:
@@ -127,6 +148,7 @@ def _env_int(name: str, default: int | None, minimum: int, maximum: int) -> int 
 def get_settings() -> Settings:
     load_env()
     ignored = _env("EDUPAD_IGNORED_COURSES", "TUGAS_ABAIKAN_COURSE") or ""
+    accounts = elevenlabs_accounts()
     student_class = _env("EDUPAD_CLASS", "KELAS_SAYA")
     owners = _env("EDUPAD_OWNER_EMAILS") or ""
     return Settings(
@@ -150,6 +172,7 @@ def get_settings() -> Settings:
         tts_model=_env("EDUPAD_TTS_MODEL") or "eleven_multilingual_v2",
         elevenlabs_api_key=_env("ELEVENLABS_API_KEY", "API_KEY_ElevenLabs"),
         elevenlabs_voice_id=_env("ELEVENLABS_VOICE_ID", "Voice_ID_ElevenLabs"),
+        elevenlabs_accounts=accounts,
         stt_provider=(_env("EDUPAD_STT_PROVIDER") or "groq").lower(),
         stt_model=_env("EDUPAD_STT_MODEL") or "whisper-large-v3-turbo",
         groq_api_key=_env("GROQ_API_KEY", "API_KEY_GROQ"),

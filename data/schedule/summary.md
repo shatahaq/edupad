@@ -1,6 +1,6 @@
 # Jadwal Kuliah
 
-Diperbarui: 2026-10-14T16:51+07:00 (WIB)
+Diperbarui: 2026-10-17T09:56+07:00 (WIB)
 
 ## Senin
 
@@ -51,12 +51,12 @@ Diperbarui: 2026-10-14T16:51+07:00 (WIB)
 | Mata kuliah | Hadir | Persen |
 |---|---|---|
 | Praktek Kerja Lapangan (5/B) | 0/0 | 0% |
-| Praktikum Sistem Pendukung Keputusan (5/B) | 5/8 | 63% |
-| Rekayasa Perangkat Lunak (5/B) | 6/16 | 38% |
+| Praktikum Sistem Pendukung Keputusan (5/B) | 5/10 | 50% |
+| Rekayasa Perangkat Lunak (5/B) | 7/16 | 44% |
 | Sistem Pendukung Keputusan (5/B) | 7/16 | 44% |
-| Sistem Informasi Geografis (5/B) | 5/16 | 31% |
-| Praktikum Teknik Penulisan Karya Ilmiah (5/B) | 7/7 | 100% |
-| Teknik Penulisan Karya Ilmiah (5/B) | 6/16 | 38% |
+| Sistem Informasi Geografis (5/B) | 7/16 | 44% |
+| Praktikum Teknik Penulisan Karya Ilmiah (5/B) | 8/8 | 100% |
+| Teknik Penulisan Karya Ilmiah (5/B) | 7/16 | 44% |
 | Praktikum E-Application (5/B1) | 8/8 | 100% |
 | Praktikum Pemrograman Visual (5/B1) | 7/7 | 100% |
 | E-Application (5/B) | 7/16 | 44% |

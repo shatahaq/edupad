@@ -213,7 +213,13 @@ const DATA = {
   tutor,
   equity,
   finance,
-  voice: { enabled: true, speed: "cepat", speeds: ["lambat", "normal", "cepat", "sangat_cepat"] },
+  voice: {
+    enabled: true,
+    speed: "cepat",
+    speeds: ["lambat", "normal", "cepat", "sangat_cepat"],
+    lang: "id",
+    languages: { id: "Indonesia", en: "English" },
+  },
 } satisfies DashboardData;
 
 export async function mockPanel<K extends PanelKey>(panel: K): Promise<DashboardData[K]> {

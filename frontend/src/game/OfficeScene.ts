@@ -10,11 +10,12 @@ export const OFFICE_WORLD_HEIGHT = WORLD.height
 const MAP_KEY='owl-office-empty-v2'
 const MAP_FRAME='owl-office-without-side-margins'
 const MAP_SIDE_MARGIN=28
+const VIEW_WIDTH=WORLD.width-MAP_SIDE_MARGIN*2
 const OWL_SIZE=82
 const MIN_ZOOM=1, MAX_ZOOM=2.2
 const OWLS: Record<string,string>={coordinator:'nova',researcher:'pixel',tutor:'sora',planner:'tempo',analyst:'metric',keeper:'nexus',finance:'koin'}
 const RELAX: Record<string,string>={coordinator:'Santai · merapikan headset',researcher:'Santai · membaca buku',tutor:'Santai · membaca cerita',planner:'Santai · meregangkan sayap',analyst:'Santai · istirahat sejenak',keeper:'Santai · mendengarkan musik',finance:'Santai · minum sebentar'}
-type Bot={agent:OfficeAgent; signature:string; container:Phaser.GameObjects.Container; sprite:Phaser.GameObjects.Sprite; bubble:Phaser.GameObjects.Graphics; text:Phaser.GameObjects.Text; mood:Phaser.GameObjects.Text; token:number; timer?:Phaser.Time.TimerEvent; visual:'idle'|'walking'|'working'|'relaxing'|'error'; phase:number}
+type Bot={agent:OfficeAgent; signature:string; container:Phaser.GameObjects.Container; sprite:Phaser.GameObjects.Sprite; bubble:Phaser.GameObjects.Graphics; text:Phaser.GameObjects.Text; name:Phaser.GameObjects.Text; mood:Phaser.GameObjects.Text; token:number; timer?:Phaser.Time.TimerEvent; visual:'idle'|'walking'|'working'|'relaxing'|'error'; phase:number}
 const busy=(agent:OfficeAgent)=>['running','queued','waiting'].includes(agent.state)
 
 export class OfficeScene extends Phaser.Scene {
@@ -22,12 +23,17 @@ export class OfficeScene extends Phaser.Scene {
   private furniture!:OwlFurniture
   private navigator!:OfficeNavigator
   private zoomTarget=MIN_ZOOM
+  private fitZoom=1
+  private fitZoomX=1
+  private fitZoomY=1
+  private roomLabels:Phaser.GameObjects.Text[]=[]
   private panStart:{x:number;y:number;scrollX:number;scrollY:number}|null=null
   private suppressUntil=0
   private editing=false
   private readonly onAgents=(event:Event)=>this.syncAgents((event as CustomEvent<OfficeAgent[]>).detail)
   private readonly onZoom=(event:Event)=>this.adjustZoom((event as CustomEvent<number>).detail)
   private readonly onReset=()=>this.resetCamera()
+  private readonly onResize=()=>this.fitCamera()
   private readonly onInputBlock=(event:Event)=>{this.input.enabled=!(event as CustomEvent<boolean>).detail;this.panStart=null}
 
   constructor(){super('office-owls')}
@@ -38,7 +44,7 @@ export class OfficeScene extends Phaser.Scene {
   }
   create(){
     const camera=this.cameras.main
-    camera.setBounds(0,0,WORLD.width,WORLD.height).centerOn(WORLD.width/2,WORLD.height/2)
+    camera.setBounds(MAP_SIDE_MARGIN,0,VIEW_WIDTH,WORLD.height)
     const mapTexture=this.textures.get(MAP_KEY)
     const mapSource=mapTexture.getSourceImage() as HTMLImageElement
     const mapScaleX=mapSource.width/WORLD.width
@@ -61,17 +67,18 @@ export class OfficeScene extends Phaser.Scene {
     this.input.on('pointermove',this.onPointerMove,this)
     this.input.on('pointerup',()=>{this.panStart=null})
     this.input.on('gameout',()=>{this.panStart=null})
-    this.input.on('wheel',(_pointer:Phaser.Input.Pointer,_objects:unknown[],_dx:number,dy:number)=>this.adjustZoom(dy>0?-.15:.15))
     officeGameEvents.addEventListener(AGENTS_UPDATED,this.onAgents)
     officeGameEvents.addEventListener(CAMERA_ZOOM_REQUESTED,this.onZoom)
     officeGameEvents.addEventListener(CAMERA_RESET_REQUESTED,this.onReset)
     officeGameEvents.addEventListener(OFFICE_INPUT_BLOCKED,this.onInputBlock)
-    this.syncAgents(officeGameEvents.currentAgents());this.publishCamera()
+    this.syncAgents(officeGameEvents.currentAgents());this.fitCamera()
+    this.scale.on(Phaser.Scale.Events.RESIZE,this.onResize)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
       officeGameEvents.removeEventListener(AGENTS_UPDATED,this.onAgents)
       officeGameEvents.removeEventListener(CAMERA_ZOOM_REQUESTED,this.onZoom)
       officeGameEvents.removeEventListener(CAMERA_RESET_REQUESTED,this.onReset)
       officeGameEvents.removeEventListener(OFFICE_INPUT_BLOCKED,this.onInputBlock)
+      this.scale.off(Phaser.Scale.Events.RESIZE,this.onResize)
     })
   }
   private createAnimations(){
@@ -82,7 +89,9 @@ export class OfficeScene extends Phaser.Scene {
   }
   private createRooms(){
     for(const room of ROOMS){
-      const label=this.add.text(room.x+room.width/2,room.y+12,room.label.toUpperCase(),{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'14px',fontStyle:'bold',color:'#334652',backgroundColor:'#ffffffed',padding:{x:10,y:6}}).setOrigin(.5).setVisible(false).setDepth(5000)
+      const label=this.add.text(room.x+room.width/2,room.y+12,room.label.toUpperCase(),{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'20px',fontStyle:'bold',color:'#334652',backgroundColor:'#ffffffed',padding:{x:10,y:6},resolution:2}).setOrigin(.5).setVisible(false).setDepth(5000)
+      label.texture.setFilter(Phaser.Textures.FilterMode.LINEAR)
+      this.roomLabels.push(label)
       const zone=this.add.zone(room.x+room.width/2,room.y+room.height/2,room.width,room.height).setDepth(-50).setInteractive({cursor:'grab'})
       zone.on('pointerover',()=>{if(!this.editing)label.setVisible(true)})
       zone.on('pointerout',()=>label.setVisible(false))
@@ -124,18 +133,20 @@ export class OfficeScene extends Phaser.Scene {
     const ring=this.add.ellipse(0,0,43,12,color,.14).setStrokeStyle(1,color,.5)
     const sprite=this.add.sprite(0,0,`owl-${OWLS[agent.id]??'nova'}`,0).setDisplaySize(OWL_SIZE,OWL_SIZE).setOrigin(.5,.86).setInteractive({cursor:'pointer',pixelPerfect:true,alphaTolerance:50})
     const bubble=this.add.graphics()
-    const text=this.add.text(0,-88,'',{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'13px',color:'#34454f',align:'center',wordWrap:{width:155}}).setOrigin(.5)
-    const name=this.add.text(0,13,agent.name,{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'12px',fontStyle:'bold',color:'#263a48',backgroundColor:'#ffffffdc',padding:{x:5,y:3}}).setOrigin(.5,0)
+    const text=this.add.text(0,-98,'',{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'20px',color:'#34454f',align:'center',wordWrap:{width:280},resolution:2}).setOrigin(.5)
+    const name=this.add.text(0,13,agent.name,{fontFamily:'Plus Jakarta Sans, Arial, sans-serif',fontSize:'20px',fontStyle:'bold',color:'#263a48',backgroundColor:'#fffffff2',padding:{x:7,y:4},resolution:2}).setOrigin(.5,0)
+    text.texture.setFilter(Phaser.Textures.FilterMode.LINEAR)
+    name.texture.setFilter(Phaser.Textures.FilterMode.LINEAR)
     const mood=this.add.text(24,-52,'',{fontFamily:'Arial, sans-serif',fontSize:'19px',fontStyle:'bold',color:'#678ca6'}).setVisible(false)
     const container=this.add.container(start.x,start.y,[ring,sprite,bubble,text,name,mood]).setDepth(start.y)
-    const bot:Bot={agent,signature:'',container,sprite,bubble,text,mood,token:0,visual:'idle',phase:this.bots.size}
+    const bot:Bot={agent,signature:'',container,sprite,bubble,text,name,mood,token:0,visual:'idle',phase:this.bots.size}
     sprite.on('pointerup',(_p:Phaser.Input.Pointer,_x:number,_y:number,event:Phaser.Types.Input.EventData)=>{
       event.stopPropagation()
       if(_p.event?.target!==this.game.canvas||this.editing||this.time.now<this.suppressUntil)return
       this.tweens.add({targets:sprite,angle:8,duration:85,yoyo:true,onComplete:()=>sprite.setAngle(0)})
       officeGameEvents.selectAgent(agent.id)
     })
-    this.bots.set(agent.id,bot);return bot
+    this.bots.set(agent.id,bot);this.updateBotView(bot);return bot
   }
   private stop(bot:Bot){
     bot.token++;bot.timer?.remove(false)
@@ -224,13 +235,14 @@ export class OfficeScene extends Phaser.Scene {
     const text=message.length>55?`${message.slice(0,53)}…`:message
     bot.text.setText(text);bot.bubble.clear()
     if(!text)return
-    const width=Math.min(185,Math.max(100,bot.text.width+24)),height=Math.max(32,bot.text.height+16),top=-88-height/2
+    const width=Math.max(120,bot.text.width+24),height=Math.max(36,bot.text.height+16),top=bot.text.y-height/2
     bot.bubble.fillStyle(0xffffff,.96).lineStyle(1,0xcbd5dd)
     bot.bubble.fillRoundedRect(-width/2,top,width,height,10).strokeRoundedRect(-width/2,top,width,height,10)
     bot.bubble.fillTriangle(-6,top+height,6,top+height,0,top+height+7)
   }
   private setEditing(enabled:boolean){
     this.editing=enabled
+    this.publishCamera()
     for(const bot of this.bots.values()){
       this.stop(bot)
       if(enabled)this.setBubble(bot,'Jeda · menata kantor')
@@ -245,11 +257,43 @@ export class OfficeScene extends Phaser.Scene {
     if(!this.panStart||!pointer.isDown||this.editing)return
     const dx=pointer.x-this.panStart.x,dy=pointer.y-this.panStart.y
     if(Math.hypot(dx,dy)>5)this.suppressUntil=this.time.now+180
-    if(this.cameras.main.zoom<=MIN_ZOOM)return
-    this.cameras.main.scrollX=this.panStart.scrollX-dx/this.cameras.main.zoom
-    this.cameras.main.scrollY=this.panStart.scrollY-dy/this.cameras.main.zoom
+    if(this.zoomTarget<=MIN_ZOOM)return
+    this.cameras.main.scrollX=this.panStart.scrollX-dx/this.cameras.main.zoomX
+    this.cameras.main.scrollY=this.panStart.scrollY-dy/this.cameras.main.zoomY
   }
-  private adjustZoom(delta:number){this.zoomTarget=Phaser.Math.Clamp(this.zoomTarget+delta,MIN_ZOOM,MAX_ZOOM);this.cameras.main.zoomTo(this.zoomTarget,220,'Sine.easeOut',true);this.publishCamera()}
-  private resetCamera(){this.zoomTarget=MIN_ZOOM;this.cameras.main.zoomTo(MIN_ZOOM,220,'Sine.easeOut',true);this.cameras.main.pan(WORLD.width/2,WORLD.height/2,220,'Sine.easeOut',true);this.publishCamera()}
-  private publishCamera(){officeGameEvents.updateCameraView({zoom:this.zoomTarget,canZoomIn:this.zoomTarget<MAX_ZOOM,canZoomOut:this.zoomTarget>MIN_ZOOM})}
+  private fitCamera(){
+    const camera=this.cameras.main
+    this.fitZoomX=this.scale.width/VIEW_WIDTH
+    this.fitZoomY=Math.min(this.scale.height/WORLD.height,this.fitZoomX)
+    this.fitZoom=Math.min(this.fitZoomX,this.fitZoomY)
+    this.tweens.killTweensOf(camera)
+    camera.zoomEffect.reset();camera.panEffect.reset()
+    camera.setZoom(this.fitZoomX*this.zoomTarget,this.fitZoomY*this.zoomTarget).centerOn(WORLD.width/2,WORLD.height/2)
+    // Only the floor plan changes proportions. Counter-scale artwork and text,
+    // preserving logical positions, saved layouts and conservative navigation clearance.
+    this.furniture.setViewScale(this.fitZoom/this.fitZoomX,this.fitZoom/this.fitZoomY)
+    for(const bot of this.bots.values())this.updateBotView(bot)
+    for(const label of this.roomLabels)label.setScale(this.fitZoom/this.fitZoomX,this.fitZoom/this.fitZoomY).setFontSize(this.labelFontSize())
+    this.publishCamera()
+  }
+  private labelFontSize(){return Math.max(20,Math.min(44,Math.ceil(13/this.fitZoom)))}
+  private updateBotView(bot:Bot){
+    bot.container.setScale(this.fitZoom/this.fitZoomX,this.fitZoom/this.fitZoomY)
+    bot.text.setFontSize(this.labelFontSize());bot.name.setFontSize(this.labelFontSize())
+    this.setBubble(bot,bot.text.text)
+  }
+  private animateZoom(){
+    const camera=this.cameras.main
+    this.tweens.killTweensOf(camera)
+    this.tweens.add({targets:camera,zoomX:this.fitZoomX*this.zoomTarget,zoomY:this.fitZoomY*this.zoomTarget,duration:220,ease:'Sine.easeOut'})
+    this.publishCamera()
+  }
+  private adjustZoom(delta:number){this.zoomTarget=Phaser.Math.Clamp(this.zoomTarget+delta,MIN_ZOOM,MAX_ZOOM);this.animateZoom()}
+  private resetCamera(){this.zoomTarget=MIN_ZOOM;this.animateZoom();this.cameras.main.pan(WORLD.width/2,WORLD.height/2,220,'Sine.easeOut',true)}
+  private publishCamera(){
+    // Gestures pan only while zoomed/editing; the overview fits the available screen.
+    this.game.canvas.style.touchAction=this.editing||this.zoomTarget>MIN_ZOOM?'none':'pan-y'
+    if(this.input.manager.touch)this.input.manager.touch.capture=this.editing||this.zoomTarget>MIN_ZOOM
+    officeGameEvents.updateCameraView({zoom:this.zoomTarget,canZoomIn:this.zoomTarget<MAX_ZOOM,canZoomOut:this.zoomTarget>MIN_ZOOM})
+  }
 }

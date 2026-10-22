@@ -15,7 +15,7 @@ OWNER = "pemilik@usu.ac.id"
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("EDUPAD_OWNER_EMAILS", OWNER)
-    monkeypatch.setenv("EDUPAD_PUBLIC_URL", "https://shata.id")
+    monkeypatch.setenv("EDUPAD_PUBLIC_URL", "https://edupad.ai.id")
     monkeypatch.delenv("EDUPAD_OFFICE_AUTH", raising=False)
     accounts = AccountStore(tmp_path / "accounts.json", tmp_path / "accounts.lock")
     sessions = SessionStore(tmp_path / "sessions.json", tmp_path / "accounts.lock")
@@ -61,7 +61,7 @@ def test_writes_reject_other_origins(client):
     )
     assert evil.status_code == 403
     ok = client.post(
-        "/api/office/finance/transactions", json=body, headers={"Origin": "https://shata.id"}
+        "/api/office/finance/transactions", json=body, headers={"Origin": "https://edupad.ai.id"}
     )
     assert ok.status_code == 201 and ok.json()["source"] == "dashboard"
 

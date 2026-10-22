@@ -5,6 +5,11 @@ Keluaran selalu PCM 16-bit mono 16 kHz (format yang langsung diputar ESP32-S3).
 mulai bicara sebelum seluruh kalimat selesai disintesis. Penyedia dipilih lewat
 EDUPAD_TTS_PROVIDER di .env.
 
+Beberapa akun ElevenLabs boleh diisi di .env (API_KEY_ElevenLabs, ...2, ...3 dengan
+Voice_ID_ElevenLabs masing-masing). Akun dipakai berurutan: begitu satu akun menolak karena
+kuotanya habis (atau key-nya ditolak), akun itu dilewati selama BLOCK_SECONDS dan permintaan
+diulang ke akun berikutnya, tanpa menampilkan galat ke mahasiswa.
+
 Waktu sampai audio pertama sebanding dengan panjang teks (uji: 123 karakter 0,97 s,
 ~330 karakter 2,2-2,5 s). Jawaban panjang karena itu dipecah: kalimat pertama dan sisanya
 disintesis bersamaan, masing-masing diberi teks pasangannya sebagai konteks
@@ -16,9 +21,11 @@ from __future__ import annotations
 
 import contextlib
 import io
+import logging
 import queue
 import re
 import threading
+import time
 import wave
 from collections.abc import Callable, Iterator
 
@@ -26,6 +33,9 @@ import requests
 
 from edupad.config import get_settings
 from edupad.core import http_pool
+from edupad.voice import lang
+
+log = logging.getLogger(__name__)
 
 SAMPLE_RATE = 16_000
 SAMPLE_WIDTH = 2  # 16-bit
@@ -50,6 +60,10 @@ SPLIT_MIN_FIRST = 60
 SPLIT_MAX_FIRST = 200
 MAX_CONCURRENT = 2  # batas permintaan paralel ElevenLabs akun gratis (model selain Flash/Turbo)
 _SLOTS = threading.BoundedSemaphore(MAX_CONCURRENT)
+# Akun yang kuotanya habis dilewati selama ini; kuota gratis pulih bulanan, top-up kapan saja.
+BLOCK_SECONDS = 6 * 3600
+_blocked: dict[str, float] = {}  # API key -> time.monotonic() kapan boleh dicoba lagi
+_blocked_lock = threading.Lock()
 
 
 class TTSError(RuntimeError):
@@ -58,50 +72,96 @@ class TTSError(RuntimeError):
         self.status = status
 
 
-def _elevenlabs(
-    text: str,
-    previous_text: str | None = None,
-    next_text: str | None = None,
-    speed: float | None = None,
-) -> Iterator[bytes]:
-    settings = get_settings()
-    if not (settings.elevenlabs_api_key and settings.elevenlabs_voice_id):
+def accounts() -> list[tuple[str, str]]:
+    """Akun ElevenLabs yang dicoba sekarang, urut seperti di .env. Akun yang kuotanya habis
+    ditaruh paling belakang (bukan dibuang), jadi tetap ada yang dicoba walau semuanya pernah
+    habis - kuota bisa saja sudah pulih atau diisi ulang."""
+    configured = [(key, voice) for key, voice in get_settings().elevenlabs_accounts if voice]
+    if not configured:
         raise TTSError("API_KEY_ElevenLabs / Voice_ID_ElevenLabs belum diisi di .env")
-    payload = {
-        "text": text,
-        "model_id": settings.tts_model,
-        "language_code": "id",
-        "voice_settings": {**VOICE_SETTINGS, **({"speed": speed} if speed else {})},
-        "seed": SEED,
-    }
-    payload.update(
-        {k: v for k, v in (("previous_text", previous_text), ("next_text", next_text)) if v}
+    now = time.monotonic()
+    with _blocked_lock:
+        ready = [a for a in configured if _blocked.get(a[0], 0.0) <= now]
+        blocked = [a for a in configured if _blocked.get(a[0], 0.0) > now]
+    return ready + blocked
+
+
+def _block(api_key: str, message: str) -> None:
+    with _blocked_lock:
+        _blocked[api_key] = time.monotonic() + BLOCK_SECONDS
+    log.warning(
+        "[tts] akun ElevenLabs ...%s dilewati %d jam: %s",
+        api_key[-4:],
+        BLOCK_SECONDS // 3600,
+        message,
     )
+
+
+def _account_problem(error: TTSError) -> bool:
+    """True bila yang bermasalah akunnya (kuota habis, key ditolak/dicabut), bukan permintaannya.
+    Voice yang tidak ada (404) bukan di sini: itu salah isi .env dan harus kelihatan."""
+    return error.status in (401, 402, 403) or "quota" in str(error).lower()
+
+
+def _open(api_key: str, voice_id: str, payload: dict) -> requests.Response:
+    """Mulai stream TTS satu akun; TTSError bila ditolak (status ikut terbawa)."""
     try:
         response = http_pool.post(
-            ELEVENLABS_URL.format(voice_id=settings.elevenlabs_voice_id),
+            ELEVENLABS_URL.format(voice_id=voice_id),
             params={"output_format": f"pcm_{SAMPLE_RATE}"},
-            headers={"xi-api-key": settings.elevenlabs_api_key},
+            headers={"xi-api-key": api_key},
             json=payload,
             stream=True,
             timeout=TIMEOUT,
         )
     except requests.RequestException as e:
         raise TTSError(f"ElevenLabs tidak bisa dihubungi: {e}") from e
+    if response.ok:
+        return response
     with response:
-        if not response.ok:
-            try:
-                detail = response.json().get("detail", {})
-                message = detail.get("message") if isinstance(detail, dict) else str(detail)
-            except ValueError:
-                message = response.text[:200]
-            raise TTSError(
-                f"ElevenLabs HTTP {response.status_code}: {message}", response.status_code
-            )
         try:
-            yield from (chunk for chunk in response.iter_content(CHUNK_BYTES) if chunk)
-        except requests.RequestException as e:
-            raise TTSError(f"stream ElevenLabs terputus: {e}") from e
+            detail = response.json().get("detail", {})
+            message = detail.get("message") if isinstance(detail, dict) else str(detail)
+        except ValueError:
+            message = response.text[:200]
+    raise TTSError(f"ElevenLabs HTTP {response.status_code}: {message}", response.status_code)
+
+
+def _elevenlabs(
+    text: str,
+    previous_text: str | None = None,
+    next_text: str | None = None,
+    speed: float | None = None,
+) -> Iterator[bytes]:
+    payload = {
+        "text": text,
+        "model_id": get_settings().tts_model,
+        "language_code": lang.tts_code(),
+        "voice_settings": {**VOICE_SETTINGS, **({"speed": speed} if speed else {})},
+        "seed": SEED,
+    }
+    payload.update(
+        {k: v for k, v in (("previous_text", previous_text), ("next_text", next_text)) if v}
+    )
+    available = accounts()
+    for number, (api_key, voice_id) in enumerate(available, start=1):
+        try:
+            response = _open(api_key, voice_id, payload)
+        except TTSError as e:
+            if not _account_problem(e):
+                raise  # permintaannya yang salah (mis. voice tidak ada), bukan akunnya
+            _block(api_key, str(e))
+            if number == len(available):
+                raise  # tidak ada akun lain: galat akun terakhir yang dilaporkan
+            continue
+        if number > 1:
+            log.info("[tts] memakai akun ElevenLabs ke-%d (...%s)", number, api_key[-4:])
+        with response:
+            try:
+                yield from (chunk for chunk in response.iter_content(CHUNK_BYTES) if chunk)
+            except requests.RequestException as e:
+                raise TTSError(f"stream ElevenLabs terputus: {e}") from e
+        return
 
 
 PROVIDERS: dict[str, Callable[..., Iterator[bytes]]] = {"elevenlabs": _elevenlabs}

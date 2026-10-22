@@ -38,6 +38,7 @@ from edupad.core.files import now_iso
 from edupad.core.supabase import SupabaseError
 from edupad.office.events import emit_status
 from edupad.office.models import TOOL_AGENTS, AgentState
+from edupad.voice import lang
 from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
@@ -126,9 +127,11 @@ def _system_prompt(
         else "  * Tidak perlu jawaban panjang; layar dan suara sudah cukup."
     )
     prompt = SYSTEM_PROMPT.format(today=today, courses=course_overview(), detail_rule=detail_rule)
-    prompt += tutor.TUTOR_RULES + voice_mode.PROMPT_RULE
+    prompt += tutor.TUTOR_RULES + voice_mode.PROMPT_RULE + lang.PROMPT_RULE
     if voice:
         prompt += voice_mode.VOICE_RULES
+    if lang.is_english():  # bahasa jawaban saja yang berubah; prompt di atas tetap ter-cache
+        prompt += lang.ENGLISH_RULES
     if memory:
         prompt += MEMORY_PROMPT.format(facts="\n".join(f"- {f}" for f in memory.facts()) or "-")
     return prompt
@@ -353,6 +356,7 @@ def ask(
         *coach.SCHEMAS,
         *finance.SCHEMAS,
         *voice_mode.SCHEMAS,
+        *lang.SCHEMAS,
         answer_schema(with_detail, voice),
         *([REMEMBER_SCHEMA] if memory else []),
     ]

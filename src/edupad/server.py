@@ -26,6 +26,9 @@ pemberitahuan punya `audio_url` (GET /v1/speech/<kunci>) dan perangkat mengunduh
 dari GET /v1/voice/clip/<nama> (voice/clips.py). Pemberitahuan presensi dibuka dan deadline
 tugas membawa `audio_url` walau Mode Suara mati, jadi selalu terdengar.
 
+Bahasa (voice/lang.py): /v1/updates dan /v1/ask memberi `language` ("id"/"en"); satu setelan itu
+mengubah pengenalan suara, suara TTS, jawaban agent, dan semua kalimat tetap.
+
 Perintah setelan ("aktifkan mode suara", "bicara lebih cepat") dijawab /v1/ask tanpa memanggil
 agent: kalimatnya tetap dan suaranya tersimpan di disk, dilayani GET /v1/voice/reply/<nama>
 (voice/commands.py), jadi tidak ada token LLM maupun kuota TTS yang terpakai.
@@ -58,7 +61,7 @@ from edupad.agent import updates
 from edupad.agent.formatting import clean_speech, fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
-from edupad.voice import clips, commands, intro, stt, tts
+from edupad.voice import clips, commands, intro, lang, stt, tts
 from edupad.voice import mode as voice_mode
 from edupad.webapp import WebApp
 
@@ -352,6 +355,7 @@ class Handler(BaseHTTPRequestHandler):
         dibacakan; jenis lain hanya saat Mode Suara aktif."""
         settings = voice_mode.load()
         data["voice_mode"] = settings["enabled"]
+        data["language"] = lang.current()  # firmware 1.5+: label di layar ikut bahasa ini
         speed = voice_mode.SPEEDS[settings["speed"]]
         for alert in data.get("alerts", []):
             spoken = settings["enabled"] or alert.get("kind") in voice_mode.ALWAYS_SPOKEN
@@ -505,6 +509,7 @@ class Handler(BaseHTTPRequestHandler):
                 "audio_url": f"/v1/audio/{audio_id}" if audio_id else None,
                 "timing": timing,
                 "voice_mode": voice,
+                "language": lang.current(),  # bisa baru diganti lewat suara di pertanyaan ini
                 **({"voice_clips": clips.urls()} if voice else {}),
             },
         )
@@ -527,6 +532,7 @@ class Handler(BaseHTTPRequestHandler):
                 "audio_url": reply["audio_url"],
                 "timing": timing,
                 "voice_mode": voice,
+                "language": lang.current(),  # bisa baru diganti lewat suara di pertanyaan ini
                 **({"voice_clips": clips.urls()} if voice else {}),
             },
         )
@@ -646,6 +652,8 @@ def run(host: str, port: int) -> int:
     ):
         if not value:
             log.warning("[!] %s belum diisi di .env", name)
+    if len(settings.elevenlabs_accounts) > 1:  # cadangan saat kuota akun pertama habis
+        log.info("[ok] %d akun ElevenLabs dipakai berurutan", len(settings.elevenlabs_accounts))
     server = EduPadServer((host, port), settings.device_token)
     log.info(
         "[ok] EduPad server di http://%s:%d (token %s)",

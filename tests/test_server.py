@@ -320,7 +320,7 @@ def test_updates_for_device_screen(server, monkeypatch):
 
 
 def test_run_refuses_public_proxy_without_token(monkeypatch):
-    settings = replace(get_settings(), device_token=None, public_url="https://shata.id")
+    settings = replace(get_settings(), device_token=None, public_url="https://edupad.ai.id")
     monkeypatch.setattr(srv, "get_settings", lambda: settings)
     assert srv.run("127.0.0.1", 0) == 1  # di belakang Caddy/Cloudflare tetap wajib token
     assert srv.publicly_reachable("127.0.0.1", settings)

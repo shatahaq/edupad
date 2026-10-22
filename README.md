@@ -47,7 +47,8 @@ src/edupad/
 ├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate,
 │                      finance (keuangan suara), tutor (kuis lisan), radar (Equity Radar)
 ├── office/            Office API dashboard: login Google pemilik, data panel, event owl
-├── voice/             stt (Groq Whisper), tts (ElevenLabs), mode (Mode Suara), clips (pesan status
+├── voice/             stt (Groq Whisper), tts (ElevenLabs), mode (Mode Suara), lang (bahasa
+│                      Indonesia/Inggris), clips (pesan status
 │                      bersuara); PCM 16 kHz untuk ESP32
 ├── google/            oauth (login Google + PKCE), accounts (refresh token & sesi web)
 ├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md) + web
@@ -68,7 +69,7 @@ data/  logs/  user_data/   dibuat saat berjalan (tidak dibagikan)
 ## Dashboard EduPad (AI Office)
 
 Dashboard di `dashboard/` (React, TypeScript, Vite, Recharts, Phaser 3) disajikan di
-`https://shata.id/dashboard/`. Setelah login Google di halaman depan (`web/`), pemilik
+`https://edupad.ai.id/dashboard/`. Setelah login Google di halaman depan (`web/`), pemilik
 (`EDUPAD_OWNER_EMAILS`) langsung dibawa ke sini. Halaman pertama adalah kantor virtual 2D:
 tujuh owl bergerak sesuai pekerjaan AI agent yang sebenarnya, termasuk saat perangkat ESP32
 ditanya (SORA tutor, KOIN keuangan, TEMPO jadwal, NEXUS pengetahuan). Kode game ada di
@@ -110,6 +111,26 @@ cd frontend && npm ci && cd ../dashboard && npm ci && npm run dev   # http://loc
 ```
 
 Deploy: `deploy/SERVER.md` bagian "Dashboard EduPad".
+
+## Versi kedua: tema neo-brutalism
+
+Tampilan web punya dua versi yang berjalan berdampingan; isinya sama, rupanya berbeda.
+
+| | Versi pertama (pixel art) | Versi kedua (neo-brutalism) |
+|---|---|---|
+| Halaman depan | `web/` — port 5173 | `web-neo/` — port 5180 |
+| Dashboard | `dashboard/` — port 5174 | `dashboard-neo/` — port 5184 |
+| AI Office | kantor Phaser (`frontend/src/game`) | denah kantor berupa blok (`dashboard-neo/src/office`) |
+
+Versi kedua tidak menyalin isi: teks halaman depan tetap dibaca dari
+`web/src/landing/copy.ts`, dan dua belas halaman dashboard diimpor langsung dari
+`dashboard/src`. Yang ditambahkan hanya lapisan rupa (`dashboard-neo/src/neo-theme.css`) dan
+aset owl baru. Aturan desainnya ada di `web-neo/DESIGN.md`.
+
+```bash
+cd web-neo && npm install && npm run dev          # http://localhost:5180
+cd dashboard-neo && npm run dev                   # http://localhost:5184/dashboard-neo/
+```
 
 ## Instalasi
 
@@ -163,6 +184,10 @@ pertama & sisanya disintesis bersamaan dengan konteks `previous_text`/`next_text
 intonasi tetap menyambung), maks. 2 permintaan paralel (batas akun gratis). Uji: audio pertama
 ~0,95 detik (sebelumnya 2,2–2,5 detik untuk jawaban ~330 karakter).
 Akun gratis: 10.000 karakter/bulan (~30 jawaban) dan hanya suara bawaan / buatan sendiri.
+Beberapa akun boleh diisi di `.env` (`API_KEY_ElevenLabs` + `Voice_ID_ElevenLabs`, lalu yang
+berakhiran `2`, `3`, ...): begitu satu akun menolak karena kuotanya habis, akun itu dilewati
+6 jam dan permintaan diulang ke akun berikutnya, jadi jawaban tetap bersuara. Voice ID yang
+salah (HTTP 404) tetap dimunculkan sebagai galat, bukan dianggap kuota habis.
 
 ## Sesi login
 

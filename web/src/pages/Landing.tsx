@@ -6,7 +6,7 @@ import { COPY, type CueName, type Lang, type OwlName, type Phrase } from "../lan
 import { playCue } from "../landing/cues";
 import { useLang } from "../landing/useLang";
 
-// Halaman depan shata.id untuk juri & pengunjung: apa itu EduPad dan cara kerjanya.
+// Halaman depan edupad.ai.id untuk juri & pengunjung: apa itu EduPad dan cara kerjanya.
 // Tanpa data pribadi pemilik; pemilik masuk lewat tombol di pojok kanan atas.
 
 const OWL_COLOR: Record<OwlName, string> = {
@@ -413,19 +413,49 @@ export default function Landing() {
         <section aria-labelledby="behind-judul" className={`${SECTION} py-20`}>
           <Heading id="behind-judul" title={t.behind.title} />
           <p className="mt-3 max-w-2xl text-lg text-ink-2">{t.behind.lead}</p>
-          <ol className="mt-10 grid gap-4 md:grid-cols-4">
+          <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {t.behind.parts.map((part, index) => (
-              <li key={part.title} className="relative rounded-xl border-2 border-edge bg-paper p-5 shadow-hard">
-                <h3 className="font-display text-xl">{part.title}</h3>
-                <p className="mt-2 text-[16px] text-ink-2">{part.body}</p>
+              <li key={index} className="relative rounded-xl border-2 border-edge bg-paper shadow-hard">
+                <div className="relative m-2 aspect-[3/2] overflow-hidden rounded-lg" aria-hidden="true">
+                  <img
+                    src="/media/behind-the-scenes.webp"
+                    alt=""
+                    width={1536}
+                    height={1024}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute h-[200%] w-[200%] max-w-none"
+                    style={{ left: index % 2 === 0 ? "0" : "-100%", top: index < 2 ? "0" : "-100%" }}
+                  />
+                </div>
+                <div className="px-5 pb-6 pt-2">
+                  <div className="flex items-center gap-2.5">
+                    <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate font-display text-sm text-white">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="font-display text-xl">{part.title}</h3>
+                  </div>
+                  <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{part.summary}</p>
+                </div>
                 {index < t.behind.parts.length - 1 && (
-                  <span aria-hidden="true" className="absolute -right-4 top-1/2 z-10 hidden -translate-y-1/2 font-display text-2xl text-teal-ink md:block">
+                  <span aria-hidden="true" className="absolute -right-5 top-1/3 z-10 hidden h-8 w-8 items-center justify-center rounded-full border-2 border-edge bg-paper font-display text-xl text-teal-ink lg:flex">
                     →
                   </span>
                 )}
               </li>
             ))}
           </ol>
+          <details className="mt-6 rounded-xl border-2 border-edge bg-paper px-5 py-4">
+            <summary className="cursor-pointer font-semibold text-teal-ink">{t.behind.details}</summary>
+            <div className="mt-5 grid gap-6 pb-2 sm:grid-cols-2 lg:grid-cols-4">
+              {t.behind.parts.map((part) => (
+                <div key={part.title}>
+                  <h3 className="font-display text-xl">{part.title}</h3>
+                  <p className="mt-2 text-[15px] leading-relaxed text-ink-2">{part.body}</p>
+                </div>
+              ))}
+            </div>
+          </details>
           <div className="mt-12 grid gap-10 md:grid-cols-2">
             <List title={t.behind.privacyTitle} items={t.behind.privacy} />
             <List title={t.behind.limitsTitle} items={t.behind.limits} />

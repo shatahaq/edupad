@@ -68,7 +68,8 @@ type Copy = {
   behind: {
     title: string;
     lead: string;
-    parts: { title: string; body: string }[];
+    details: string;
+    parts: { title: string; summary: string; body: string }[];
     privacyTitle: string;
     privacy: string[];
     limitsTitle: string;
@@ -238,18 +239,21 @@ export const COPY: Record<Lang, Copy> = {
     },
     behind: {
       title: "Di balik layar",
-      lead: "Sederhana untuk dipakai, tapi setiap jawaban melewati beberapa langkah.",
+      lead: "Dari suaramu ke jawaban. Kenali bagian-bagian yang bekerja bersama di balik EduPad.",
+      details: "Lihat detail teknis",
       parts: [
-        { title: "Perangkat", body: "ESP32-S3 dengan mikrofon, speaker, dan layar 4 inci. Satu tombol untuk semuanya." },
+        { title: "Perangkat", summary: "Tekan, bicara, lalu dengarkan jawabannya.", body: "ESP32-S3 dengan mikrofon, speaker, dan layar 4 inci. Satu tombol untuk semuanya." },
         {
           title: "Server EduPad",
+          summary: "Memahami pertanyaan dan merangkai jawaban.",
           body: "Suara diubah jadi teks (Whisper), AI menjawab sambil memakai alat pencari materi, tugas, dan jadwal, lalu jawabannya disuarakan (ElevenLabs).",
         },
         {
           title: "Sumber data",
+          summary: "Mencari materi, tugas, dan jadwal kuliahmu.",
           body: "Materi dan tugas dari e-learning kampus, jadwal dan presensi dari portal akademik, serta Google Classroom.",
         },
-        { title: "Dashboard", body: "AI Office, Tutor, Keuangan, dan Equity Radar, di alamat ini." },
+        { title: "Dashboard", summary: "Lihat pekerjaan AI dan hasilnya di satu tempat.", body: "AI Office, Tutor, Keuangan, dan Equity Radar, di alamat ini." },
       ],
       privacyTitle: "Privasi",
       privacy: [
@@ -476,18 +480,21 @@ export const COPY: Record<Lang, Copy> = {
     },
     behind: {
       title: "Behind the scenes",
-      lead: "Simple to use, but every answer goes through a few steps.",
+      lead: "From your voice to an answer. Meet the parts working together inside EduPad.",
+      details: "Explore the technical details",
       parts: [
-        { title: "Device", body: "An ESP32-S3 with a microphone, a speaker and a 4-inch screen. One button for everything." },
+        { title: "Device", summary: "Press, speak, then listen to the answer.", body: "An ESP32-S3 with a microphone, a speaker and a 4-inch screen. One button for everything." },
         {
           title: "EduPad server",
+          summary: "Understands your question and builds an answer.",
           body: "Speech becomes text (Whisper), the AI answers using tools that search materials, assignments and the schedule, and the answer is voiced (ElevenLabs).",
         },
         {
           title: "Data sources",
+          summary: "Finds your course materials, tasks and schedule.",
           body: "Materials and assignments from the campus e-learning site, schedule and attendance from the academic portal, and Google Classroom.",
         },
-        { title: "Dashboard", body: "AI Office, Tutor, money and Equity Radar, right here." },
+        { title: "Dashboard", summary: "See the AI at work and your results in one place.", body: "AI Office, Tutor, money and Equity Radar, right here." },
       ],
       privacyTitle: "Privacy",
       privacy: [

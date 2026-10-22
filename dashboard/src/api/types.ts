@@ -383,11 +383,15 @@ export interface EarlyWarning {
 
 export type VoiceSpeed = "lambat" | "normal" | "cepat" | "sangat_cepat";
 
-/** Mode Suara: EduPad dipakai tanpa melihat layar (dirancang untuk mahasiswa tunanetra). */
+export type VoiceLang = "id" | "en";
+
+/** Mode Suara (EduPad dipakai tanpa melihat layar) + bahasa perangkat; satu panel Pengaturan. */
 export interface VoiceModeData {
   enabled: boolean;
   speed: VoiceSpeed;
   speeds: VoiceSpeed[];
+  lang: VoiceLang;
+  languages: Record<VoiceLang, string>;
 }
 
 /** Bukti aksesibilitas di Equity Radar: materi yang bisa didengar & suara yang diputar. */

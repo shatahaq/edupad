@@ -1,6 +1,6 @@
 {
-  "diperbarui": "2026-10-14T16:51+07:00",
-  "sesi_berlaku_sampai": "2026-11-13T09:51:17.460Z",
+  "diperbarui": "2026-10-17T09:56+07:00",
+  "sesi_berlaku_sampai": "2026-11-16T02:56:26.886Z",
   "nim": "241712061",
   "kelas": [
     {
@@ -305,9 +305,9 @@
       "matkul": "Praktikum Sistem Pendukung Keputusan",
       "kelas": "5/B",
       "satu_class_id": "6a730a9790eef154a2895dba",
-      "pertemuan_tercatat": 8,
+      "pertemuan_tercatat": 10,
       "hadir": 5,
-      "persen_hadir": 63
+      "persen_hadir": 50
     },
     {
       "kode": "TIF 3 032",
@@ -315,8 +315,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a7307d590eef154a2895d9f",
       "pertemuan_tercatat": 16,
-      "hadir": 6,
-      "persen_hadir": 38
+      "hadir": 7,
+      "persen_hadir": 44
     },
     {
       "kode": "TIF 3 029",
@@ -333,16 +333,16 @@
       "kelas": "5/B",
       "satu_class_id": "6a7302dc88db9429977d1ffb",
       "pertemuan_tercatat": 16,
-      "hadir": 5,
-      "persen_hadir": 31
+      "hadir": 7,
+      "persen_hadir": 44
     },
     {
       "kode": "TIF 3 033 P",
       "matkul": "Praktikum Teknik Penulisan Karya Ilmiah",
       "kelas": "5/B",
       "satu_class_id": "6a7301ce4db23b08dfb2faa2",
-      "pertemuan_tercatat": 7,
-      "hadir": 7,
+      "pertemuan_tercatat": 8,
+      "hadir": 8,
       "persen_hadir": 100
     },
     {
@@ -351,8 +351,8 @@
       "kelas": "5/B",
       "satu_class_id": "6a73013bbb1a652924911798",
       "pertemuan_tercatat": 16,
-      "hadir": 6,
-      "persen_hadir": 38
+      "hadir": 7,
+      "persen_hadir": 44
     },
     {
       "kode": "TIF 3 037 P",

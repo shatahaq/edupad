@@ -18,8 +18,8 @@ bool enabled();
 // Bunyi penanda.
 void cue(Cue c);
 // Putar pesan status tersimpan (nama dari server, mis. "wifi"); bila belum terunduh, bunyi
-// penanda Error. Berhenti bila tombol ditekan.
-void say(const char *name);
+// penanda `fallback`. Berhenti bila tombol ditekan.
+void say(const char *name, Cue fallback = Cue::Error);
 // Unduh satu pesan yang belum ada atau sudah usang; dipanggil saat menganggur.
 void loadPending();
 

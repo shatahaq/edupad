@@ -1,10 +1,10 @@
 # Firmware EduPad (ESP32-S3)
 
-Tahan tombol **BOOT**, bicara, lalu lepas: rekaman dikirim ke `POST /v1/ask` sambil merekam,
+Tahan **tombol** (GPIO 7), bicara, lalu lepas: rekaman dikirim ke `POST /v1/ask` sambil merekam,
 jawaban (`screen`) tampil di LCD, lalu suaranya (`audio_url`) diputar lewat speaker begitu tiba.
 API-nya ada di [../deploy/DEVICE_API.md](../deploy/DEVICE_API.md).
 
-| Tombol BOOT | Fungsi |
+| Tombol | Fungsi |
 |---|---|
 | Tahan | Bicara (lepas untuk mengirim) |
 | Tekan 1x | Putar ulang suara jawaban terakhir. Server memakai suara yang tersimpan, jadi tidak memakai kuota ElevenLabs |
@@ -15,7 +15,7 @@ Server hanya menyimpan suara **jawaban terakhir**; jawaban baru menimpanya.
 
 Yang bisa diucapkan selain bertanya materi: catat keuangan ("tadi beli makan dua puluh lima
 ribu", "hapus yang tadi"), kuis lisan ("uji aku Basis Data pertemuan dua"), dan rencana belajar
-("hari ini belajar apa?"). Hasilnya langsung tampil di dashboard `https://shata.id/dashboard/`.
+("hari ini belajar apa?"). Hasilnya langsung tampil di dashboard `https://edupad.ai.id/dashboard/`.
 
 Kartu pemberitahuan dari `GET /v1/updates`: presensi dibuka, presensi tercatat, deadline,
 **peringatan dini** (jatah absen/anggaran hampir habis) dan **waktunya mengulang** (topik kuis
@@ -33,11 +33,19 @@ server baru mengirim dua kartu itu ke firmware 1.1+. Pratinjau: `cd preview && m
 | Jawaban | Seluruh isinya dibacakan; jawaban panjang ditutup "mau dilanjutkan?" (jawab "lanjut") |
 | Pemberitahuan | Bunyi "ding-dong", lalu isinya dibacakan (presensi, deadline, peringatan, mengulang) |
 | Wi-Fi/server putus, suara tak terdengar, gagal kirim, percakapan baru | Pesan suara yang disimpan di perangkat (PSRAM), terdengar walau offline |
+| Dibangunkan dari tidur (firmware 1.5) | "EduPad siap. Tahan tombol, lalu tanya saja." (pesan `ready`; bila belum terunduh, hanya bunyi bangun) |
 
 Pesan status diunduh sekali dari server setelah Mode Suara aktif dan perangkat menganggur
 beberapa detik ([voice.cpp](edupad/voice.cpp)). Status Mode Suara disimpan di NVS. Animasi layar
 tetap ada untuk pendamping dan pengguna low vision. Saat Mode Suara mati, perilaku perangkat
 sama seperti firmware 1.1.
+
+**Bahasa** (firmware 1.5+): EduPad bisa berbahasa Indonesia (bawaan) atau Inggris. Diganti
+dengan mengucapkan "switch to English" / "ganti ke bahasa Indonesia", atau lewat dashboard
+(Pengaturan). Bahasa diatur server (`src/edupad/voice/lang.py`): suara perkenalan, jawaban,
+pemberitahuan, pesan status, dan pengenalan suara ikut berganti, dan `/v1/updates` mengirim
+`language`. Label yang ditulis di firmware sendiri ("Siap!", "Tahan tombol lalu bicara") masih
+bahasa Indonesia.
 
 Perangkat keras: ESP32-S3 DevKitC N16R8, LCD SPI ST7796 4" 320x480, mikrofon I2S INMP441,
 amplifier I2S MAX98357A + speaker 4-8 ohm.
@@ -53,8 +61,8 @@ LCD ST7796 (pin touch `T_*` dibiarkan lepas):
 | CS | GPIO 10 |
 | RESET | GPIO 13 |
 | DC/RS | GPIO 9 |
-| SDI (MOSI) | GPIO 11 |
-| SCK | GPIO 12 |
+| SDI (MOSI) | GPIO 18 |
+| SCK | GPIO 14 |
 | LED | GPIO 21 (atau langsung 3V3, lalu `PIN_TFT_BL -1`) |
 | SDO (MISO) | tidak disambung |
 
@@ -75,11 +83,21 @@ Amplifier MAX98357A (sama dengan [speaker_test](speaker_test/speaker_test.ino)):
 |---|---|
 | VIN | 5V (lebih keras) atau 3V3 |
 | GND | GND |
-| BCLK | GPIO 15 |
-| LRC | GPIO 16 |
-| DIN | GPIO 17 |
+| BCLK | GPIO 16 |
+| LRC | GPIO 17 |
+| DIN | GPIO 15 |
 | GAIN, SD | tidak disambung |
 | + / - | speaker (jangan ke GND) |
+
+Tombol (satu tombol tekan biasa, mis. push button 2 kaki):
+
+| Tombol | ESP32-S3 |
+|---|---|
+| kaki 1 | GPIO 7 |
+| kaki 2 | GND |
+
+Tidak perlu resistor: pin dipakai `INPUT_PULLUP`, jadi ditekan = LOW. Tombol **BOOT** di papan
+sekarang hanya untuk flash, bukan lagi tombol EduPad.
 
 Volume: `SPEAKER_VOLUME` di `config.h` (0.0-1.0).
 
@@ -100,7 +118,7 @@ Semua pin bisa diubah di [edupad/config.h](edupad/config.h).
    - USB CDC On Boot: **Disabled** bila dicolok ke port **COM/UART**, **Enabled** bila ke port
      **USB** (kalau salah, Serial Monitor kosong)
    - Flash Size: **16MB (128Mb)** (N16R8; bawaannya 4MB)
-   - Partition Scheme: **16M Flash (3MB APP/9.9MB FATFS)**. Sketch ~1,2 MB dengan animasi
+   - Partition Scheme: **16M Flash (3MB APP/9.9MB FATFS)**. Sketch ~1,3 MB dengan animasi
      layar, sudah melewati batas partisi bawaan (1,25 MB) bila aset bertambah
 5. Linux: supaya port bisa dipakai tanpa sudo (sekali saja, lalu logout/login):
    `sudo usermod -aG dialout $USER`
@@ -116,7 +134,7 @@ menampilkan **Atur Wi-Fi** dan EduPad membuka hotspot:
 2. Halaman pengaturan biasanya terbuka sendiri; bila tidak, buka `http://192.168.4.1`.
 3. Pilih jaringan, isi sandi, lalu **Simpan & sambungkan**. EduPad restart dan menyambung.
 
-Tekan BOOT saat layar "Atur Wi-Fi" untuk mencoba lagi tanpa mengubah apa pun (mis. router baru
+Tekan tombol saat layar "Atur Wi-Fi" untuk mencoba lagi tanpa mengubah apa pun (mis. router baru
 menyala). Pilihan dari hotspot tersimpan di flash dan tetap ada walau firmware di-upload ulang.
 
 ## Uji ke server di laptop

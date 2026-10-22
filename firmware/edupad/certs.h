@@ -1,4 +1,4 @@
-// Root CA yang mungkin dipakai Cloudflare untuk shata.id (saat ini Let's Encrypt -> ISRG).
+// Root CA yang mungkin dipakai Cloudflare untuk edupad.ai.id (saat ini Let's Encrypt -> ISRG).
 // Cloudflare bisa berganti CA saat sertifikat diperbarui, jadi semuanya disertakan.
 #pragma once
 

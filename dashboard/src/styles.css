@@ -3989,40 +3989,52 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 
 /* ---------- AI Office owl: panggung penuh ---------- */
 
-.content-office {
-  height: calc(100dvh - var(--topbar));
+.main.main-office {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   min-height: 0;
   overflow: hidden;
+}
+
+.main-office > .topbar,
+.main-office > .consent-banner { flex-shrink: 0; }
+
+.content.content-office {
+  display: block;
+  flex: 1 1 0;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-width: none;
+  overflow: hidden;
   padding: 0;
+  align-content: start;
 }
 
 .office-world-page {
-  --office-rail-width: 72px;
-  --office-agent-dock-height: 82px;
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--office-rail-width);
-  grid-template-rows: minmax(0, 1fr) var(--office-agent-dock-height);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   width: 100%;
   height: 100%;
-  align-items: center;
+  min-height: 0;
+  min-width: 0;
+  align-items: start;
   overflow: hidden;
   background-color: #eee7d8;
-  background-image: url('/assets/office/edupad-office-floor-wide-v1.png');
-  background-position: center;
-  background-repeat: repeat;
-  background-size: auto 86.65%;
 }
-
-.office-world-page.is-editing-furniture { --office-rail-width: 340px; }
 
 .office-world-stage {
   position: relative;
   grid-column: 1;
   grid-row: 1;
   width: 100%;
-  height: auto;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
   align-self: stretch;
   justify-self: stretch;
   overflow: hidden;
@@ -4031,12 +4043,17 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 
 .office-world-toolbar {
   position: relative;
-  grid-column: 2;
+  z-index: 25;
+  grid-column: 1;
   grid-row: 1;
   width: 100%;
-  height: 100%;
+  height: 0;
   min-width: 0;
+  align-self: start;
+  pointer-events: none;
 }
+
+.office-world-toolbar > * { pointer-events: auto; }
 
 .office-owl-game-shell {
   position: absolute;
@@ -4051,13 +4068,15 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
   z-index: 24;
   display: grid;
   min-width: 0;
-  min-height: 0;
-  height: 100%;
+  min-height: 92px;
+  height: auto;
   grid-column: 1 / -1;
   grid-row: 2;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   align-items: stretch;
   gap: 7px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
   border-top: 1px solid rgba(104, 114, 116, 0.18);
   background: rgba(241, 240, 235, 0.78);
   padding: 8px 10px 10px;
@@ -4069,7 +4088,7 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
   display: grid;
   min-width: 0;
   grid-template-columns: 42px minmax(0, 1fr);
-  grid-template-rows: 1fr;
+  grid-template-rows: 42px auto;
   align-items: center;
   gap: 0 8px;
   overflow: hidden;
@@ -4105,7 +4124,7 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 }
 
 .office-agent-tab-copy {
-  display: grid;
+  display: contents;
   min-width: 0;
   align-self: center;
   gap: 2px;
@@ -4113,22 +4132,20 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 
 .office-agent-tab-copy strong,
 .office-agent-tab-copy small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
-.office-agent-tab-copy strong { font-size: 0.7rem; letter-spacing: 0.01em; }
-.office-agent-tab-copy small { color: #778287; font-size: 0.54rem; }
+.office-agent-tab-copy strong { grid-column: 2; grid-row: 1; font-size: 0.8125rem; line-height: 1.35; letter-spacing: 0.01em; }
+.office-agent-tab-copy small { grid-column: 1 / -1; grid-row: 2; align-self: start; padding: 4px 2px 0; color: #61717c; font-size: 0.75rem; line-height: 1.45; }
 
 .office-owl-game-shell .office-canvas {
   display: block;
-  width: auto !important;
+  width: 100% !important;
   height: 100% !important;
   max-width: 100%;
   max-height: none;
-  aspect-ratio: 4 / 3;
-  margin-inline: auto;
+  margin: 0;
 }
 
 .office-owl-game-shell .office-canvas > canvas {
@@ -4299,26 +4316,30 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 }
 
 @media (max-width: 760px) {
-  .office-world-page { --office-rail-width: 54px; --office-agent-dock-height: 72px; }
-  .office-world-page.is-editing-furniture { --office-rail-width: min(42vw, 260px); }
-  .office-world-stage { width: 100%; }
   .office-world-page .office-camera-controls { top: 58px; right: 6px; }
-  .office-agent-dock { gap: 4px; padding: 6px; }
-  .office-agent-tab { display: flex; justify-content: center; padding: 5px; }
-  .office-agent-tab-avatar { width: 38px; height: 38px; flex: 0 0 38px; }
-  .office-agent-tab-copy { display: none; }
+  .office-agent-dock { grid-template-columns: repeat(7, 164px); gap: 6px; padding: 8px; }
+  .office-agent-tab { grid-template-columns: 38px minmax(0, 1fr); padding: 7px; }
+  .office-agent-tab-avatar { width: 38px; height: 38px; }
+}
+
+@media (min-width: 761px) and (max-width: 1200px) {
+  .office-agent-tab { grid-template-columns: 30px minmax(0, 1fr); gap: 0 4px; padding: 6px; }
+  .office-agent-tab-avatar { width: 30px; height: 30px; }
 }
 
 .office-world-toolbar .owl-editor-toggle { top: 14px; right: 15px; }
-.office-world-page.is-editing-furniture .office-camera-controls { top: 72px; right: 16px; }
+.office-world-page.is-editing-furniture .office-camera-controls { top: 14px; right: 68px; width: auto; flex-direction: row; }
+.office-world-page.is-editing-furniture .office-camera-controls button,
+.office-world-page.is-editing-furniture .office-camera-controls > span { border-bottom: 0; }
 .office-world-page.is-editing-furniture .owl-editor-toggle { right: 16px; }
 .office-world-toolbar .owl-workshop {
-  top: 272px;
+  top: 66px;
   right: 12px;
-  bottom: 12px;
-  left: 12px;
+  bottom: auto;
+  left: auto;
   display: flex;
-  width: auto;
+  width: min(360px, calc(100% - 24px));
+  max-height: calc(100dvh - var(--topbar) - 96px);
   transform: none;
   flex-direction: column;
   overflow: hidden;
@@ -4328,7 +4349,7 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 .office-world-toolbar .owl-workshop-catalog {
   flex: 1 1 auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-height: none;
+  max-height: 360px;
   min-height: 0;
   overflow-y: auto;
 }
@@ -4336,8 +4357,9 @@ html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; ani
 .office-world-toolbar .owl-workshop-catalog span { font-size: 10px; }
 .office-world-toolbar .owl-workshop-catalog img { height: 56px; }
 @media (max-width: 760px) {
-  .office-world-toolbar .owl-workshop { top: 270px; right: 4px; left: 4px; }
-  .office-world-toolbar .owl-workshop-catalog { grid-template-columns: 1fr; }
+  .office-world-toolbar .owl-editor-toggle { right: 6px; }
+  .office-world-page.is-editing-furniture .office-camera-controls { right: 58px; }
+  .office-world-toolbar .owl-workshop { right: 6px; width: min(360px, calc(100% - 12px)); }
 }
 .office-furniture-portrait{position:relative;z-index:1;display:block;width:100%;max-width:270px;height:240px;object-fit:contain;image-rendering:pixelated;margin:0 0 30px;filter:drop-shadow(0 14px 8px #263d4e22)}
 .office-furniture-description{display:flex;justify-content:center;flex-direction:column;gap:12px;padding-top:70px;padding-bottom:60px}

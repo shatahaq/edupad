@@ -9,7 +9,7 @@ import {
   type CameraView,
   officeGameEvents,
 } from './events'
-import { OFFICE_WORLD_HEIGHT, OFFICE_WORLD_WIDTH, OfficeScene } from './OfficeScene'
+import { OfficeScene } from './OfficeScene'
 import { FurnitureEditor } from './FurnitureEditor'
 
 function CameraIcon({ kind }: { kind: 'minus' | 'plus' | 'fit' }) {
@@ -39,24 +39,35 @@ export function OfficeGame({
 
   useEffect(() => {
     if (!host.current || game.current) return
-    game.current = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: host.current,
-      width: OFFICE_WORLD_WIDTH,
-      height: OFFICE_WORLD_HEIGHT,
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      transparent: true,
-      pixelArt: true,
-      antialias: false,
-      roundPixels: true,
-      scene: [OfficeScene],
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      audio: { noAudio: true },
-      render: { transparent: true, powerPreference: 'high-performance' },
+    // React StrictMode runs setup/cleanup twice before the first paint.
+    // Defer creation so an unbooted Phaser instance cannot leave a second canvas.
+    const frame = requestAnimationFrame(() => {
+      if (!host.current) return
+      game.current = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: host.current,
+        width: host.current.clientWidth,
+        height: host.current.clientHeight,
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        transparent: true,
+        pixelArt: true,
+        antialias: false,
+        roundPixels: true,
+        scene: [OfficeScene],
+        scale: { mode: Phaser.Scale.RESIZE },
+        input: { mouse: { preventDefaultWheel: false }, touch: { capture: false } },
+        audio: { noAudio: true },
+        render: { transparent: true, powerPreference: 'high-performance' },
+      })
     })
-    const observer = new ResizeObserver(() => game.current?.scale.refresh())
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width && entry.contentRect.height) {
+        game.current?.scale.resize(Math.round(entry.contentRect.width), Math.round(entry.contentRect.height))
+      }
+    })
     observer.observe(host.current)
     return () => {
+      cancelAnimationFrame(frame)
       observer.disconnect()
       game.current?.destroy(true)
       game.current = null

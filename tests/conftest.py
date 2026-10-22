@@ -3,7 +3,7 @@ import pytest
 from edupad import device_status
 from edupad.agent import coach, radar, tutor
 from edupad.office import events, repository
-from edupad.voice import clips
+from edupad.voice import clips, intro, lang
 from edupad.voice import mode as voice_mode
 
 
@@ -21,6 +21,9 @@ def _office_state_in_tmp(tmp_path, monkeypatch):
     monkeypatch.setattr(voice_mode, "SETTINGS_FILE", tmp_path / "device" / "voice_mode.json")
     monkeypatch.setattr(voice_mode, "EVENTS_FILE", tmp_path / "device" / "voice_events.jsonl")
     monkeypatch.setattr(clips, "CLIPS_DIR", tmp_path / "voice" / "clips")
+    # Tanpa ini, tes yang menyentuh /v1/intro menimpa simpanan perkenalan sungguhan di data/.
+    monkeypatch.setattr(intro, "INTRO_DIR", tmp_path / "voice" / "intro")
+    monkeypatch.setattr(lang, "SETTINGS_FILE", tmp_path / "device" / "language.json")
     yield
     events.flush()
 

@@ -3,8 +3,8 @@
 #pragma once
 
 // LCD ST7796 4" 320x480, SPI (FSPI).
-#define PIN_TFT_SCLK 12
-#define PIN_TFT_MOSI 11  // "SDI(MOSI)" di modul
+#define PIN_TFT_SCLK 14
+#define PIN_TFT_MOSI 18  // "SDI(MOSI)" di modul
 #define PIN_TFT_MISO -1  // "SDO(MISO)" tidak dipakai, biarkan lepas
 #define PIN_TFT_CS 10
 #define PIN_TFT_DC 9  // "DC/RS"
@@ -25,9 +25,10 @@
 // saat bicara normal, meter di layar sebaiknya sering melewati garis kuning.
 #define MIC_GAIN_SHIFT 12
 
-// Tombol: BOOT (GPIO0) di papan, aktif LOW. Tahan = bicara, tekan 1x = putar ulang suara
+// Tombol sendiri (bukan BOOT lagi): satu tombol antara GPIO7 dan GND, tanpa resistor
+// (pin dipakai INPUT_PULLUP), jadi aktif LOW. Tahan = bicara, tekan 1x = putar ulang suara
 // jawaban terakhir, tekan 2x = percakapan baru. Ditekan saat suara diputar = berhenti.
-#define PIN_BUTTON 0
+#define PIN_BUTTON 7
 #define SHORT_PRESS_MS 400  // dilepas lebih cepat dari ini = tekan singkat
 #define DOUBLE_TAP_MS 350   // jeda maksimum antara dua tekan singkat
 #define MAX_RECORD_MS 60000
@@ -43,12 +44,17 @@
 #define WIFI_CONNECT_TIMEOUT_MS 12000  // per jaringan yang dicoba
 
 // Amplifier I2S MAX98357A (sama dengan speaker_test). GAIN dan SD tidak disambung.
-#define PIN_AMP_BCLK 15
-#define PIN_AMP_LRC 16
-#define PIN_AMP_DIN 17
+#define PIN_AMP_BCLK 16
+#define PIN_AMP_LRC 17
+#define PIN_AMP_DIN 15
 #define SPEAKER_VOLUME 0.7f  // 0.0-1.0; di atas 1.0 suara pecah
 // Audio ditampung dulu sebelum mulai diputar supaya tidak tersendat saat jaringan lambat.
 #define SPEAKER_PREBUFFER_MS 300
+
+// Perkenalan diunduh utuh ke PSRAM dulu, baru diputar: suaranya 32 KB/detik, jadi memutar
+// sambil mengunduh membuat suara patah-patah begitu Wi-Fi melambat sesaat. Batas penampungnya
+// 30 detik (960 KB di PSRAM, dilepas lagi setelah selesai); naskah sekarang ~14 detik.
+#define INTRO_MAX_BYTES (30 * SAMPLE_RATE * 2)
 
 // Perkenalan diri (suara + animasi) setiap kali menyala; 0 untuk langsung ke layar siap.
 // Suaranya dibuat sekali dan disimpan server (GET /v1/intro), jadi tidak memakai kuota TTS.
@@ -84,4 +90,8 @@
 // memastikan build mana yang sedang terpasang: naikkan setiap kali kelakuan perangkat berubah.
 // Server hanya memeriksa header ini ada atau tidak (kartu warning/review), bukan nilainya.
 // 1.3: presensi & deadline membangunkan alat, berbunyi, dan dibacakan dua kali walau Mode Suara mati.
-#define FIRMWARE_VERSION "1.3"
+// 1.4: pin berubah - layar SCK/MOSI ke GPIO 14/18, tombol sendiri di GPIO 7 (bukan BOOT).
+// 1.5: mode bahasa (Indonesia/Inggris, diatur server) dan pesan "ready" saat dibangunkan.
+// 1.6: perkenalan diunduh utuh ke PSRAM dulu, tidak lagi diputar sambil mengunduh (suaranya
+//      patah-patah bila Wi-Fi melambat sesaat).
+#define FIRMWARE_VERSION "1.6"

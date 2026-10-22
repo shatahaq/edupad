@@ -29,6 +29,7 @@ from edupad.core.supabase import SupabaseClient
 from edupad.errors import EXIT_LOGIN_REQUIRED, EXIT_OK
 from edupad.processing.embeddings import EmbeddingError, embed_query, rerank
 from edupad.processing.summaries import get_summary
+from edupad.voice import lang
 from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
@@ -534,6 +535,7 @@ TOOLS: dict[str, Callable[..., dict]] = {
     **tutor.TOOLS,
     **coach.TOOLS,
     **voice_mode.TOOLS,
+    **lang.TOOLS,
 }
 
 # Tool penutup: memaksa jawaban akhir terstruktur untuk suara, LCD, dan detail.

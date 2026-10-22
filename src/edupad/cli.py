@@ -81,6 +81,9 @@ def _parser() -> argparse.ArgumentParser:
         "intro", help="buat/simpan suara perkenalan perangkat (data/voice/intro/intro.wav)"
     )
     intro.add_argument("--force", action="store_true", help="buat ulang walau naskah tidak berubah")
+    intro.add_argument(
+        "--lang", choices=["id", "en"], help="bahasa naskah (bawaan: bahasa EduPad yang aktif)"
+    )
 
     serve = sub.add_parser("serve", help="server HTTP untuk perangkat ESP32 (STT -> agent -> TTS)")
     serve.add_argument("--host", default="127.0.0.1", help="0.0.0.0 agar bisa diakses perangkat")
@@ -203,16 +206,18 @@ def _listen(path: str) -> str | None:
     return text
 
 
-def _intro(force: bool) -> int:
-    """Buat suara perkenalan (sekali; dipakai ulang server) dan simpan WAV untuk didengar."""
-    from edupad.voice import intro, tts
+def _intro(force: bool, code: str | None = None) -> int:
+    """Buat suara perkenalan (sekali; dipakai ulang server) dan simpan WAV untuk didengar.
+    Tiap bahasa punya simpanannya sendiri, jadi `--lang en` tidak menimpa yang bahasa Indonesia."""
+    from edupad.voice import intro, lang, tts
 
+    code = code or lang.current()
     try:
-        meta, pcm = intro.load(regenerate=force)
+        meta, pcm = intro.load(regenerate=force, code=code)
     except tts.TTSError as e:
         print(f"[!] {e}")
         return 1
-    path = intro.INTRO_DIR / "intro.wav"
+    path = intro.INTRO_DIR / ("intro.wav" if code == lang.DEFAULT else f"intro-{code}.wav")
     path.write_bytes(tts.to_wav(pcm))
     for seg in meta["segments"]:
         print(f"{seg['start']:6.2f}s  {seg['gesture']:<7} {seg['text']}")
@@ -354,7 +359,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "transcribe":
         return _transcribe(args.audio)
     if args.command == "intro":
-        return _intro(args.force)
+        return _intro(args.force, args.lang)
     if args.command == "tutor-coach":
         from edupad.agent import coach
 

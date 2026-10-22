@@ -17,8 +17,8 @@ def fake_tts(monkeypatch, tmp_path):
 
     monkeypatch.setattr(intro.tts, "synthesize_part", synthesize_part)
     monkeypatch.setattr(intro, "INTRO_DIR", tmp_path / "intro")
-    monkeypatch.setattr(
-        intro, "SCRIPT", [("wave", "Halo!"), ("book", "Materi."), ("cheer", "Yuk!")]
+    monkeypatch.setitem(
+        intro.SCRIPTS, "id", [("wave", "Halo!"), ("book", "Materi."), ("cheer", "Yuk!")]
     )
     return calls
 
@@ -52,7 +52,7 @@ def test_saved_once_then_reused_until_script_changes(fake_tts, monkeypatch):
     saved = json.loads((intro.INTRO_DIR / "intro.json").read_text())
     assert saved["version"] == first[0]["version"]
 
-    monkeypatch.setattr(intro, "SCRIPT", [("wave", "Halo lagi!")])
+    monkeypatch.setitem(intro.SCRIPTS, "id", [("wave", "Halo lagi!")])
     meta, _ = intro.load()
     assert len(fake_tts) == 4 and meta["segments"][0]["text"] == "Halo lagi!"
     assert intro.load(regenerate=True) and len(fake_tts) == 5

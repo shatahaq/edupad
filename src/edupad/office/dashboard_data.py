@@ -31,6 +31,7 @@ from edupad.config import (
     get_settings,
 )
 from edupad.core.supabase import SupabaseClient
+from edupad.voice import lang
 from edupad.voice import mode as voice_mode
 
 STARTED_AT = time.monotonic()
@@ -884,6 +885,7 @@ def _accessibility(audit: dict, questions_30d: int) -> dict:
     return {
         "voice_mode": settings["enabled"],
         "speed": settings["speed"],
+        "language": lang.current(),
         "listenable_meetings": audit["bisa_didengar"],
         "meetings_with_material": audit["pertemuan_bermateri"],
         "ocr_pages": _ocr_pages(),
@@ -895,8 +897,14 @@ def _accessibility(audit: dict, questions_30d: int) -> dict:
 
 
 def voice_panel() -> dict:
-    """Pengaturan Mode Suara untuk halaman Pengaturan dashboard."""
-    return {**voice_mode.load(), "speeds": list(voice_mode.SPEEDS), "source": "local"}
+    """Pengaturan Mode Suara & bahasa untuk halaman Pengaturan dashboard."""
+    return {
+        **voice_mode.load(),
+        **lang.load(),
+        "speeds": list(voice_mode.SPEEDS),
+        "languages": {code: value["label"] for code, value in lang.LANGUAGES.items()},
+        "source": "local",
+    }
 
 
 def _attendance_rules() -> tuple[int, float]:

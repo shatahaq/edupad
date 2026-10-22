@@ -199,7 +199,7 @@ export function OfficePage() {
   }, [selectedAgentId, selectedRoomId, selectedFurnitureId]);
 
   return (
-    <main className={`office-world-page ${editingFurniture ? "is-editing-furniture" : ""}`}>
+    <div className={`office-world-page ${editingFurniture ? "is-editing-furniture" : ""}`}>
       <section className="office-world-stage" aria-label="Kantor virtual EduPad AI">
         <OfficeGame
           externalControls
@@ -212,8 +212,6 @@ export function OfficePage() {
             setSelectedFurnitureId(null);
           }}
         />
-
-
       </section>
       <aside className="office-world-toolbar" aria-label="Alat kantor virtual"><OfficeControls /></aside>
 
@@ -225,7 +223,7 @@ export function OfficePage() {
             className="office-agent-tab"
             style={{ "--agent-color": agent.color } as CSSProperties}
             onClick={() => openAgentDetail(agent.id)}
-            aria-label={`Buka detail ${agent.name}`}
+            aria-label={`Buka detail ${agent.name}, ${agent.role}`}
           >
             <span
               className="office-agent-tab-avatar"
@@ -261,7 +259,7 @@ export function OfficePage() {
           </section>
         </div>
       , document.body)}
-    </main>
+    </div>
   );
 }
 

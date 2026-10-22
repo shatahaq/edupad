@@ -6,6 +6,7 @@ from dataclasses import replace
 
 import pytest
 
+from edupad import config
 from edupad.config import get_settings
 from edupad.voice import tts
 
@@ -36,8 +37,10 @@ def settings(monkeypatch):
         tts_model="eleven_multilingual_v2",
         elevenlabs_api_key="key",
         elevenlabs_voice_id="voice123",
+        elevenlabs_accounts=(("key", "voice123"),),  # .env asli tidak ikut terpakai saat tes
     )
     monkeypatch.setattr(tts, "get_settings", lambda: base)
+    tts._blocked.clear()  # akun yang dilewati tidak bocor antar tes
     return base
 
 
@@ -85,7 +88,7 @@ def test_connection_drop_mid_stream_is_tts_error(monkeypatch, settings):
 
 
 def test_missing_keys_and_unknown_provider(monkeypatch, settings):
-    monkeypatch.setattr(tts, "get_settings", lambda: replace(settings, elevenlabs_api_key=None))
+    monkeypatch.setattr(tts, "get_settings", lambda: replace(settings, elevenlabs_accounts=()))
     with pytest.raises(tts.TTSError, match="belum diisi"):
         tts.synthesize("halo")
     monkeypatch.setattr(tts, "get_settings", lambda: replace(settings, tts_provider="lain"))
@@ -224,3 +227,72 @@ def test_split_payload_carries_context_to_elevenlabs(monkeypatch, settings):
     assert by_text[FIRST]["next_text"] == REST and "previous_text" not in by_text[FIRST]
     assert by_text[REST]["previous_text"] == FIRST and "next_text" not in by_text[REST]
     assert all(p["seed"] == tts.SEED and p["model_id"] == "eleven_multilingual_v2" for p in sent)
+
+
+# ----------------------- beberapa akun ElevenLabs ---------------------------
+QUOTA = {"detail": {"status": "quota_exceeded", "message": "You have 12 credits remaining"}}
+
+
+@pytest.fixture
+def two_accounts(monkeypatch, settings):
+    monkeypatch.setattr(
+        tts,
+        "get_settings",
+        lambda: replace(settings, elevenlabs_accounts=(("key1", "voice1"), ("key2", "voice2"))),
+    )
+
+
+def _posts(monkeypatch, *responses):
+    """Rekam tiap permintaan; `responses` dipakai berurutan, yang terakhir untuk sisanya."""
+    calls = []
+    answers = list(responses)
+
+    def fake_post(url, **kwargs):
+        calls.append((url, kwargs["headers"]["xi-api-key"]))
+        return answers.pop(0) if len(answers) > 1 else answers[0]
+
+    monkeypatch.setattr(tts.http_pool, "post", fake_post)
+    return calls
+
+
+def test_exhausted_account_moves_to_the_next_one(monkeypatch, two_accounts):
+    calls = _posts(monkeypatch, FakeResponse(401, body=QUOTA), FakeResponse())
+    assert tts.synthesize("halo") == b"\x01\x00" * 800 + b"\x02\x00" * 800
+    assert [key for _, key in calls] == ["key1", "key2"]
+    assert calls[1][0].endswith("/text-to-speech/voice2/stream")  # voice akun kedua
+
+
+def test_exhausted_account_is_skipped_on_the_next_request(monkeypatch, two_accounts):
+    calls = _posts(monkeypatch, FakeResponse(401, body=QUOTA), FakeResponse())
+    tts.synthesize("halo")
+    tts.synthesize("halo lagi")
+    assert [key for _, key in calls] == ["key1", "key2", "key2"]  # akun habis tidak dicoba lagi
+
+
+def test_all_accounts_exhausted_reports_the_last_error(monkeypatch, two_accounts):
+    _posts(monkeypatch, FakeResponse(401, body=QUOTA))
+    with pytest.raises(tts.TTSError, match="credits remaining"):
+        tts.synthesize("halo")
+    assert tts.accounts()[0][0] == "key1"  # semua dilewati: urutan .env dicoba lagi
+
+
+def test_wrong_voice_id_is_not_treated_as_quota(monkeypatch, two_accounts):
+    detail = {"detail": {"status": "voice_not_found", "message": "A voice with voice_id ..."}}
+    calls = _posts(monkeypatch, FakeResponse(404, body=detail), FakeResponse())
+    with pytest.raises(tts.TTSError, match="HTTP 404"):
+        tts.synthesize("halo")
+    assert [key for _, key in calls] == ["key1"]  # salah isi .env harus kelihatan, bukan ditutupi
+
+
+def test_second_voice_id_defaults_to_the_first(monkeypatch):
+    monkeypatch.setenv("API_KEY_ElevenLabs", "key1")
+    monkeypatch.setenv("Voice_ID_ElevenLabs", "voice1")
+    monkeypatch.setenv("API_KEY_ElevenLabs2", "key2")
+    monkeypatch.delenv("Voice_ID_ElevenLabs2", raising=False)
+    monkeypatch.setenv("API_KEY_ElevenLabs4", "key4")
+    monkeypatch.setenv("Voice_ID_ElevenLabs4", "voice4")
+    assert config.elevenlabs_accounts() == (
+        ("key1", "voice1"),
+        ("key2", "voice1"),  # voice kosong = ikut akun pertama (hanya cocok untuk suara bawaan)
+        ("key4", "voice4"),  # nomor yang bolong dilewati
+    )

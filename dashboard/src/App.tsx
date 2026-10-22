@@ -50,7 +50,7 @@ export function App() {
     <div className="app">
       <Sidebar active={page} open={drawer} onNavigate={go} onClose={() => setDrawer(false)} />
 
-      <div className="main">
+      <div className={`main ${page === "office" ? "main-office" : ""}`}>
         <Topbar page={pageLabel(page)} onMenu={() => setDrawer(true)} />
 
         {needsClassroom && (

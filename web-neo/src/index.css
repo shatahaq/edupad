@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-paper text-ink antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Garis grid tipis: satu-satunya tekstur latar, 48 px, tidak ikut tergulir isi. */
+    background-image:
+      linear-gradient(to right, rgba(17, 17, 17, 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-[3px] ring-ink ring-offset-2 ring-offset-paper;
+  }
+
+  /* Angka selalu rata lebar: tanggal, persen, dan rupiah tidak "bergoyang". */
+  .nums {
+    font-feature-settings: "tnum" 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .animate-marquee {
+      animation: none;
+    }
+  }
+}
+
+@layer components {
+  /* Kotak dasar: semua kartu memakai ini supaya tepi & bayangan seragam. */
+  .neo-box {
+    @apply border-3 border-ink bg-paper shadow-neo;
+  }
+
+  /* Tombol: naik saat hover, tenggelam saat ditekan (bayangan ikut mengecil). */
+  .neo-btn {
+    @apply inline-flex items-center justify-center gap-2 border-3 border-ink px-5 py-3 font-display text-[15px] uppercase tracking-wide shadow-neo-sm transition-[transform,box-shadow] duration-100;
+  }
+
+  .neo-btn:hover {
+    @apply -translate-x-[2px] -translate-y-[2px] shadow-neo;
+  }
+
+  .neo-btn:active {
+    @apply translate-x-[2px] translate-y-[2px] shadow-neo-press;
+  }
+
+  /* Label kecil huruf besar di atas judul bagian. */
+  .neo-eyebrow {
+    @apply inline-block border-3 border-ink bg-ink px-3 py-1 font-display text-xs uppercase tracking-[0.12em] text-paper;
+  }
+}

@@ -1,0 +1,12 @@
+Generated with the built-in image_gen tool.
+The four quadrants are displayed separately using CSS; labels remain localized HTML.
+
+Use case: illustration-story.
+Asset type: pixel-art illustration atlas for the existing EduPad educational assistant website's "Behind the scenes" section.
+Create a polished landscape 1536x1024 image arranged as EXACTLY FOUR EQUAL PANELS in a 2 by 2 grid, each panel 768x512, no visible borders or gutters. Each illustration must stay entirely inside its own quadrant with generous empty margin. Same solid warm cream #fffdf8 background throughout, no transparency. The four independent illustrations will be cropped by CSS and shown as separate illustrated steps.
+Style: beautifully crafted crisp retro pixel art, three-quarter isometric miniature objects, dark slate outlines, teal and cyan highlights, warm cream, touches of lavender and golden yellow. Charming thoughtful educational technology aesthetic, consistent lighting and scale, subtle pixel contact shadows, rich detail but clear silhouettes at 250 pixels wide.
+Top left: a small friendly handheld teal voice assistant device, dark screen with a tiny cyan pixel owl face, one prominent circular button below the screen, tiny microphone holes and speaker grille; floating teal sound wave marks on either side.
+Top right: two small dark slate server towers with teal indicator lights, a luminous cyan central AI chip, connected small speech bubble and sound waveform symbols. A tiny cyan owl perched beside the server.
+Bottom left: an organized stack of books, a yellow folder with loose lesson sheets, a small calendar card with squares, and a graduation cap, suggesting campus learning data.
+Bottom right: a desktop monitor displaying a miniature pixel owl office with little desks and a small chart, keyboard below, tiny teal owl next to the screen.
+No words, letters, numbers, logos, labels, arrows, watermarks, panel dividers or decorative frames. Do not make a website screenshot. All four complete subjects centered within their own equal quadrant, no object crossing the horizontal or vertical midpoint.

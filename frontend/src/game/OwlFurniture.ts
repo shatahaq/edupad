@@ -9,6 +9,7 @@ export class OwlFurniture {
   private pending: number | null = null
   private ghost: Phaser.GameObjects.Image | null = null
   private lastDrag = 0
+  private viewScale = { x: 1, y: 1 }
   private listeners: Array<[string, EventListener]> = []
   constructor(
     private scene: Phaser.Scene,
@@ -36,12 +37,23 @@ export class OwlFurniture {
   private listen(type: string, listener: EventListener) {
     this.listeners.push([type,listener]);officeGameEvents.addEventListener(type,listener)
   }
+  setViewScale(x: number, y: number) {
+    this.viewScale = { x, y }
+    for (const item of this.items) {
+      const spec = FURNITURE[item.frame]
+      this.sprites.get(item.id)?.setDisplaySize(spec.width*x, spec.width*spec.ratio*y)
+    }
+    if (this.ghost && this.pending !== null) {
+      const spec = FURNITURE[this.pending]
+      this.ghost.setDisplaySize(spec.width*x, spec.width*spec.ratio*y)
+    }
+  }
   private render() {
     this.sprites.forEach(sprite=>sprite.destroy());this.sprites.clear()
     for(const item of this.items){
       const spec=FURNITURE[item.frame],rect=furnitureRect(item)
       const image=this.scene.add.image(item.x,item.y,`furniture-${item.frame}`)
-        .setDisplaySize(spec.width,spec.width*spec.ratio).setDepth(rect.y+rect.height)
+        .setDisplaySize(spec.width*this.viewScale.x,spec.width*spec.ratio*this.viewScale.y).setDepth(rect.y+rect.height)
         .setInteractive({cursor:this.editing?'move':'pointer',pixelPerfect:true,alphaTolerance:40})
       this.scene.input.setDraggable(image,this.editing)
       image.on('pointerup', (_p:Phaser.Input.Pointer,_x:number,_y:number,event:Phaser.Types.Input.EventData)=>{
@@ -85,7 +97,7 @@ export class OwlFurniture {
     if(this.items.length>=80){officeGameEvents.furnitureFeedback('Batas 80 furnitur tercapai. Hapus beberapa objek terlebih dahulu.');return}
     const spec=FURNITURE[frame]
     this.pending=frame
-    this.ghost=this.scene.add.image(0,0,`furniture-${frame}`).setDisplaySize(spec.width,spec.width*spec.ratio).setAlpha(.6).setDepth(4000).setVisible(false)
+    this.ghost=this.scene.add.image(0,0,`furniture-${frame}`).setDisplaySize(spec.width*this.viewScale.x,spec.width*spec.ratio*this.viewScale.y).setAlpha(.6).setDepth(4000).setVisible(false)
     officeGameEvents.furnitureFeedback(`Klik lantai kosong untuk menaruh ${spec.name.toLowerCase()}. Esc untuk batal.`)
   }
   private moveGhost(pointer: Phaser.Input.Pointer) {

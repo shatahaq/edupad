@@ -6,9 +6,9 @@
 #include <math.h>
 
 // Pin ini tidak bentrok dengan LCD (9-13, 21) dan mic (4-6), jadi bisa dipakai seterusnya.
-#define PIN_AMP_BCLK 15
-#define PIN_AMP_LRC 16
-#define PIN_AMP_DIN 17
+#define PIN_AMP_BCLK 16
+#define PIN_AMP_LRC 17
+#define PIN_AMP_DIN 15
 #define PIN_BUTTON 0
 
 #define SAMPLE_RATE 16000

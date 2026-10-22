@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Disajikan di https://shata.id/dashboard/ oleh Office API (port 8001), di belakang Caddy.
+// Disajikan di https://edupad.ai.id/dashboard/ oleh Office API (port 8001), di belakang Caddy.
 // Dev: http://localhost:5174/dashboard/ (login dulu di web EduPad http://localhost:5173 agar
 // cookie sesi Google ikut terkirim; cookie tidak dibedakan per port).
 const office = "http://127.0.0.1:8001"; // python -m edupad office-api

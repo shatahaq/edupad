@@ -174,7 +174,7 @@ def test_status_clip_is_made_once_then_served_from_disk(server, monkeypatch):  #
         response, pcm = request(server, "GET", "/v1/voice/clip/no_speech")
         assert response.status == 200
         assert 0 < len(pcm) < len(loud)  # hening di awal & akhir dipangkas
-    assert made == [(clips.CLIPS["no_speech"], voice_mode.speed_value())]
+    assert made == [(clips.text("no_speech"), voice_mode.speed_value())]
     assert request(server, "GET", "/v1/voice/clip/rahasia")[0].status == 404
 
     voice_mode.save(speed="cepat")  # kecepatan berubah: dibuat untuk kecepatan itu
@@ -185,7 +185,9 @@ def test_status_clip_is_made_once_then_served_from_disk(server, monkeypatch):  #
     request(server, "GET", "/v1/voice/clip/no_speech")
     assert len(made) == 2
 
-    monkeypatch.setitem(clips.CLIPS, "no_speech", "Teks baru.")  # teks diubah: sisa lama dibuang
+    monkeypatch.setitem(
+        clips.CLIPS, "no_speech", {"id": "Teks baru.", "en": "New text."}
+    )  # teks diubah: sisa lama dibuang
     request(server, "GET", "/v1/voice/clip/no_speech")
     assert made[-1][0] == "Teks baru."
     assert len(list(clips.CLIPS_DIR.glob("no_speech-*.pcm"))) == 1
@@ -210,6 +212,7 @@ def test_accessibility_counts_ocr_pages_and_spoken_audio(tmp_path, monkeypatch):
     assert data == {
         "voice_mode": True,
         "speed": "normal",
+        "language": "id",
         "listenable_meetings": 18,
         "meetings_with_material": 24,
         "ocr_pages": 15,
@@ -257,7 +260,7 @@ def test_settings_command_skips_agent_and_tts(server, fake_tts):  # noqa: F811
     status, body = ask_json(server, "aktifkan mode suara")
     assert status == 200 and voice_mode.load()["enabled"] is True
     assert server.asked == [] and fake_tts == []  # tanpa token LLM, tanpa kuota TTS
-    assert body["speech"] == commands.REPLIES["on"]["speech"] and body["screen"]["lines"]
+    assert body["speech"] == commands.reply("on")["speech"] and body["screen"]["lines"]
     assert body["audio_url"].startswith("/v1/voice/reply/on?v=")
     assert body["voice_mode"] is True and set(body["voice_clips"]) == set(clips.CLIPS)
     assert voice_mode.usage()["answer"] == 1
@@ -280,7 +283,7 @@ def test_template_audio_is_made_once_then_served_from_disk(server, monkeypatch):
     for _ in range(2):
         response, pcm = request(server, "GET", "/v1/voice/reply/on")
         assert response.status == 200 and 0 < len(pcm) < len(loud)
-    assert made == [(commands.REPLIES["on"]["speech"], voice_mode.speed_value())]
+    assert made == [(commands.reply("on")["speech"], voice_mode.speed_value())]
     assert request(server, "GET", "/v1/voice/reply/rahasia")[0].status == 404
 
 

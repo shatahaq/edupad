@@ -6,7 +6,8 @@ singkatan mata kuliah sebagai prompt agar "PV" dan "MSBD" ditulis benar.
 
 Whisper mengubah hening/derau menjadi "Terima kasih." dan Groq tidak mengisi
 no_speech_prob, jadi PCM tanpa ucapan disaring di sini lewat energi suara sebelum dikirim
-(sekaligus hemat kuota). Penyedia dipilih lewat EDUPAD_STT_PROVIDER di .env.
+(sekaligus hemat kuota). Penyedia dipilih lewat EDUPAD_STT_PROVIDER di .env; bahasa yang
+dikenali mengikuti setelan bahasa EduPad (voice/lang.py).
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ import requests
 from edupad.config import CORPUS_DIR, get_settings
 from edupad.core import http_pool
 from edupad.core.files import read_json
+from edupad.voice import lang
 from edupad.voice.tts import SAMPLE_RATE, SAMPLE_WIDTH, duration_seconds, to_wav
 
 GROQ_URL = "https://api.groq.com/openai/v1/audio/transcriptions"
@@ -39,6 +41,11 @@ SPEECH_DBFS = -35.0
 MIN_SPEECH_SECONDS = 0.25
 FRAME_SAMPLES = SAMPLE_RATE * 30 // 1000  # 30 ms
 CATALOG_FILE = CORPUS_DIR / "catalog.json"
+# Kosakata tetap per bahasa (nama mata kuliah tetap bahasa Indonesia di kedua bahasa).
+VOCABULARY = {
+    "id": ["EduPad", "jadwal kuliah", "tugas", "deadline", "pertemuan", "presensi"],
+    "en": ["EduPad", "class schedule", "assignment", "deadline", "meeting", "attendance"],
+}
 
 
 class STTError(RuntimeError):
@@ -54,12 +61,7 @@ def vocabulary_prompt() -> str:
             names.append(name)
         acronyms += [a.upper() for a in course.get("alias", []) if re.fullmatch(r"[a-z]{2,5}", a)]
     words = [
-        "EduPad",
-        "jadwal kuliah",
-        "tugas",
-        "deadline",
-        "pertemuan",
-        "presensi",
+        *lang.pick(VOCABULARY),
         *names,
         *dict.fromkeys(acronyms),
     ]
@@ -94,7 +96,7 @@ def _groq(audio: bytes, filename: str) -> str:
             files={"file": (filename, audio)},
             data={
                 "model": settings.stt_model,
-                "language": "id",
+                "language": lang.stt_code(),
                 "prompt": vocabulary_prompt(),
                 "response_format": "json",
             },

@@ -1,6 +1,6 @@
 # API perangkat ESP32
 
-Alamat: `https://shata.id` (Cloudflare → Caddy → `python -m edupad serve` di `127.0.0.1:8000`;
+Alamat: `https://edupad.ai.id` (Cloudflare → Caddy → `python -m edupad serve` di `127.0.0.1:8000`;
 kode di `src/edupad/server.py`). ESP32 memakai HTTPS: `esp_http_client` dengan
 `crt_bundle_attach = esp_crt_bundle_attach`.
 Semua permintaan selain `/v1/health` wajib membawa header:
@@ -117,7 +117,9 @@ Perkenalan diri yang diputar perangkat setiap menyala (setelah `/v1/health`).
   hantu di layar (`wave`, `happy`, `book`, `tasks`, `button`, `cheer`; lainnya = bicara saja).
   Naskahnya ada di `src/edupad/voice/intro.py`.
 - `/v1/intro/audio`: PCM seperti `/v1/audio`, utuh dengan `Content-Length`; `?format=wav`
-  untuk didengar di laptop.
+  untuk didengar di laptop. Firmware 1.6 mengunduhnya **utuh ke PSRAM lebih dulu** lalu memutar
+  dari sana (±32 KB/detik): jaringan yang lambat membuat perkenalan mulai lebih lambat, bukan
+  patah-patah. Tombol yang ditekan saat mengunduh membatalkan perkenalan.
 - Suara dibuat **sekali** lewat TTS lalu disimpan di `data/voice/intro/`; permintaan
   berikutnya tidak memakai kuota. Dibuat ulang otomatis hanya bila naskah atau suara berubah.
   Permintaan pertama menunggu TTS (beberapa detik); buat lebih dulu dengan
@@ -190,15 +192,35 @@ cepat") atau dashboard (Pengaturan); disimpan di `data/device/voice_mode.json`.
   tingkat per perintah. Ucapan yang tidak persis cocok (mis. "apa itu mode suara?") tetap
   diteruskan ke agent, yang masih punya tool `set_voice_mode`.
 - `GET /v1/voice/clip/{nama}`: pesan status yang disimpan perangkat di PSRAM dan diputar sendiri,
-  sehingga tetap terdengar saat Wi-Fi atau server putus: `wifi`, `send`, `server`, `error`,
-  `no_speech`, `audio`, `no_answer`, `new_session` (teks di `src/edupad/voice/clips.py`).
-  `voice_clips` berisi alamat masing-masing dengan `?v=`; nilainya berganti bila suara atau
-  kecepatan berubah, tanda perangkat perlu mengunduh ulang.
+  sehingga tetap terdengar saat Wi-Fi atau server putus: `ready`, `wifi`, `send`, `server`,
+  `error`, `no_speech`, `audio`, `no_answer`, `new_session` (teks di `src/edupad/voice/clips.py`).
+  `voice_clips` berisi alamat masing-masing dengan `?v=`; nilainya berganti bila suara, bahasa,
+  atau kecepatan berubah, tanda perangkat perlu mengunduh ulang. Isinya ditampung di PSRAM, jadi
+  diunduh sekali tiap kali perangkat menyala. `ready` ("EduPad siap, tahan tombol lalu tanya
+  saja") diputar firmware 1.5 saat perangkat dibangunkan dari tidur.
 - Firmware 1.2 (`firmware/edupad/voice.cpp`): bunyi naik saat mulai merekam, bunyi turun saat
   rekaman terkirim, ketukan pelan tiap 2 detik selama menunggu jawaban, semua pemberitahuan
   berbunyi lalu dibacakan (di luar Mode Suara hanya presensi dibuka dan deadline tugas yang
   berbunyi dan dibacakan), dan pesan status di atas untuk setiap kegagalan. Status Mode Suara
   disimpan di NVS, jadi bunyi penanda tetap ada walau server belum terjangkau saat menyala.
+
+## Bahasa
+
+EduPad bisa berbahasa Indonesia (bawaan) atau Inggris (`src/edupad/voice/lang.py`); disimpan di
+`data/device/language.json` dan diganti lewat suara ("switch to English", "ganti ke bahasa
+Indonesia"), tool `set_language`, atau `PUT /api/office/language` dari dashboard.
+
+- `/v1/updates` dan `/v1/ask` memuat `language` (`"id"` / `"en"`) di tingkat atas, supaya label
+  bawaan firmware bisa ikut bahasa yang sama.
+- Satu setelan mengubah semuanya: bahasa pengenalan suara (Whisper `language` + kosakata),
+  `language_code` TTS, bahasa jawaban agent (`speech`, `screen`, `detail`), kalimat tetap
+  Mode Suara (`/v1/voice/clip/*`, `/v1/voice/reply/*`), dan naskah perkenalan `/v1/intro`.
+- Perintah ganti bahasa dijawab tanpa LLM (`src/edupad/voice/commands.py`), dan konfirmasinya
+  sudah memakai bahasa yang baru.
+- Suara yang sudah dibuat per bahasa tetap disimpan (`data/voice/clips/`,
+  `data/voice/intro/intro-en.pcm`), jadi berpindah bahasa bolak-balik tidak memakai kuota TTS.
+- Nama mata kuliah, dosen, dan judul materi tetap seperti aslinya (bahasa Indonesia) walau
+  jawabannya bahasa Inggris.
 
 ## GET /v1/health
 
@@ -209,8 +231,8 @@ cepat") atau dashboard (Pengaturan); disimpan di `data/device/voice_mode.json`.
 ```bash
 TOKEN=...   # isi EDUPAD_DEVICE_TOKEN
 curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d '{"text": "tugas apa saja minggu ini?"}' https://shata.id/v1/ask
+     -d '{"text": "tugas apa saja minggu ini?"}' https://edupad.ai.id/v1/ask
 curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: audio/wav" \
-     --data-binary @rekaman.wav https://shata.id/v1/ask
-curl -s -H "Authorization: Bearer $TOKEN" -o jawaban.wav "https://shata.id/v1/audio/<id>?format=wav"
+     --data-binary @rekaman.wav https://edupad.ai.id/v1/ask
+curl -s -H "Authorization: Bearer $TOKEN" -o jawaban.wav "https://edupad.ai.id/v1/audio/<id>?format=wav"
 ```
