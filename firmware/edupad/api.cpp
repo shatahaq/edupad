@@ -18,12 +18,14 @@ WiFiClient conn;
 constexpr size_t MAX_RESPONSE_BYTES = 32 * 1024;
 constexpr size_t CHUNK_MAX = 4096;
 constexpr uint32_t IDLE_TIMEOUT_MS = 15000;  // tanpa data selama ini = koneksi dianggap putus
+String audioReport;  // api::reportAudio(), terkirim di permintaan berikutnya
 
 struct Head {
   int status = 0;
   long length = -1;
   bool chunked = false;
   bool close = false;
+  bool adpcm = false;
 };
 
 enum class BodyEnd { Complete, Stopped, Broken };
@@ -82,6 +84,10 @@ bool sendHead(const char *method, const String &path, const char *extraHeaders, 
   head += "X-Device-Uptime: " + String(millis() / 1000) + "\r\n";
   head += "X-Device-Heap: " + String(ESP.getFreeHeap()) + "\r\n";
   head += "X-Firmware: " FIRMWARE_VERSION "\r\n";
+  if (!audioReport.isEmpty()) {
+    head += "X-Audio-Report: " + audioReport + "\r\n";
+    audioReport = "";
+  }
   head += keepAlive ? "Connection: keep-alive\r\n" : "Connection: close\r\n";
   head += extraHeaders;
   head += "\r\n";
@@ -163,6 +169,7 @@ bool readHead(Head &head, String &error) {
     if (line.startsWith("content-length:")) head.length = line.substring(15).toInt();
     if (line.startsWith("transfer-encoding:") && line.indexOf("chunked") >= 0) head.chunked = true;
     if (line.startsWith("connection:") && line.indexOf("close") >= 0) head.close = true;
+    if (line.startsWith("x-audio-format:") && line.indexOf("adpcm") >= 0) head.adpcm = true;
   }
 }
 
@@ -335,6 +342,7 @@ AudioResult streamAudio(const char *path, bool (*sink)(const uint8_t *, size_t))
     result.status = head.status;
     return result;
   }
+  result.adpcm = head.adpcm;
   BodyEnd end = readBody(head, [&](const uint8_t *data, size_t size) {
     result.bytes += size;
     return sink(data, size);
@@ -350,5 +358,7 @@ AudioResult streamAudio(const char *path, bool (*sink)(const uint8_t *, size_t))
   }
   return result;
 }
+
+void reportAudio(const String &report) { audioReport = report; }
 
 }  // namespace api

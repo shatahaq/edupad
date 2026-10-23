@@ -134,6 +134,16 @@ def test_api_health_and_devices_come_from_real_device_traffic(tmp_path, monkeypa
     assert device["online"] and device["rssi_dbm"] == -61 and device["avg_latency_s"] == 4.0
     assert device["firmware"] == "1.2"
 
+    report = "wait=5120;download=2310;bytes=121000;format=adpcm;evil=<script>"
+    device_status.record(headers | {"X-Audio-Report": report}, "/v1/updates")
+    [row] = device_status.devices()
+    assert {k: v for k, v in row["last_audio"].items() if k != "at"} == {
+        "wait": 5120,
+        "download": 2310,
+        "bytes": 121000,
+        "format": "adpcm",
+    }
+
 
 def test_dashboard_switches_voice_mode_for_owner_only(client):
     body = {"enabled": True, "speed": "cepat"}

@@ -53,10 +53,11 @@
 // perlu sebanyak dulu: sisanya hanya menunda suara mulai terdengar.
 #define SPEAKER_PREBUFFER_MS 100
 
-// Suara jawaban/perkenalan/pemberitahuan diunduh utuh ke PSRAM dulu, baru diputar: PCM 16 kHz
-// = 32 KB/detik, jadi memutar sambil mengunduh membuat suara patah-patah begitu Wi-Fi melambat
-// sesaat. Batasnya 64 detik (~2 MB di PSRAM, dibuat sekali lalu dipakai ulang); jawaban paling
-// panjang ~60 detik (VOICE_MODE_SPEECH_CHARS di src/edupad/agent/formatting.py).
+// Suara jawaban/perkenalan/pemberitahuan diunduh utuh ke PSRAM dulu, baru diputar (memutar sambil
+// mengunduh membuat suara patah-patah begitu Wi-Fi melambat sesaat). Diminta sebagai ADPCM
+// (8,25 KB/detik), tapi penampungnya tetap muat 64 detik PCM (~2 MB, dibuat sekali lalu dipakai
+// ulang) untuk server lama yang hanya mengirim PCM; jawaban paling panjang ~60 detik
+// (VOICE_MODE_SPEECH_CHARS di src/edupad/agent/formatting.py).
 #define AUDIO_MAX_BYTES (64 * SAMPLE_RATE * 2)
 
 // Perkenalan diri (suara + animasi) setiap kali menyala; 0 untuk langsung ke layar siap.
@@ -97,4 +98,6 @@
 // 1.5: mode bahasa (Indonesia/Inggris, diatur server) dan pesan "ready" saat dibangunkan.
 // 1.6: semua suara (jawaban, perkenalan, pemberitahuan) diunduh utuh ke PSRAM dulu, tidak lagi
 //      diputar sambil mengunduh; layar tidak diganti selama mengunduh.
-#define FIRMWARE_VERSION "1.6"
+// 1.7: suara diminta sebagai IMA ADPCM (?format=adpcm, seperempat ukuran PCM) dan jeda layar ->
+//      suara dilaporkan ke server (X-Audio-Report).
+#define FIRMWARE_VERSION "1.7"

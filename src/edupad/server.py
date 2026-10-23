@@ -10,10 +10,13 @@ Satu pertanyaan = dua permintaan:
    jadi perangkat cukup menampilkan `screen`, lalu memutar `audio_url` bila tidak null.
 2. GET <audio_url>
    Suara jawaban, PCM 16-bit mono 16 kHz (format sama dengan rekaman), dialirkan begitu
-   ElevenLabs mengirimnya sehingga perangkat bisa langsung memutar. Hanya suara jawaban
-   terakhir yang disimpan (jawaban baru menimpanya); putar ulang lewat URL yang sama atau
-   GET /v1/audio/latest diambil dari simpanan tanpa memakai kuota TTS. `?format=wav` untuk
-   didengar di laptop.
+   ElevenLabs mengirimnya. Untuk perangkat (header X-Firmware) TTS sudah dimulai saat /v1/ask
+   menjawab, tidak menunggu permintaan ini, sehingga suaranya sudah berjalan selagi layar
+   tampil. Hanya suara jawaban terakhir yang disimpan (jawaban baru menimpanya dan
+   membatalkan sintesis lama); putar ulang lewat URL yang sama atau GET /v1/audio/latest
+   diambil dari simpanan tanpa memakai kuota TTS. `?format=adpcm` (firmware 1.7+) mengirim
+   IMA ADPCM, seperempat ukuran PCM (voice/adpcm.py); `?format=wav` untuk didengar di laptop.
+   Berlaku juga untuk /v1/intro/audio, /v1/speech, dan /v1/voice.
 
 Perkenalan diri saat perangkat menyala: GET /v1/intro (kalimat, gerakan, waktu mulai) lalu
 GET /v1/intro/audio. Suaranya dibuat sekali lalu disimpan (voice/intro.py).
@@ -41,6 +44,7 @@ Path di luar /v1/ dilayani web EduPad (login Google, /api, halaman React): lihat
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import hmac
 import itertools
@@ -51,7 +55,7 @@ import signal
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import Future, ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
@@ -61,7 +65,7 @@ from edupad.agent import updates
 from edupad.agent.formatting import clean_speech, fit_screen
 from edupad.config import DEEPSEEK_URL, WEB_DIST_DIR, Settings, get_settings
 from edupad.core import http_pool
-from edupad.voice import clips, commands, intro, lang, stt, tts
+from edupad.voice import adpcm, clips, commands, intro, lang, stt, tts
 from edupad.voice import mode as voice_mode
 from edupad.webapp import WebApp
 
@@ -70,6 +74,7 @@ log = logging.getLogger(__name__)
 MAX_BODY_BYTES = 5 * 1024 * 1024  # rekaman 120 detik = 3,8 MB
 READ_TIMEOUT = 30  # detik tanpa data dari perangkat sebelum koneksi diputus
 AUDIO_FORMAT = f"pcm_s16le;rate={tts.SAMPLE_RATE};channels=1"
+AUDIO_FORMATS = ("pcm", "adpcm", "wav")  # ?format=; selain itu PCM
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 WAV_TYPES = {"audio/wav", "audio/x-wav", "audio/wave"}
 WARM_URLS = tuple(
@@ -143,37 +148,144 @@ def _logged(job: Callable[[], None]) -> None:
         log.exception("[x] giliran gagal disimpan ke memory")
 
 
-class AudioStore:
-    """Suara jawaban terakhir: teksnya, lalu PCM-nya setelah pertama kali disuarakan.
+class Synthesis:
+    """Suara satu jawaban: PCM dari TTS dikumpulkan di thread sendiri dan dibaca setiap
+    permintaan audio sambil sintesis masih berjalan.
 
-    Jawaban baru menimpa yang lama. Putar ulang memakai PCM yang tersimpan sehingga kuota TTS
-    hanya terpakai sekali per jawaban. `lock` membuat dua permintaan untuk jawaban yang belum
-    disuarakan tidak memanggil ElevenLabs dua kali: yang kedua menunggu lalu memakai PCM-nya.
+    Dimulai saat jawaban selesai untuk perangkat (lihat Handler._ask), atau saat audionya
+    pertama kali diminta. Berjalan terus walau perangkat berhenti di tengah, jadi putar ulang
+    tidak memakai kuota TTS lagi; gagal di tengah tidak disimpan dan dicoba lagi saat diminta.
+    """
+
+    def __init__(self, audio_id: str, text: str):
+        self.id, self.text = audio_id, text
+        self._chunks: list[bytes] = []  # PCM sampel utuh, berurutan
+        self._pcm: bytes | None = None  # gabungan _chunks setelah selesai
+        self._error: Exception | None = None
+        self._running = False
+        self._cancelled = False
+        self._cond = threading.Condition()
+
+    @property
+    def pcm(self) -> bytes | None:
+        with self._cond:
+            return self._pcm
+
+    def start(self) -> None:
+        """Mulai menyuarakan (sekali); setelah gagal, panggilan berikutnya mencoba lagi."""
+        with self._cond:
+            if self._running or self._pcm is not None or self._cancelled:
+                return
+            self._chunks, self._error, self._running = [], None, True
+        threading.Thread(target=self._run, name=f"tts-{self.id}", daemon=True).start()
+
+    def cancel(self) -> None:
+        """Jawaban sudah diganti: hentikan sintesis supaya slot ElevenLabs (tts.MAX_CONCURRENT)
+        bebas untuk jawaban baru."""
+        with self._cond:
+            self._cancelled = True
+            self._cond.notify_all()
+
+    def _run(self) -> None:
+        started, first_at, carry, chunks = time.monotonic(), None, b"", iter(())
+        try:
+            chunks = tts.stream(self.text, speed=voice_mode.speed_value())
+            for chunk in chunks:
+                data = carry + chunk
+                cut = len(data) - len(data) % tts.SAMPLE_WIDTH  # jangan memotong satu sampel
+                data, carry = data[:cut], data[cut:]
+                with self._cond:
+                    if self._cancelled:
+                        return
+                    if data:
+                        first_at = first_at or time.monotonic()
+                        self._chunks.append(data)
+                        self._cond.notify_all()
+        except Exception as e:  # noqa: BLE001 - diteruskan ke permintaan yang sedang membaca
+            log.warning("[!] TTS jawaban gagal: %s", e)
+            with self._cond:
+                self._error, self._running = e, False
+                self._cond.notify_all()
+            return
+        finally:
+            getattr(chunks, "close", lambda: None)()  # tutup koneksi ElevenLabs bila berhenti
+        with self._cond:
+            self._pcm, self._running = b"".join(self._chunks), False
+            self._cond.notify_all()
+            seconds = tts.duration_seconds(self._pcm)
+        now = time.monotonic()
+        log.info(
+            "[tts] %d karakter -> %.1f dtk suara; audio pertama %.1f dtk, selesai %.1f dtk",
+            len(self.text),
+            seconds,
+            (first_at or now) - started,
+            now - started,
+        )
+
+    def read(self) -> Iterator[bytes]:
+        """PCM per potongan dari awal, menunggu potongan berikutnya sampai selesai.
+        Melempar error TTS (sebelum atau di tengah audio) ke pembaca."""
+        index = 0
+        while True:
+            with self._cond:
+                while (
+                    index >= len(self._chunks)
+                    and self._pcm is None
+                    and self._error is None
+                    and not self._cancelled
+                ):
+                    if not self._cond.wait(tts.TIMEOUT):
+                        raise tts.TTSError(f"TTS tidak mengirim audio selama {tts.TIMEOUT} detik")
+                if index < len(self._chunks):
+                    chunk = self._chunks[index]
+                    index += 1
+                elif self._error is not None:
+                    raise self._error
+                elif self._cancelled:
+                    raise tts.TTSError("suara diganti jawaban baru")
+                else:
+                    return
+            yield chunk
+
+
+class AudioStore:
+    """Suara jawaban terakhir. Jawaban baru menimpa yang lama dan membatalkan sintesisnya.
+
+    Putar ulang memakai PCM yang tersimpan sehingga kuota TTS hanya terpakai sekali per jawaban.
+    Dua permintaan untuk jawaban yang belum disuarakan membaca satu sintesis yang sama.
     """
 
     LATEST = "latest"
 
     def __init__(self):
-        self._latest: dict | None = None
+        self._latest: Synthesis | None = None
         self._lock = threading.Lock()
 
-    def add(self, text: str) -> str:
-        audio_id = secrets.token_urlsafe(9)
+    def add(self, text: str) -> Synthesis:
+        item = Synthesis(secrets.token_urlsafe(9), text)
         with self._lock:
-            self._latest = {"id": audio_id, "text": text, "pcm": None, "lock": threading.Lock()}
-        return audio_id
+            previous, self._latest = self._latest, item
+        if previous:
+            previous.cancel()
+        return item
 
-    def get(self, audio_id: str) -> dict | None:
+    def get(self, audio_id: str) -> Synthesis | None:
         with self._lock:
             item = self._latest
-        if item and audio_id in (item["id"], self.LATEST):
+        if item and audio_id in (item.id, self.LATEST):
             return item
         return None
 
-    def set_pcm(self, audio_id: str, pcm: bytes) -> None:
-        with self._lock:
-            if self._latest and self._latest["id"] == audio_id:
-                self._latest["pcm"] = pcm
+
+@functools.lru_cache(maxsize=8)
+def _adpcm(pcm: bytes) -> bytes:
+    """ADPCM dari PCM tersimpan (intro, pesan suara, putar ulang): di-encode sekali saja."""
+    return adpcm.encode(pcm)
+
+
+def _audio_format(query: dict) -> str:
+    fmt = (query.get("format") or ["pcm"])[0]
+    return fmt if fmt in AUDIO_FORMATS else "pcm"
 
 
 class SpeechStore:
@@ -310,7 +422,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._authorize()
         if path.startswith("/v1/audio/"):
-            self._audio(path.removeprefix("/v1/audio/"), wav=query.get("format") == ["wav"])
+            self._audio(path.removeprefix("/v1/audio/"), _audio_format(query))
             return
         if path == "/v1/intro":
             self._json(200, self._intro()[0])
@@ -322,7 +434,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self._with_voice(data))
             return
         if path.startswith("/v1/speech/"):
-            self._speech(path.removeprefix("/v1/speech/"), wav=query.get("format") == ["wav"])
+            self._speech(path.removeprefix("/v1/speech/"), _audio_format(query))
             return
         if path.startswith(clips.URL_PREFIX):
             name = path.removeprefix(clips.URL_PREFIX)
@@ -332,7 +444,7 @@ class Handler(BaseHTTPRequestHandler):
                 pcm = clips.load(name)
             except tts.TTSError as e:
                 raise RequestError(502, f"TTS: {e}") from e
-            self._send_audio(pcm, wav=query.get("format") == ["wav"])
+            self._send_audio(pcm, _audio_format(query))
             return
         if path.startswith(commands.URL_PREFIX):
             name = path.removeprefix(commands.URL_PREFIX)
@@ -342,10 +454,10 @@ class Handler(BaseHTTPRequestHandler):
                 pcm = commands.load(name)
             except tts.TTSError as e:
                 raise RequestError(502, f"TTS: {e}") from e
-            self._send_audio(pcm, wav=query.get("format") == ["wav"])
+            self._send_audio(pcm, _audio_format(query))
             return
         if path == intro.AUDIO_URL:
-            self._send_audio(self._intro()[1], wav=query.get("format") == ["wav"])
+            self._send_audio(self._intro()[1], _audio_format(query))
             return
         raise RequestError(404, f"tidak ada {path}")
 
@@ -366,7 +478,7 @@ class Handler(BaseHTTPRequestHandler):
             data["voice_clips"] = clips.urls()
         return data
 
-    def _speech(self, key: str, wav: bool) -> None:
+    def _speech(self, key: str, fmt: str) -> None:
         item = self.server.speech.get(key)
         if item is None:
             raise RequestError(404, "suara pemberitahuan tidak ada atau sudah usang")
@@ -377,7 +489,7 @@ class Handler(BaseHTTPRequestHandler):
                 except tts.TTSError as e:
                     raise RequestError(502, f"TTS: {e}") from e
         voice_mode.record("alert")
-        self._send_audio(item["pcm"], wav)
+        self._send_audio(item["pcm"], fmt)
 
     def _intro(self) -> tuple[dict, bytes]:
         try:
@@ -494,7 +606,13 @@ class Handler(BaseHTTPRequestHandler):
             raise RequestError(502, f"agent: {e}") from e
         timing["agent"] = round(time.time() - started, 2)
         device_status.record(self.headers, "/v1/ask", latency_s=sum(timing.values()))
-        audio_id = self.server.audio.add(result["speech"]) if result["speech"] else None
+        audio = self.server.audio.add(result["speech"]) if result["speech"] else None
+        if audio and self.headers.get("X-Firmware"):
+            # Perangkat selalu meminta suaranya setelah menampilkan layar: TTS dimulai sekarang,
+            # bukan saat permintaan itu tiba. curl/tes (tanpa X-Firmware) tetap baru disuarakan
+            # saat diminta, jadi tidak memakai kuota TTS.
+            audio.start()
+        audio_id = audio.id if audio else None
         log.info("[device] %r -> %r %s", question, result["speech"][:80], timing)
         voice = voice_mode.enabled()  # dibaca setelah menjawab: bisa baru diubah lewat suara
         if voice and audio_id:
@@ -537,73 +655,67 @@ class Handler(BaseHTTPRequestHandler):
             },
         )
 
-    def _audio(self, audio_id: str, wav: bool) -> None:
+    def _audio(self, audio_id: str, fmt: str) -> None:
         item = self.server.audio.get(audio_id)
         if item is None:
             raise RequestError(404, "audio tidak ada atau sudah diganti jawaban baru")
-        with item["lock"]:
-            if item["pcm"] is not None:
-                self._send_audio(item["pcm"], wav)
+        if item.pcm is not None:  # sudah selesai disuarakan: utuh, dengan Content-Length
+            self._send_audio(item.pcm, fmt)
+            return
+        item.start()
+        chunks = item.read()
+        try:
+            first = next(chunks, b"")  # error kuota/kunci muncul di sini, sebelum header terkirim
+            if fmt == "wav":
+                self._send_audio(first + b"".join(chunks), fmt)
                 return
-            chunks = tts.stream(item["text"], speed=voice_mode.speed_value())
-            try:
-                # error kuota/kunci muncul di sini, sebelum header terkirim
-                first = next(chunks, b"")
-                if wav:
-                    pcm = first + b"".join(chunks)
-                    self.server.audio.set_pcm(item["id"], pcm)
-                    self._send_audio(pcm, wav=True)
-                else:
-                    self._stream_audio(item["id"], first, chunks)
-            except tts.TTSError as e:
-                raise RequestError(502, f"TTS: {e}") from e
-            finally:
-                getattr(
-                    chunks, "close", lambda: None
-                )()  # tutup koneksi ElevenLabs bila berhenti di tengah
+        except tts.TTSError as e:
+            raise RequestError(502, f"TTS: {e}") from e
+        self._stream_audio(itertools.chain([first], chunks), fmt)
 
-    def _stream_audio(self, audio_id: str, first: bytes, chunks) -> None:
+    def _stream_audio(self, chunks: Iterator[bytes], fmt: str) -> None:
         self.send_response(200)
         self.send_header("Content-Type", "application/octet-stream")
-        self.send_header("X-Audio-Format", AUDIO_FORMAT)
+        self.send_header("X-Audio-Format", adpcm.FORMAT if fmt == "adpcm" else AUDIO_FORMAT)
         self.send_header("Transfer-Encoding", "chunked")
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self._streaming = True
-        sent, carry, device_gone = [], b"", False
+        encoder = adpcm.Encoder() if fmt == "adpcm" else None
         try:
-            for chunk in itertools.chain([first], chunks):
-                data = carry + chunk
-                cut = len(data) - len(data) % tts.SAMPLE_WIDTH  # jangan memotong satu sampel
-                data, carry = data[:cut], data[cut:]
-                if not data:
-                    continue
-                sent.append(data)
-                if device_gone:
-                    continue
-                try:
-                    self.wfile.write(b"%X\r\n%s\r\n" % (len(data), data))
-                except (BrokenPipeError, ConnectionResetError, TimeoutError) as e:
-                    # Pemutaran dihentikan di perangkat: sisa audio tetap diambil (kuota sudah
-                    # terpakai untuk seluruh teks) supaya putar ulang tidak memanggil TTS lagi.
-                    log.info("[device] pemutaran dihentikan (%s), audio tetap disimpan", e)
-                    device_gone = True
-                    self.close_connection = True
+            for chunk in chunks:
+                self._write_chunk(encoder.feed(chunk) if encoder else chunk)
+            if encoder:
+                self._write_chunk(encoder.flush())
         except tts.TTSError as e:
             # Header 200 sudah terkirim: putus tanpa chunk penutup agar perangkat tahu audio tidak utuh.
             log.warning("[!] TTS terputus di tengah audio: %s", e)
             self.close_connection = True
             return
-        self.server.audio.set_pcm(audio_id, b"".join(sent))
-        if not device_gone:
-            self.wfile.write(b"0\r\n\r\n")
+        except (BrokenPipeError, ConnectionResetError, TimeoutError) as e:
+            # Pemutaran dihentikan di perangkat: sintesis tetap selesai di latar (Synthesis), jadi
+            # putar ulang tidak memanggil TTS lagi.
+            log.info("[device] pemutaran dihentikan (%s), audio tetap disimpan", e)
+            self.close_connection = True
+            return
+        self.wfile.write(b"0\r\n\r\n")
 
-    def _send_audio(self, pcm: bytes, wav: bool) -> None:
-        data = tts.to_wav(pcm) if wav else pcm
+    def _write_chunk(self, data: bytes) -> None:
+        if data:
+            self.wfile.write(b"%X\r\n%s\r\n" % (len(data), data))
+
+    def _send_audio(self, pcm: bytes, fmt: str) -> None:
+        kind = "application/octet-stream"
+        if fmt == "wav":
+            data, kind, audio_format = tts.to_wav(pcm), "audio/wav", None
+        elif fmt == "adpcm":
+            data, audio_format = _adpcm(pcm), adpcm.FORMAT
+        else:
+            data, audio_format = pcm, AUDIO_FORMAT
         self.send_response(200)
-        self.send_header("Content-Type", "audio/wav" if wav else "application/octet-stream")
-        if not wav:
-            self.send_header("X-Audio-Format", AUDIO_FORMAT)
+        self.send_header("Content-Type", kind)
+        if audio_format:
+            self.send_header("X-Audio-Format", audio_format)
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)

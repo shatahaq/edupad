@@ -3,6 +3,10 @@
 Firmware mengirim header di setiap permintaan /v1/*: X-Device-Id (MAC), X-Device-RSSI (dBm),
 X-Device-Uptime (detik), X-Device-Heap (byte), X-Firmware. Server menyimpan nilai terakhir per
 perangkat di data/device/status.json, paling sering sekali per WRITE_EVERY detik.
+
+Firmware 1.7+ juga mengirim X-Audio-Report sekali setelah suara jawaban mulai diputar, mis.
+`wait=5120;download=2310;bytes=121000;format=adpcm`: jeda dari jawaban tampil di layar sampai
+suara terdengar, lama unduh, dan ukurannya. Dicatat ke log ([audio]) dan ke `last_audio`.
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ log = logging.getLogger(__name__)
 STATUS_FILE = DATA_DIR / "device" / "status.json"
 WRITE_EVERY = 30
 _SAFE = re.compile(r"[^A-Za-z0-9:._ -]")
+_REPORT = re.compile(r"(wait|download|bytes|format)=([A-Za-z0-9_]{1,16})")
 _state: dict[str, dict] = {}
 _written_at = 0.0
 _lock = threading.Lock()
@@ -54,11 +59,29 @@ def record(headers, path: str, latency_s: float | None = None) -> None:
             if latency_s is not None:
                 recent = (row.get("latency_s") or [])[-19:] + [round(latency_s, 2)]
                 row["latency_s"] = recent
-            if time.monotonic() - _written_at >= WRITE_EVERY or latency_s is not None:
+            audio = _audio_report(headers.get("X-Audio-Report"))
+            if audio:
+                row["last_audio"] = audio | {"at": now}
+                log.info(
+                    "[audio] %s: suara mulai %s ms setelah layar (unduh %s ms, %s byte %s)",
+                    device_id,
+                    audio.get("wait"),
+                    audio.get("download"),
+                    audio.get("bytes"),
+                    audio.get("format", "?"),
+                )
+            if time.monotonic() - _written_at >= WRITE_EVERY or latency_s is not None or audio:
                 write_json(STATUS_FILE, _state)
                 _written_at = time.monotonic()
     except Exception as e:  # noqa: BLE001 - status perangkat hanya untuk dashboard
         log.debug("[device] status tidak tercatat: %s", e)
+
+
+def _audio_report(value: str | None) -> dict:
+    report: dict = {}
+    for key, raw in _REPORT.findall(value or ""):
+        report[key] = raw if key == "format" else _int(raw)
+    return report
 
 
 def devices() -> list[dict]:

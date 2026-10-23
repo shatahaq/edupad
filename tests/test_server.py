@@ -1,5 +1,6 @@
 import http.client
 import json
+import math
 import threading
 from concurrent.futures import Future
 from dataclasses import replace
@@ -74,10 +75,9 @@ def request(server, method, path, body=None, headers=None, token=TOKEN, conn=Non
     return response, data
 
 
-def ask_json(server, text, path="/v1/ask", **kw):
-    response, data = request(
-        server, "POST", path, json.dumps({"text": text}), {"Content-Type": "application/json"}, **kw
-    )
+def ask_json(server, text, path="/v1/ask", headers=None, **kw):
+    headers = {"Content-Type": "application/json", **(headers or {})}
+    response, data = request(server, "POST", path, json.dumps({"text": text}), headers, **kw)
     return response.status, json.loads(data)
 
 
@@ -252,9 +252,7 @@ def test_tts_error_before_and_during_audio(server, monkeypatch):
     monkeypatch.setattr(srv.tts, "stream", cut)
     with pytest.raises(http.client.IncompleteRead):
         request(server, "GET", audio_url)
-    assert (
-        server.audio.get(audio_url.rsplit("/", 1)[1])["pcm"] is None
-    )  # audio rusak tidak di-cache
+    assert server.audio.get(audio_url.rsplit("/", 1)[1]).pcm is None  # audio rusak tidak di-cache
 
 
 def test_new_answer_replaces_audio_and_latest_replays_without_tts(server, fake_tts):
@@ -286,13 +284,78 @@ def test_audio_is_kept_when_device_stops_playback(server, monkeypatch):
     conn.close()  # perangkat menghentikan pemutaran
     sent_first.set()
     item = server.audio.get("latest")
-    for _ in range(100):
-        if item["pcm"] is not None:
-            break
-        threading.Event().wait(0.05)
-    assert len(item["pcm"]) == 8 + 200 * 8192
+    assert wait_for(lambda: item.pcm is not None)
+    assert len(item.pcm) == 8 + 200 * 8192
     _, data = request(server, "GET", "/v1/audio/latest")
-    assert data == item["pcm"] and calls == ["Jawaban: PV"]
+    assert data == item.pcm and calls == ["Jawaban: PV"]
+
+
+# Suara yang mirip ucapan (bukan senyap) supaya ADPCM benar-benar diuji.
+SPEECH = b"".join(
+    int(9000 * math.sin(i / 7) * math.sin(i / 900)).to_bytes(2, "little", signed=True)
+    for i in range(1000)
+)
+
+
+def wait_for(condition, seconds=5.0):
+    for _ in range(int(seconds / 0.02)):
+        if condition():
+            return True
+        threading.Event().wait(0.02)
+    return False
+
+
+@pytest.fixture
+def speech_tts(monkeypatch):
+    calls = []
+
+    def stream(text, speed=None):
+        calls.append(text)
+        yield from (SPEECH[:333], SPEECH[333:1200], SPEECH[1200:])  # potongan tak sejajar blok
+
+    monkeypatch.setattr(srv.tts, "stream", stream)
+    return calls
+
+
+def test_audio_as_adpcm_streamed_then_replayed(server, speech_tts):
+    audio_url = ask_json(server, "PV")[1]["audio_url"]
+    response, data = request(server, "GET", audio_url + "?format=adpcm")
+    assert response.getheader("Transfer-Encoding") == "chunked"
+    assert response.getheader("X-Audio-Format") == srv.adpcm.FORMAT
+    assert data == srv.adpcm.encode(SPEECH) and len(data) < len(SPEECH) / 3
+    response, again = request(server, "GET", "/v1/audio/latest?format=adpcm")
+    assert again == data and response.getheader("Content-Length") == str(len(data))
+    _, pcm = request(server, "GET", audio_url)  # firmware lama tetap mendapat PCM
+    assert pcm == SPEECH and speech_tts == ["Jawaban: PV"]
+
+
+def test_device_answer_starts_tts_before_audio_is_requested(server, speech_tts):
+    device = {"X-Firmware": "1.7"}
+    audio_url = ask_json(server, "PV", headers=device)[1]["audio_url"]
+    assert wait_for(lambda: server.audio.get("latest").pcm == SPEECH)  # belum ada GET audio
+    assert speech_tts == ["Jawaban: PV"]
+    ask_json(server, "MSBD")  # tanpa X-Firmware (curl, tes): baru disuarakan saat diminta
+    threading.Event().wait(0.1)
+    assert speech_tts == ["Jawaban: PV"]
+    assert request(server, "GET", audio_url)[0].status == 404
+
+
+def test_new_answer_cancels_unfinished_tts(server, monkeypatch):
+    release, finished = threading.Event(), []
+
+    def stream(text, speed=None):
+        yield b"\x01\x00" * 4
+        release.wait(5)
+        yield b"\x02\x00" * 4
+        finished.append(text)
+
+    monkeypatch.setattr(srv.tts, "stream", stream)
+    ask_json(server, "lama", headers={"X-Firmware": "1.7"})
+    old = server.audio.get("latest")
+    ask_json(server, "baru")
+    release.set()
+    assert not wait_for(lambda: finished, 0.3)  # sintesis lama berhenti, slot TTS bebas
+    assert old.pcm is None
 
 
 def test_intro_info_and_audio_come_from_saved_intro(server, monkeypatch):
@@ -302,6 +365,9 @@ def test_intro_info_and_audio_come_from_saved_intro(server, monkeypatch):
     assert response.status == 200 and json.loads(data) == meta
     response, data = request(server, "GET", "/v1/intro/audio")
     assert data == b"\x01\x00" * 10 and response.getheader("Content-Length") == "20"
+    response, data = request(server, "GET", "/v1/intro/audio?format=adpcm")
+    assert data == srv.adpcm.encode(b"\x01\x00" * 10)
+    assert response.getheader("X-Audio-Format") == srv.adpcm.FORMAT
     assert request(server, "GET", "/v1/intro", token=None)[0].status == 401
 
     def quota():

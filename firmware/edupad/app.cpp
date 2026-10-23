@@ -8,6 +8,7 @@
 #include <WiFi.h>
 #include <esp_heap_caps.h>
 
+#include "adpcm.h"
 #include "api.h"
 #include "app.h"
 #include "config.h"
@@ -23,6 +24,7 @@ namespace {
 bool newSession = false;  // ?new=1 pada pertanyaan berikutnya
 uint32_t lastWifiCheckMs = 0;
 String lastAnswer;  // JSON jawaban terakhir, untuk ditampilkan lagi saat putar ulang
+uint32_t answerShownMs = 0;  // millis() saat jawaban bersuara tampil; diambil play() berikutnya
 
 // Hasil satu kali tombol ditekan.
 struct Press {
@@ -100,38 +102,54 @@ String showResponse(const api::Response &res) {
   }
   newSession = false;
   lastAnswer = res.body;
-  return doc["audio_url"] | "";
+  const char *audio = doc["audio_url"] | "";
+  answerShownMs = *audio ? millis() : 0;
+  return audio;
 }
 
 // ---- Pemutaran suara: diunduh utuh ke PSRAM dulu, baru diputar. Memutar sambil mengunduh
-// membuat suara patah-patah begitu Wi-Fi melambat sesaat (PCM 16 kHz = 32 KB/detik, jauh di
-// atas kecepatan unduh yang stabil di jaringan kampus). Selama mengunduh layar tidak diganti:
-// jawaban tetap terbaca dan tidak ada animasi "sedang menyiapkan suara".
+// membuat suara patah-patah begitu Wi-Fi melambat sesaat. Suara diminta sebagai IMA ADPCM
+// (seperempat ukuran PCM, adpcm.h): perangkat hanya mengunduh ±53 KB/detik, jadi ukuran langsung
+// menjadi jeda sebelum bicara. Selama mengunduh layar tidak diganti: jawaban tetap terbaca dan
+// tidak ada animasi "sedang menyiapkan suara".
 
-uint8_t *audioPcm = nullptr;  // penampung di PSRAM, dibuat sekali lalu dipakai ulang
+uint8_t *audioData = nullptr;  // penampung di PSRAM, dibuat sekali lalu dipakai ulang
 size_t audioBytes = 0;
+bool audioAdpcm = false;  // isi penampung ADPCM (X-Audio-Format), selain itu PCM
 
-bool collectAudio(const uint8_t *pcm, size_t size) {
+bool collectAudio(const uint8_t *data, size_t size) {
   if (buttonDown()) return false;  // pengguna ingin berhenti atau langsung bertanya
   size_t take = min(size, (size_t)AUDIO_MAX_BYTES - audioBytes);
-  memcpy(audioPcm + audioBytes, pcm, take);
+  memcpy(audioData + audioBytes, data, take);
   audioBytes += take;
   return true;  // sisa yang tidak muat dibuang, unduhan tetap dituntaskan
 }
 
-// Penampung berisi suara yang cukup panjang untuk diputar.
-bool audioReady() { return audioBytes > SAMPLE_RATE; }
+// Penampung berisi suara yang cukup panjang (> 0,5 detik) untuk diputar.
+bool audioReady() { return audioBytes > (audioAdpcm ? SAMPLE_RATE / 4 : SAMPLE_RATE); }
+
+// Server lama mengabaikan ?format=adpcm dan tetap mengirim PCM; X-Audio-Format yang menentukan.
+String adpcmPath(const String &path) {
+  return path + (path.indexOf('?') >= 0 ? "&" : "?") + "format=adpcm";
+}
 
 // Putar isi penampung; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
 bool playBuffer() {
+  static int16_t pcm[adpcm::BLOCK_SAMPLES];
+  size_t step = audioAdpcm ? adpcm::BLOCK_BYTES : 2048;
   display::speaking(true);
   bool stopped = false;
-  for (size_t at = 0; at < audioBytes && !stopped; at += 2048) {
+  for (size_t at = 0; at < audioBytes && !stopped; at += step) {
     stopped = buttonDown();
-    if (!stopped) {
-      speaker::write(audioPcm + at, min((size_t)2048, audioBytes - at));
-      display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
+    if (stopped) break;
+    size_t size = min(step, audioBytes - at);
+    if (audioAdpcm) {
+      size_t n = adpcm::decodeBlock(audioData + at, size, pcm);
+      speaker::write((const uint8_t *)pcm, n * 2);
+    } else {
+      speaker::write(audioData + at, size);
     }
+    display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
   }
   if (stopped) {
     speaker::stop();
@@ -145,24 +163,36 @@ bool playBuffer() {
 // Unduh lalu putar suara; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
 // `alert`: suara pemberitahuan (Mode Suara), kegagalannya cukup ditandai bunyi.
 bool play(const String &path, bool replay, bool alert = false) {
-  if (!audioPcm) {
-    audioPcm = (uint8_t *)heap_caps_malloc(AUDIO_MAX_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    if (!audioPcm) {  // tanpa PSRAM suara tidak bisa ditampung; jawaban di layar tetap terbaca
+  if (!audioData) {
+    audioData = (uint8_t *)heap_caps_malloc(AUDIO_MAX_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!audioData) {  // tanpa PSRAM suara tidak bisa ditampung; jawaban di layar tetap terbaca
       Serial.println("[audio] PSRAM tidak cukup untuk menampung suara");
       display::toast("Suara gagal diputar");
       return false;
     }
   }
+  uint32_t shownMs = answerShownMs;  // hanya suara jawaban yang baru tampil yang dilaporkan
+  answerShownMs = 0;
   audioBytes = 0;
   uint32_t started = millis();
-  api::AudioResult r = api::streamAudio(path.c_str(), collectAudio);
-  audioBytes -= audioBytes % 2;  // sampel utuh saja
-  Serial.printf("[audio] %s HTTP %d, %u byte dalam %u ms%s %s\n", path.c_str(), r.status,
-                (unsigned)audioBytes, (unsigned)(millis() - started),
+  api::AudioResult r = api::streamAudio(adpcmPath(path).c_str(), collectAudio);
+  uint32_t downloadMs = millis() - started;
+  audioAdpcm = r.adpcm;
+  if (!audioAdpcm) audioBytes -= audioBytes % 2;  // PCM: sampel utuh saja
+  Serial.printf("[audio] %s HTTP %d, %u byte %s dalam %u ms%s %s\n", path.c_str(), r.status,
+                (unsigned)audioBytes, audioAdpcm ? "ADPCM" : "PCM", (unsigned)downloadMs,
                 r.stopped ? " (dihentikan)" : "", r.error.c_str());
   bool stopped = r.stopped;
   // Unduhan yang terlalu pendek (mis. jaringan terputus di awal) tidak enak didengar: dilewati.
-  if (!stopped && audioReady()) stopped = playBuffer();
+  if (!stopped && audioReady()) {
+    if (shownMs) {  // jeda yang dirasakan: jawaban tampil -> suara terdengar
+      uint32_t waitMs = millis() - shownMs;
+      Serial.printf("[audio] suara mulai %u ms setelah jawaban tampil\n", (unsigned)waitMs);
+      api::reportAudio(String("wait=") + waitMs + ";download=" + downloadMs + ";bytes=" + audioBytes +
+                       ";format=" + (audioAdpcm ? "adpcm" : "pcm"));
+    }
+    stopped = playBuffer();
+  }
   if (replay && r.status == 404) {
     display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan tombol lalu bicara", display::Tone::Warn);
     voice::say("no_answer");

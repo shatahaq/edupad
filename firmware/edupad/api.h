@@ -29,11 +29,16 @@ struct AudioResult {
   int status = 0;     // 0 = gagal di jaringan
   bool complete = false;
   bool stopped = false;  // `sink` meminta berhenti (tombol ditekan)
+  bool adpcm = false;    // X-Audio-Format: adpcm_ima (diminta lewat ?format=adpcm), selain itu PCM
   size_t bytes = 0;
   String error;
 };
 // GET audio (mis. audio_url atau /v1/audio/latest); setiap potongan PCM diberikan ke `sink`
 // begitu tiba. `sink` mengembalikan false untuk berhenti.
 AudioResult streamAudio(const char *path, bool (*sink)(const uint8_t *pcm, size_t size));
+
+// Laporan suara terakhir (mis. "wait=5120;download=2310;bytes=121000;format=adpcm"), dikirim
+// sekali di header X-Audio-Report permintaan berikutnya; server mencatatnya ([audio] di log).
+void reportAudio(const String &report);
 
 }  // namespace api

@@ -90,11 +90,25 @@ Field `error` berisi penyebab teknis untuk log serial, bukan untuk LCD.
   Server hanya mengirim sampel utuh, tetapi `esp_http_client_read` bisa mengembalikan jumlah
   byte ganjil: simpan sisa 1 byte untuk dibaca berikutnya sebelum menulis ke I2S.
 - Bila koneksi putus sebelum chunk penutup, audio tidak utuh (TTS gagal di tengah).
-- Firmware 1.6 mengunduh **seluruh** badan ke PSRAM lebih dulu (batas `AUDIO_MAX_BYTES`,
-  64 detik) lalu memutarnya dari sana: pada ±32 KB/detik, memutar sambil mengunduh membuat
-  suara patah-patah begitu Wi-Fi melambat sesaat. Suara karena itu mulai setelah TTS dan
-  unduhan selesai, bukan pada potongan pertama. Tombol yang ditekan saat mengunduh
-  membatalkannya.
+- Firmware 1.6+ mengunduh **seluruh** badan ke PSRAM lebih dulu (batas `AUDIO_MAX_BYTES`)
+  lalu memutarnya dari sana: memutar sambil mengunduh membuat suara patah-patah begitu Wi-Fi
+  melambat sesaat. Suara karena itu mulai setelah TTS dan unduhan selesai, bukan pada potongan
+  pertama. Tombol yang ditekan saat mengunduh membatalkannya.
+- `?format=adpcm` (firmware 1.7+): IMA ADPCM 4-bit, **seperempat** ukuran PCM (8,25 KB per
+  detik suara), dengan header `X-Audio-Format: adpcm_ima;rate=16000;channels=1;block=256`.
+  Perangkat mengunduh hanya ±53 KB/detik (terukur 2026-10-23), jadi ukuran langsung menjadi
+  jeda sebelum EduPad bicara. Format blok: header 4 byte (predictor int16 little-endian, index,
+  1 byte kosong) + 128 byte nibble (rendah dulu) = 256 sampel; blok terakhir boleh lebih pendek.
+  Encoder `src/edupad/voice/adpcm.py`, dekoder `firmware/edupad/adpcm.cpp`. Perangkat memutar
+  sesuai `X-Audio-Format`, jadi server lama yang mengabaikan parameter ini tetap terdengar.
+  Berlaku juga untuk `/v1/intro/audio`, `/v1/speech/*`, dan `/v1/voice/*`.
+- TTS dimulai saat `/v1/ask` menjawab bila permintaan membawa `X-Firmware` (selalu dari
+  perangkat), jadi suaranya sudah berjalan selagi layar tampil. Tanpa header itu (curl, tes)
+  TTS baru jalan saat audio diminta, supaya uji manual tidak memakai kuota.
+- Setelah suara jawaban mulai diputar, firmware 1.7+ mengirim sekali di permintaan berikutnya
+  `X-Audio-Report: wait=<ms>;download=<ms>;bytes=<n>;format=adpcm|pcm`: jeda dari jawaban tampil
+  sampai suara terdengar. Server mencatatnya di `logs/serve.log` (`[audio]`) dan `last_audio`
+  status perangkat.
 - Hanya suara **jawaban terakhir** yang disimpan (di memori server); jawaban baru menimpanya
   dan id lamanya menjadi 404. Putar ulang (`GET` URL yang sama, atau `GET /v1/audio/latest`
   bila perangkat tidak lagi tahu URL-nya, mis. setelah restart) diambil dari simpanan tanpa
