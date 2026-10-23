@@ -521,7 +521,15 @@ def fill_attendance() -> dict:
         petunjuk.append("'harus_qr' tidak bisa diisi dari jauh: QR-nya dipindai sendiri di kelas.")
     if gagal:
         petunjuk.append("Untuk 'gagal', sebut sebabnya singkat dan sarankan mengisi di portal.")
-    return {"terisi": terisi, "harus_qr": harus_qr, "gagal": gagal, "petunjuk": " ".join(petunjuk)}
+    result = {
+        "terisi": terisi,
+        "harus_qr": harus_qr,
+        "gagal": gagal,
+        "petunjuk": " ".join(petunjuk),
+    }
+    if terisi:  # masuk ke riwayat percakapan supaya tidak diisi ulang (assistant.ask)
+        result["aksi"] = "isi presensi " + ", ".join(sorted({r["matkul"] for r in terisi}))
+    return result
 
 
 TOOLS: dict[str, Callable[..., dict]] = {

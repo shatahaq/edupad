@@ -1,6 +1,6 @@
 """Memory AI agent di Supabase: percakapan per sesi dan fakta jangka panjang pengguna.
 
-Riwayat dikirim ke LLM dalam bentuk ringkas (suara, layar, sumber; tanpa detail
+Riwayat dikirim ke LLM dalam bentuk ringkas (suara, layar, sumber, aksi; tanpa detail
 Markdown) dan hanya ditambah di belakang, sehingga prefix prompt tetap ter-cache.
 Bila giliran yang belum diringkas mencapai SUMMARIZE_AFTER, giliran lama (selain
 KEEP_TURNS terakhir) diringkas, dan fakta penting tentang pengguna ikut disimpan.
@@ -14,7 +14,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 
 from edupad.config import WIB
-from edupad.core.supabase import SupabaseClient
+from edupad.core.supabase import SupabaseClient, SupabaseError
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +23,11 @@ KEEP_TURNS = 4
 SUMMARIZE_AFTER = 8
 MAX_FACTS = 30
 MAX_SOURCES_PER_TURN = 4
+MAX_ACTIONS_PER_TURN = 6
+TURN_FIELDS = "id,question,speech,screen,sources,actions"
+# Kolom `actions` ditambahkan migrasi 20261023_turn_actions.sql. Bila server belum menjalankan
+# migrasi itu, riwayat diambil tanpa kolom tersebut (agent tetap jalan, hanya tanpa jejak aksi).
+_has_actions = True
 
 SUMMARY_PROMPT = """Perbarui ringkasan percakapan antara mahasiswa dan asisten belajar EduPad.
 Tulis JSON: {{"ringkasan": "...", "fakta_pengguna": ["..."]}}
@@ -51,18 +56,32 @@ def format_sources(sources: list[dict]) -> str:
 
 
 def turn_messages(
-    question: str, speech: str, screen: list[str], sources: list[dict], call_id: str = "riwayat"
+    question: str,
+    speech: str,
+    screen: list[str],
+    sources: list[dict],
+    actions: list[str] | None = None,
+    call_id: str = "riwayat",
 ) -> list[dict]:
     """Satu giliran untuk konteks LLM, ditulis sebagai panggilan tool `answer`.
 
     Bila ditulis sebagai teks biasa ("...Layar: ..."), model meniru format itu dan
     berhenti memanggil `answer`, sehingga daftar layar ikut dibacakan TTS.
+
+    `actions` = perubahan data yang sudah dijalankan pada giliran itu (lihat assistant.ask).
+    Tanpa itu model hanya melihat ucapan mahasiswa tanpa jejak tool, sehingga pada giliran
+    berikutnya bisa "menyusul" menjalankan lagi yang sudah selesai -- mis. mencatat ulang
+    transaksi dari giliran sebelumnya.
     """
     arguments = json.dumps(
         {"speech": speech, "screen_lines": [line.lstrip("- ").strip() for line in screen]},
         ensure_ascii=False,
     )
-    result = "ditampilkan ke pengguna" + (f"; sumber: {format_sources(sources)}" if sources else "")
+    result = "ditampilkan ke pengguna"
+    if actions:
+        result += "; sudah dijalankan: " + "; ".join(actions[:MAX_ACTIONS_PER_TURN])
+    if sources:
+        result += f"; sumber: {format_sources(sources)}"
     return [
         {"role": "user", "content": question},
         {
@@ -106,13 +125,22 @@ class ConversationMemory:
         return self.db.insert("agent_sessions", [{"user_id": self.user_id}])[0]
 
     def _turns(self) -> list[dict]:
-        return self.db.select(
-            "agent_turns",
-            "id,question,speech,screen,sources",
-            session_id=f"eq.{self.session['id']}",
-            id=f"gt.{self.session['summarized_until']}",
-            order="id.asc",
-        )
+        global _has_actions
+        fields = TURN_FIELDS if _has_actions else TURN_FIELDS.replace(",actions", "")
+        try:
+            return self.db.select(
+                "agent_turns",
+                fields,
+                session_id=f"eq.{self.session['id']}",
+                id=f"gt.{self.session['summarized_until']}",
+                order="id.asc",
+            )
+        except SupabaseError as e:
+            if not _has_actions or "actions" not in str(e):
+                raise
+            _has_actions = False  # migrasi belum jalan; jangan dicoba lagi tiap giliran
+            log.warning("[memory] kolom agent_turns.actions belum ada: %s", e)
+            return self._turns()
 
     def prefetch(self) -> None:
         """Ambil fakta & riwayat sekarang (mis. paralel dengan STT); dipakai history() berikutnya."""
@@ -134,7 +162,12 @@ class ConversationMemory:
             )
         for t in self._turns():
             messages += turn_messages(
-                t["question"], t["speech"], t["screen"], t["sources"], call_id=f"riwayat_{t['id']}"
+                t["question"],
+                t["speech"],
+                t["screen"],
+                t["sources"],
+                t.get("actions") or [],
+                call_id=f"riwayat_{t['id']}",
             )
         return messages
 
@@ -177,6 +210,7 @@ class ConversationMemory:
                     "detail": result["detail"],
                     "sources": result["sources"],
                     "usage": result["usage"],
+                    **({"actions": result.get("actions") or []} if _has_actions else {}),
                 }
             ],
         )

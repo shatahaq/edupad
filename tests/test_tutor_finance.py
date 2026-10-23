@@ -77,6 +77,30 @@ def test_voice_transaction_is_recorded_with_budget_and_can_be_undone(db):
     assert "error" in finance.undo_last_transaction()
 
 
+def test_voice_transaction_is_not_recorded_twice(db):
+    """Agent kadang mencatat lagi transaksi dari giliran sebelumnya (riwayat tanpa jejak tool)."""
+    first = finance.record_transaction("pengeluaran", 20_000, "Makan", "ayam geprek")
+    assert first["tercatat"]
+    # Giliran berikutnya melihat ini di riwayat (assistant.ask -> memory.turn_messages).
+    assert first["aksi"] == f"catat pengeluaran Makan Rp20.000 ({first['tanggal']})"
+    again = finance.record_transaction("pengeluaran", 20_000, "Makan", "ayam geprek")
+    assert again["sudah_dicatat"] and not again["tercatat"] and "aksi" not in again
+    assert len(db.tables["finance_transactions"]) == 1
+
+    # Transaksi lain pada giliran yang sama tetap masuk.
+    assert finance.record_transaction("pengeluaran", 30_000, "Transportasi", "bensin")["tercatat"]
+    # Mahasiswa menegaskan memang beli dua kali.
+    assert finance.record_transaction("pengeluaran", 20_000, "Makan", repeat=True)["tercatat"]
+    assert len(db.tables["finance_transactions"]) == 3
+
+    # Catatan lama (di luar DUPLICATE_WINDOW) bukan kembar.
+    old = (datetime.now(WIB) - finance.DUPLICATE_WINDOW - timedelta(minutes=1)).isoformat()
+    for row in db.tables["finance_transactions"]:
+        row["created_at"] = old
+    assert finance.record_transaction("pengeluaran", 20_000, "Makan", "ayam geprek")["tercatat"]
+    assert len(db.tables["finance_transactions"]) == 4
+
+
 def test_finance_rejects_bad_input_and_reports_missing_table(db, monkeypatch):
     assert "error" in finance.record_transaction("pengeluaran", 0, "Makan")
     assert "error" in finance.record_transaction("hutang", 5_000, "Makan")

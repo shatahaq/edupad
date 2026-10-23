@@ -239,6 +239,19 @@ def test_memory_persists_turns_and_reuses_recent_session():
     assert [m["content"] for m in second.history()][0] == "apa itu xor?"
 
 
+def test_history_carries_actions_so_they_are_not_repeated():
+    """Tanpa jejak ini agent "menyusul" mencatat ulang transaksi dari giliran sebelumnya."""
+    db = FakeDb()
+    mem = ConversationMemory("u1", new_session=True, db=db)
+    mem.save_turn(
+        "tadi beli ayam geprek dua puluh ribu",
+        _result(1) | {"actions": ["catat pengeluaran Makan Rp20.000 (2026-10-22)"]},
+    )
+    tool_result = ConversationMemory("u1", db=db).history()[2]
+    assert tool_result["role"] == "tool"
+    assert "sudah dijalankan: catat pengeluaran Makan Rp20.000" in tool_result["content"]
+
+
 def test_memory_starts_new_session_after_idle():
     db = FakeDb()
     first = ConversationMemory("u1", new_session=True, db=db)

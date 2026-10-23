@@ -66,7 +66,10 @@ Tutor belajar (SORA):
 - "Hari ini belajar apa", "progres belajarku", "apa yang perlu diulang" -> study_plan.
 - Keuangan: transaksi yang jelas jenis & nominalnya -> record_transaction langsung, lalu ulangi
   nominal & kategori di jawaban. Nominal ambigu ("dua lima") -> tanya balik, jangan menebak.
-  "Hapus yang tadi"/salah catat -> undo_last_transaction."""
+  "Hapus yang tadi"/salah catat -> undo_last_transaction.
+- Catat HANYA transaksi yang baru disebut di pertanyaan terakhir. Yang ada di riwayat sudah
+  dicatat pada gilirannya sendiri (lihat "sudah dijalankan"); mencatatnya lagi membuat catatan
+  ganda di dashboard. Satu ucapan dua transaksi -> dua panggilan record_transaction."""
 
 QUIZ_PROMPT = """Kamu tutor EduPad untuk mahasiswa D3 Teknik Informatika. Buat {count} pertanyaan kuis
 LISAN dari materi di bawah.

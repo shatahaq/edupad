@@ -87,6 +87,9 @@ MEMORY_PROMPT = """
 Memory:
 - Percakapan sebelumnya di sesi ini ada di riwayat; pakai untuk memahami pertanyaan lanjutan.
   "Sumber" di riwayat menunjukkan materi yang dibahas; ambil lagi isinya bila perlu detail.
+- "Sudah dijalankan" di riwayat = perubahan data yang SUDAH selesai pada giliran itu (transaksi
+  tercatat, anggaran diatur, presensi terisi). Jangan dijalankan lagi, dan jangan dilaporkan
+  ulang kecuali ditanya.
 - Bila mahasiswa menyebut hal tentang dirinya yang berguna di sesi lain (kesulitan, preferensi
   belajar, target) atau meminta diingat, panggil remember.
 Catatan tentang mahasiswa ini:
@@ -368,7 +371,10 @@ def ask(
         *([{"role": "system", "content": quiz_note}] if quiz_note else []),
         {"role": "user", "content": question},
     ]
-    trace, sources, usage, seen, nudged = [], [], Usage(), set(), False
+    # `actions` = perubahan data yang sudah dijalankan giliran ini (field "aksi" pada hasil
+    # tool). Ikut disimpan ke memory supaya giliran berikutnya melihatnya di riwayat dan tidak
+    # menjalankannya lagi (lihat memory.turn_messages).
+    trace, sources, actions, usage, seen, nudged = [], [], [], Usage(), set(), False
     started = time.time()
     max_tool_rounds = get_settings().llm_max_tool_rounds
 
@@ -409,12 +415,14 @@ def ask(
                 answer["speech"],
                 answer["screen"]["lines"],
                 sources,
+                actions,
                 call_id=f"riwayat_{len(history)}",
             )
             result = {
                 **answer,
                 "tools": trace,
                 "sources": sources,
+                "actions": actions,
                 "usage": usage.as_dict(),
                 "tokens": usage.total,
                 "cached_tokens": usage.cache_hit,
@@ -455,6 +463,8 @@ def ask(
             else:
                 result = dedupe(name, _run_tool(name, args), seen)
             sources += _sources(result)
+            if result.get("aksi"):
+                actions.append(str(result["aksi"]))
             output = json.dumps(result, ensure_ascii=False)[:MAX_TOOL_RESULT_CHARS]
             trace.append(
                 {

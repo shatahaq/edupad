@@ -40,6 +40,13 @@ MAX_ROWS = 5_000
 PERIODS = ("hari_ini", "minggu_ini", "bulan_ini", "bulan_lalu", "30_hari")
 BUDGET_WARNING = 0.9  # pengeluaran >= 90% anggaran kategori bulan ini -> peringatan
 UNDO_WINDOW = timedelta(hours=12)  # "hapus yang tadi" hanya untuk catatan suara terbaru
+# Riwayat percakapan yang dikirim ke LLM hanya memuat jawaban, bukan tool yang sudah dijalankan
+# (agent/memory.py turn_messages), jadi agent kadang "menyusul" mencatat lagi transaksi dari
+# giliran sebelumnya. Catatan suara yang sama persis dalam rentang ini karena itu dianggap
+# pengulangan; transaksi yang memang terjadi dua kali dicatat dengan repeat=True.
+DUPLICATE_WINDOW = timedelta(minutes=10)
+DUPLICATE_SCAN = 20  # catatan suara terakhir yang diperiksa
+FIELDS = "id,kind,amount,category,note,occurred_on,source,created_at"
 
 
 class FinanceUnavailable(RuntimeError):
@@ -50,12 +57,25 @@ class FinanceInputError(ValueError):
     pass
 
 
+class FinanceDuplicate(FinanceInputError):
+    """Transaksi suara yang sama persis baru saja dicatat; `existing` = baris yang sudah ada."""
+
+    def __init__(self, existing: dict):
+        super().__init__("transaksi yang sama baru saja dicatat lewat suara")
+        self.existing = existing
+
+
 def rupiah(amount: float) -> str:
     return "Rp" + f"{round(amount):,}".replace(",", ".")
 
 
 def _today() -> date:
     return datetime.now(WIB).date()
+
+
+def _created(row: dict) -> datetime:
+    stamp = datetime.fromisoformat(str(row["created_at"]).replace("Z", "+00:00"))
+    return stamp if stamp.tzinfo else stamp.replace(tzinfo=WIB)
 
 
 def _category(kind: str, category: str | None) -> str:
@@ -113,7 +133,9 @@ class FinanceStore:
         note: str = "",
         occurred_on: str | date | None = None,
         source: str = "dashboard",
+        repeat: bool = False,
     ) -> dict:
+        """Simpan satu transaksi. `repeat`: catat walau kembar dengan catatan suara barusan."""
         kind = KINDS.get((kind or "").strip().lower(), "")
         if not kind:
             raise FinanceInputError("jenis harus pemasukan atau pengeluaran")
@@ -143,13 +165,28 @@ class FinanceStore:
             "occurred_on": day.isoformat(),
             "source": source if source in SOURCES else "dashboard",
         }
+        if row["source"] == "suara" and not repeat:
+            existing = self.duplicate(row)
+            if existing:
+                raise FinanceDuplicate(existing)
         return self._run(self.db.insert, TRANSACTIONS, [row])[0]
+
+    def duplicate(self, row: dict) -> dict | None:
+        """Catatan suara yang sama persis (jenis, nominal, kategori, tanggal) dan masih baru."""
+        oldest = datetime.now(WIB) - DUPLICATE_WINDOW
+        keys = ("kind", "amount", "category", "occurred_on")
+        for other in self.recent_voice(DUPLICATE_SCAN):
+            if _created(other) < oldest:
+                break  # diurutkan dari yang terbaru
+            if all(str(other[k]) == str(row[k]) for k in keys):
+                return other
+        return None
 
     def transactions(self, start: date | None = None, end: date | None = None) -> list[dict]:
         rows = self._run(
             self.db.select,
             TRANSACTIONS,
-            "id,kind,amount,category,note,occurred_on,source,created_at",
+            FIELDS,
             user_id=f"eq.{self.user_id}",
             order="occurred_on.desc,created_at.desc",
             limit=str(MAX_ROWS),
@@ -166,16 +203,20 @@ class FinanceStore:
             self.db.delete, TRANSACTIONS, id=f"eq.{transaction_id}", user_id=f"eq.{self.user_id}"
         )
 
-    def last_voice(self) -> dict | None:
-        rows = self._run(
+    def recent_voice(self, limit: int = 1) -> list[dict]:
+        """Catatan suara terbaru lebih dulu."""
+        return self._run(
             self.db.select,
             TRANSACTIONS,
-            "id,kind,amount,category,note,occurred_on,source,created_at",
+            FIELDS,
             user_id=f"eq.{self.user_id}",
             source="eq.suara",
             order="created_at.desc",
-            limit="1",
+            limit=str(limit),
         )
+
+    def last_voice(self) -> dict | None:
+        rows = self.recent_voice()
         return rows[0] if rows else None
 
     # ------------------------------ anggaran -------------------------------
@@ -273,25 +314,44 @@ def record_transaction(
     category: str | None = None,
     note: str = "",
     date: str | None = None,
+    repeat: bool = False,
 ) -> dict:
     """Catat satu transaksi dari ucapan mahasiswa (source "suara")."""
     try:
         store = _store()
-        row = store.add(kind, amount, category, note, date, source="suara")
+        row = store.add(kind, amount, category, note, date, source="suara", repeat=repeat)
+        jenis = "pengeluaran" if row["kind"] == "expense" else "pemasukan"
         result = {
             "tercatat": True,
-            "jenis": "pengeluaran" if row["kind"] == "expense" else "pemasukan",
+            "jenis": jenis,
             "nominal": int(row["amount"]),
             "nominal_teks": rupiah(row["amount"]),
             "kategori": row["category"],
             "tanggal": row["occurred_on"],
             "catatan": row["note"],
+            # Masuk ke riwayat percakapan (assistant.ask -> memory.turn_messages).
+            "aksi": f"catat {jenis} {row['category']} {rupiah(row['amount'])} "
+            f"({row['occurred_on']})",
         }
         if row["kind"] == "expense":
             budget = _budget_line(store, row["category"])
             if budget:
                 result["anggaran"] = budget
         return result
+    except FinanceDuplicate as e:
+        row = e.existing
+        return {
+            "tercatat": False,
+            "sudah_dicatat": True,
+            "nominal_teks": rupiah(row["amount"]),
+            "kategori": row["category"],
+            "tanggal": row["occurred_on"],
+            "petunjuk": "transaksi ini sudah ada, jadi tidak dicatat dua kali. Bila mahasiswa "
+            "TIDAK menyebutnya di pertanyaan terakhir, ini pengulangan dari giliran sebelumnya: "
+            "abaikan saja, jangan disebut sama sekali, jawab hanya soal yang baru disebut. Bila "
+            "mahasiswa memang baru menyebutnya, tanyakan apakah ini pembelian kedua; kalau iya, "
+            "panggil lagi dengan repeat=true.",
+        }
     except (FinanceUnavailable, FinanceInputError) as e:
         return {"error": str(e)}
 
@@ -320,12 +380,14 @@ def undo_last_transaction() -> dict:
                 "terakhir": {"nominal_teks": rupiah(last["amount"]), "kategori": last["category"]},
             }
         store.delete(last["id"])
+        jenis = "pengeluaran" if last["kind"] == "expense" else "pemasukan"
         return {
             "dihapus": True,
-            "jenis": "pengeluaran" if last["kind"] == "expense" else "pemasukan",
+            "jenis": jenis,
             "nominal_teks": rupiah(last["amount"]),
             "kategori": last["category"],
             "tanggal": last["occurred_on"],
+            "aksi": f"hapus catatan {jenis} {last['category']} {rupiah(last['amount'])}",
         }
     except FinanceUnavailable as e:
         return {"error": str(e)}
@@ -339,6 +401,7 @@ def set_budget(category: str, amount: float) -> dict:
             "anggaran_diatur": True,
             "kategori": row["category"],
             "nominal_teks": rupiah(row["amount"]),
+            "aksi": f"atur anggaran {row['category']} {rupiah(row['amount'])} per bulan",
             **(_budget_line(store, row["category"]) or {}),
         }
     except (FinanceUnavailable, FinanceInputError) as e:
@@ -358,7 +421,9 @@ SCHEMAS = [
         "function": {
             "name": "record_transaction",
             "description": "Catat pemasukan/pengeluaran yang diucapkan mahasiswa (mis. 'tadi beli "
-            "makan 25 ribu', 'dapat kiriman sejuta'). Langsung catat bila jenis & nominal jelas.",
+            "makan 25 ribu', 'dapat kiriman sejuta'). Langsung catat bila jenis & nominal jelas. "
+            "Hanya untuk transaksi yang BARU disebut sekarang; yang sudah dicatat di giliran "
+            "sebelumnya jangan dicatat lagi.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -376,6 +441,11 @@ SCHEMAS = [
                         "description": "keterangan singkat, mis. 'nasi goreng'",
                     },
                     "date": {"type": "string", "description": "YYYY-MM-DD, default hari ini"},
+                    "repeat": {
+                        "type": "boolean",
+                        "description": "true hanya bila mahasiswa menegaskan transaksi yang "
+                        "sama persis memang terjadi lagi; selain itu jangan diisi",
+                    },
                 },
                 "required": ["kind", "amount", "category"],
             },
