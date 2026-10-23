@@ -133,7 +133,10 @@ Setelah login Google di halaman depan, pengguna langsung dibawa ke sana. Hanya e
 `EDUPAD_OWNER_EMAILS` yang bisa membuka datanya.
 
 Tabel Supabase keuangan & tutor: `supabase/migrations/20261017_finance_tutor.sql` dan
-`20261018_tutor_help.sql` (sekali, lewat SQL Editor Supabase). `crontab deploy/crontab` memuat
+`20261018_tutor_help.sql` (sekali, lewat SQL Editor Supabase). Tambahan
+`20261023_turn_actions.sql`: kolom jejak aksi per giliran percakapan, supaya agent tidak
+menjalankan ulang perubahan data dari giliran sebelumnya (mis. transaksi tercatat dua kali).
+Tanpa migrasi itu server tetap jalan, hanya jejaknya tidak tersimpan. `crontab deploy/crontab` memuat
 `python -m edupad tutor-coach` (SORA menyiapkan bantuan tiap sore).
 
 ```bash
