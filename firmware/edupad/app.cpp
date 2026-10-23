@@ -1,6 +1,6 @@
 // EduPad: tahan tombol, bicara, lepas -> jawaban tampil di LCD lalu dibacakan lewat speaker.
-// Rekaman dikirim ke POST /v1/ask sambil merekam (chunked); suara jawaban (audio_url) diambil
-// lewat koneksi yang sama dan diputar begitu tiba. Tekan 1x = putar ulang (server memakai
+// Rekaman dikirim ke POST /v1/ask sambil merekam (chunked); suara jawaban (audio_url) diunduh
+// utuh lewat koneksi yang sama lalu diputar. Tekan 1x = putar ulang (server memakai
 // suara tersimpan, tanpa kuota TTS), tekan 2x = percakapan baru, tekan saat bicara = berhenti.
 // Mode Suara (voice.h): bunyi penanda, pemberitahuan dibacakan, dan pesan status bersuara.
 #include <Arduino.h>
@@ -103,24 +103,66 @@ String showResponse(const api::Response &res) {
   return doc["audio_url"] | "";
 }
 
-// Putar suara; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
-// `alert`: suara pemberitahuan (Mode Suara), kegagalannya cukup ditandai bunyi.
-bool play(const String &path, bool replay, bool alert = false) {
+// ---- Pemutaran suara: diunduh utuh ke PSRAM dulu, baru diputar. Memutar sambil mengunduh
+// membuat suara patah-patah begitu Wi-Fi melambat sesaat (PCM 16 kHz = 32 KB/detik, jauh di
+// atas kecepatan unduh yang stabil di jaringan kampus). Selama mengunduh layar tidak diganti:
+// jawaban tetap terbaca dan tidak ada animasi "sedang menyiapkan suara".
+
+uint8_t *audioPcm = nullptr;  // penampung di PSRAM, dibuat sekali lalu dipakai ulang
+size_t audioBytes = 0;
+
+bool collectAudio(const uint8_t *pcm, size_t size) {
+  if (buttonDown()) return false;  // pengguna ingin berhenti atau langsung bertanya
+  size_t take = min(size, (size_t)AUDIO_MAX_BYTES - audioBytes);
+  memcpy(audioPcm + audioBytes, pcm, take);
+  audioBytes += take;
+  return true;  // sisa yang tidak muat dibuang, unduhan tetap dituntaskan
+}
+
+// Penampung berisi suara yang cukup panjang untuk diputar.
+bool audioReady() { return audioBytes > SAMPLE_RATE; }
+
+// Putar isi penampung; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
+bool playBuffer() {
   display::speaking(true);
-  api::AudioResult r = api::streamAudio(path.c_str(), [](const uint8_t *pcm, size_t size) {
-    if (buttonDown()) return false;
-    speaker::write(pcm, size);
-    display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
-    return true;
-  });
-  if (r.stopped) {
+  bool stopped = false;
+  for (size_t at = 0; at < audioBytes && !stopped; at += 2048) {
+    stopped = buttonDown();
+    if (!stopped) {
+      speaker::write(audioPcm + at, min((size_t)2048, audioBytes - at));
+      display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
+    }
+  }
+  if (stopped) {
     speaker::stop();
   } else {
     speaker::finish();
   }
   display::speaking(false);
-  Serial.printf("[audio] %s HTTP %d, %u byte%s %s\n", path.c_str(), r.status, (unsigned)r.bytes,
+  return stopped;
+}
+
+// Unduh lalu putar suara; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
+// `alert`: suara pemberitahuan (Mode Suara), kegagalannya cukup ditandai bunyi.
+bool play(const String &path, bool replay, bool alert = false) {
+  if (!audioPcm) {
+    audioPcm = (uint8_t *)heap_caps_malloc(AUDIO_MAX_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!audioPcm) {  // tanpa PSRAM suara tidak bisa ditampung; jawaban di layar tetap terbaca
+      Serial.println("[audio] PSRAM tidak cukup untuk menampung suara");
+      display::toast("Suara gagal diputar");
+      return false;
+    }
+  }
+  audioBytes = 0;
+  uint32_t started = millis();
+  api::AudioResult r = api::streamAudio(path.c_str(), collectAudio);
+  audioBytes -= audioBytes % 2;  // sampel utuh saja
+  Serial.printf("[audio] %s HTTP %d, %u byte dalam %u ms%s %s\n", path.c_str(), r.status,
+                (unsigned)audioBytes, (unsigned)(millis() - started),
                 r.stopped ? " (dihentikan)" : "", r.error.c_str());
+  bool stopped = r.stopped;
+  // Unduhan yang terlalu pendek (mis. jaringan terputus di awal) tidak enak didengar: dilewati.
+  if (!stopped && audioReady()) stopped = playBuffer();
   if (replay && r.status == 404) {
     display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan tombol lalu bicara", display::Tone::Warn);
     voice::say("no_answer");
@@ -132,7 +174,7 @@ bool play(const String &path, bool replay, bool alert = false) {
       voice::say("audio");
     }
   }
-  return r.stopped;
+  return stopped;
 }
 
 // Dipanggil berkala selama menunggu jawaban: layar proses + ketukan "sedang berpikir".
@@ -230,42 +272,8 @@ Press ask() {
   return press;
 }
 
-// ---- Perkenalan diri setelah menyala: kalimat + gerakan dari /v1/intro, suaranya disimpan
-// server (tidak memakai kuota TTS). Suara diunduh utuh ke PSRAM lebih dulu, baru diputar:
-// memutar sambil mengunduh membuat suara patah-patah bila Wi-Fi melambat sesaat.
-
-uint8_t *introPcm = nullptr;  // penampung di PSRAM, dilepas lagi setelah perkenalan selesai
-size_t introBytes = 0, introRoom = 0;
-
-bool introCollect(const uint8_t *pcm, size_t size) {
-  if (buttonDown()) return false;  // pengguna ingin langsung bertanya: unduhan dibatalkan
-  size_t take = min(size, introRoom - introBytes);
-  memcpy(introPcm + introBytes, pcm, take);
-  introBytes += take;
-  return true;  // sisa yang tidak muat dibuang, unduhan tetap dituntaskan
-}
-
-// Putar dari PSRAM; true bila dihentikan karena tombol ditekan (tombol masih tertahan).
-bool introPlay() {
-  display::speaking(true);
-  bool stopped = false;
-  for (size_t at = 0; at < introBytes && !stopped; at += 2048) {
-    stopped = buttonDown();
-    if (!stopped) {
-      speaker::write(introPcm + at, min((size_t)2048, introBytes - at));
-      display::voice(speaker::level(), speaker::positionMs());  // gerak paruh + teks perkenalan
-    }
-  }
-  if (stopped) {
-    speaker::stop();
-  } else {
-    speaker::finish();
-  }
-  display::speaking(false);
-  return stopped;
-}
-
-// Tombol menghentikan perkenalan; bila terus ditahan, langsung merekam (seperti layar lain).
+// Perkenalan diri setelah menyala: kalimat + gerakan dari /v1/intro, suaranya disimpan server
+// (tidak memakai kuota TTS). Tombol menghentikannya; bila terus ditahan, langsung merekam.
 void introduce() {
   api::Response res = api::get("/v1/intro", 30000);  // pertama kali server membuat suaranya dulu
   JsonDocument doc;
@@ -273,31 +281,8 @@ void introduce() {
     Serial.printf("[intro] dilewati: HTTP %d %s\n", res.status, res.error.c_str());
     return;
   }
-  float duration = doc["duration"] | 0.0f;
-  // Penampung sepanjang suaranya + 1 detik kelonggaran; tanpa info durasi pakai batas penuh.
-  introRoom = duration > 0 ? min((size_t)((duration + 1) * SAMPLE_RATE * 2), (size_t)INTRO_MAX_BYTES)
-                           : (size_t)INTRO_MAX_BYTES;
-  introPcm = (uint8_t *)heap_caps_malloc(introRoom, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-  if (!introPcm) {  // PSRAM tidak cukup: lebih baik perkenalan dilewati daripada patah-patah
-    Serial.println("[intro] dilewati: PSRAM tidak cukup untuk menampung suaranya");
-    return;
-  }
-  introBytes = 0;
-  display::bootStep("Menyiapkan perkenalan", 1.0f);
-  uint32_t started = millis();
-  api::AudioResult r = api::streamAudio(doc["audio_url"] | "/v1/intro/audio", introCollect);
-  Serial.printf("[intro] %u byte diunduh dalam %u ms (HTTP %d %s)\n", (unsigned)introBytes,
-                (unsigned)(millis() - started), r.status, r.error.c_str());
-  bool stopped = r.stopped;  // tombol ditekan saat mengunduh: langsung ke layar siap
-  // Unduhan yang terlalu pendek (mis. jaringan terputus di awal) tidak enak didengar: dilewati.
-  if (!stopped && introBytes > SAMPLE_RATE) {
-    display::intro(doc["segments"], duration);
-    stopped = introPlay();
-  }
-  free(introPcm);
-  introPcm = nullptr;
-  introBytes = introRoom = 0;
-  if (!stopped && r.complete) delay(800);  // biarkan confetti selesai
+  display::intro(doc["segments"], doc["duration"] | 0.0f);
+  if (!play(doc["audio_url"] | "/v1/intro/audio", false)) delay(800);  // biarkan confetti selesai
 }
 
 // ---- Kabar dari server (/v1/updates): kuliah berikutnya + pemberitahuan presensi/deadline
@@ -349,7 +334,10 @@ bool showAlert(JsonObjectConst alert) {
   int times = urgentAlert(kind) ? ALERT_SPEAK_TIMES : 1;
   for (int spoken = 0; *audio && spoken < times; spoken++) {
     if (spoken && !alertWait(ALERT_SPEAK_GAP_MS)) return closeOrAsk();
-    if (play(audio, false, true)) return closeOrAsk();
+    // Pengulangan diputar lagi dari penampung: suaranya sudah ada di PSRAM, tidak perlu diunduh
+    // dua kali (dan jedanya tidak bertambah panjang).
+    bool stopped = spoken && audioReady() ? playBuffer() : play(audio, false, true);
+    if (stopped) return closeOrAsk();
   }
   uint32_t duration = attendance                 ? ALERT_ATTENDANCE_MS
                       : !strcmp(kind, "deadline") ? ALERT_DEADLINE_MS

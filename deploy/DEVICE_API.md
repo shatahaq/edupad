@@ -90,6 +90,11 @@ Field `error` berisi penyebab teknis untuk log serial, bukan untuk LCD.
   Server hanya mengirim sampel utuh, tetapi `esp_http_client_read` bisa mengembalikan jumlah
   byte ganjil: simpan sisa 1 byte untuk dibaca berikutnya sebelum menulis ke I2S.
 - Bila koneksi putus sebelum chunk penutup, audio tidak utuh (TTS gagal di tengah).
+- Firmware 1.6 mengunduh **seluruh** badan ke PSRAM lebih dulu (batas `AUDIO_MAX_BYTES`,
+  64 detik) lalu memutarnya dari sana: pada ±32 KB/detik, memutar sambil mengunduh membuat
+  suara patah-patah begitu Wi-Fi melambat sesaat. Suara karena itu mulai setelah TTS dan
+  unduhan selesai, bukan pada potongan pertama. Tombol yang ditekan saat mengunduh
+  membatalkannya.
 - Hanya suara **jawaban terakhir** yang disimpan (di memori server); jawaban baru menimpanya
   dan id lamanya menjadi 404. Putar ulang (`GET` URL yang sama, atau `GET /v1/audio/latest`
   bila perangkat tidak lagi tahu URL-nya, mis. setelah restart) diambil dari simpanan tanpa
@@ -117,9 +122,7 @@ Perkenalan diri yang diputar perangkat setiap menyala (setelah `/v1/health`).
   hantu di layar (`wave`, `happy`, `book`, `tasks`, `button`, `cheer`; lainnya = bicara saja).
   Naskahnya ada di `src/edupad/voice/intro.py`.
 - `/v1/intro/audio`: PCM seperti `/v1/audio`, utuh dengan `Content-Length`; `?format=wav`
-  untuk didengar di laptop. Firmware 1.6 mengunduhnya **utuh ke PSRAM lebih dulu** lalu memutar
-  dari sana (±32 KB/detik): jaringan yang lambat membuat perkenalan mulai lebih lambat, bukan
-  patah-patah. Tombol yang ditekan saat mengunduh membatalkan perkenalan.
+  untuk didengar di laptop.
 - Suara dibuat **sekali** lewat TTS lalu disimpan di `data/voice/intro/`; permintaan
   berikutnya tidak memakai kuota. Dibuat ulang otomatis hanya bila naskah atau suara berubah.
   Permintaan pertama menunggu TTS (beberapa detik); buat lebih dulu dengan

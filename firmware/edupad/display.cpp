@@ -69,6 +69,10 @@ float bootTarget = 0.05f;
 uint32_t bootDoneAt = 0;  // millis() saat siap, 0 = belum
 uint32_t toastAt = 0;     // millis() saat toast muncul, 0 = tidak ada
 uint32_t wakeAt = 0;      // millis() saat dibangunkan dari tidur, 0 = tidak
+// millis() saat mulai merekam. Hitungan detik di layar rekam dihitung dari sini oleh task
+// gambar, bukan dari nilai yang dikirim loop utama: pengiriman rekaman (TLS) bisa menahan loop
+// itu beberapa detik pada Wi-Fi lambat, dan dulu detiknya ikut membeku lalu melompat di akhir.
+uint32_t recordStartMs = 0;
 uint32_t clockTs = 0, clockMs = 0;  // jam dari server: detik epoch pada millis() clockMs
 bool running = false;
 
@@ -118,11 +122,15 @@ void uiTask(void *) {
     bool full = generation != seen;
     seen = generation;
     uint32_t start = sceneStartMs, loud = lastLoudMs, doneAt = bootDoneAt, shownAt = toastAt, woke = wakeAt;
+    uint32_t recStart = recordStartMs;
     uint32_t baseTs = clockTs, baseMs = clockMs;
     float raw = rawLevel, target = bootTarget, spoken = rawVoice;
     xSemaphoreGive(lock);
 
     ui.t = (now - start) / 1000.0f;
+    // Layar rekam: lama merekam dihitung di sini supaya detiknya tetap jalan walau loop utama
+    // sedang tertahan mengirim rekaman.
+    if (ui.kind == scene::Kind::Listen && recStart) ui.elapsedMs = now - recStart;
     progress += (target - progress) * (1 - expf(-dt * 5));
     ui.progress = progress;
     ui.done = doneAt ? (now - doneAt) / 1000.0f : -1;
@@ -265,8 +273,8 @@ void recording(uint32_t elapsedMs, float levelDbfs) {
     if (shared.kind != scene::Kind::Listen) {
       show(scene::Kind::Listen);
       lastLoudMs = now;
+      recordStartMs = now - elapsedMs;  // titik nol sesuai lama tombol sudah ditahan
     }
-    shared.elapsedMs = elapsedMs;
     rawLevel = levelDbfs;
     if (levelDbfs >= scene::SPEECH_DBFS) lastLoudMs = now;
   });

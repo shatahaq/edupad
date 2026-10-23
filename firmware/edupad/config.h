@@ -48,13 +48,16 @@
 #define PIN_AMP_LRC 17
 #define PIN_AMP_DIN 15
 #define SPEAKER_VOLUME 0.7f  // 0.0-1.0; di atas 1.0 suara pecah
-// Audio ditampung dulu sebelum mulai diputar supaya tidak tersendat saat jaringan lambat.
-#define SPEAKER_PREBUFFER_MS 300
+// Audio ditampung sebentar sebelum mulai diputar supaya buffer DMA tidak sempat kosong.
+// Sejak suara diunduh utuh dulu (AUDIO_MAX_BYTES), datanya sudah ada di PSRAM, jadi tidak
+// perlu sebanyak dulu: sisanya hanya menunda suara mulai terdengar.
+#define SPEAKER_PREBUFFER_MS 100
 
-// Perkenalan diunduh utuh ke PSRAM dulu, baru diputar: suaranya 32 KB/detik, jadi memutar
-// sambil mengunduh membuat suara patah-patah begitu Wi-Fi melambat sesaat. Batas penampungnya
-// 30 detik (960 KB di PSRAM, dilepas lagi setelah selesai); naskah sekarang ~14 detik.
-#define INTRO_MAX_BYTES (30 * SAMPLE_RATE * 2)
+// Suara jawaban/perkenalan/pemberitahuan diunduh utuh ke PSRAM dulu, baru diputar: PCM 16 kHz
+// = 32 KB/detik, jadi memutar sambil mengunduh membuat suara patah-patah begitu Wi-Fi melambat
+// sesaat. Batasnya 64 detik (~2 MB di PSRAM, dibuat sekali lalu dipakai ulang); jawaban paling
+// panjang ~60 detik (VOICE_MODE_SPEECH_CHARS di src/edupad/agent/formatting.py).
+#define AUDIO_MAX_BYTES (64 * SAMPLE_RATE * 2)
 
 // Perkenalan diri (suara + animasi) setiap kali menyala; 0 untuk langsung ke layar siap.
 // Suaranya dibuat sekali dan disimpan server (GET /v1/intro), jadi tidak memakai kuota TTS.
@@ -92,6 +95,6 @@
 // 1.3: presensi & deadline membangunkan alat, berbunyi, dan dibacakan dua kali walau Mode Suara mati.
 // 1.4: pin berubah - layar SCK/MOSI ke GPIO 14/18, tombol sendiri di GPIO 7 (bukan BOOT).
 // 1.5: mode bahasa (Indonesia/Inggris, diatur server) dan pesan "ready" saat dibangunkan.
-// 1.6: perkenalan diunduh utuh ke PSRAM dulu, tidak lagi diputar sambil mengunduh (suaranya
-//      patah-patah bila Wi-Fi melambat sesaat).
+// 1.6: semua suara (jawaban, perkenalan, pemberitahuan) diunduh utuh ke PSRAM dulu, tidak lagi
+//      diputar sambil mengunduh; layar tidak diganti selama mengunduh.
 #define FIRMWARE_VERSION "1.6"
