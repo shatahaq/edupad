@@ -4,49 +4,33 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.test-tmp/
 
-# Indeks lokal alat bantu (codebase-memory), dibuat ulang otomatis
-.codebase-memory/
-
-# Rahasia: API key, kunci SSH server, cookie & profil browser login kampus.
-# Pindahkan ke server lewat scp (lihat deploy/SERVER.md), jangan lewat git.
+# Secrets: API keys, the server SSH key, campus session cookies and browser profiles.
+# Copy them to the server with scp (see deploy/SERVER.md), never through git.
 .env
 *.pem
 user_data/
 
-# Log hasil program berjalan
+# Runtime data: course materials, corpus, schedules, assignments, voice clips, tutor bank,
+# device status and Office state. Created by the pipeline and the server; personal or
+# third-party content, so it is never committed.
+/data/
+
+# Logs
 logs/
 
-# Web (React): dependensi & hasil build dibuat ulang dengan `npm install && npm run build`
-web/node_modules/
-web/dist/
+# Web apps: dependencies and build output are recreated with `npm ci && npm run build`
+apps/*/node_modules/
+apps/*/dist/
+apps/*/.vite/
 
-# Data Google Classroom per akun Google: data pribadi pengguna, tidak di-commit
-data/classroom/
-
-# Pratinjau layar firmware
+# Firmware screen preview (built with `make` in firmware/preview)
 firmware/preview/build/
 firmware/preview/out/
 
-# Suara perkenalan perangkat, dibuat server lewat TTS (python -m edupad intro)
-data/voice/intro/
-data/voice/clips/
-
-# EduPad Office frontend & local runtime state
-frontend/node_modules/
-frontend/dist/
-data/office/
-# Bank soal Tutor & status perangkat (dibuat server saat berjalan)
-data/tutor/
-data/device/
-.test-tmp/
-
-# Web & dashboard versi baru (neo): dependensi & hasil build dibuat ulang dengan npm
-web-neo/node_modules/
-web-neo/dist/
-dashboard-neo/node_modules/
-dashboard-neo/dist/
-dashboard-neo/.vite/
-
-# Log sementara browser otomatis (Playwright MCP)
+# Local tooling
+.claude/
+.mcp.json
+.codebase-memory/
 .playwright-mcp/
