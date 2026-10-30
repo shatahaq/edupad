@@ -15,5 +15,5 @@
     "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "../dashboard/src", "../frontend/src/game", "../frontend/src/hooks", "../frontend/src/services", "../frontend/src/data", "../frontend/src/types.ts"]
+  "include": ["src", "../ai-office/src/game", "../ai-office/src/hooks", "../ai-office/src/services", "../ai-office/src/data", "../ai-office/src/types.ts"]
 }

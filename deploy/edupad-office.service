@@ -1,4 +1,4 @@
-# Dashboard EduPad: Office API + file dashboard/dist (https://edupad.ai.id/dashboard/).
+# Dashboard EduPad: Office API + file apps/dashboard/dist (https://edupad.ai.id/dashboard/).
 # Pasang:  .venv/bin/pip install -e ".[office]"
 #          sudo cp deploy/edupad-office.service /etc/systemd/system/
 #          sudo systemctl daemon-reload && sudo systemctl enable --now edupad-office

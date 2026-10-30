@@ -5,7 +5,7 @@ Versi pertama (pixel art) ada di [`../web`](../web) dan **tidak diubah**; keduan
 berdampingan.
 
 ```bash
-cd web-neo && npm install
+cd apps/web-neo && npm install
 npm run dev          # http://localhost:5180
 ```
 

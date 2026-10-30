@@ -18,7 +18,7 @@ SCHEDULE_DIR = DATA_DIR / "schedule"
 VOICE_DIR = DATA_DIR / "voice"
 CLASSROOM_DIR = DATA_DIR / "classroom"  # per akun Google; data pribadi, tidak di-commit
 LOG_DIR = BASE_DIR / "logs"
-WEB_DIST_DIR = BASE_DIR / "web" / "dist"  # hasil `npm run build` di web/
+WEB_DIST_DIR = BASE_DIR / "apps" / "web" / "dist"  # hasil `npm run build` di apps/web/
 
 # Rahasia: cookie sesi & profil browser. Jangan dibagikan.
 STATE_DIR = BASE_DIR / "user_data"

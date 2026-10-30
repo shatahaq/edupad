@@ -9,8 +9,8 @@ try{
   const errors=[]
   page.on('pageerror',error=>errors.push(error.message))
   await page.goto('http://127.0.0.1:5173/office?preview=1')
-  await page.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>e.name.includes('/frontend/src/game/events.ts')))
-  const eventsUrl=await page.evaluate(()=>performance.getEntriesByType('resource').find(e=>e.name.includes('/frontend/src/game/events.ts'))?.name)
+  await page.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>e.name.includes('/ai-office/src/game/events.ts')))
+  const eventsUrl=await page.evaluate(()=>performance.getEntriesByType('resource').find(e=>e.name.includes('/ai-office/src/game/events.ts'))?.name)
   await page.waitForFunction(async url=>(await import(url)).officeGameEvents.currentFurnitureLayout().length>0,eventsUrl)
   await page.waitForTimeout(1200)
   await page.screenshot({path:resolve(root,'.test-tmp/office-modular-overview.png')})

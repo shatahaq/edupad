@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
-import { OfficeControls, OfficeGame } from "../../../frontend/src/game/OfficeGame";
-import { useOfficeData } from "../../../frontend/src/hooks/useOfficeData";
-import type { AgentState, OfficeAgent, OfficeTask } from "../../../frontend/src/types";
-import { FURNITURE_EDIT_MODE_UPDATED, FURNITURE_LAYOUT_UPDATED, FURNITURE_SELECTED, officeGameEvents } from "../../../frontend/src/game/events";
-import { FURNITURE, HOME_ROOM, furnitureUrl, roomAt, type FurnitureItem } from "../../../frontend/src/game/owlLayout";
-import { assetUrl } from "../../../frontend/src/game/assetUrl";
+import { OfficeControls, OfficeGame } from "../../../ai-office/src/game/OfficeGame";
+import { useOfficeData } from "../../../ai-office/src/hooks/useOfficeData";
+import type { AgentState, OfficeAgent, OfficeTask } from "../../../ai-office/src/types";
+import { FURNITURE_EDIT_MODE_UPDATED, FURNITURE_LAYOUT_UPDATED, FURNITURE_SELECTED, officeGameEvents } from "../../../ai-office/src/game/events";
+import { FURNITURE, HOME_ROOM, furnitureUrl, roomAt, type FurnitureItem } from "../../../ai-office/src/game/owlLayout";
+import { assetUrl } from "../../../ai-office/src/game/assetUrl";
 
 type DetailTab = "summary" | "tasks";
 

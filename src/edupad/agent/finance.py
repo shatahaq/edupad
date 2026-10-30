@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 TRANSACTIONS = "finance_transactions"
 BUDGETS = "finance_budgets"
-# Sama dengan pilihan di dashboard (dashboard/src/lib/finance.ts).
+# Sama dengan pilihan di dashboard (apps/dashboard/src/lib/finance.ts).
 EXPENSE_CATEGORIES = [
     "Makan",
     "Transportasi",

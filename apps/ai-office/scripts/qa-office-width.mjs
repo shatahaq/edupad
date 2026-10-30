@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 // Run against the dashboard dev server or a built dashboard served at OFFICE_QA_URL.
-// Optional: OFFICE_QA_EXECUTABLE=/path/to/chromium node frontend/scripts/qa-office-width.mjs
+// Optional: OFFICE_QA_EXECUTABLE=/path/to/chromium node apps/ai-office/scripts/qa-office-width.mjs
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const output = resolve(root, '.test-tmp')
 const url = new URL(process.env.OFFICE_QA_URL || 'http://localhost:5174/dashboard/')
@@ -74,7 +74,7 @@ try {
     resource => resource.name.includes('edupad-office-empty-v2.png') && resource.responseEnd > 0,
   ))
   const eventsUrl = await page.evaluate(() => performance.getEntriesByType('resource').find(
-    resource => resource.name.includes('/frontend/src/game/events.ts'),
+    resource => resource.name.includes('/ai-office/src/game/events.ts'),
   )?.name)
   if (eventsUrl) {
     await page.waitForFunction(async moduleUrl =>

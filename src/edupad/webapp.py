@@ -1,4 +1,4 @@
-"""Web EduPad: login Google, API untuk halaman React, dan file hasil build (web/dist).
+"""Web EduPad: login Google, API untuk halaman React, dan file hasil build (apps/web/dist).
 
 Rute (selain /v1/* milik perangkat ESP32, lihat server.py):
 
@@ -227,7 +227,7 @@ class WebApp:
         root = self.dist_dir.resolve()
         try:
             target = (root / relative).resolve()
-            target.relative_to(root)  # tolak ../ keluar dari web/dist
+            target.relative_to(root)  # tolak ../ keluar dari apps/web/dist
             is_file = target.is_file()
         except (ValueError, OSError):
             self._json(h, 404, {"error": "tidak ada"})

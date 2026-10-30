@@ -32,8 +32,8 @@ from edupad.voice import mode as voice_mode
 
 log = logging.getLogger(__name__)
 
-# Hasil `npm run build` di dashboard/ (base /dashboard/); data tetap lewat endpoint berizin.
-DASHBOARD_DIST = BASE_DIR / "dashboard" / "dist"
+# Hasil `npm run build` di apps/dashboard/ (base /dashboard/); data tetap lewat endpoint berizin.
+DASHBOARD_DIST = BASE_DIR / "apps" / "dashboard" / "dist"
 
 Owner = Annotated[Viewer, Depends(require_owner)]
 

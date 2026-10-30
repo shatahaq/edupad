@@ -21,7 +21,7 @@ Office dan Keuangan memiliki aksi khusus. Data tugas Office tetap melalui Office
 furnitur hanya tersimpan di browser, tidak mengubah database atau backend.
 
 ```bash
-cd dashboard
+cd apps/dashboard
 npm install
 npm run dev          # http://127.0.0.1:5173, data backend asli
 npm run build        # hasil di dist/ (file statis)

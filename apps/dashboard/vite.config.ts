@@ -10,8 +10,8 @@ const web = "http://127.0.0.1:8000"; // python -m edupad serve (login Google, /a
 export default defineConfig({
   plugins: [react()],
   base: "/dashboard/",
-  publicDir: "../frontend/public",
-  // Kode game di ../frontend/src memakai React/Phaser yang sama dengan dashboard (satu salinan).
+  publicDir: "../ai-office/public",
+  // Kode game di ../ai-office/src memakai React/Phaser yang sama dengan dashboard (satu salinan).
   resolve: { dedupe: ["react", "react-dom", "phaser"] },
   server: {
     host: "localhost",

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import { assetUrl } from "../../../frontend/src/game/assetUrl";
-import { useOfficeData } from "../../../frontend/src/hooks/useOfficeData";
-import type { AgentState, OfficeAgent } from "../../../frontend/src/types";
+import { assetUrl } from "../../../ai-office/src/game/assetUrl";
+import { useOfficeData } from "../../../ai-office/src/hooks/useOfficeData";
+import type { AgentState, OfficeAgent } from "../../../ai-office/src/types";
 import "./neo-office.css";
 
 // AI Office versi neo-brutalism: denah kantor sebagai blok, bukan permainan Phaser.

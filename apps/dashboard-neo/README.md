@@ -4,7 +4,7 @@ Tema **neo-brutalism** untuk dashboard. Halaman, data, dan logikanya tetap milik
 [`../dashboard`](../dashboard) versi pertama — yang ditambahkan hanya satu lapis tema.
 
 ```bash
-cd dashboard-neo
+cd apps/dashboard-neo
 npm run dev                       # http://localhost:5184/dashboard-neo/
 VITE_DATA_SOURCE=mock npm run dev # data contoh, tanpa server
 ```

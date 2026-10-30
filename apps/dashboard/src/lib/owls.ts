@@ -1,4 +1,4 @@
-import { assetUrl } from "../../../frontend/src/game/assetUrl";
+import { assetUrl } from "../../../ai-office/src/game/assetUrl";
 
 /** Tujuh owl AI Office; tiap halaman dashboard dipandu satu owl dengan warnanya. */
 export type OwlName = "nova" | "pixel" | "sora" | "tempo" | "metric" | "koin" | "nexus";

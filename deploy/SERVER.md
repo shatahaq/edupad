@@ -109,11 +109,15 @@ sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
 
 Server Ubuntu tidak perlu Node.js: build di laptop (Node 18+), lalu salin hasilnya.
 
+Semua aplikasi web ada di `apps/`. Server yang dipasang sebelum struktur ini masih menyimpan hasil
+build di `web/dist` dan `dashboard/dist`; pindahkan sekali saat memperbarui kode server:
+`mkdir -p apps/web apps/dashboard && mv web/dist apps/web/ && mv dashboard/dist apps/dashboard/`.
+
 ```bash
 # laptop
-cd web && npm ci && npm run build
-ssh ubuntu@SERVER "mkdir -p Tugas_Akhir/web && rm -rf Tugas_Akhir/web/dist"
-scp -r dist ubuntu@SERVER:Tugas_Akhir/web/
+cd apps/web && npm ci && npm run build
+ssh ubuntu@SERVER "mkdir -p Tugas_Akhir/apps/web && rm -rf Tugas_Akhir/apps/web/dist"
+scp -r dist ubuntu@SERVER:Tugas_Akhir/apps/web/
 
 # server
 sudo systemctl restart edupad-server
@@ -128,7 +132,7 @@ juga dijalankan otomatis tepat setelah pengguna login. Manual:
 
 ### 5. Dashboard EduPad (AI Office, Keuangan, Tutor, Equity Radar)
 
-Dashboard (`dashboard/`, buatan tim) disajikan Office API di `https://edupad.ai.id/dashboard/`.
+Dashboard (`apps/dashboard/`, buatan tim) disajikan Office API di `https://edupad.ai.id/dashboard/`.
 Setelah login Google di halaman depan, pengguna langsung dibawa ke sana. Hanya email di
 `EDUPAD_OWNER_EMAILS` yang bisa membuka datanya.
 
@@ -140,9 +144,9 @@ Tanpa migrasi itu server tetap jalan, hanya jejaknya tidak tersimpan. `crontab d
 `python -m edupad tutor-coach` (SORA menyiapkan bantuan tiap sore).
 
 ```bash
-# laptop: build (dashboard memakai kode game di frontend/, jadi keduanya di-install)
-(cd frontend && npm ci) && (cd dashboard && npm ci && npm run build)
-rsync -az --delete dashboard/dist/ ubuntu@SERVER:Tugas_Akhir/dashboard/dist/
+# laptop: build (dashboard memakai kode game di apps/ai-office/, jadi keduanya di-install)
+(cd apps/ai-office && npm ci) && (cd apps/dashboard && npm ci && npm run build)
+rsync -az --delete apps/dashboard/dist/ ubuntu@SERVER:Tugas_Akhir/apps/dashboard/dist/
 
 # server
 .venv/bin/pip install -e ".[office]"
