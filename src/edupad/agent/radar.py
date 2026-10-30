@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 
 from edupad.config import WIB
 from edupad.core.files import read_json
+from edupad.voice import lang
 
 log = logging.getLogger(__name__)
 
@@ -371,7 +372,7 @@ def study_plan(now: datetime | None = None) -> dict:
 
     now = now or _now()
     plan: dict = {"waktu": now.isoformat()}
-    upcoming = next_class(now)
+    upcoming = next_class(now, "id")  # data tool selalu bahasa Indonesia, seperti prompt-nya
     if upcoming:
         start = datetime.fromtimestamp(upcoming["start_ts"], WIB)
         course_id = next(
@@ -437,15 +438,25 @@ def _help_card(now: datetime, to_display_text) -> dict | None:
     if not h or h["status"] != "siap":
         return None
     before = h.get("mastery_before")
+    en = lang.is_english()
+    if before is not None:
+        when = f"{'Mastery' if en else 'Penguasaan'} {round(before * 100)}%"
+    else:
+        when = "Lesson + quiz" if en else "Pelajaran + kuis"
     return {
         "id": f"help:{h['id']}:{now.date().isoformat()}",
         "kind": "review",
         "course": to_display_text(f"{short_name(h['course'], h.get('course_id'))} P{h['meeting']}"),
-        "detail": to_display_text(f"SORA siapkan bantuan: {h['title']}"),
-        "when": f"Penguasaan {round(before * 100)}%" if before is not None else "Pelajaran + kuis",
+        "detail": to_display_text(
+            f"{'SORA prepared help' if en else 'SORA siapkan bantuan'}: {h['title']}"
+        ),
+        "when": when,
         "from_ts": 0,
         "to_ts": 0,
-        "speech": f"SORA sudah menyiapkan pelajaran singkat tentang {h['title']}, "
+        "speech": f"SORA has prepared a short lesson on {h['title']}, {h['course']} meeting "
+        f"{h['meeting']}. Say start to begin."
+        if en
+        else f"SORA sudah menyiapkan pelajaran singkat tentang {h['title']}, "
         f"{h['course']} pertemuan {h['meeting']}. Ucapkan mulai untuk memulai.",
     }
 
@@ -460,7 +471,7 @@ def device_alerts(now: datetime | None = None, cached: bool = True) -> list[dict
     dini (kind "warning"). id berganti per hari agar tidak berulang terus di hari yang sama."""
     global _alerts_cache
     now = now or _now()
-    slot = f"{now:%Y-%m-%d %H}"
+    slot = f"{now:%Y-%m-%d %H} {lang.current()}"  # ganti bahasa: kartu dibuat ulang
     with _alerts_lock:
         entry = _alerts_cache
     if cached and entry and entry[1] == slot and time.monotonic() - entry[0] < ALERTS_CACHE_SECONDS:
@@ -476,32 +487,56 @@ def device_alerts(now: datetime | None = None, cached: bool = True) -> list[dict
 
 
 def _device_alerts(now: datetime) -> list[dict]:
+    from edupad.agent.finance import rupiah
     from edupad.agent.formatting import to_display_text
     from edupad.agent.updates import short_name
 
+    en = lang.is_english()
     alerts: list[dict] = []
     for w in early_warnings(now):
         if w["jenis"] not in {"kehadiran", "anggaran"}:
             continue
+        over = w["sisa"] < 0
         if w["jenis"] == "kehadiran":
             course = short_name(w["matkul"])
-            detail = (
-                "Batas kehadiran terlewati" if w["sisa"] < 0 else f"Sisa jatah absen {w['sisa']}x"
-            )
-        else:
+            if not en:
+                detail = "Batas kehadiran terlewati" if over else f"Sisa jatah absen {w['sisa']}x"
+                speech = f"Peringatan. {w['pesan']}"
+            elif over:
+                detail = "Absence limit passed"
+                speech = (
+                    f"Warning. On SATU you have missed more {w['matkul']} meetings than the "
+                    "limit allows. Check with your lecturer if something is wrong."
+                )
+            else:
+                detail = f"{w['sisa']} absences left"
+                speech = (
+                    f"Warning. You can miss only {w['sisa']} more {w['matkul']} meetings. "
+                    "Try to attend the next one."
+                )
+        elif not en:
             course = f"Anggaran {w['kategori']}"
-            detail = "Sudah terlampaui" if w["sisa"] < 0 else "Hampir habis"
+            detail = "Sudah terlampaui" if over else "Hampir habis"
+            speech = f"Peringatan. {w['pesan']}"
+        else:
+            course = f"{w['kategori']} budget"
+            detail = "Over budget" if over else "Almost used up"
+            speech = (
+                f"Warning. Your {w['kategori']} budget this month is over by {rupiah(-w['sisa'])}."
+                if over
+                else f"Warning. Your {w['kategori']} budget has only {rupiah(w['sisa'])} left."
+            )
         alerts.append(
             {
                 "id": f"warn:{w['kunci']}:{now.date().isoformat()}",
                 "kind": "warning",
                 "course": to_display_text(course),
                 "detail": to_display_text(detail),
-                "when": "Peringatan",
+                "when": "Warning" if en else "Peringatan",
                 "from_ts": 0,
                 "to_ts": 0,
                 "level": "high" if w["tingkat"] == "tinggi" else "medium",
-                "speech": f"Peringatan. {w['pesan']}",
+                "speech": speech,
             }
         )
     if now.hour in REVIEW_HOURS:
@@ -514,6 +549,18 @@ def _device_alerts(now: datetime) -> list[dict]:
         if due:
             t = due[0]
             meeting = f" P{t['pertemuan']}" if t.get("pertemuan") is not None else ""
+            if en:
+                speech = (
+                    f"Time to review {t['judul'] or t['matkul']}"
+                    + (f", {t['matkul']} meeting {t['pertemuan']}" if t.get("pertemuan") else "")
+                    + f". Your mastery is {t['penguasaan']} percent. Say quiz me again to start."
+                )
+            else:
+                speech = (
+                    f"Waktunya mengulang {t['judul'] or t['matkul']}"
+                    + (f", {t['matkul']} pertemuan {t['pertemuan']}" if t.get("pertemuan") else "")
+                    + f". Penguasaanmu {t['penguasaan']} persen. Ucapkan uji aku lagi untuk kuis."
+                )
             alerts.append(
                 {
                     "id": f"review:{t['course_id'] or t['matkul']}:{t['pertemuan']}:"
@@ -522,14 +569,14 @@ def _device_alerts(now: datetime) -> list[dict]:
                     "course": to_display_text(
                         short_name(t["matkul"], t.get("course_id")) + meeting
                     ),
-                    "detail": to_display_text(t["judul"] or "Waktunya mengulang"),
-                    "when": f"Penguasaan {t['penguasaan']}%",
+                    "detail": to_display_text(
+                        t["judul"] or ("Time to review" if en else "Waktunya mengulang")
+                    ),
+                    "when": f"{'Mastery' if en else 'Penguasaan'} {t['penguasaan']}%",
                     "from_ts": 0,
                     "to_ts": 0,
                     "count": len(due),
-                    "speech": f"Waktunya mengulang {t['judul'] or t['matkul']}"
-                    + (f", {t['matkul']} pertemuan {t['pertemuan']}" if t.get("pertemuan") else "")
-                    + f". Penguasaanmu {t['penguasaan']} persen. Ucapkan uji aku lagi untuk kuis.",
+                    "speech": speech,
                 }
             )
     return alerts

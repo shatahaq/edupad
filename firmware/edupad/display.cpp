@@ -3,6 +3,7 @@
 #include <LovyanGFX.hpp>
 
 #include "config.h"
+#include "lang.h"
 #include "scene.h"
 
 namespace {
@@ -105,6 +106,7 @@ constexpr int BRIGHT_FULL = 255, BRIGHT_SLEEP = 40;
 void uiTask(void *) {
   static scene::Ui ui;
   uint32_t seen = 0, last = millis();
+  bool english = lang::english();
   float progress = 0, level = -90, voiced = -90, bright = BRIGHT_FULL;
   int shownBright = BRIGHT_FULL;
   for (;;) {
@@ -119,7 +121,9 @@ void uiTask(void *) {
       generation++;  // gambar ulang bagian yang tertutup toast
     }
     ui = shared;
-    bool full = generation != seen;
+    ui.english = lang::english();
+    bool full = generation != seen || ui.english != english;  // ganti bahasa: gambar ulang semua
+    english = ui.english;
     seen = generation;
     uint32_t start = sceneStartMs, loud = lastLoudMs, doneAt = bootDoneAt, shownAt = toastAt, woke = wakeAt;
     uint32_t recStart = recordStartMs;
@@ -195,7 +199,7 @@ namespace display {
 
 void begin() {
   tft.init();
-  tft.setRotation(1);  // landscape, konektor di kiri; 3 untuk sebaliknya
+  tft.setRotation(3);  // landscape, konektor di kanan; 1 untuk sebaliknya
   tft.setBrightness(255);
   tft.fillScreen(TFT_BLACK);
   canvas.setColorDepth(16);
@@ -210,7 +214,7 @@ void begin() {
   }
   scene::begin(true);
   lock = xSemaphoreCreateMutex();
-  copy(shared.status, sizeof shared.status, "Menyiapkan...");
+  copy(shared.status, sizeof shared.status, lang::tr("Menyiapkan...", "Getting ready..."));
   shared.kind = scene::Kind::Boot;
   sceneStartMs = millis();
   generation = 1;
@@ -229,7 +233,7 @@ void bootStep(const char *text, float progress) {
 void bootDone() {
   if (!running) return;
   update([&] {
-    copy(shared.status, sizeof shared.status, "Siap!");
+    copy(shared.status, sizeof shared.status, lang::tr("Siap!", "Ready!"));
     bootTarget = 1;
     bootDoneAt = millis();
   });
@@ -293,16 +297,16 @@ void answer(JsonObjectConst screen, const char *question, const char *status) {
     if (strcmp(status, "no_speech") == 0) {
       show(scene::Kind::Notice);
       shared.tone = scene::Tone::Warn;
-      copy(shared.title, sizeof shared.title, "Suara tidak terdengar");
-      copy(shared.lines[0], sizeof shared.lines[0], "Coba bicara lebih dekat, ya.");
-      copy(shared.lines[1], sizeof shared.lines[1], "Tahan tombol lalu bicara lagi");
+      copy(shared.title, sizeof shared.title, lang::tr("Suara tidak terdengar", "I couldn't hear you"));
+      copy(shared.lines[0], sizeof shared.lines[0], lang::tr("Coba bicara lebih dekat, ya.", "Try speaking closer."));
+      copy(shared.lines[1], sizeof shared.lines[1], lang::tr("Tahan tombol lalu bicara lagi", "Hold the button and talk again"));
       shared.lineCount = 2;
       return;
     }
     if (strcmp(status, "ok") != 0) {  // galat dari server: judul dan keterangannya apa adanya
       show(scene::Kind::Notice);
       shared.tone = scene::Tone::Error;
-      copy(shared.title, sizeof shared.title, screen["title"] | "Ada gangguan");
+      copy(shared.title, sizeof shared.title, screen["title"] | lang::tr("Ada gangguan", "Something went wrong"));
       shared.lineCount = noticeLines(screen["lines"].as<JsonArrayConst>(), shared.lines, 3);
       return;
     }
@@ -395,10 +399,12 @@ void schedule(JsonObjectConst next, JsonArrayConst stale) {
     shared.warning[0] = 0;
     for (const char *source : stale) {
       if (!strcmp(source, "SATU")) {
-        copy(shared.warning, sizeof shared.warning, "Sesi SATU habis: presensi tidak terpantau");
+        copy(shared.warning, sizeof shared.warning,
+             lang::tr("Sesi SATU habis: presensi tidak terpantau", "SATU logged out: attendance not tracked"));
         break;
       }
-      copy(shared.warning, sizeof shared.warning, "Sesi kelas.usu habis: tugas tidak diperbarui");
+      copy(shared.warning, sizeof shared.warning,
+           lang::tr("Sesi kelas.usu habis: tugas tidak diperbarui", "kelas.usu logged out: tasks not updated"));
     }
     bool changed = before.hasNext != shared.hasNext || strcmp(before.nextName, shared.nextName) ||
                    strcmp(before.nextTime, shared.nextTime) || strcmp(before.nextDay, shared.nextDay) ||

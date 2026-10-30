@@ -13,6 +13,7 @@
 #include "app.h"
 #include "config.h"
 #include "display.h"
+#include "lang.h"
 #include "mic.h"
 #include "secrets.h"
 #include "speaker.h"
@@ -71,12 +72,15 @@ void checkWifi(bool force = false) {
 String showResponse(const api::Response &res) {
   if (res.status == 0) {
     Serial.printf("[ask] gagal: %s\n", res.error.c_str());
-    display::message("Gagal terhubung", res.error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
+    display::message(lang::tr("Gagal terhubung", "Connection failed"), res.error.c_str(),
+                     lang::tr("Tahan tombol untuk mencoba lagi", "Hold the button to try again"), display::Tone::Error);
     voice::say("server");
     return "";
   }
   if (res.status == 401) {  // layar dari server hanya "sedang ada gangguan"
-    display::message("Token perangkat salah", "Samakan EDUPAD_DEVICE_TOKEN di secrets.h", "dan .env server", display::Tone::Error);
+    display::message(lang::tr("Token perangkat salah", "Wrong device token"),
+                     lang::tr("Samakan EDUPAD_DEVICE_TOKEN di secrets.h", "Match EDUPAD_DEVICE_TOKEN in secrets.h"),
+                     lang::tr("dan .env server", "and the server .env"), display::Tone::Error);
     voice::say("error");
     return "";
   }
@@ -85,11 +89,13 @@ String showResponse(const api::Response &res) {
   if (err || !doc["screen"].is<JsonObjectConst>()) {
     Serial.printf("[ask] HTTP %d, JSON tidak valid (%s): %.200s\n", res.status, err.c_str(),
                   res.body.c_str());
-    display::message("Jawaban tidak valid", "Lihat Serial Monitor", nullptr, display::Tone::Error);
+    display::message(lang::tr("Jawaban tidak valid", "Invalid response"), lang::tr("Lihat Serial Monitor", "See the Serial Monitor"),
+                     nullptr, display::Tone::Error);
     voice::say("error");
     return "";
   }
   voice::update(doc.as<JsonVariantConst>());  // Mode Suara bisa baru diubah lewat pertanyaan ini
+  lang::update(doc.as<JsonVariantConst>());   // begitu juga bahasanya
   const char *status = doc["status"] | "";
   Serial.printf("[ask] HTTP %d %s | stt %.2fs agent %.2fs | %s\n", res.status, status,
                 doc["timing"]["stt"] | 0.0f, doc["timing"]["agent"] | 0.0f,
@@ -167,7 +173,7 @@ bool play(const String &path, bool replay, bool alert = false) {
     audioData = (uint8_t *)heap_caps_malloc(AUDIO_MAX_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!audioData) {  // tanpa PSRAM suara tidak bisa ditampung; jawaban di layar tetap terbaca
       Serial.println("[audio] PSRAM tidak cukup untuk menampung suara");
-      display::toast("Suara gagal diputar");
+      display::toast(lang::tr("Suara gagal diputar", "Couldn't play the audio"));
       return false;
     }
   }
@@ -194,10 +200,11 @@ bool play(const String &path, bool replay, bool alert = false) {
     stopped = playBuffer();
   }
   if (replay && r.status == 404) {
-    display::message("Belum ada suara", "Tanyakan sesuatu dulu:", "tahan tombol lalu bicara", display::Tone::Warn);
+    display::message(lang::tr("Belum ada suara", "Nothing to replay yet"), lang::tr("Tanyakan sesuatu dulu:", "Ask something first:"),
+                     lang::tr("tahan tombol lalu bicara", "hold the button and talk"), display::Tone::Warn);
     voice::say("no_answer");
   } else if (!r.stopped && !r.complete) {
-    display::toast("Suara gagal diputar");
+    display::toast(lang::tr("Suara gagal diputar", "Couldn't play the audio"));
     if (alert) {
       voice::cue(voice::Cue::Error);
     } else {
@@ -232,7 +239,7 @@ Press ask() {
     if (!opened && held >= SHORT_PRESS_MS) {
       opened = true;
       if (WiFi.status() != WL_CONNECTED) {
-        error = "Wi-Fi terputus";
+        error = lang::tr("Wi-Fi terputus", "Wi-Fi disconnected");
       } else {
         ok = api::askOpen(newSession, error);
       }
@@ -243,7 +250,7 @@ Press ask() {
       size_t n = mic::read(chunk, sizeof chunk, 0);
       if (!api::askWrite(chunk, n)) {
         ok = false;
-        error = "koneksi terputus saat mengirim";
+        error = lang::tr("koneksi terputus saat mengirim", "connection lost while sending");
         break;
       }
     }
@@ -277,7 +284,8 @@ Press ask() {
       return press;
     }
     Serial.printf("[ask] gagal: %s\n", error.c_str());
-    display::message("Gagal mengirim", error.c_str(), "Tahan tombol untuk mencoba lagi", display::Tone::Error);
+    display::message(lang::tr("Gagal mengirim", "Couldn't send"), error.c_str(),
+                     lang::tr("Tahan tombol untuk mencoba lagi", "Hold the button to try again"), display::Tone::Error);
     voice::say(WiFi.status() != WL_CONNECTED ? "wifi" : "send");
     waitRelease();
     return press;
@@ -388,6 +396,7 @@ void checkUpdates(bool force = false) {
     return;
   }
   voice::update(doc.as<JsonVariantConst>());
+  lang::update(doc.as<JsonVariantConst>());
   display::clock(doc["now_ts"] | 0);
   display::schedule(doc["next_class"].as<JsonObjectConst>(), doc["stale"].as<JsonArrayConst>());
 
@@ -441,17 +450,20 @@ namespace app {
 void setup() {
   Serial.begin(115200);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
+  lang::begin();
   display::begin();
 
-  display::bootStep("Menyalakan mikrofon", 0.15f);
+  display::bootStep(lang::tr("Menyalakan mikrofon", "Starting the microphone"), 0.15f);
   if (!mic::begin()) {
     Serial.println("[mic] I2S gagal dimulai");
-    display::message("Mikrofon gagal", "Periksa kabel INMP441", nullptr, display::Tone::Error);
+    display::message(lang::tr("Mikrofon gagal", "Microphone failed"), lang::tr("Periksa kabel INMP441", "Check the INMP441 wiring"),
+                     nullptr, display::Tone::Error);
     while (true) delay(1000);
   }
   if (!speaker::begin()) {
     Serial.println("[speaker] I2S gagal dimulai");
-    display::message("Speaker gagal", "Periksa kabel MAX98357A", nullptr, display::Tone::Error);
+    display::message(lang::tr("Speaker gagal", "Speaker failed"), lang::tr("Periksa kabel MAX98357A", "Check the MAX98357A wiring"),
+                     nullptr, display::Tone::Error);
     while (true) delay(1000);
   }
 
@@ -462,14 +474,14 @@ void setup() {
   api::begin();
   bool online = wifisetup::connect([](const char *ssid) {
     char text[48];
-    snprintf(text, sizeof text, "Menyambung ke %s", ssid);
+    snprintf(text, sizeof text, lang::tr("Menyambung ke %s", "Connecting to %s"), ssid);
     display::bootStep(text, 0.45f);
   });
   if (!online) wifisetup::runPortal();  // restart setelah Wi-Fi dipilih
   checkWifi(true);
   Serial.printf("[wifi] %s, IP %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
 
-  display::bootStep("Menghubungi server", 0.8f);
+  display::bootStep(lang::tr("Menghubungi server", "Contacting the server"), 0.8f);
   api::Response res = api::health();
   if (res.status == 200) {
     display::bootDone();
@@ -478,8 +490,9 @@ void setup() {
     checkUpdates(true);
   } else {
     Serial.printf("[api] health: HTTP %d %s\n", res.status, res.error.c_str());
-    display::message("Server tidak terjangkau", res.status ? "Jawaban server tidak normal" : res.error.c_str(),
-                     "Tetap bisa dicoba: tahan tombol", display::Tone::Warn);
+    display::message(lang::tr("Server tidak terjangkau", "Server unreachable"),
+                     res.status ? lang::tr("Jawaban server tidak normal", "Unexpected server response") : res.error.c_str(),
+                     lang::tr("Tetap bisa dicoba: tahan tombol", "You can still try: hold the button"), display::Tone::Warn);
     voice::cue(voice::Cue::Error);
   }
   lastActivityMs = millis();

@@ -4,6 +4,9 @@
 Hanya membaca data hasil cron (jadwal, presensi, tugas), jadi murah dipanggil perangkat setiap
 beberapa menit. Semua teks sudah ASCII untuk font LCD; waktu dikirim sebagai detik epoch
 (hitung mundur di perangkat) dan sebagai label siap tampil ("Besok 23:59").
+
+Label dan kalimat yang dibacakan mengikuti bahasa EduPad (voice/lang.py); nama mata kuliah,
+ruang, dan judul tugas tetap apa adanya.
 """
 
 from __future__ import annotations
@@ -24,9 +27,15 @@ from edupad.config import WIB
 from edupad.core.academic import krs_classes
 from edupad.core.files import read_json
 from edupad.core.session import MOODLE, SATU, get_state
+from edupad.voice import lang
 
 DAYS = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"]
-DAY_LABELS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+DAY_LABELS = {
+    "id": ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
+    "en": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+}
+TODAY = {"id": "Hari ini", "en": "Today"}
+TOMORROW = {"id": "Besok", "en": "Tomorrow"}
 DEADLINE_WINDOW = timedelta(hours=48)  # tugas belum dikumpulkan yang deadline-nya sedekat ini
 DEADLINE_URGENT = timedelta(hours=24)  # di dalam ini diingatkan berulang, bukan sekali sehari
 URGENT_EVERY = timedelta(minutes=15)  # jarak antar pengingat saat sudah mendesak
@@ -57,18 +66,18 @@ def short_name(matkul: str, course_id: str | None = None) -> str:
     )
 
 
-def spoken_course(name: str) -> str:
+def spoken_course(name: str, code: str | None = None) -> str:
     """Nama pendek untuk dibacakan Mode Suara: 'Prak MSBD' -> 'praktikum MSBD'."""
-    return re.sub(r"^Prak\b", "praktikum", name)
+    return re.sub(r"^Prak\b", lang.pick({"id": "praktikum", "en": "practicum"}, code), name)
 
 
-def day_label(when: datetime, now: datetime) -> str:
+def day_label(when: datetime, now: datetime, code: str | None = None) -> str:
     days = (when.date() - now.date()).days
     if days == 0:
-        return "Hari ini"
+        return lang.pick(TODAY, code)
     if days == 1:
-        return "Besok"
-    return DAY_LABELS[when.weekday()]
+        return lang.pick(TOMORROW, code)
+    return lang.pick(DAY_LABELS, code)[when.weekday()]
 
 
 def _room(course_id: str | None) -> str:
@@ -76,7 +85,7 @@ def _room(course_id: str | None) -> str:
     return to_display_text(k.get("nama_ruang") or k.get("ruang") or "")
 
 
-def next_class(now: datetime) -> dict | None:
+def next_class(now: datetime, code: str | None = None) -> dict | None:
     """Kelas yang sedang berlangsung, atau yang mulai paling dekat (dari jadwal mingguan KRS)."""
     best = None
     for k in krs_classes():
@@ -99,7 +108,7 @@ def next_class(now: datetime) -> dict | None:
         "course": to_display_text(k["matkul"]),
         "room": to_display_text(k.get("nama_ruang") or k.get("ruang") or ""),
         "room_code": k.get("ruang") or "",
-        "day": day_label(start, now),
+        "day": day_label(start, now, code),
         "time": start.strftime("%H:%M"),
         "start_ts": int(start.timestamp()),
         "end_ts": int(end.timestamp()),
@@ -114,6 +123,7 @@ def attendance_alerts(now: datetime) -> list[dict]:
     updated = data.get("diperbarui")
     if not updated or now - datetime.fromisoformat(updated) > ATTENDANCE_FRESH:
         return []
+    en = lang.is_english()
     alerts = []
     for course in data.get("mata_kuliah", []):
         for m in course.get("pertemuan", []):
@@ -130,21 +140,37 @@ def attendance_alerts(now: datetime) -> list[dict]:
                 "to_ts": int(end.timestamp()) if end else 0,
             }
             if not m.get("status") and presence_window(m, now) == "sedang dibuka":
-                cara = m.get("cara") or []
+                direct = "langsung" in (m.get("cara") or [])
+                if en:
+                    when = f"Closes {end:%H:%M}" if end else "Open now"
+                    speech = (
+                        f"Attendance for {spoken_course(name)} is open"
+                        + (f", closing at {end:%H:%M}. " if end else ". ")
+                        + (
+                            "You can fill it in directly on the SATU portal."
+                            if direct
+                            else "Scan the QR code in class to check in."
+                        )
+                    )
+                else:
+                    when = f"Tutup {end:%H:%M}" if end else "Sedang dibuka"
+                    speech = (
+                        f"Presensi {spoken_course(name)} sudah dibuka"
+                        + (f", tutup pukul {end:%H.%M}. " if end else ". ")
+                        + (
+                            "Bisa diisi langsung di portal SATU."
+                            if direct
+                            else "Presensinya lewat scan QR di kelas."
+                        )
+                    )
                 alerts.append(
                     base
                     | {
                         "id": f"att:{m['id']}",
                         "kind": "attendance",
-                        "when": f"Tutup {end:%H:%M}" if end else "Sedang dibuka",
-                        "method": "direct" if "langsung" in cara else "qr",
-                        "speech": f"Presensi {spoken_course(name)} sudah dibuka"
-                        + (f", tutup pukul {end:%H.%M}. " if end else ". ")
-                        + (
-                            "Bisa diisi langsung di portal SATU."
-                            if "langsung" in cara
-                            else "Presensinya lewat scan QR di kelas."
-                        ),
+                        "when": when,
+                        "method": "direct" if direct else "qr",
+                        "speech": speech,
                     }
                 )
             elif m.get("status") == "hadir" and start <= now <= (end or start) + ATTENDED_SHOWN:
@@ -154,7 +180,9 @@ def attendance_alerts(now: datetime) -> list[dict]:
                         "id": f"hadir:{m['id']}",
                         "kind": "attended",
                         "when": m.get("nama") or "",
-                        "speech": f"Presensi {spoken_course(name)} sudah tercatat hadir.",
+                        "speech": f"Attendance for {spoken_course(name)} is recorded as present."
+                        if en
+                        else f"Presensi {spoken_course(name)} sudah tercatat hadir.",
                     }
                 )
     return alerts
@@ -185,6 +213,18 @@ def deadline_alerts(now: datetime) -> list[dict]:
         urgent = left <= DEADLINE_URGENT and t.get("sumber") not in stale
         phase = f"urgent{int(left / URGENT_EVERY)}" if urgent else now.date().isoformat()
         name = short_name(t["matkul"])
+        if lang.is_english():
+            day = day_label(due, now)
+            day = day.lower() if day in (TODAY["en"], TOMORROW["en"]) else f"on {day}"
+            speech = (
+                f"Task reminder for {spoken_course(name)}: {t['judul']}. It's due {day} "
+                f"at {due:%H:%M}."
+            )
+        else:
+            speech = (
+                f"Pengingat tugas {spoken_course(name)}: {t['judul']}. Batasnya "
+                f"{day_label(due, now).lower()} pukul {due:%H.%M}."
+            )
         alerts.append(
             {
                 "id": f"due:{key}:{phase}",
@@ -194,8 +234,7 @@ def deadline_alerts(now: datetime) -> list[dict]:
                 "when": f"{day_label(due, now)} {due:%H:%M}",
                 "from_ts": 0,
                 "to_ts": int(due.timestamp()),
-                "speech": f"Pengingat tugas {spoken_course(name)}: {t['judul']}. Batasnya "
-                f"{day_label(due, now).lower()} pukul {due:%H.%M}.",
+                "speech": speech,
             }
         )
     alerts.sort(key=lambda a: a["to_ts"])

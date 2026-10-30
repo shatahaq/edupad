@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from edupad.agent import radar
 from edupad.agent import updates as u
 from edupad.config import WIB
+from edupad.voice import lang
 
 NOW = datetime(2026, 10, 14, 10, 0, tzinfo=WIB)  # Rabu
 CATALOG = [
@@ -141,3 +143,64 @@ def test_stale_task_sources_uses_a_threshold_per_source():
     assert u.stale_task_sources(base | {"classroom_diperbarui": None}, NOW) == {"Google Classroom"}
     # sumber yang tidak punya tugas tidak dilaporkan walau waktunya tidak ada
     assert u.stale_task_sources({"tugas": [], "diperbarui": None}, NOW) == set()
+
+
+def test_english_mode_labels_and_speech(data):
+    lang.save("en")
+    assert u.next_class(NOW)["day"] == "Today"
+    assert u.next_class(NOW + timedelta(hours=2))["day"] == "Tomorrow"
+    assert u.next_class(datetime(2026, 10, 15, 12, 0, tzinfo=WIB))["day"] == "Wednesday"
+    assert u.next_class(NOW, "id")["day"] == "Hari ini"  # data tool agent tetap Indonesia
+
+    data["attendance"]["mata_kuliah"] = [
+        {"matkul": "Praktikum Manajemen Sistem Basis Data", "moodle_course_id": "2", "pertemuan": [
+            meeting("a", NOW - timedelta(minutes=10), NOW + timedelta(minutes=20)),
+            meeting("b", NOW - timedelta(minutes=30), NOW + timedelta(minutes=5), status="hadir"),
+        ]}
+    ]  # fmt: skip
+    opened, recorded = u.attendance_alerts(NOW)
+    assert opened["when"] == "Closes 10:20"
+    assert opened["speech"] == (
+        "Attendance for practicum MSBD is open, closing at 10:20. "
+        "Scan the QR code in class to check in."
+    )
+    assert recorded["speech"] == "Attendance for practicum MSBD is recorded as present."
+
+    data["tasks"] = [
+        {"matkul": "[TIF 1] Pemrograman Visual - Kelas 5/B", "judul": "Laporan", "url": "x",
+         "deadline": (NOW + timedelta(hours=30)).isoformat()},
+    ]  # fmt: skip
+    [due] = u.deadline_alerts(NOW)
+    assert due["when"] == "Tomorrow 16:00"
+    assert due["speech"] == "Task reminder for PV: Laporan. It's due tomorrow at 16:00."
+
+
+def test_english_mode_warning_and_review_cards(monkeypatch):
+    warnings = [
+        {"jenis": "kehadiran", "tingkat": "tinggi", "matkul": "Pemrograman Visual", "sisa": -1,
+         "kunci": "hadir:1:4", "pesan": "Di SATU, ..."},
+        {"jenis": "anggaran", "tingkat": "sedang", "matkul": None, "kategori": "makan",
+         "sisa": 50000, "kunci": "anggaran:makan", "pesan": "Anggaran makan ..."},
+    ]  # fmt: skip
+    topic = {"matkul": "Basis Data", "course_id": None, "pertemuan": 3, "judul": "Normalisasi",
+             "penguasaan": 40, "jatuh_tempo": True}  # fmt: skip
+    monkeypatch.setattr(radar, "early_warnings", lambda now: warnings)
+    monkeypatch.setattr(radar, "_help_card", lambda now, display: None)
+    monkeypatch.setattr(radar, "mastery_overview", lambda now: {"topics": [topic]})
+    monkeypatch.setattr(u, "_catalog", lambda: [])
+    evening = NOW.replace(hour=17)
+
+    lang.save("en")
+    attendance, budget, review = radar._device_alerts(evening)
+    assert (attendance["detail"], attendance["when"]) == ("Absence limit passed", "Warning")
+    assert attendance["speech"].startswith("Warning. On SATU you have missed more Pemrograman")
+    assert (budget["course"], budget["detail"]) == ("makan budget", "Almost used up")
+    assert review["when"] == "Mastery 40%"
+    assert review["speech"].endswith("Your mastery is 40 percent. Say quiz me again to start.")
+
+    lang.save("id")
+    attendance, budget, review = radar._device_alerts(evening)
+    assert (
+        attendance["speech"] == "Peringatan. Di SATU, ..." and budget["course"] == "Anggaran makan"
+    )
+    assert review["when"] == "Penguasaan 40%"

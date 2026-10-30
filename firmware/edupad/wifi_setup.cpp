@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "display.h"
+#include "lang.h"
 #include "secrets.h"
 
 namespace {
@@ -86,8 +87,8 @@ String html(const String &text) {
 }
 
 String page(const String &body) {
-  return String(
-             "<!doctype html><html lang=id><meta charset=utf-8>"
+  return String("<!doctype html><html lang=") + lang::tr("id", "en") +
+         "><meta charset=utf-8>"
              "<meta name=viewport content='width=device-width,initial-scale=1'>"
              "<title>Wi-Fi EduPad</title><style>"
              "body{font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:16px;"
@@ -98,31 +99,40 @@ String page(const String &body) {
              "margin:4px 0 12px;border:1px solid #99a;border-radius:8px}"
              ".s{width:100%;padding:14px;font-size:1.1em;background:#1f6feb;color:#fff;border:0;"
              "border-radius:8px}.e{background:#fde8e8;color:#9b1c1c;padding:10px;border-radius:8px}"
-             ".m{color:#667}</style>") +
+             ".m{color:#667}</style>" +
          body + "</html>";
 }
 
 void sendForm(const String &error = "") {
   String body = "<h1>Wi-Fi EduPad</h1>";
-  if (failed.length()) body += "<p class=m>Gagal tersambung ke: " + html(failed) + "</p>";
+  if (failed.length())
+    body += String("<p class=m>") + lang::tr("Gagal tersambung ke: ", "Couldn't connect to: ") + html(failed) + "</p>";
   if (error.length()) body += "<p class=e>" + html(error) + "</p>";
-  body += "<p>Pilih jaringan:</p>";
+  body += lang::tr("<p>Pilih jaringan:</p>", "<p>Choose a network:</p>");
   for (int i = 0; i < networkCount; i++) {
     String name = html(networks[i].ssid);
     body += "<button type=button class=n data-s=\"" + name + "\" onclick=pick(this)><span>" + name +
             (networks[i].open ? "" : " &#128274;") + "</span><span class=m>" + networks[i].rssi +
             " dBm</span></button>";
   }
-  if (networkCount == 0) body += "<p class=m>Tidak ada jaringan terdeteksi.</p>";
-  body +=
+  if (networkCount == 0)
+    body += lang::tr("<p class=m>Tidak ada jaringan terdeteksi.</p>", "<p class=m>No networks found.</p>");
+  body += lang::tr(
       "<p><a href=/scan>Pindai ulang</a></p>"
       "<form method=post action=/save>"
       "<label>Nama Wi-Fi (SSID)<input name=ssid id=ssid maxlength=32 required></label>"
       "<label>Sandi<input name=pass id=pass type=password maxlength=63></label>"
       "<label class=m><input type=checkbox style=width:auto "
       "onclick=\"pass.type=this.checked?'text':'password'\"> Tampilkan sandi</label>"
-      "<p><button class=s>Simpan &amp; sambungkan</button></p></form>"
-      "<script>function pick(b){ssid.value=b.dataset.s;pass.focus()}</script>";
+      "<p><button class=s>Simpan &amp; sambungkan</button></p></form>",
+      "<p><a href=/scan>Scan again</a></p>"
+      "<form method=post action=/save>"
+      "<label>Wi-Fi name (SSID)<input name=ssid id=ssid maxlength=32 required></label>"
+      "<label>Password<input name=pass id=pass type=password maxlength=63></label>"
+      "<label class=m><input type=checkbox style=width:auto "
+      "onclick=\"pass.type=this.checked?'text':'password'\"> Show password</label>"
+      "<p><button class=s>Save &amp; connect</button></p></form>");
+  body += "<script>function pick(b){ssid.value=b.dataset.s;pass.focus()}</script>";
   server.send(200, "text/html; charset=utf-8", page(body));
 }
 
@@ -130,11 +140,12 @@ void handleSave() {
   String ssid = server.arg("ssid");
   String password = server.arg("pass");
   if (ssid.isEmpty() || ssid.length() > 32) {
-    sendForm("Nama Wi-Fi harus 1-32 karakter.");
+    sendForm(lang::tr("Nama Wi-Fi harus 1-32 karakter.", "The Wi-Fi name must be 1-32 characters."));
     return;
   }
   if (password.length() && (password.length() < 8 || password.length() > 63)) {
-    sendForm("Sandi Wi-Fi harus 8-63 karakter (kosongkan untuk jaringan terbuka).");
+    sendForm(lang::tr("Sandi Wi-Fi harus 8-63 karakter (kosongkan untuk jaringan terbuka).",
+                      "The Wi-Fi password must be 8-63 characters (leave it empty for an open network)."));
     return;
   }
   Preferences prefs;
@@ -145,10 +156,14 @@ void handleSave() {
   Serial.printf("[wifi] disimpan: %s\n", ssid.c_str());
 
   server.send(200, "text/html; charset=utf-8",
-              page("<h1>Tersimpan</h1><p>EduPad menyambung ke <b>" + html(ssid) +
-                   "</b>. Lihat layar perangkat. Bila gagal, hotspot " SETUP_AP_SSID
-                   " muncul lagi.</p>"));
-  display::message("Wi-Fi disimpan", ssid.c_str(), "Menyambung ulang...");
+              page(lang::english()
+                       ? "<h1>Saved</h1><p>EduPad is connecting to <b>" + html(ssid) +
+                             "</b>. Check the device screen. If it fails, the " SETUP_AP_SSID
+                             " hotspot comes back.</p>"
+                       : "<h1>Tersimpan</h1><p>EduPad menyambung ke <b>" + html(ssid) +
+                             "</b>. Lihat layar perangkat. Bila gagal, hotspot " SETUP_AP_SSID
+                             " muncul lagi.</p>"));
+  display::message(lang::tr("Wi-Fi disimpan", "Wi-Fi saved"), ssid.c_str(), lang::tr("Menyambung ulang...", "Reconnecting..."));
   delay(1500);  // biarkan halaman terkirim ke HP
   ESP.restart();
 }
@@ -214,7 +229,7 @@ void runPortal() {
     if (digitalRead(PIN_BUTTON) == LOW) {
       delay(50);
       if (digitalRead(PIN_BUTTON) == LOW) {
-        display::message("Mencoba Wi-Fi lagi...");
+        display::message(lang::tr("Mencoba Wi-Fi lagi...", "Retrying Wi-Fi..."));
         delay(300);
         ESP.restart();
       }

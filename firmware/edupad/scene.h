@@ -44,6 +44,7 @@ struct Ui {
   Kind kind = Kind::Boot;
   float t = 0;  // detik sejak layar ini mulai
   uint32_t nowTs = 0;  // detik epoch sekarang (jam dari server); 0 = belum tahu
+  bool english = false;  // teks tetap di layar dalam bahasa Inggris (setelan bahasa server)
 
   // Boot
   char status[48] = "";

@@ -3,6 +3,7 @@
 // (<nama>.rgb) untuk dijadikan GIF oleh make_gif.py.
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <string>
@@ -16,6 +17,7 @@ namespace {
 constexpr int FPS = 30;
 LGFX_Sprite canvas;
 std::string outDir;
+bool english = false;  // EDUPAD_LANG=en: teks layar versi bahasa Inggris
 
 void push(const scene::Rect &) {}
 
@@ -28,6 +30,7 @@ void record(const char *name, float seconds, scene::Ui ui, F update) {
   int frames = 0;
   for (float t = 0; t < seconds; t += 1.0f / FPS, frames++) {
     ui.t = t;
+    ui.english = english;
     update(ui, t);
     scene::render(canvas, ui, frames == 0, push);
     canvas.readRectRGB(0, 0, scene::W, scene::H, rgb);
@@ -46,6 +49,7 @@ void copy(char *dst, size_t size, const char *src) {
 
 int main(int argc, char **argv) {
   outDir = argc > 1 ? argv[1] : ".";
+  english = getenv("EDUPAD_LANG") && !strcmp(getenv("EDUPAD_LANG"), "en");
   canvas.setColorDepth(16);
   if (!canvas.createSprite(scene::W, scene::H)) return 1;
   scene::begin();

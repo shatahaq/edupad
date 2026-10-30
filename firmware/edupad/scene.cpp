@@ -100,6 +100,10 @@ uint16_t mix(uint16_t a, uint16_t b, float t) {
 
 uint16_t bgAt(int y) { return mix(BG_TOP, BG_BOTTOM, (float)y / (H - 1)); }
 
+// Bahasa frame yang sedang digambar (ui.english, diisi render()).
+bool english = false;
+const char *tr(const char *id, const char *en) { return english ? en : id; }
+
 float clamp01(float x) { return x < 0 ? 0 : (x > 1 ? 1 : x); }
 float easeOutCubic(float x) { return 1 - powf(1 - x, 3); }
 float easeOutBack(float x) {
@@ -564,7 +568,7 @@ void buttonIcon(lgfx::LovyanGFX &g, int x, int y, float t, int s = 1) {
 }
 
 void homeTitle(lgfx::LovyanGFX &g, float t, bool drawText, int y = LINE1_Y) {
-  const char *text = "Tahan tombol untuk bertanya";
+  const char *text = tr("Tahan tombol untuk bertanya", "Hold the button to ask");
   useFont(g, headFont);
   int tw = g.textWidth(text);
   int x = W / 2 - (ICON_W + 14 + tw) / 2;
@@ -576,13 +580,14 @@ void homeTitle(lgfx::LovyanGFX &g, float t, bool drawText, int y = LINE1_Y) {
 void homeHint(lgfx::LovyanGFX &g, const Ui &ui, int y = LINE2_Y) {
   useFont(g, smallFont);
   if (!ui.online) {
-    say(g, "Wi-Fi terputus, menyambung ulang...", W / 2, y, CORAL, middle_center);
+    say(g, tr("Wi-Fi terputus, menyambung ulang...", "Wi-Fi lost, reconnecting..."), W / 2, y, CORAL, middle_center);
   } else if (ui.warning[0]) {
     say(g, ui.warning, W / 2, y, CORAL, middle_center);
   } else if (ui.newSession) {
-    say(g, "Topik baru dimulai", W / 2, y, TEAL, middle_center);
+    say(g, tr("Topik baru dimulai", "New topic started"), W / 2, y, TEAL, middle_center);
   } else {
-    const char *a = "Tekan 1x: ulangi jawaban", *b = "Tekan 2x: topik baru";
+    const char *a = tr("Tekan 1x: ulangi jawaban", "Press 1x: repeat answer"),
+               *b = tr("Tekan 2x: topik baru", "Press 2x: new topic");
     int wa = g.textWidth(a), wb = g.textWidth(b);
     int x = W / 2 - (wa + 28 + wb) / 2;
     say(g, a, x, y, MUTED);
@@ -612,20 +617,20 @@ int32_t calColor(char c) {
 // Sisa waktu singkat: "<1 menit", "14 menit", "2 jam 5 menit", "30 jam".
 void duration(char *out, size_t n, int32_t s) {
   if (s < 60) {
-    snprintf(out, n, "<1 menit");
+    snprintf(out, n, "%s", tr("<1 menit", "<1 min"));
     return;
   }
   int m = (s + 59) / 60, h = m / 60;
   if (h == 0) {
-    snprintf(out, n, "%d menit", m);
+    snprintf(out, n, tr("%d menit", "%d min"), m);
   } else if (h < 10 && m % 60) {
-    snprintf(out, n, "%d jam %d menit", h, m % 60);
+    snprintf(out, n, tr("%d jam %d menit", "%d h %d min"), h, m % 60);
   } else {
-    snprintf(out, n, "%d jam", h);
+    snprintf(out, n, tr("%d jam", "%d hours"), h);
   }
 }
 
-// Label kanan kartu: "Berlangsung", "25 mnt", "3 jam", atau hari ("Besok").
+// Label kanan kartu: "Berlangsung", "25 mnt", "3 jam", atau hari ("Besok"/"Tomorrow").
 // soon: mulai < 30 menit lagi (label berkedip emas).
 void nextChip(const Ui &ui, char *out, size_t n, bool &ongoing, bool &soon) {
   ongoing = soon = false;
@@ -636,12 +641,12 @@ void nextChip(const Ui &ui, char *out, size_t n, bool &ongoing, bool &soon) {
   int32_t s = (int32_t)(ui.nextStart - ui.nowTs);
   if (s <= 0 && ui.nowTs < ui.nextEnd) {
     ongoing = true;
-    snprintf(out, n, "Berlangsung");
+    snprintf(out, n, "%s", tr("Berlangsung", "Ongoing"));
   } else if (s < 3600) {
     soon = s < 1800;
-    snprintf(out, n, "%d mnt", (s + 59) / 60);
-  } else if (!strcmp(ui.nextDay, "Hari ini")) {
-    snprintf(out, n, "%d jam", s / 3600);
+    snprintf(out, n, tr("%d mnt", "%d min"), (s + 59) / 60);
+  } else if (!strcmp(ui.nextDay, "Hari ini") || !strcmp(ui.nextDay, "Today")) {
+    snprintf(out, n, tr("%d jam", "%d hr"), s / 3600);
   } else {
     snprintf(out, n, "%s", ui.nextDay);
   }
@@ -674,7 +679,8 @@ void nextCard(lgfx::LovyanGFX &g, const Ui &ui) {
   // dua baris teks: keterangan, lalu nama - jam - ruang
   int x = r.x + 50, maxW = c.x - 10 - x;
   char label[40];
-  snprintf(label, sizeof label, ongoing ? "Sedang berlangsung" : "Kuliah berikutnya - %s", ui.nextDay);
+  snprintf(label, sizeof label, ongoing ? tr("Sedang berlangsung", "In progress") : tr("Kuliah berikutnya - %s", "Next class - %s"),
+           ui.nextDay);
   say(g, fitWidth(g, label, maxW).c_str(), x, r.y + 15, ongoing ? TEAL : MUTED);
   useFont(g, textFont);
   int wn = g.textWidth(ui.nextName);
@@ -743,7 +749,7 @@ void listenTitle(lgfx::LovyanGFX &g, const Ui &ui) {
   uint32_t s = ui.elapsedMs / 1000;
   snprintf(timer, sizeof timer, "%lu:%02lu", (unsigned long)(s / 60), (unsigned long)(s % 60));
   useFont(g, headFont);
-  const char *label = "Mendengarkan";
+  const char *label = tr("Mendengarkan", "Listening");
   int wl = g.textWidth(label), wt = g.textWidth(timer);
   int x = W / 2 - (16 + 10 + wl + 16 + wt) / 2;
   if (fmodf(ui.t, 1.0f) < 0.6f) {  // titik rekam berkedip
@@ -760,9 +766,9 @@ bool listenQuiet(const Ui &ui) { return ui.elapsedMs > 1500 && ui.quiet > 1.5f; 
 void listenHint(lgfx::LovyanGFX &g, const Ui &ui) {
   useFont(g, textFont);
   if (listenQuiet(ui)) {
-    say(g, "Suaramu pelan, dekatkan ke mikrofon", W / 2, LINE2_Y, GOLD, middle_center);
+    say(g, tr("Suaramu pelan, dekatkan ke mikrofon", "Too quiet, move closer to the mic"), W / 2, LINE2_Y, GOLD, middle_center);
   } else {
-    say(g, "Lepas tombol kalau sudah selesai", W / 2, LINE2_Y, MUTED, middle_center);
+    say(g, tr("Lepas tombol kalau sudah selesai", "Release the button when you're done"), W / 2, LINE2_Y, MUTED, middle_center);
   }
 }
 
@@ -791,9 +797,9 @@ void thinkStage(lgfx::LovyanGFX &g, const Ui &ui) {
 }
 
 const char *thinkText(uint32_t ms) {
-  if (ms < 6000) return "Sebentar, aku pikirkan dulu...";
-  if (ms < 15000) return "Masih mencari jawaban...";
-  return "Hampir selesai, tunggu ya...";
+  if (ms < 6000) return tr("Sebentar, aku pikirkan dulu...", "Hmm, let me think...");
+  if (ms < 15000) return tr("Masih mencari jawaban...", "Still looking for the answer...");
+  return tr("Hampir selesai, tunggu ya...", "Almost done, hang on...");
 }
 
 constexpr Rect THINK_BAR{W / 2 - BAR_SEGS * CELL / 2 - CELL, 280, (BAR_SEGS + 2) * CELL, 20};
@@ -896,22 +902,24 @@ void portalCard(lgfx::LovyanGFX &g, const Ui &ui) {
   int x = CARD.x + 52;
   numberBadge(g, CARD.x + 26, 128, "1");
   useFont(g, textFont);
-  say(g, "Sambungkan HP ke Wi-Fi ini:", x, 128, TEXT);
+  say(g, tr("Sambungkan HP ke Wi-Fi ini:", "Connect your phone to this Wi-Fi:"), x, 128, TEXT);
   useFont(g, headFont);
   say(g, ui.ssid, x, 160, TEAL);
   int ws = g.textWidth(ui.ssid);
   useFont(g, smallFont);
-  say(g, "sandi", x + ws + 16, 161, MUTED);
-  int wk = g.textWidth("sandi");
+  const char *pass = tr("sandi", "password");
+  say(g, pass, x + ws + 16, 161, MUTED);
+  int wk = g.textWidth(pass);
   useFont(g, headFont);
   say(g, ui.password, x + ws + 16 + wk + 8, 160, GOLD);
 
   numberBadge(g, CARD.x + 26, 204, "2");
   useFont(g, textFont);
-  say(g, "Halaman pengaturan terbuka sendiri", x, 204, TEXT);
+  say(g, tr("Halaman pengaturan terbuka sendiri", "The setup page opens by itself"), x, 204, TEXT);
   useFont(g, smallFont);
-  say(g, "atau buka", x, 232, MUTED);
-  int wa = g.textWidth("atau buka");
+  const char *orOpen = tr("atau buka", "or open");
+  say(g, orOpen, x, 232, MUTED);
+  int wa = g.textWidth(orOpen);
   char url[32];
   snprintf(url, sizeof url, "http://%s", ui.ip);
   useFont(g, textFont);
@@ -919,7 +927,7 @@ void portalCard(lgfx::LovyanGFX &g, const Ui &ui) {
 
   g.fillRect(CARD.x + 16, 262, CARD.w - 32, 2, PANEL_EDGE);
   useFont(g, smallFont);
-  say(g, "Tekan tombol untuk mencoba Wi-Fi lagi", W / 2, 287, MUTED, middle_center);
+  say(g, tr("Tekan tombol untuk mencoba Wi-Fi lagi", "Press the button to retry Wi-Fi"), W / 2, 287, MUTED, middle_center);
 }
 
 // ---------------------------------------------------------------- pesan
@@ -1180,10 +1188,11 @@ void alertFoot(lgfx::LovyanGFX &g, const Ui &ui, float total, bool deadline) {
   if (s == INT32_MIN) {
     snprintf(text, sizeof text, "%s", ui.alertWhen);
   } else if (s <= 0) {
-    snprintf(text, sizeof text, deadline ? "Sudah lewat" : "Presensi sudah tutup");
+    snprintf(text, sizeof text, "%s",
+             deadline ? tr("Sudah lewat", "Past due") : tr("Presensi sudah tutup", "Attendance closed"));
   } else {
     duration(d, sizeof d, s);
-    snprintf(text, sizeof text, deadline ? "%s lagi" : "Sisa %s", d);
+    snprintf(text, sizeof text, deadline ? tr("%s lagi", "%s left") : tr("Sisa %s", "%s left"), d);
   }
   float frac = s == INT32_MIN ? 1 : clamp01(s / total);
   bool blink = frac < 0.15f && fmodf(ui.t, 0.8f) < 0.4f;
@@ -1261,13 +1270,13 @@ void attendanceCard(lgfx::LovyanGFX &g, const Ui &ui) {
   int x = r.x + 46, w = r.w - 58;
   glyph(g, PIN, 7, r.x + 16, r.y + 12, 3, CORAL);
   useFont(g, textFont);
-  say(g, fitWidth(g, ui.alertDetail[0] ? ui.alertDetail : "Ruang kelas", w).c_str(), x, r.y + 22, TEXT);
+  say(g, fitWidth(g, ui.alertDetail[0] ? ui.alertDetail : tr("Ruang kelas", "Classroom"), w).c_str(), x, r.y + 22, TEXT);
   if (ui.alertQr) {
     glyph(g, QR, 7, r.x + 14, r.y + 46, 3, WHITE);
-    say(g, "Scan QR di kelas", x, r.y + 56, TEXT);
+    say(g, tr("Scan QR di kelas", "Scan the QR in class"), x, r.y + 56, TEXT);
   } else {
     glyph(g, PHONE, 7, r.x + 17, r.y + 46, 3, WHITE);
-    say(g, "Isi di portal SATU", x, r.y + 56, TEXT);
+    say(g, tr("Isi di portal SATU", "Fill it in on SATU"), x, r.y + 56, TEXT);
   }
   clockIcon(g, r.x + 14, r.y + 80, 3, 1, GOLD);
   say(g, ui.alertWhen, x, r.y + 90, GOLD);
@@ -1288,7 +1297,7 @@ void stamp(lgfx::LovyanGFX &g, float t) {
   glyph(g, CHECK, 7, cx - cw / 2, CY - ch / 2 - 8, cell, color);
   if (k >= 1) {
     useFont(g, smallFont);
-    say(g, "HADIR", cx, CY + 26, GREEN, middle_center);
+    say(g, tr("HADIR", "HERE"), cx, CY + 26, GREEN, middle_center);
     float p = clamp01((t - 0.3f) / 0.5f);  // percikan bintang setelah cap mendarat
     if (p > 0 && p < 1) {
       int d = (int)(R + 6 + p * 18), size = p < 0.6f ? 3 : 2;
@@ -1305,6 +1314,8 @@ void stamp(lgfx::LovyanGFX &g, float t) {
 void calendarIcon(lgfx::LovyanGFX &g, const Ui &ui) {
   static const char *const MONTHS[] = {"JAN", "FEB", "MAR", "APR", "MEI", "JUN",
                                        "JUL", "AGU", "SEP", "OKT", "NOV", "DES"};
+  static const char *const MONTHS_EN[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                                          "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
   float t = ui.t;
   float b = fmodf(t, 1.2f);
   int shake = b < 0.3f ? ((int)(t * 30) % 2 ? 2 : -2) : 0;
@@ -1325,7 +1336,7 @@ void calendarIcon(lgfx::LovyanGFX &g, const Ui &ui) {
     char day[4];
     snprintf(day, sizeof day, "%d", tm.tm_mday);
     useFont(g, smallFont);
-    say(g, MONTHS[tm.tm_mon % 12], x + 30, y + 17, WHITE, middle_center);
+    say(g, (english ? MONTHS_EN : MONTHS)[tm.tm_mon % 12], x + 30, y + 17, WHITE, middle_center);
     useFont(g, headFont);
     say(g, day, x + 30, y + 42, INK, middle_center);
   }
@@ -1350,9 +1361,11 @@ void deadlineCard(lgfx::LovyanGFX &g, const Ui &ui) {
 }
 
 const char *deadlineTitle(const Ui &ui) {
-  if (!strncmp(ui.alertWhen, "Hari ini", 8)) return "Deadline hari ini!";
-  if (!strncmp(ui.alertWhen, "Besok", 5)) return "Deadline besok!";
-  return "Deadline mendekat";
+  if (!strncmp(ui.alertWhen, "Hari ini", 8) || !strncmp(ui.alertWhen, "Today", 5))
+    return tr("Deadline hari ini!", "Due today!");
+  if (!strncmp(ui.alertWhen, "Besok", 5) || !strncmp(ui.alertWhen, "Tomorrow", 8))
+    return tr("Deadline besok!", "Due tomorrow!");
+  return tr("Deadline mendekat", "Deadline coming up");
 }
 
 // -- peringatan dini: segitiga "!" berdenyut (kehadiran mendekati batas, anggaran menipis)
@@ -1385,10 +1398,10 @@ void warningCard(lgfx::LovyanGFX &g, const Ui &ui) {
   int x = r.x + 16, w = r.w - 32;
   std::string lines[2];
   useFont(g, textFont);
-  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : "Perlu perhatian", w, lines, 2);
+  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : tr("Perlu perhatian", "Needs attention"), w, lines, 2);
   for (int i = 0; i < n && i < 2; i++) say(g, lines[i].c_str(), x, r.y + 22 + i * 26, WHITE);
   useFont(g, smallFont);
-  say(g, "Detail ada di dashboard", x, r.y + 88, MUTED);
+  say(g, tr("Detail ada di dashboard", "Details are on the dashboard"), x, r.y + 88, MUTED);
 }
 
 // -- waktunya mengulang: buku terbuka berkilau + meter penguasaan topik
@@ -1411,7 +1424,7 @@ void bookIcon(lgfx::LovyanGFX &g, float t) {
   sparkle(g, 92, 86, 1 + (int)fmodf(t * 3 + 2, 2), GOLD);
 }
 
-// "Penguasaan 40%" -> 40; -1 bila tidak ada angka.
+// "Penguasaan 40%" / "Mastery 40%" -> 40; -1 bila tidak ada angka.
 int percentIn(const char *text) {
   for (const char *p = text; *p; p++)
     if (*p >= '0' && *p <= '9') return atoi(p);
@@ -1424,7 +1437,7 @@ void reviewCard(lgfx::LovyanGFX &g, const Ui &ui) {
   int x = r.x + 16, w = r.w - 32;
   std::string lines[2];
   useFont(g, textFont);
-  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : "Topik kuis", w, lines, 2);
+  int n = wrap(g, ui.alertDetail[0] ? ui.alertDetail : tr("Topik kuis", "Quiz topic"), w, lines, 2);
   for (int i = 0; i < n && i < 2; i++) say(g, lines[i].c_str(), x, r.y + 22 + i * 26, WHITE);
   int pct = percentIn(ui.alertWhen);
   useFont(g, smallFont);
@@ -1442,11 +1455,15 @@ void hintFoot(lgfx::LovyanGFX &g, const Ui &ui) {
   const Rect &r = ALERT_FOOT;
   bool review = ui.alert == Alert::Review;
   useFont(g, headFont);
-  say(g, review ? "Tahan tombol: \"uji aku lagi\"" : "Tahan tombol lalu tanya EduPad", r.x + 6, r.y + 15,
-      review ? MINT : TEAL);
+  say(g,
+      review ? tr("Tahan tombol: \"uji aku lagi\"", "Hold the button: \"quiz me again\"")
+             : tr("Tahan tombol lalu tanya EduPad", "Hold the button and ask EduPad"),
+      r.x + 6, r.y + 15, review ? MINT : TEAL);
   useFont(g, smallFont);
-  say(g, review ? "SORA menyiapkan kuis lisan dari materi asli" : "\"apa yang perlu aku perhatikan?\"", r.x + 6,
-      r.y + 42, MUTED);
+  say(g,
+      review ? tr("SORA menyiapkan kuis lisan dari materi asli", "SORA prepares a spoken quiz from the real material")
+             : tr("\"apa yang perlu aku perhatikan?\"", "\"what should I watch out for?\""),
+      r.x + 6, r.y + 42, MUTED);
 }
 
 // ---------------------------------------------------------------- notifikasi kecil
@@ -1491,6 +1508,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
     canvas.clearClipRect();
     if (!full) push(r);
   };
+  english = ui.english;
   // Kunci isi baris teks yang hanya digambar ulang saat berubah.
   static int lastKey1, lastKey2;
   if (full) {
@@ -1574,7 +1592,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
     case Kind::Answer:
       if (full) {
         char sub[110] = "";
-        if (ui.subtitle[0]) snprintf(sub, sizeof sub, "Kamu: %s", ui.subtitle);
+        if (ui.subtitle[0]) snprintf(sub, sizeof sub, tr("Kamu: %s", "You: %s"), ui.subtitle);
         bubble(canvas, ui.title, sub, MUTED);
         answerCard(canvas, ui);
       }
@@ -1584,8 +1602,9 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
     case Kind::Portal:
       if (full) {
         char sub[128];
-        if (ui.subtitle[0]) snprintf(sub, sizeof sub, "Gagal tersambung ke %s", ui.subtitle);
-        bubble(canvas, "Atur Wi-Fi dulu, ya", ui.subtitle[0] ? sub : "Belum ada Wi-Fi yang tersimpan",
+        if (ui.subtitle[0]) snprintf(sub, sizeof sub, tr("Gagal tersambung ke %s", "Couldn't connect to %s"), ui.subtitle);
+        bubble(canvas, tr("Atur Wi-Fi dulu, ya", "Let's set up Wi-Fi"),
+               ui.subtitle[0] ? sub : tr("Belum ada Wi-Fi yang tersimpan", "No saved Wi-Fi yet"),
                ui.subtitle[0] ? CORAL : MUTED);
         portalCard(canvas, ui);
       }
@@ -1604,7 +1623,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
         area(STAGE, [&] { dozeStage(canvas, ui); });
         if (full) {
           useFont(canvas, headFont);
-          say(canvas, "Hoaam... aku ngantuk", W / 2, LINE1_Y, MUTED, middle_center);
+          say(canvas, tr("Hoaam... aku ngantuk", "Yaawn... I'm sleepy"), W / 2, LINE1_Y, MUTED, middle_center);
         }
         break;
       }
@@ -1625,7 +1644,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
       if (full) {
         useFont(canvas, headFont);
         if (done) {
-          say(canvas, "Presensi tercatat!", 352, 176, GREEN, middle_center);
+          say(canvas, tr("Presensi tercatat!", "Attendance recorded!"), 352, 176, GREEN, middle_center);
           useFont(canvas, textFont);
           say(canvas, fitWidth(canvas, ui.alertCourse, 250).c_str(), 352, 206, WHITE, middle_center);
           char sub[sizeof ui.alertWhen + sizeof ui.alertDetail + 4];
@@ -1633,9 +1652,9 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
           useFont(canvas, smallFont);
           say(canvas, fitWidth(canvas, sub, 250).c_str(), 352, 232, MUTED, middle_center);
         } else {
-          const char *title = attend ? "PRESENSI DIBUKA!"
-                              : warn   ? "PERINGATAN DINI"
-                              : review ? "WAKTUNYA MENGULANG"
+          const char *title = attend ? tr("PRESENSI DIBUKA!", "ATTENDANCE OPEN!")
+                              : warn   ? tr("PERINGATAN DINI", "EARLY WARNING")
+                              : review ? tr("WAKTUNYA MENGULANG", "TIME TO REVIEW")
                                        : deadlineTitle(ui);
           uint16_t titleColor = attend ? GOLD : warn ? (ui.alertHigh ? CORAL : GOLD) : review ? MINT : CORAL;
           say(canvas, title, ALERT_TEXT_X, 36, titleColor);
@@ -1653,7 +1672,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
           if (warn || review) hintFoot(canvas, ui);
         }
         useFont(canvas, smallFont);
-        say(canvas, "Tekan tombol untuk menutup", W / 2, ALERT_HINT_Y, MUTED, middle_center);
+        say(canvas, tr("Tekan tombol untuk menutup", "Press the button to close"), W / 2, ALERT_HINT_Y, MUTED, middle_center);
       }
       if (done) {
         area({0, 40, 200, 220}, [&] {  // burung hantu di kiri untuk layar "tercatat"
@@ -1697,7 +1716,7 @@ void render(lgfx::LovyanGFX &canvas, const Ui &ui, bool full, void (*push)(const
       lastKey1 = key1;
       if (full) {
         useFont(canvas, smallFont);
-        say(canvas, "Tekan tombol untuk melewati", W / 2, SKIP_Y, MUTED, middle_center);
+        say(canvas, tr("Tekan tombol untuk melewati", "Press the button to skip"), W / 2, SKIP_Y, MUTED, middle_center);
       }
       break;
     }

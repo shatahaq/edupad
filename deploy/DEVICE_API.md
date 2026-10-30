@@ -227,8 +227,12 @@ EduPad bisa berbahasa Indonesia (bawaan) atau Inggris (`src/edupad/voice/lang.py
 `data/device/language.json` dan diganti lewat suara ("switch to English", "ganti ke bahasa
 Indonesia"), tool `set_language`, atau `PUT /api/office/language` dari dashboard.
 
-- `/v1/updates` dan `/v1/ask` memuat `language` (`"id"` / `"en"`) di tingkat atas, supaya label
-  bawaan firmware bisa ikut bahasa yang sama.
+- `/v1/updates` dan `/v1/ask` memuat `language` (`"id"` / `"en"`) di tingkat atas. Firmware
+  (`firmware/edupad/lang.cpp`) menyimpannya di flash dan memakainya untuk semua teks bawaan layar,
+  termasuk layar nyala dan pesan galat sebelum server terhubung.
+- Label dan kalimat pemberitahuan `/v1/updates` ikut bahasa itu: `day` ("Besok" / "Tomorrow"),
+  `when` ("Tutup 10:40" / "Closes 10:40", "Penguasaan 40%" / "Mastery 40%"), `detail` kartu
+  peringatan, dan `speech`.
 - Satu setelan mengubah semuanya: bahasa pengenalan suara (Whisper `language` + kosakata),
   `language_code` TTS, bahasa jawaban agent (`speech`, `screen`, `detail`), kalimat tetap
   Mode Suara (`/v1/voice/clip/*`, `/v1/voice/reply/*`), dan naskah perkenalan `/v1/intro`.
