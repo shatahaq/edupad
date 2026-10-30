@@ -94,14 +94,17 @@ calls the Postgres function `match_material_chunks` with:
 | Argument | Value |
 |---|---|
 | `query_embedding` | bge-m3 vector of the question |
-| `query_text` | Question keywords joined with `|`, Indonesian stop words removed |
+| `query_text` | Question keywords joined with `\|` (OR), Indonesian stop words removed |
 | `p_user_id` | The student's data space |
 | `p_course_id`, `p_meeting` | Optional filters when the student named a course or meeting |
 | `match_count` | 20 candidates |
 
-The function ranks chunks by vector similarity (pgvector) and by full-text match (`tsvector`) and
-fuses both rankings with reciprocal rank fusion (`rrf_k`). Keyword search catches exact terms such as
-function names or acronyms that embeddings can blur; vector search catches paraphrases.
+Inside Postgres, the function takes the 80 nearest chunks by cosine distance and the 80 best
+full-text matches (`ts_rank_cd` with the `simple` configuration, so no stemming), then fuses the two
+rankings with reciprocal rank fusion (`1 / (50 + rank)` from each list). Keyword search catches
+exact terms such as function names or acronyms that embeddings can blur; vector search catches
+paraphrases. A course filter also matches chunks shared with parallel classes. The full SQL is in
+[database.md](database.md#hybrid-search-function).
 
 ### Rerank and fuse
 

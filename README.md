@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://youtu.be/Z-Z8oJeJjNA">Demo video</a> ·
   <a href="https://edupad.ai.id">edupad.ai.id</a> ·
   <a href="#system-architecture">Architecture</a> ·
   <a href="#rag-pipeline">RAG pipeline</a> ·
@@ -83,6 +84,14 @@ Reports*, 2025).
 ---
 
 ## Demo
+
+<p align="center">
+  <a href="https://youtu.be/Z-Z8oJeJjNA">
+    <img src="docs/assets/photos/video-thumbnail.jpg" alt="Watch the EduPad demo video on YouTube" width="80%">
+  </a>
+  <br>
+  <sub><b><a href="https://youtu.be/Z-Z8oJeJjNA">Watch the demo video on YouTube (4:54)</a></b>: the problem, the device, a live demo and the dashboard</sub>
+</p>
 
 <table>
   <tr>
@@ -194,9 +203,10 @@ conversation.
 
 **Answering** happens for every question:
 
-1. **Hybrid search.** `match_material_chunks()` combines pgvector similarity with Postgres
-   full-text search through reciprocal rank fusion (`rrf_k`) and returns 20 candidates, optionally
-   filtered by course and meeting.
+1. **Hybrid search.** `match_material_chunks()` takes the 80 nearest chunks by cosine distance
+   (pgvector) and the 80 best full-text matches (`ts_rank_cd`), fuses the two rankings with
+   reciprocal rank fusion (k = 50) and returns 20 candidates, optionally filtered by course and
+   meeting.
 2. **Rerank.** `bge-reranker-base` scores the candidates; its ranking is fused with the hybrid
    ranking. If the reranker is unavailable, the hybrid order is used.
 3. **Top 4.** The four best passages, with course and meeting, go to the agent. Passages already

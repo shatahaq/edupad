@@ -29,20 +29,72 @@ its own id (`google-<id>`), so data never mixes.
 
 ## Hybrid search function
 
-```sql
-match_material_chunks(
-  query_embedding vector,   -- bge-m3 embedding of the question
-  query_text      text,     -- keywords joined with '|'
-  p_user_id       text,
-  match_count     int,      -- EduPad asks for 20
-  p_course_id     text,     -- optional course filter
-  p_meeting       int,      -- optional meeting filter
-  rrf_k           int       -- reciprocal rank fusion constant
-)
-```
+`match_material_chunks` runs inside Postgres, so one round trip returns the fused ranking:
 
-It ranks chunks by vector similarity on `embedding` and by full-text match on `fts`, then fuses the
-two rankings. See [rag.md](rag.md#hybrid-search) for how the result is reranked.
+1. **Filter** the student's chunks (`user_id`), and optionally a course (also matching chunks shared
+   with parallel classes through `also_in`) and a meeting.
+2. **Semantic:** the `match_count × 4` nearest chunks by cosine distance (`<=>`) on `embedding`.
+3. **Keyword:** the `match_count × 4` best full-text matches on `fts`, ranked with `ts_rank_cd`.
+   The `simple` configuration is used, so Indonesian and English terms and code identifiers are
+   matched as written, without stemming.
+4. **Fuse** both lists with reciprocal rank fusion: `1 / (rrf_k + semantic_rank) + 1 / (rrf_k +
+   keyword_rank)`, with `rrf_k = 50`. A chunk found by only one branch still scores.
+
+EduPad calls it with `match_count = 20` and reranks the result (see
+[rag.md](rag.md#rerank-and-fuse)).
+
+```sql
+create or replace function public.match_material_chunks(
+  query_embedding vector,
+  query_text text,
+  p_user_id text,
+  match_count integer default 6,
+  p_course_id text default null,
+  p_meeting integer default null,
+  rrf_k integer default 50
+)
+returns table (
+  id text, course_id text, course_name text, meetings integer[], section text, title text,
+  location text, is_ocr boolean, source_url text, content text,
+  similarity double precision, score double precision
+)
+language sql
+stable
+set search_path to 'public', 'extensions'
+as $function$
+  with filtered as (
+    select c.*
+    from material_chunks c
+    where c.user_id = p_user_id
+      and (p_course_id is null or c.course_id = p_course_id or p_course_id = any (c.also_in))
+      and (p_meeting is null or p_meeting = any (c.meetings))
+  ),
+  semantic as (
+    select f.id,
+           1 - (f.embedding <=> query_embedding) as similarity,
+           row_number() over (order by f.embedding <=> query_embedding) as rank
+    from filtered f
+    order by f.embedding <=> query_embedding
+    limit match_count * 4
+  ),
+  keyword as (
+    select f.id,
+           row_number() over (order by ts_rank_cd(f.fts, to_tsquery('simple', query_text)) desc) as rank
+    from filtered f
+    where coalesce(query_text, '') <> '' and f.fts @@ to_tsquery('simple', query_text)
+    limit match_count * 4
+  )
+  select f.id, f.course_id, f.course_name, f.meetings, f.section, f.title, f.location, f.is_ocr,
+         f.source_url, f.content,
+         coalesce(s.similarity, 1 - (f.embedding <=> query_embedding)) as similarity,
+         coalesce(1.0 / (rrf_k + s.rank), 0) + coalesce(1.0 / (rrf_k + k.rank), 0) as score
+  from semantic s
+  full outer join keyword k on k.id = s.id
+  join filtered f on f.id = coalesce(s.id, k.id)
+  order by score desc
+  limit match_count;
+$function$;
+```
 
 ## Columns
 
