@@ -20,8 +20,15 @@ def _client(token_expires: float | None, final_url: str, monkeypatch, tmp_path):
 
     cookies = [{"name": "MoodleSession", "value": "lama", "domain": "kelas.usu.ac.id", "path": "/"}]
     if token_expires:
-        cookies.append({"name": "ssotok", "value": "jwt", "domain": ".usu.ac.id", "path": "/",
-                        "expires": int(token_expires)})
+        cookies.append(
+            {
+                "name": "ssotok",
+                "value": "jwt",
+                "domain": ".usu.ac.id",
+                "path": "/",
+                "expires": int(token_expires),
+            }
+        )
     path = tmp_path / "session.json"
     session.write_json(path, {"cookies": cookies})
     monkeypatch.setattr(moodle, "MOODLE_SESSION_FILE", path)
@@ -60,7 +67,9 @@ def test_sso_relogin_refuses_expired_or_missing_token(monkeypatch, tmp_path):
 
 
 def test_sso_relogin_detects_redirect_to_sso_login_form(monkeypatch, tmp_path):
-    client, _ = _client(time.time() + 3600, "https://sso.usu.ac.id/auth/login?callback=x", monkeypatch, tmp_path)
+    client, _ = _client(
+        time.time() + 3600, "https://sso.usu.ac.id/auth/login?callback=x", monkeypatch, tmp_path
+    )
     with pytest.raises(LoginRequired, match="ditolak"):
         client.sso_relogin()
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "edupad"
 version = "0.1.0"
-description = "Pengumpul & pengolah data kuliah USU untuk AI agent EduPad"
+description = "EduPad: voice-first study assistant (ESP32-S3 device, RAG agent, dashboard server)"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

@@ -1,276 +1,607 @@
-# EduPad Data
+<p align="center">
+  <img src="docs/assets/hero.jpg" alt="EduPad, a voice-first study assistant built on ESP32-S3" width="100%">
+</p>
 
-Pengumpul dan pengolah data perkuliahan untuk AI agent **EduPad**
-(asisten belajar berbasis suara di ESP32-S3).
+<h1 align="center">EduPad</h1>
 
-Sistem ini mengambil materi, tugas, dan jadwal kuliah secara otomatis dari e-learning USU
-(kelas.usu.ac.id, portal SATU) dan dari Google Classroom (untuk umum, login lewat web
-EduPad), lalu menyusunnya menjadi data yang siap dibaca AI agent.
+<p align="center">
+  <b>A voice-first study assistant.</b> Hold the button, ask about your courses, and EduPad answers
+  from your own lecture materials, names the meeting it came from, and guides you until you understand.
+</p>
 
-## Alur data
+<p align="center">
+  <a href="https://edupad.ai.id">edupad.ai.id</a> ·
+  <a href="#system-architecture">Architecture</a> ·
+  <a href="#rag-pipeline">RAG pipeline</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="deploy/DEVICE_API.md">Device API</a>
+</p>
 
-```
-kelas.usu.ac.id ──► scrape ───────► data/materials/   (file asli + manifest)
-                └─► assignments ──► data/assignments/ (tugas, deadline, status)
-satu.usu.ac.id  ──► schedule ─────► data/schedule/    (jadwal kuliah, presensi, KRS)
-                └─► attendance ───► data/schedule/attendance.json + notifikasi presensi dibuka
-Google Classroom ─► classroom ────► data/classroom/   (kelas, tugas + status, materi, pengumuman)
+<p align="center">
+  <img alt="SDG 4" src="https://img.shields.io/badge/SDG%204-Quality%20Education-C8102E?style=flat-square">
+  <img alt="ESP32-S3" src="https://img.shields.io/badge/device-ESP32--S3-141414?style=flat-square">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-141414?style=flat-square">
+  <img alt="React" src="https://img.shields.io/badge/web-React%20%2B%20Phaser-141414?style=flat-square">
+  <img alt="Supabase" src="https://img.shields.io/badge/db-Supabase%20pgvector-2F5BEA?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-278%20passing-2F5BEA?style=flat-square">
+</p>
 
-data/materials ──► convert   ──► data/markdown/  (Markdown per file + metadata)
-               ──► corpus    ──► data/corpus/    (siap dipakai AI agent)
-               ──► summarize ──► data/corpus/summaries.json (ringkasan per pertemuan)
-               ──► index     ──► Supabase material_chunks (embedding bge-m3)
+---
 
-pertanyaan ──► ask/chat ──► DeepSeek + tools (search_materials, get_meeting, list_assignments)
-                        ──► jawaban suara + layar LCD (+ detail Markdown)
-                        ──► memory percakapan & fakta pengguna di Supabase
-```
+## Table of contents
 
-`data/corpus/` berisi:
+1. [Overview](#overview)
+2. [Demo](#demo)
+3. [Features](#features)
+4. [System architecture](#system-architecture)
+5. [How a question is answered](#how-a-question-is-answered)
+6. [RAG pipeline](#rag-pipeline)
+7. [AI agent](#ai-agent)
+8. [Database](#database)
+9. [Hardware and firmware](#hardware-and-firmware)
+10. [Device API](#device-api)
+11. [Web dashboard](#web-dashboard)
+12. [Evaluation](#evaluation)
+13. [Tech stack](#tech-stack)
+14. [Project structure](#project-structure)
+15. [Getting started](#getting-started)
+16. [CLI reference](#cli-reference)
+17. [Testing](#testing)
+18. [Deployment](#deployment)
+19. [Privacy and security](#privacy-and-security)
 
-| File | Isi | Dipakai untuk |
-|---|---|---|
-| `catalog.json` | Mata kuliah di KRS, alias ("PV", "MSBD"), daftar pertemuan | Mencocokkan nama mata kuliah |
-| `meetings/<course_id>/pNN.md` | Seluruh materi satu pertemuan | Pertanyaan "pertemuan 5 PV tentang apa" |
-| `chunks.jsonl` | Potongan ~350 kata + metadata & lokasi sumber | Embedding / vector database |
-| `summaries.json` | Ringkasan & daftar topik per pertemuan (dibuat ulang hanya bila materi berubah) | Jawaban hemat token untuk `get_meeting` |
+---
 
-## Struktur proyek
+## Overview
 
-```
-src/edupad/
-├── config.py          path, URL, pengaturan .env
-├── cli.py             pintu masuk: python -m edupad <perintah>
-├── core/              sesi, klien Moodle & Supabase, koneksi HTTP bersama, file, logging, notifikasi
-├── collectors/        materials (Playwright), assignments, schedule
-├── processing/        convert (PDF/PPTX/DOCX -> Markdown), corpus, summaries, embeddings, index
-├── agent/             assistant (loop LLM), tools, memory, formatting, evaluate,
-│                      finance (keuangan suara), tutor (kuis lisan), radar (Equity Radar)
-├── office/            Office API dashboard: login Google pemilik, data panel, event owl
-├── voice/             stt (Groq Whisper), tts (ElevenLabs), mode (Mode Suara), lang (bahasa
-│                      Indonesia/Inggris), clips (pesan status
-│                      bersuara); PCM 16 kHz untuk ESP32
-├── google/            oauth (login Google + PKCE), accounts (refresh token & sesi web)
-├── server.py          HTTP API perangkat ESP32 (deploy/DEVICE_API.md) + web
-├── device_status.py   status perangkat terakhir (RSSI, uptime, firmware) untuk dashboard
-├── webapp.py          web: login Google, /api, halaman React hasil build
-└── jobs/              keepalive, pipeline
-web/                   halaman web React + Tailwind (halaman depan & login Google)
-dashboard/             dashboard EduPad (AI Office, keuangan, Tutor, Equity Radar, monitoring)
-frontend/              kantor virtual Phaser (kode game dipakai dashboard; preview mandiri)
-firmware/              sketch ESP32-S3 (LCD, mic, speaker) + pratinjau layar di PC
-supabase/migrations/   tabel tambahan (keuangan, tutor, Office)
-tests/                 unit test (pytest)
-evals/                 set uji AI agent & hasil evaluasi
-deploy/                crontab, panduan server, jadwal Windows
-data/  logs/  user_data/   dibuat saat berjalan (tidak dibagikan)
-```
+University enrolment has more than doubled in twenty years to **269 million students** (2024), yet
+the global graduation ratio has only moved from **22% to 27%** since 2013 (UNESCO IESALC, *Higher
+Education Global Trends Report 2026*). Access is growing faster than success.
 
-## Dashboard EduPad (AI Office)
+Inside each course, students also fight scattered information: materials spread across meetings,
+files and formats; attendance windows that close before anyone notices; deadlines in different
+portals. Visually impaired students depend on portals built for the eyes.
 
-Dashboard di `dashboard/` (React, TypeScript, Vite, Recharts, Phaser 3) disajikan di
-`https://edupad.ai.id/dashboard/`. Setelah login Google di halaman depan (`web/`), pemilik
-(`EDUPAD_OWNER_EMAILS`) langsung dibawa ke sini. Halaman pertama adalah kantor virtual 2D:
-tujuh owl bergerak sesuai pekerjaan AI agent yang sebenarnya, termasuk saat perangkat ESP32
-ditanya (SORA tutor, KOIN keuangan, TEMPO jadwal, NEXUS pengetahuan). Kode game ada di
-`frontend/src/game` (juga bisa dijalankan mandiri sebagai preview).
+How students use AI decides whether they learn. Students who practised with an AI that simply gave
+them the answers scored **17% lower** on exams (Bastani et al., *PNAS*, 2025), while an AI tutor
+designed to guide step by step **more than doubled** learning gains (Kestin et al., *Scientific
+Reports*, 2025).
 
-Fitur yang tersambung dengan perangkat (satu sumber data untuk suara & dashboard):
+**EduPad follows the second model.** It is a small device and a server that:
 
-| Fitur | Lewat suara di perangkat | Di dashboard |
-|---|---|---|
-| Keuangan | "tadi beli makan dua puluh lima ribu", "sisa anggaran makanku?", "atur anggaran transportasi tiga ratus ribu", "hapus yang tadi" | `#/keuangan`: catat manual, anggaran, laporan; transaksi suara diberi label |
-| Tutor Belajar (SDG 4.1/4.4) | "uji aku Basis Data pertemuan dua", "aku belum paham rekursi", "hari ini belajar apa?", "mulai" (bantuan SORA) | `#/tutor`: bantuan SORA (sebelum/sesudah), kurva belajar, penguasaan per topik, salah paham |
-| Equity Radar (SDG 4.5/4.a/10) | peringatan dini & pengingat mengulang tampil sebagai kartu di layar | `#/equity`: kesenjangan akses materi, kehadiran vs syarat ujian, langkah berikutnya |
-| Mode Suara (SDG 4.5, mahasiswa tunanetra) | "aktifkan mode suara", "bicara lebih cepat", "lanjut": semua jawaban & pemberitahuan dibacakan, bunyi penanda, pesan status tersimpan di perangkat | `#/pengaturan`: nyalakan & kecepatan; `#/equity`: kartu Aksesibilitas (pertemuan yang bisa didengar, halaman OCR, suara yang diputar) |
-| Monitoring | status perangkat dikirim lewat header (RSSI, uptime, firmware) | `#/monitoring`: perangkat, latensi `/v1/ask`, error |
+- reads the campus portals a university already has (Moodle, the SATU academic portal and Google
+  Classroom) and turns them into a searchable library for each student;
+- answers spoken questions from that library only, and says which meeting the answer came from;
+- notices topics a student struggles with and prepares a short lesson and a spoken quiz;
+- works fully by sound in **Voice Mode**, so a student does not need to see the screen.
 
-- Office API (`src/edupad/office/`, `python -m edupad office-api`, port 8001) melayani
-  `/dashboard/`, `/api/office/*`, dan `/v1/dashboard/*`; semuanya memerlukan sesi login Google
-  pemilik dari web EduPad (`EDUPAD_OFFICE_AUTH=off` hanya untuk pengembangan lokal).
-- Keuangan & Tutor disimpan di Supabase: jalankan `supabase/migrations/20261017_finance_tutor.sql`
-  dan `20261018_tutor_help.sql` sekali. Logika ada di `src/edupad/agent/finance.py`, `tutor.py`,
-  `coach.py`, dan `radar.py` (tool agent + data dashboard).
-- **Tutor mandiri (SORA)**: `python -m edupad tutor-coach` (cron 15:30 WIB) mencari topik dengan
-  minimal dua tanda kesulitan (jawaban kuis salah, penguasaan rendah, pengulangan terlewat,
-  pertanyaan berulang, ucapan "belum paham"; kehadiran tidak dipakai), mencatatnya sebagai
-  ingatan agent, lalu menyiapkan pelajaran mini 3 bagian + kuis terarah. Bantuan ditawarkan lewat
-  kartu sore di perangkat dan saat mahasiswa bicara ke EduPad; skor sebelum/sesudah tampil di
-  dashboard. Soal kuis per pertemuan disimpan di `data/tutor/bank.json` (kuis berikutnya
-  langsung mulai; tingkat soal mengikuti penguasaan).
-- Status owl dikirim dari antrean latar belakang, sehingga jawaban perangkat tidak menunggu.
-  Penyimpanan event/tugas Office default lokal (`data/office/`); tabel Office di
-  `supabase/migrations/20261013_edu_pad_office.sql` opsional (`EDUPAD_OFFICE_STORAGE=supabase`).
-
-```bash
-pip install -e ".[dev,office]"
-python -m edupad serve                    # web + login Google + API perangkat (port 8000)
-python -m edupad office-api               # dashboard API (port 8001)
-cd web && npm run dev                     # http://localhost:5173 (login)
-cd frontend && npm ci && cd ../dashboard && npm ci && npm run dev   # http://localhost:5174/dashboard/
-```
-
-Deploy: `deploy/SERVER.md` bagian "Dashboard EduPad".
-
-## Versi kedua: tema neo-brutalism
-
-Tampilan web punya dua versi yang berjalan berdampingan; isinya sama, rupanya berbeda.
-
-| | Versi pertama (pixel art) | Versi kedua (neo-brutalism) |
-|---|---|---|
-| Halaman depan | `web/` — port 5173 | `web-neo/` — port 5180 |
-| Dashboard | `dashboard/` — port 5174 | `dashboard-neo/` — port 5184 |
-| AI Office | kantor Phaser (`frontend/src/game`) | denah kantor berupa blok (`dashboard-neo/src/office`) |
-
-Versi kedua tidak menyalin isi: teks halaman depan tetap dibaca dari
-`web/src/landing/copy.ts`, dan dua belas halaman dashboard diimpor langsung dari
-`dashboard/src`. Yang ditambahkan hanya lapisan rupa (`dashboard-neo/src/neo-theme.css`) dan
-aset owl baru. Aturan desainnya ada di `web-neo/DESIGN.md`.
-
-```bash
-cd web-neo && npm install && npm run dev          # http://localhost:5180
-cd dashboard-neo && npm run dev                   # http://localhost:5184/dashboard-neo/
-```
-
-## Instalasi
-
-Python 3.10+.
-
-```bash
-pip install -e ".[dev]"        # atau: pip install -r requirements.txt && pip install -e .
-playwright install chromium
-cp .env.example .env           # isi token Telegram (opsional)
-```
-
-## Perintah
-
-| Perintah | Fungsi |
+| SDG 4 target | How EduPad contributes |
 |---|---|
-| `python -m edupad login` | Login SSO kelas.usu.ac.id di browser, simpan sesi |
-| `python -m edupad scrape [--course ID ...] [--list] [--headless]` | Unduh materi |
-| `python -m edupad assignments [--course ID ...]` | Tugas & kuis: deadline, status, soal (cron tiap 15 menit: status pengumpulan dipakai pengingat deadline) |
-| `python -m edupad schedule [--login]` | Jadwal kuliah & presensi dari portal SATU |
-| `python -m edupad attendance [--fill] [--dry-run]` | Cek presensi yang dibuka, notifikasi Telegram; `--fill` mengisi presensi mandiri |
-| `python -m edupad classroom [--email EMAIL]` | Kelas, tugas + status, materi & pengumuman Google Classroom akun yang login di web |
-| `python -m edupad convert [--force]` | Konversi materi ke Markdown |
-| `python -m edupad corpus` | Bersihkan & potong materi untuk AI agent |
-| `python -m edupad summarize [--force]` | Ringkasan per pertemuan (DeepSeek) |
-| `python -m edupad index [--force]` | Embed chunk & sinkronkan ke Supabase |
-| `python -m edupad ask "..." [--detail] [--trace] [--new] [--no-memory] [--speak]` | Tanya AI agent; percakapan diingat per sesi; `--speak` menyuarakan jawaban |
-| `python -m edupad ask --audio rekaman.wav [opsi yang sama]` | Tanya lewat rekaman suara (STT -> agent); dengan `--speak` alurnya suara-ke-suara |
-| `python -m edupad transcribe rekaman.wav` | Ubah rekaman jadi teks saja (uji STT) |
-| `python -m edupad serve [--host 0.0.0.0] [--port 8000]` | Server HTTP: perangkat ESP32 (rekaman -> STT -> agent -> layar + audio, [API](deploy/DEVICE_API.md)) dan web EduPad (login Google) |
-| `python -m edupad chat [--detail] [--trace] [--new] [--speak]` | Percakapan berlanjut |
-| `python -m edupad memory [--clear]` | Lihat / hapus memory AI agent |
-| `python -m edupad eval --label X [--repeat N] [--detail] [--no-memory]` | Ukur token, biaya & kualitas agent pada set uji (default: konfigurasi produksi) |
-| `python -m edupad keepalive` | Perpanjang sesi kelas.usu.ac.id & portal SATU |
-| `python -m edupad pipeline` | scrape → assignments → convert → corpus → summarize → index |
+| **4.3** Equal access to affordable, quality university education | A low-cost device that works on top of the LMS a campus already runs |
+| **4.5** Equal access to education for persons with disabilities | Voice Mode: every answer and notification read aloud, sound cues for every state |
 
-Kode keluar: `0` sukses, `1` error, `2` sesi habis (perlu login manual).
+---
 
-## Suara (STT & TTS)
+## Demo
 
-`voice/stt.py`: `transcribe_pcm(pcm)` mengubah rekaman mikrofon ESP32-S3 (PCM 16-bit mono
-16 kHz) menjadi teks; `transcribe(bytes, nama_file)` untuk file wav/mp3/m4a/ogg/flac/webm.
-Penyedia: Groq, model `whisper-large-v3-turbo`, bahasa Indonesia, dengan nama & singkatan
-mata kuliah dari `catalog.json` sebagai prompt ejaan. Rekaman tanpa ucapan (hening/derau,
-< -35 dBFS) tidak dikirim, karena Whisper mengubahnya menjadi "Terima kasih.". Uji:
-~0,5–1 detik per pertanyaan. Coba dengan `python -m edupad transcribe rekaman.wav`.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/photos/demo.gif" alt="Asking EduPad a question on the device" width="100%"></td>
+    <td width="50%"><img src="docs/assets/photos/voice-mode.jpg" alt="Turning on Voice Mode by voice" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Asking about this week's meetings on the device</sub></td>
+    <td align="center"><sub>"EduPad, turn on voice mode": the same flow without the screen</sub></td>
+  </tr>
+</table>
 
-`voice/tts.py`: `stream(teks)` menghasilkan potongan PCM 16-bit mono 16 kHz (format ESP32-S3)
-begitu tersedia; `synthesize()` mengembalikan audio utuh. Penyedia: ElevenLabs, suara buatan
-sendiri "EduPad" (Voice Design), model `eleven_multilingual_v2`. Jawaban panjang dipecah: kalimat
-pertama & sisanya disintesis bersamaan dengan konteks `previous_text`/`next_text` (tidak ditagih,
-intonasi tetap menyambung), maks. 2 permintaan paralel (batas akun gratis). Uji: audio pertama
-~0,95 detik (sebelumnya 2,2–2,5 detik untuk jawaban ~330 karakter).
-Akun gratis: 10.000 karakter/bulan (~30 jawaban) dan hanya suara bawaan / buatan sendiri.
-Beberapa akun boleh diisi di `.env` (`API_KEY_ElevenLabs` + `Voice_ID_ElevenLabs`, lalu yang
-berakhiran `2`, `3`, ...): begitu satu akun menolak karena kuotanya habis, akun itu dilewati
-6 jam dan permintaan diulang ke akun berikutnya, jadi jawaban tetap bersuara. Voice ID yang
-salah (HTTP 404) tetap dimunculkan sebagai galat, bukan dianggap kuota habis.
+What the 4-inch screen shows while a question is answered (rendered from the firmware itself with
+[`firmware/preview`](firmware/preview)):
 
-## Sesi login
+<table>
+  <tr>
+    <td align="center"><img src="docs/assets/screens/home.gif" alt="Home screen" width="100%"><br><sub>1 · Hold to ask</sub></td>
+    <td align="center"><img src="docs/assets/screens/listen.gif" alt="Listening screen" width="100%"><br><sub>2 · Listening</sub></td>
+    <td align="center"><img src="docs/assets/screens/think.gif" alt="Thinking screen" width="100%"><br><sub>3 · Searching your courses</sub></td>
+    <td align="center"><img src="docs/assets/screens/answer.gif" alt="Answer screen" width="100%"><br><sub>4 · Answer with its source meeting</sub></td>
+  </tr>
+</table>
 
-- **kelas.usu.ac.id**: batas sesi 8 jam tanpa aktivitas. `keepalive` tiap 20 menit
-  menjaganya tetap aktif. Sesi tidak terikat IP, jadi bisa login di laptop lalu
-  menyalin `user_data/session.json` ke server.
-- **Portal SATU** (jadwal & presensi): sesi portal punya batas ~8 jam, tetapi cookie SSO
-  Keycloak ("Ingat saya" saat login) berlaku ~30 hari. `keepalive`, presensi, dan jadwal
-  membuat sesi portal baru lewat cookie itu tanpa password, jadi login ulang
-  (`schedule --login`, lalu salin `user_data/satu_session.json` ke server) hanya perlu
-  bila cookie SSO-nya sendiri habis.
+---
 
-Bila sesi habis, notifikasi Telegram dikirim sekali.
+## Features
+
+| Feature | What it does |
+|---|---|
+| **Ask by voice** | Ask about any course in your own words. Answers come from your lecture materials and name the meeting they came from. When the material does not cover a question, EduPad says so instead of guessing. |
+| **Never miss it** | Spoken reminders before attendance closes or an assignment is due, plus a check-in confirmation on the device. In the last 24 hours before a deadline the reminder repeats every 15 minutes. |
+| **Guided learning with SORA** | Finds topics you struggle with from five signals, prepares a 3-part mini lesson and 3 spoken quiz questions, then schedules reviews after 1, 3, 7, 14 and 30 days. |
+| **Voice Mode** | Every answer and notification is read aloud, with a rising tone, falling tone and soft ticks for each state. Status messages are stored on the device, so they play even when Wi-Fi is down. |
+| **Bilingual** | Indonesian or English, switched by saying "switch to English". Speech recognition, voice, screen labels and notifications all follow. |
+| **Student finance** | "I spent twenty-five thousand on food": spending is recorded by voice and shown against monthly budgets. |
+| **Web dashboard** | Seven AI owl agents in a virtual office, plus assignments, attendance, the study tutor, Equity Radar, finance and device monitoring at [edupad.ai.id](https://edupad.ai.id). |
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/assets/screens/alert-presensi.gif" alt="Attendance open card" width="100%"><br><sub>Attendance is open</sub></td>
+    <td align="center"><img src="docs/assets/screens/alert-deadline.gif" alt="Deadline card" width="100%"><br><sub>Deadline tomorrow</sub></td>
+    <td align="center"><img src="docs/assets/screens/alert-ulang.gif" alt="Time to review card" width="100%"><br><sub>Time to review (SORA)</sub></td>
+  </tr>
+</table>
+
+---
+
+## System architecture
+
+<p align="center">
+  <img src="docs/assets/diagrams/architecture.jpg" alt="EduPad system architecture" width="100%">
+</p>
+
+EduPad has four parts that share one data source:
+
+| Part | Where | Role |
+|---|---|---|
+| **Device** | [`firmware/`](firmware) | ESP32-S3 with a microphone, speaker, 4-inch LCD and one button. Records, uploads, shows and plays. All intelligence is on the server. |
+| **EduPad server** | [`src/edupad/`](src/edupad) | Python. The device API (`edupad serve`, port 8000) runs speech-to-text, the AI agent and text-to-speech. The data pipeline collects and indexes course data on a schedule. The Office API (`edupad office-api`, port 8001) serves the dashboard. |
+| **AI services** | external | Groq Whisper (speech-to-text), DeepSeek (language model), ElevenLabs (voice), Cloudflare Workers AI (bge-m3 embeddings and reranker). |
+| **Supabase** | [`supabase/`](supabase) | Postgres with pgvector: course chunks, conversation memory, tutor progress and finance. |
+
+Production runs on one Ubuntu VPS behind Cloudflare and Caddy at
+[edupad.ai.id](https://edupad.ai.id). The dashboard and the device read and write the same tables,
+so a transaction spoken to the device appears on the dashboard immediately.
+
+---
+
+## How a question is answered
+
+<p align="center">
+  <img src="docs/assets/diagrams/question-flow.jpg" alt="From button to spoken answer" width="100%">
+</p>
+
+1. **Record.** While the button is held, the INMP441 microphone records 16-bit PCM at 16 kHz.
+2. **Upload while speaking.** Audio streams to `POST /v1/ask` with chunked transfer encoding, so
+   the upload is finished when the button is released. Silent recordings (below −35 dBFS) are
+   rejected on the server and never sent to speech-to-text.
+3. **Speech to text.** Groq `whisper-large-v3-turbo`, primed with course names and abbreviations
+   from the catalog so "MSBD" or "PV" are spelled right.
+4. **Think.** The AI agent searches the student's library and answers as JSON: `speech` (what to
+   say), `screen` (title and short lines for the LCD) and `sources`.
+5. **Speak.** ElevenLabs synthesises the speech; the server compresses it to IMA ADPCM (a quarter
+   of the size of PCM) so the device downloads it quickly.
+6. **Answer.** The LCD shows the answer first, then the voice plays through the MAX98357A amplifier.
+
+Short button presses replay the last answer (served from storage, no TTS quota used) or start a new
+conversation.
+
+---
+
+## RAG pipeline
+
+<p align="center">
+  <img src="docs/assets/diagrams/rag-pipeline.jpg" alt="RAG pipeline: indexing and answering" width="100%">
+</p>
+
+**Indexing** runs every two hours (`edupad pipeline`) and only reprocesses what changed.
+
+| Step | Module | Detail |
+|---|---|---|
+| Collect | [`collectors/`](src/edupad/collectors) | Materials from Moodle (`kelas.usu.ac.id`, Playwright), assignments and deadlines, schedule and attendance from the SATU portal, classes and coursework from Google Classroom (OAuth, read-only). |
+| Convert | [`processing/convert.py`](src/edupad/processing/convert.py) | PDF per page with pymupdf4llm, PPTX per slide including lecturer notes, DOCX with anydoc. Local OCR (RapidOCR) only for pages that are mostly images. Runs locally. |
+| Chunk | [`processing/corpus.py`](src/edupad/processing/corpus.py) | Removes repeated headers and footers, splits into ~350-word chunks (max 550), and tags each with course, meeting, section, title and source location. A catalog maps aliases ("PV", "MSBD") to courses. |
+| Summarize | [`processing/summaries.py`](src/edupad/processing/summaries.py) | One summary and topic list per meeting with DeepSeek, regenerated only when the material's hash changes. |
+| Embed | [`processing/embeddings.py`](src/edupad/processing/embeddings.py) | `@cf/baai/bge-m3` (multilingual, 1024 dimensions) on Cloudflare Workers AI. The course header is embedded with the text. |
+| Store | [`processing/index.py`](src/edupad/processing/index.py) | Upsert into `material_chunks`. A content hash (including the model name) means only new or changed chunks are embedded; removed chunks are deleted. |
+
+**Answering** happens for every question:
+
+1. **Hybrid search.** `match_material_chunks()` combines pgvector similarity with Postgres
+   full-text search through reciprocal rank fusion (`rrf_k`) and returns 20 candidates, optionally
+   filtered by course and meeting.
+2. **Rerank.** `bge-reranker-base` scores the candidates; its ranking is fused with the hybrid
+   ranking. If the reranker is unavailable, the hybrid order is used.
+3. **Top 4.** The four best passages, with course and meeting, go to the agent. Passages already
+   sent in this conversation are not sent again.
+4. **Answer.** The agent writes the answer and must name the meeting it used. Questions such as
+   "what does meeting 5 cover?" are answered from the meeting summary (`get_meeting`) instead of
+   raw chunks, which saves tokens.
+
+On the evaluation set, fusing hybrid search with the reranker put the right passage first in 14 of
+17 cases (hybrid alone 13, reranker alone 12) and in the top four in 17 of 17.
+Full details: [docs/rag.md](docs/rag.md).
+
+---
 
 ## AI agent
 
-- **Pencarian**: hybrid (vektor bge-m3 + kata kunci) mengambil 20 kandidat, lalu diurutkan ulang
-  dengan reranker `bge-reranker-base` (fusi peringkat); 4 potongan teratas dikirim ke LLM.
-- **Hemat token**: potongan yang sudah dikirim tidak dikirim ulang; `get_meeting` mengirim
-  ringkasan kecuali diminta `full=true`. Default **mode perangkat**: hanya suara + layar LCD;
-  jawaban Markdown panjang hanya dengan `--detail` / `ask(..., with_detail=True)`.
-  Pemakaian token & biaya per pertanyaan dicatat di `logs/agent_usage.jsonl`. Batas opsional:
-  `EDUPAD_LLM_MAX_OUTPUT_TOKENS` dan `EDUPAD_LLM_MAX_TOOL_ROUNDS` (default 5 putaran).
-- **Memory**: percakapan disimpan per sesi (sesi baru setelah 30 menit menganggur) di Supabase
-  (`agent_sessions`, `agent_turns`); 8 giliran lama diringkas otomatis. Fakta tentang pengguna
-  (`agent_memories`) dipakai lintas sesi. `memory --clear` menghapus semuanya.
-- **Evaluasi**: `evals/agent_cases.json` (20 kasus, termasuk pertanyaan lanjutan dan materi
-  yang tidak ada). Jawaban dinilai dengan cek sumber, kata kunci, dan LLM-as-judge
-  (`deepseek-flash`) terhadap materi asli. Hasil di `evals/results/`. Mode perangkat vs agent
-  awal: biaya per jawaban −47%, waktu jawab −22%, ketepatan sama (4,96/5), tanpa halusinasi.
+<p align="center">
+  <img src="docs/assets/diagrams/agent-loop.jpg" alt="How the AI agent works" width="100%">
+</p>
 
-## Prinsip
+The agent ([`agent/assistant.py`](src/edupad/agent/assistant.py)) is a tool-calling loop on
+DeepSeek (`deepseek-flash`), with up to five tool rounds per question. Its system prompt already
+contains the student's course list, so simple questions need no tool call.
 
-- **Moodle hanya dibaca.** Tidak pernah mengirim, mengumpulkan, atau mengubah data di Moodle.
-  Satu-satunya penulisan ke layanan kampus adalah `attendance --fill` (presensi mandiri SATU),
-  lewat cron atau saat mahasiswa sendiri memintanya ke EduPad (tool `fill_attendance`).
-- **Tidak menyimpan password.** Yang disimpan hanya cookie sesi di `user_data/`.
-- **Konversi lokal.** Konversi & OCR berjalan di mesin sendiri. Teks materi dikirim ke
-  Cloudflare Workers AI (embedding, reranker) dan DeepSeek (ringkasan, jawaban) untuk AI agent.
-  Rekaman pertanyaan dikirim ke Groq (STT) dan teks jawaban suara ke ElevenLabs (TTS); rekaman
-  hening disaring di server dan tidak dikirim.
-- **Sopan ke server.** Jeda 2,5 detik antar request; unduhan inkremental.
+| Group | Tools |
+|---|---|
+| Course knowledge | `search_materials`, `get_meeting`, `get_classroom_materials` |
+| Campus | `list_assignments`, `get_attendance`, `fill_attendance` |
+| SORA tutor | `start_quiz`, `answer_quiz`, `stop_quiz`, `study_plan`, `start_help`, `continue_help`, `decline_help` |
+| Finance | `record_transaction`, `finance_summary`, `set_budget`, `undo_last_transaction` |
+| Device | `set_voice_mode`, `set_language` |
 
-## Web & Google Classroom
+- **Memory.** Each conversation is a session that ends after 30 idle minutes. After 8 turns, older
+  turns are summarised automatically. Lasting facts about the student are kept across sessions.
+  Each turn also records the actions it performed, so a follow-up never repeats a transaction.
+- **Grounded answers.** The answer must name its source meeting. If the material is not in the
+  library, the agent says so; it does not answer from general knowledge as if it were course
+  content.
+- **Cost control.** Device mode returns speech and screen text only; long Markdown answers are
+  produced only when asked. Token use and cost per question are logged to `logs/agent_usage.jsonl`.
 
-Halaman depan (`/`) hanya berisi EduPad dan tombol **Masuk dengan Google**. Login berhasil
-langsung ke `/dashboard`. Login memakai OAuth authorization code + PKCE di server
-(`google/oauth.py`), dengan izin baca-saja Classroom dan `access_type=offline`. Refresh token
-disimpan di `user_data/google/` (0600) sehingga `python -m edupad classroom` (cron tiap 2 jam,
-dan sekali tepat setelah login) bisa mengambil data tanpa pengguna hadir.
+Details on SORA, Equity Radar and finance: [docs/agent.md](docs/agent.md).
 
-Data Classroom masuk ke agent dengan bentuk yang sama seperti e-learning USU:
+---
 
-- **Tugas & deadline** ikut di `list_assignments` (bertanda `"sumber": "Google Classroom"`),
-  lengkap dengan status pengumpulan ("BELUM dikumpulkan — LEWAT DEADLINE", nilai, dst.).
-- **Materi & pengumuman** lewat tool `get_classroom_materials` (filter kelas, kata kunci,
-  pertemuan), dan kelasnya tercantum di system prompt. Tool ini hanya ditawarkan ke LLM bila
-  pengguna punya data Classroom, jadi pengguna USU saja tidak membayar token tambahan.
-- Agent di perangkat/CLI membaca Classroom milik email di `EDUPAD_OWNER_EMAILS`; akun Google
-  lain mendapat ruang data sendiri (`user_id` = `google-<id>`).
+## Database
 
-Pengembangan (dua terminal):
+<p align="center">
+  <img src="docs/assets/diagrams/database.jpg" alt="Supabase schema overview" width="100%">
+</p>
+
+| Group | Tables | Purpose |
+|---|---|---|
+| Course knowledge | `material_chunks`, `match_material_chunks()` | Chunks with `vector(1024)` embeddings and a `tsvector` for hybrid search, scoped by `user_id` |
+| Conversation memory | `agent_sessions` → `agent_turns`, `agent_memories` | Sessions, every question and answer with its sources and actions, long-term facts |
+| SORA tutor | `tutor_help` → `tutor_quizzes` → `learning_checks`, `topic_mastery` | Lessons, quizzes, graded answers and per-topic mastery with spaced-review dates |
+| Finance | `finance_transactions`, `finance_budgets` | Income and spending (source: voice, dashboard or import) and monthly budgets |
+
+Runtime files that are not in the database live in `data/` on the server (course corpus, meeting
+summaries, schedule, assignments, quiz bank, device status). They are created by the pipeline and are
+not committed. Every column is documented in [docs/database.md](docs/database.md); migrations are in
+[`supabase/migrations/`](supabase/migrations).
+
+---
+
+## Hardware and firmware
+
+<p align="center">
+  <img src="docs/assets/diagrams/hardware.jpg" alt="EduPad hardware" width="100%">
+</p>
+
+| Part | Model | Connection |
+|---|---|---|
+| Microcontroller | ESP32-S3 DevKitC **N16R8** (16 MB flash, 8 MB PSRAM) | Wi-Fi |
+| Display | 4" SPI LCD **ST7796**, 320 × 480 | SPI: CS 10, RST 13, DC 9, MOSI 18, SCK 14, LED 21 |
+| Microphone | **INMP441** I2S MEMS | I2S: SCK 4, WS 5, SD 6 |
+| Amplifier + speaker | **MAX98357A** I2S, 4–8 Ω speaker | I2S: BCLK 16, LRC 17, DIN 15 |
+| Button | Any push button | GPIO 7 to GND (internal pull-up) |
+
+The firmware ([`firmware/edupad/`](firmware/edupad)) is an Arduino sketch built on LovyanGFX:
+
+| Module | Responsibility |
+|---|---|
+| `app.cpp` | State machine: idle, recording, thinking, answering, notification cards, sleep |
+| `mic.cpp`, `speaker.cpp`, `adpcm.cpp` | I2S recording, playback and ADPCM decoding |
+| `api.cpp` | HTTPS calls to the device API with the device token |
+| `scene.cpp`, `display.cpp`, `owl_sprites.h` | Animated pixel-owl screens and text layout |
+| `voice.cpp` | Voice Mode: sound cues and spoken status messages cached in PSRAM |
+| `wifi_setup.cpp` | Captive portal for choosing a Wi-Fi network |
+| `lang.cpp` | Screen language, following the server setting |
+
+| Button | Action |
+|---|---|
+| Hold | Talk; release to send |
+| Press once | Replay the last answer |
+| Press twice | Start a new conversation |
+| Press while speaking | Stop the voice |
+
+Wiring tables, flashing steps and troubleshooting: [firmware/README.md](firmware/README.md).
+Screens can be previewed on a PC without hardware: `cd firmware/preview && make`.
+
+---
+
+## Device API
+
+Every request carries `Authorization: Bearer <EDUPAD_DEVICE_TOKEN>` and device status headers
+(RSSI, uptime, free heap, firmware version) that feed the monitoring page.
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /v1/ask` | Recorded question (raw PCM, WAV, or `{"text": ...}` for testing) → `speech`, `screen`, `audio_url`, timing |
+| `GET /v1/audio/{id}`, `/v1/audio/latest` | The spoken answer as ADPCM or PCM; replay without new TTS |
+| `GET /v1/updates` | Notification cards: next class, attendance open, deadlines, early warnings, reviews due |
+| `GET /v1/intro`, `/v1/intro/audio` | Spoken introduction when the device starts |
+| `GET /v1/speech/{key}` | A notification read aloud in Voice Mode |
+| `GET /v1/voice/clip/{name}`, `/v1/voice/reply/{name}` | Status messages cached on the device; replies to voice commands |
+| `GET /v1/health` | Connectivity check, no token |
+
+Responses always include `status` and `screen`, even on errors, so the firmware has one display
+path. Full contract: [deploy/DEVICE_API.md](deploy/DEVICE_API.md).
+
+---
+
+## Web dashboard
+
+<table>
+  <tr>
+    <td colspan="2"><img src="docs/assets/dashboard/office.jpg" alt="AI Office with seven owl agents" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/assets/dashboard/tutor.jpg" alt="Study Tutor page" width="100%"><br><sub>Study Tutor: mastery by topic and SORA support</sub></td>
+    <td width="50%"><img src="docs/assets/dashboard/finance.jpg" alt="Finance page" width="100%"><br><sub>Finance: voice-recorded spending against budgets</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/assets/dashboard/attendance.jpg" alt="Attendance page" width="100%"><br><sub>Attendance: open windows and attendance rate per course</sub></td>
+    <td width="50%"><img src="docs/assets/dashboard/monitoring.jpg" alt="Monitoring page" width="100%"><br><sub>Monitoring: devices, agent activity and latency</sub></td>
+  </tr>
+</table>
+
+<sub>Screens shown with the dashboard's demo data.</sub>
+
+The dashboard (React, TypeScript, Vite, Recharts) opens on the **AI Office**, a Phaser 2D office
+where seven owl agents move according to what the AI agent is actually doing, including when the
+device is asked a question.
+
+<table>
+  <tr>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/nova-idle.png" width="64" alt="NOVA"><br><b>NOVA</b><br><sub>Coordinates the other agents</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/pixel-idle.png" width="64" alt="PIXEL"><br><b>PIXEL</b><br><sub>Prepares course materials</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/sora-idle.png" width="64" alt="SORA"><br><b>SORA</b><br><sub>Tutor: lessons and quizzes</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/tempo-idle.png" width="64" alt="TEMPO"><br><b>TEMPO</b><br><sub>Plans the study schedule</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/metric-idle.png" width="64" alt="METRIC"><br><b>METRIC</b><br><sub>Tracks learning progress</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/koin-idle.png" width="64" alt="KOIN"><br><b>KOIN</b><br><sub>Manages student finances</sub></td>
+    <td align="center"><img src="apps/ai-office/public/assets/agents/owls/avatar/nexus-idle.png" width="64" alt="NEXUS"><br><b>NEXUS</b><br><sub>Keeps knowledge data in order</sub></td>
+  </tr>
+</table>
+
+| Page | What it shows |
+|---|---|
+| Home, AI Office | Today at a glance; the live owl office |
+| Assignments, Attendance, Schedule | Deadlines and submission status, open attendance windows, weekly classes |
+| Study Tutor, Study history | SORA lessons with before/after scores, mastery per topic, misconceptions, learning curve |
+| Equity Radar | Gaps in access to materials, attendance against the exam requirement, Voice Mode accessibility |
+| Conversations | Past questions and answers with their sources |
+| Finance | Transactions (voice ones are labelled), budgets and reports |
+| Monitoring, Settings | Device status and agent latency; Voice Mode, speed and language |
+
+The web front ends are in [`apps/`](apps). Each has a pixel-art version (live in production) and a
+neo-brutalist version that reuses the same pages and copy with a different visual layer:
+
+| App | Path | Dev port |
+|---|---|---|
+| Landing page and Google sign-in | [`apps/web`](apps/web) · [`apps/web-neo`](apps/web-neo) | 5173 · 5180 |
+| Dashboard | [`apps/dashboard`](apps/dashboard) · [`apps/dashboard-neo`](apps/dashboard-neo) | 5174 · 5184 |
+| AI Office game (Phaser), used by the dashboard | [`apps/ai-office`](apps/ai-office) | standalone preview |
+
+Every dashboard request needs the owner's Google session from the landing page; only addresses in
+`EDUPAD_OWNER_EMAILS` can open the data.
+
+---
+
+## Evaluation
+
+EduPad was tested on 21 real questions from our own courses (23 answers including follow-ups), with
+the production configuration (`evals/results/v4c-perangkat.json`, 1 October 2026):
+
+| Metric | Result |
+|---|---|
+| Answers that cited the correct meeting | **100%** |
+| Accuracy, scored by an LLM judge against the material | **4.96 / 5** |
+| Completeness | 4.74 / 5 |
+| Questions about material that is not uploaded, answered "not in your materials" | **2 of 2** |
+| Average agent response time | 6.6 s |
+| AI cost per answer | $0.0017 |
+| Answers with a wrong detail | 1 of 23 (a date in a follow-up history question) |
+
+Compared with the first agent, device mode cut the cost per answer by 47% and response time by 22%
+with the same accuracy. Test cases are in [`evals/agent_cases.json`](evals/agent_cases.json); each
+answer is checked for its source, keywords and tool use, and judged against the original material.
 
 ```bash
-python -m edupad serve                       # backend + login Google di :8000
-cd web && npm install && npm run dev         # halaman di http://localhost:5173
+python -m edupad eval --label my-run
 ```
 
-Pengaturan Google Cloud Console, domain HTTPS, dan deploy: [deploy/SERVER.md](deploy/SERVER.md).
+---
 
-## Pengujian
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Device | ESP32-S3 N16R8, Arduino framework, LovyanGFX, I2S audio, IMA ADPCM |
+| Server | Python 3.10+, `http.server` (device API), FastAPI + Uvicorn (Office API), Playwright |
+| Documents | pymupdf4llm, RapidOCR (ONNX Runtime), anydoc, BeautifulSoup |
+| AI | DeepSeek `deepseek-flash`, Groq `whisper-large-v3-turbo`, ElevenLabs `eleven_multilingual_v2`, Cloudflare Workers AI `bge-m3` and `bge-reranker-base` |
+| Database | Supabase (Postgres, pgvector, full-text search) |
+| Web | React, TypeScript, Vite, Tailwind CSS, Recharts, Phaser 3 |
+| Infrastructure | Ubuntu VPS, systemd, cron, Caddy, Cloudflare |
+| Quality | pytest, Ruff |
+
+---
+
+## Project structure
+
+```
+edupad/
+├── src/edupad/              Python package (python -m edupad)
+│   ├── collectors/          Moodle materials and assignments, SATU schedule and attendance, Google Classroom
+│   ├── processing/          convert → corpus → summaries → embeddings → index
+│   ├── agent/               agent loop, tools, memory, tutor (SORA), coach, finance, Equity Radar, eval
+│   ├── voice/               speech-to-text, text-to-speech, ADPCM, Voice Mode, language, status clips
+│   ├── office/              Office API for the dashboard: auth, panel data, owl events, worker
+│   ├── google/              Google OAuth (PKCE) and stored accounts
+│   ├── core/                sessions, Moodle and Supabase clients, HTTP pool, files, locks, notifications
+│   ├── jobs/                keepalive and the scheduled pipeline
+│   ├── server.py            device API (port 8000)
+│   ├── webapp.py            landing page, Google sign-in, web API
+│   └── cli.py               command-line entry point
+├── apps/                    web front ends (React)
+│   ├── web/  web-neo/       landing page, two themes
+│   ├── dashboard/  dashboard-neo/   dashboard, two themes
+│   └── ai-office/           Phaser AI Office used by the dashboard
+├── firmware/                ESP32-S3 sketch, PC screen preview, art and tools
+├── supabase/migrations/     SQL migrations
+├── tests/                   pytest suite (no network, all external services faked)
+├── evals/                   agent test set, results, TTS voice comparisons
+├── deploy/                  Caddyfile, systemd units, crontab, server guide, device API
+└── docs/                    RAG, database and agent guides; README assets
+```
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- Python 3.10+ and Node.js 18+
+- Accounts: Supabase, DeepSeek, Groq, ElevenLabs, Cloudflare (Workers AI); Google Cloud OAuth
+  client for Classroom sign-in
+- A student account on the campus portals (the collectors are built for Universitas Sumatera
+  Utara's Moodle and SATU portal; Google Classroom works for any campus)
+- For the device: the parts listed in [Hardware](#hardware-and-firmware) and the Arduino IDE
+
+### 1. Install
 
 ```bash
-python -m pytest                       # unit test, tanpa jaringan & tanpa memakai kuota API
-python -m ruff check src tests         # lint
-python -m ruff format src tests        # format (lebar baris 100, lihat pyproject.toml)
-cd web && npm run build                # cek tipe TypeScript + build halaman web
+git clone https://github.com/shatahaq/edupad.git
+cd edupad
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev,office]"
+playwright install chromium
+cp .env.example .env
 ```
 
-Test memakai tiruan untuk semua layanan luar (DeepSeek, Groq, ElevenLabs, Supabase, Google);
-tiruan bersama ada di `tests/fakes.py`. Jalankan perintah di atas sebelum commit.
+### 2. Configure `.env`
 
-## Deploy
+| Variable | Used for |
+|---|---|
+| `API_KEY_AI` | DeepSeek, the agent and meeting summaries |
+| `SUPABASE_SECRET_KEY` | Supabase secret key (`sb_secret_...`) |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` | Embeddings and reranker on Workers AI |
+| `API_KEY_GROQ` | Speech-to-text |
+| `API_KEY_ElevenLabs`, `Voice_ID_ElevenLabs` | Voice; add `...2`, `...3` for backup accounts used when a quota runs out |
+| `EDUPAD_DEVICE_TOKEN` | Shared secret between the server and the firmware |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `EDUPAD_PUBLIC_URL` | Google sign-in and Classroom |
+| `EDUPAD_OWNER_EMAILS` | Google accounts allowed to open the dashboard |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional alerts (expired session, attendance open) |
 
-Lihat [deploy/SERVER.md](deploy/SERVER.md); kontrak API perangkat ESP32 di
-[deploy/DEVICE_API.md](deploy/DEVICE_API.md).
+Every variable, with defaults and optional limits, is described in [`.env.example`](.env.example).
+
+### 3. Set up the database
+
+Run the files in [`supabase/migrations/`](supabase/migrations) in the Supabase SQL editor. The core
+RAG and memory tables are described in [docs/database.md](docs/database.md).
+
+### 4. Collect and index course data
+
+```bash
+python -m edupad login          # sign in to Moodle once in a browser; only the session cookie is saved
+python -m edupad schedule --login
+python -m edupad pipeline       # scrape → assignments → convert → corpus → summarize → index
+python -m edupad ask "What does Visual Programming meeting 5 cover?"
+```
+
+### 5. Run the server and the dashboard
+
+```bash
+python -m edupad serve          # device API + landing page, http://localhost:8000
+python -m edupad office-api     # dashboard API, http://localhost:8001
+cd apps/web && npm ci && npm run dev                        # http://localhost:5173
+cd apps/ai-office && npm ci && cd ../dashboard && npm ci && npm run dev   # http://localhost:5174/dashboard/
+```
+
+To browse the dashboard without a server, run it with demo data:
+`VITE_DATA_SOURCE=mock npm run dev` in `apps/dashboard`.
+
+### 6. Flash the device
+
+Copy `firmware/edupad/secrets.example.h` to `secrets.h`, set the Wi-Fi, server host and device
+token, then upload `firmware/edupad/edupad.ino` from the Arduino IDE. If it cannot join the Wi-Fi, the device
+opens an `EduPad-Setup` hotspot to choose another network. Step-by-step instructions: [firmware/README.md](firmware/README.md).
+
+---
+
+## CLI reference
+
+All commands run as `python -m edupad <command>` (or `edupad <command>` after installation). Exit
+codes: `0` success, `1` error, `2` session expired and manual login needed.
+
+| Command | Description |
+|---|---|
+| `login` | Sign in to Moodle (`kelas.usu.ac.id`) in a browser and save the session |
+| `scrape [--course ID ...] [--list] [--headless]` | Download course materials |
+| `assignments [--course ID ...]` | Assignments and quizzes with deadlines and submission status |
+| `schedule [--login]` | Class schedule, attendance and enrolment from the SATU portal |
+| `attendance [--fill] [--dry-run]` | Check open attendance windows; `--fill` checks in |
+| `classroom [--email EMAIL]` | Google Classroom classes, coursework, materials and announcements |
+| `convert [--force]` | Convert materials to Markdown |
+| `corpus` | Clean and chunk the materials for the agent |
+| `summarize [--force]` | Per-meeting summaries |
+| `index [--force]` | Embed chunks and sync them to Supabase |
+| `pipeline` | `scrape → assignments → convert → corpus → summarize → index` |
+| `ask "..." [--audio file.wav] [--detail] [--trace] [--new] [--speak]` | Ask the agent from the terminal |
+| `chat [--detail] [--trace] [--new] [--speak]` | Continuous conversation |
+| `transcribe file.wav` | Speech-to-text only |
+| `tutor-coach` | SORA: find topics that need help and prepare lessons |
+| `intro` | Create the device's spoken introduction |
+| `serve [--host 0.0.0.0] [--port 8000]` | Device API and landing page |
+| `office-api` | Dashboard API (port 8001) |
+| `office-worker` | Background worker for AI Office tasks |
+| `memory [--clear]` | Show or clear the agent's memory |
+| `eval --label X [--repeat N]` | Measure tokens, cost and quality on the test set |
+| `keepalive` | Keep the Moodle and SATU sessions alive |
+
+---
+
+## Testing
+
+```bash
+python -m pytest                      # 278 tests, no network, no API quota used
+python -m ruff check src tests        # lint
+python -m ruff format src tests       # format (line length 100)
+cd apps/dashboard && npm run build    # type-check and build a web app
+```
+
+The tests replace every external service (DeepSeek, Groq, ElevenLabs, Supabase, Google, Moodle) with
+fakes from [`tests/fakes.py`](tests/fakes.py).
+
+---
+
+## Deployment
+
+| Component | How it runs |
+|---|---|
+| Device API + landing page | `deploy/edupad-server.service` (systemd), port 8000 |
+| Dashboard + Office API | `deploy/edupad-office.service` (systemd), port 8001 |
+| HTTPS | Cloudflare proxy with an origin certificate, Caddy as reverse proxy ([`deploy/Caddyfile`](deploy/Caddyfile)) |
+| Web apps | Built on a laptop, `dist/` copied to the server (no Node.js on the server) |
+
+Scheduled jobs ([`deploy/crontab`](deploy/crontab), times in WIB):
+
+| Schedule | Job |
+|---|---|
+| Every 10 min | `keepalive`: keep campus sessions alive |
+| Every 15 min | `assignments`: submission status for deadline reminders |
+| Every 2 min, 07:00–19:00 | `attendance --fill`: detect open attendance and check in |
+| Every 2 h | `pipeline` (materials and index) and `classroom` |
+| 05:30 daily | `schedule`: class schedule and attendance history |
+| 15:30 daily | `tutor-coach`: SORA prepares help for the afternoon |
+
+Server setup, Google OAuth, domain and HTTPS: [deploy/SERVER.md](deploy/SERVER.md).
+
+---
+
+## Privacy and security
+
+- **Read-only on Moodle.** EduPad never submits, uploads or changes anything on Moodle. The only
+  write to a campus service is the attendance check-in on SATU, by schedule or when the student asks.
+- **No passwords stored.** Only session cookies are kept, in `user_data/` (never committed). Google
+  refresh tokens are stored with `0600` permissions.
+- **Local document processing.** Conversion and OCR run on the server. Only chunk text goes to
+  Cloudflare (embeddings, reranking) and DeepSeek (summaries, answers); recordings go to Groq and
+  answer text to ElevenLabs. Silent recordings are filtered out before any upload.
+- **Per-user data.** Every table is scoped by `user_id`; each Google account gets its own space.
+- **Device authentication.** Every device request needs the bearer token; the dashboard needs the
+  owner's Google session.
+- **Polite to campus servers.** A 2.5-second delay between requests and incremental downloads.
+- **Course content stays out of git.** Lecture materials belong to their lecturers and student data
+  is personal, so `data/` is generated on the server and never committed.
